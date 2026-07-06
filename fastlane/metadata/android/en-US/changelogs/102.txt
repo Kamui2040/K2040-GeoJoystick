@@ -1,0 +1,2 @@
+- Suppress Google Play-only expired target SDK lint check for F-Droid release builds.
+- No app behavior changes.

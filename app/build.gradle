@@ -14,8 +14,8 @@ android {
         applicationId 'com.k2040.geojoystick'
         minSdk 27
         targetSdk 32
-        versionCode 101
-        versionName '0.1.1'
+        versionCode 102
+        versionName '0.1.2'
     }
 
     buildTypes {
@@ -28,6 +28,10 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        disable 'ExpiredTargetSdkVersion'
     }
 
     packaging {
