@@ -1,0 +1,4 @@
+- Initial public F-Droid release candidate.
+- Floating mock-location joystick for emulator and developer testing.
+- Includes manual coordinates, map picker, map-link import, favorites, theme/language settings, overlay opacity, high contrast, and Ko-fi support link.
+- Map picker no longer loads external JavaScript from a CDN.

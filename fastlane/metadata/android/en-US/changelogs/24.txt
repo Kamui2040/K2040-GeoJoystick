@@ -1,0 +1,2 @@
+- Packed approved PNG overlay button assets for walk, run, bike, hold, play/pause, custom speed, and stop.
+- Kept v0.1.21 app layout and license-dialog behavior.

@@ -1,0 +1,1 @@
+Adds app settings for appearance, language, overlay opacity, high contrast, restore-last-position, custom speed, and five compact favorite-location slots. Updates overlay speed and hold controls with outline/fill-style icons.

@@ -1,0 +1,1 @@
+Feedback polish: centered header with tappable transparent K2040 avatar, bottom description, About Ko-fi link, stronger coordinate persistence including map/favorite/manual edits, restore-last-position fixes, and cleaner custom overlay icons.

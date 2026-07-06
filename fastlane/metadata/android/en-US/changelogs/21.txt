@@ -1,0 +1,1 @@
+Fixes the license dialog theme/readability and refreshes the overlay control icons with cleaner custom line/silhouette-style drawing for walk, run, bike, and hold/lock states.

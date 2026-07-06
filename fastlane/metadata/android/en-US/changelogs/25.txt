@@ -1,0 +1,4 @@
+- Kept approved overlay assets.
+- Made control-row icons draw in a centered 1:1 square ratio.
+- Narrowed the bottom control buttons and increased spacing between them.
+- Added drag-to-reposition support to the compact/expanded overlay toggle.

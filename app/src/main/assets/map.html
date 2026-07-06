@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>Choose location</title>
+    <style>
+        html, body, #map {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            touch-action: none;
+            background: #dbe4ea;
+            font-family: sans-serif;
+        }
+        #map {
+            position: relative;
+        }
+        .tile {
+            position: absolute;
+            width: 256px;
+            height: 256px;
+            image-rendering: auto;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+        #marker {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            margin-left: -14px;
+            margin-top: -28px;
+            z-index: 800;
+            pointer-events: none;
+        }
+        #marker::before {
+            content: "";
+            position: absolute;
+            left: 6px;
+            top: 0;
+            width: 16px;
+            height: 16px;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            background: #1976d2;
+            border: 3px solid white;
+            box-shadow: 0 1px 4px rgba(0,0,0,.5);
+        }
+        #marker::after {
+            content: "";
+            position: absolute;
+            left: 12px;
+            top: 6px;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: white;
+        }
+        #message {
+            position: absolute;
+            z-index: 1000;
+            left: 12px;
+            right: 12px;
+            top: 12px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: rgba(38,50,56,.88);
+            color: white;
+            font-size: 14px;
+            pointer-events: none;
+        }
+        #zoom {
+            position: absolute;
+            z-index: 1000;
+            right: 12px;
+            bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        #zoom button {
+            width: 42px;
+            height: 42px;
+            border: 0;
+            border-radius: 8px;
+            background: rgba(38,50,56,.92);
+            color: white;
+            font-size: 24px;
+        }
+        #attribution {
+            position: absolute;
+            z-index: 1000;
+            right: 8px;
+            bottom: 0;
+            padding: 2px 5px;
+            background: rgba(255,255,255,.82);
+            color: #263238;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+<div id="map">
+    <div id="message">Tap the map to place the marker. Drag to pan.</div>
+    <div id="marker"></div>
+    <div id="zoom">
+        <button type="button" id="zoomIn" aria-label="Zoom in">+</button>
+        <button type="button" id="zoomOut" aria-label="Zoom out">−</button>
+    </div>
+    <div id="attribution">© OpenStreetMap contributors</div>
+</div>
+<script>
+(function () {
+    "use strict";
+
+    const tileSize = 256;
+    const minZoom = 2;
+    const maxZoom = 19;
+    const params = new URLSearchParams(location.search);
+    let markerLat = Number(params.get("lat") || 52.520008);
+    let markerLng = Number(params.get("lng") || 13.404954);
+    let zoom = 15;
+
+    const map = document.getElementById("map");
+    const marker = document.getElementById("marker");
+    const tileNodes = new Map();
+
+    let width = 0;
+    let height = 0;
+    let center = latLngToWorld(markerLat, markerLng, zoom);
+    let dragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let dragCenterX = 0;
+    let dragCenterY = 0;
+    let moved = false;
+
+    function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    function scaleFor(z) {
+        return tileSize * Math.pow(2, z);
+    }
+
+    function latLngToWorld(lat, lng, z) {
+        lat = clamp(lat, -85.05112878, 85.05112878);
+        const scale = scaleFor(z);
+        const sinLat = Math.sin(lat * Math.PI / 180);
+        return {
+            x: (lng + 180) / 360 * scale,
+            y: (0.5 - Math.log((1 + sinLat) / (1 - sinLat)) / (4 * Math.PI)) * scale
+        };
+    }
+
+    function worldToLatLng(x, y, z) {
+        const scale = scaleFor(z);
+        const lng = x / scale * 360 - 180;
+        const n = Math.PI - 2 * Math.PI * y / scale;
+        const lat = 180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
+        return {lat: lat, lng: lng};
+    }
+
+    function resize() {
+        width = map.clientWidth || window.innerWidth;
+        height = map.clientHeight || window.innerHeight;
+        render();
+    }
+
+    function setMarker(lat, lng, shouldSend) {
+        markerLat = clamp(Number(lat), -85.05112878, 85.05112878);
+        markerLng = Number(lng);
+        while (markerLng < -180) markerLng += 360;
+        while (markerLng > 180) markerLng -= 360;
+        updateMarkerPosition();
+        if (shouldSend && window.AndroidBridge && AndroidBridge.onLocationSelected) {
+            AndroidBridge.onLocationSelected(markerLat, markerLng);
+        }
+    }
+
+    function updateMarkerPosition() {
+        const point = latLngToWorld(markerLat, markerLng, zoom);
+        marker.style.left = Math.round(point.x - center.x + width / 2) + "px";
+        marker.style.top = Math.round(point.y - center.y + height / 2) + "px";
+    }
+
+    function render() {
+        if (!width || !height) {
+            return;
+        }
+        center.x = clamp(center.x, 0, scaleFor(zoom));
+        center.y = clamp(center.y, 0, scaleFor(zoom));
+        const left = center.x - width / 2;
+        const top = center.y - height / 2;
+        const startX = Math.floor(left / tileSize);
+        const endX = Math.floor((left + width) / tileSize);
+        const startY = Math.floor(top / tileSize);
+        const endY = Math.floor((top + height) / tileSize);
+        const tileCount = Math.pow(2, zoom);
+        const needed = new Set();
+
+        for (let x = startX; x <= endX; x++) {
+            for (let y = startY; y <= endY; y++) {
+                if (y < 0 || y >= tileCount) {
+                    continue;
+                }
+                const wrappedX = ((x % tileCount) + tileCount) % tileCount;
+                const key = zoom + "/" + x + "/" + y;
+                needed.add(key);
+                let img = tileNodes.get(key);
+                if (!img) {
+                    img = document.createElement("img");
+                    img.className = "tile";
+                    img.alt = "";
+                    img.decoding = "async";
+                    img.referrerPolicy = "no-referrer";
+                    img.src = "https://tile.openstreetmap.org/" + zoom + "/" + wrappedX + "/" + y + ".png";
+                    map.insertBefore(img, marker);
+                    tileNodes.set(key, img);
+                }
+                img.style.left = Math.round(x * tileSize - left) + "px";
+                img.style.top = Math.round(y * tileSize - top) + "px";
+            }
+        }
+
+        for (const [key, node] of tileNodes) {
+            if (!needed.has(key)) {
+                node.remove();
+                tileNodes.delete(key);
+            }
+        }
+        updateMarkerPosition();
+    }
+
+    function screenToLatLng(screenX, screenY) {
+        return worldToLatLng(
+            center.x + screenX - width / 2,
+            center.y + screenY - height / 2,
+            zoom
+        );
+    }
+
+    function zoomBy(delta) {
+        const old = zoom;
+        zoom = clamp(zoom + delta, minZoom, maxZoom);
+        if (zoom === old) {
+            return;
+        }
+        center = latLngToWorld(markerLat, markerLng, zoom);
+        tileNodes.forEach(node => node.remove());
+        tileNodes.clear();
+        render();
+    }
+
+    map.addEventListener("pointerdown", function (event) {
+        dragging = true;
+        moved = false;
+        dragStartX = event.clientX;
+        dragStartY = event.clientY;
+        dragCenterX = center.x;
+        dragCenterY = center.y;
+        map.setPointerCapture(event.pointerId);
+    });
+
+    map.addEventListener("pointermove", function (event) {
+        if (!dragging) {
+            return;
+        }
+        const dx = event.clientX - dragStartX;
+        const dy = event.clientY - dragStartY;
+        if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+            moved = true;
+        }
+        center.x = dragCenterX - dx;
+        center.y = dragCenterY - dy;
+        render();
+    });
+
+    map.addEventListener("pointerup", function (event) {
+        if (!dragging) {
+            return;
+        }
+        dragging = false;
+        if (!moved) {
+            const rect = map.getBoundingClientRect();
+            const value = screenToLatLng(event.clientX - rect.left, event.clientY - rect.top);
+            setMarker(value.lat, value.lng, true);
+        }
+    });
+
+    document.getElementById("zoomIn").addEventListener("click", function (event) {
+        event.stopPropagation();
+        zoomBy(1);
+    });
+    document.getElementById("zoomOut").addEventListener("click", function (event) {
+        event.stopPropagation();
+        zoomBy(-1);
+    });
+
+    window.addEventListener("resize", resize);
+
+    window.GeoMap = {
+        setLocation: function (newLat, newLng, newZoom) {
+            if (Number.isFinite(Number(newZoom))) {
+                zoom = clamp(Math.round(Number(newZoom)), minZoom, maxZoom);
+            }
+            setMarker(Number(newLat), Number(newLng), true);
+            center = latLngToWorld(markerLat, markerLng, zoom);
+            tileNodes.forEach(node => node.remove());
+            tileNodes.clear();
+            render();
+        }
+    };
+
+    resize();
+})();
+</script>
+</body>
+</html>

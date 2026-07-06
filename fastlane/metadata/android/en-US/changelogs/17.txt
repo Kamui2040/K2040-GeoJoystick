@@ -1,0 +1,7 @@
+Public-release cleanup based on v0.1.16.
+
+- Neutral emulator/developer-testing wording
+- About / Support section with K2040 avatar and Ko-fi link
+- Upstream Fastlane/F-Droid metadata scaffold
+- Generic map-app wording
+- No overlay or movement logic changes

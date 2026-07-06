@@ -1,0 +1,1 @@
+Feedback pass: shorter main page, dedicated Settings/About pages, first-launch license acceptance, coordinate persistence fixes, compact overlay opacity handling, and revised overlay controls including an X stop button.

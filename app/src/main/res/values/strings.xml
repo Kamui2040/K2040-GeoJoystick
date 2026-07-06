@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GeoJoystick</string>
+    <string name="notification_channel_name">Mock location service</string>
+</resources>

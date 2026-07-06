@@ -1,0 +1,2 @@
+- Reduced visual flash when changing theme or language by refreshing the current page in place instead of recreating the activity.
+- Preserved settings-page context after applying theme or language changes.

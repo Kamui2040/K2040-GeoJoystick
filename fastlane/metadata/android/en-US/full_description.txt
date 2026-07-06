@@ -1,0 +1,24 @@
+GeoJoystick is an open-source Android mock-location joystick for emulator and developer testing.
+
+It uses Android's standard mock-location provider flow and provides a small floating overlay for moving a mock location without repeatedly switching back to the main app.
+
+Features:
+
+- Manual latitude, longitude, and altitude entry
+- OpenStreetMap-based location picker
+- Coordinate import from copied/shared map links
+- Floating joystick overlay
+- Expanded and compact overlay modes
+- Walk, run, bike-style, and user-defined custom speed presets
+- Outline/fill-style overlay icons for speed and hold controls
+- Hold, pause, hide, and stop controls
+- Saved overlay mode and speed preset between starts
+- App appearance and language settings
+- Overlay opacity and high-contrast settings
+- Optional restore of the last active position
+- Five compact named favorite-location slots
+- Persistent foreground notification
+
+GeoJoystick does not include ads, analytics, accounts, subscriptions, billing, or an updater. It does not attempt to hide or bypass Android's mock-location status.
+
+Created by K2040. Optional support: https://ko-fi.com/k2040
