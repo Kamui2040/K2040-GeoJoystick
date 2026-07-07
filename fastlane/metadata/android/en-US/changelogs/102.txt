@@ -1,2 +1,3 @@
-- Suppress Google Play-only expired target SDK lint check for F-Droid release builds.
-- No app behavior changes.
+Initial F-Droid release candidate.
+
+No app behavior changes from v0.1.0. This release adds release/build metadata needed for F-Droid submission.
