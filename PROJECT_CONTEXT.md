@@ -6,11 +6,15 @@ GeoJoystick is an open-source Android mock-location joystick intended for emulat
 
 ## Current milestone
 
-Version 0.1.0 F-Droid release candidate
+Version 0.1.2 public / F-Droid baseline
 
+- Public release: v0.1.2
+- Version code: 102
+- F-Droid submission MR !42238 has been merged into fdroid/fdroiddata master
+- F-Droid metadata uses app commit `154292316bf10b02cb3c2cf89476fa3c103a64dd`
 - Standard Android Developer Options mock-location provider
 - Foreground service publishing GPS and network test-provider locations
-- Movable half-size overlay joystick with expanded and compact modes
+- Movable overlay joystick with expanded and compact modes
 - Walk, run, bike-style, and user-defined custom speed presets
 - Hold, pause, hide, stop, saved overlay mode, saved speed, overlay opacity, high contrast, and reset overlay position
 - App settings for System/Light/Dark appearance and System/English/German language
@@ -28,23 +32,25 @@ The project reuses and simplifies the architecture and movement approach of `ZCS
 
 Public descriptions should present GeoJoystick as a mock-location utility for emulator and developer testing. Do not market it as game tooling, cheating software, anti-detection tooling, or a bypass utility.
 
-## F-Droid / FLOSS preparation
+## F-Droid / FLOSS status
 
-The app is GPL-3.0-only, has no ads, no analytics, no accounts, and uses direct Android framework code. Upstream Fastlane-style metadata has been added under `fastlane/metadata/android/en-US/`.
+The app is GPL-3.0-only, has no ads, no analytics, no accounts, and uses direct Android framework code. Upstream Fastlane-style metadata exists under `fastlane/metadata/android/en-US/`.
 
-Before submitting to F-Droid, capture clean screenshots from a neutral Android/emulator setup and review `FDROID_NOTES.md`, especially the map picker's web assets and network-service metadata considerations.
+The F-Droid submission has been merged. The final F-Droid metadata includes `AntiFeatures: TetheredNet` because the map picker uses OpenStreetMap services.
 
 ## Validation status
 
-- Overlay v0.1.15 visuals were tested successfully in BlueStacks
-- v0.1.16 persistence changes were prepared as the prior baseline
-- Java syntax was checked by parsing with `javac`; Android framework symbols are unavailable in this environment
-- Full Gradle/APK build requires a local Android SDK installation
+- F-Droid MR build/test/rewritemeta pipeline passed after the TetheredNet metadata update
+- Reproducible-build issue was fixed by signing the F-Droid CI-built unsigned APK with the release key using v2 signing and preserved alignment
+- Physical-phone smoke test confirmed the release installs and basic dialogs open
+- Known issue: dark theme is not applied correctly to dialogs on a physical device
 
 ## Current build
 
-- Version: 0.1.25-overlay-drag-spacing-preview
-- Change: fixes the license dialog to match the selected app theme and refreshes the overlay control icons with cleaner custom line/silhouette-style drawing for walk, run, bike, and hold/lock states.
+- Version: 0.1.2
+- Version code: 102
+- Baseline: public / F-Droid release line
+- Current fix candidate: make dialogs follow the selected dark theme
 
 ## Canonical public repository
 
