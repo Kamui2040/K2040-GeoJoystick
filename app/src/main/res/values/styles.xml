@@ -7,4 +7,13 @@
         <item name="android:statusBarColor">#263238</item>
         <item name="android:colorAccent">#455A64</item>
     </style>
+    <style name="AppDialogThemeLight" parent="android:style/Theme.Material.Light.Dialog.Alert">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#455A64</item>
+    </style>
+
+    <style name="AppDialogThemeDark" parent="android:style/Theme.Material.Dialog.Alert">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#CFD8DC</item>
+    </style>
 </resources>

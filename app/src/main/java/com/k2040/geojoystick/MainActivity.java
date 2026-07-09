@@ -477,11 +477,15 @@ public final class MainActivity extends Activity {
         return card;
     }
 
+    private AlertDialog.Builder appDialogBuilder() {
+        return new AlertDialog.Builder(this, darkMode ? R.style.AppDialogThemeDark : R.style.AppDialogThemeLight);
+    }
+
     private void showFirstLaunchDialogIfNeeded() {
         if (preferences.getBoolean(PREF_LICENSE_ACCEPTED, false) || isFinishing()) {
             return;
         }
-        AlertDialog dialog = new AlertDialog.Builder(this)
+        AlertDialog dialog = appDialogBuilder()
                 .setTitle(t("About GeoJoystick", "Über GeoJoystick"))
                 .setView(aboutCardView(true))
                 .setPositiveButton(t("Accept", "Akzeptieren"), null)
@@ -532,7 +536,7 @@ public final class MainActivity extends Activity {
         Button closeButton = fullButton(t("Close", "Schließen"));
         dialogRoot.addView(closeButton, matchWidth());
 
-        AlertDialog dialog = new AlertDialog.Builder(this)
+        AlertDialog dialog = appDialogBuilder()
                 .setView(dialogRoot)
                 .create();
         closeButton.setOnClickListener(view -> dialog.dismiss());
@@ -578,7 +582,7 @@ public final class MainActivity extends Activity {
         String[] values = new String[]{APPEARANCE_SYSTEM, APPEARANCE_LIGHT, APPEARANCE_DARK};
         String current = preferences.getString(PREF_APPEARANCE, APPEARANCE_SYSTEM);
         int checked = indexOf(values, current);
-        new AlertDialog.Builder(this)
+        appDialogBuilder()
                 .setTitle(t("Appearance", "Darstellung"))
                 .setSingleChoiceItems(labels, checked, (dialog, which) -> {
                     preferences.edit().putString(PREF_APPEARANCE, values[which]).apply();
@@ -594,7 +598,7 @@ public final class MainActivity extends Activity {
         String[] values = new String[]{LANGUAGE_SYSTEM, LANGUAGE_ENGLISH, LANGUAGE_GERMAN};
         String current = preferences.getString(PREF_LANGUAGE, LANGUAGE_SYSTEM);
         int checked = indexOf(values, current);
-        new AlertDialog.Builder(this)
+        appDialogBuilder()
                 .setTitle(t("Language", "Sprache"))
                 .setSingleChoiceItems(labels, checked, (dialog, which) -> {
                     preferences.edit().putString(PREF_LANGUAGE, values[which]).apply();
@@ -718,7 +722,7 @@ public final class MainActivity extends Activity {
         form.addView(speedInput, matchWidth());
         form.addView(note, matchWidth());
 
-        AlertDialog dialog = new AlertDialog.Builder(this)
+        AlertDialog dialog = appDialogBuilder()
                 .setTitle(t("Custom speed", "Eigene Geschwindigkeit"))
                 .setView(form)
                 .setPositiveButton(t("Save", "Speichern"), null)
@@ -759,7 +763,7 @@ public final class MainActivity extends Activity {
         for (int i = 0; i < FAVORITE_COUNT; i++) {
             slots[i] = favoriteDisplayName(i);
         }
-        new AlertDialog.Builder(this)
+        appDialogBuilder()
                 .setTitle(t("Choose favorite slot", "Favoritenplatz wählen"))
                 .setItems(slots, (dialog, which) -> editFavorite(which, false))
                 .setNegativeButton(t("Cancel", "Abbrechen"), null)
@@ -805,7 +809,7 @@ public final class MainActivity extends Activity {
         form.addView(lngInput, matchWidth());
         form.addView(altInput, matchWidth());
 
-        AlertDialog dialog = new AlertDialog.Builder(this)
+        AlertDialog dialog = appDialogBuilder()
                 .setTitle(t("Favorite ", "Favorit ") + (slot + 1))
                 .setView(form)
                 .setPositiveButton(t("Save", "Speichern"), null)
@@ -1020,7 +1024,7 @@ public final class MainActivity extends Activity {
             return;
         }
         if (!isSelectedMockLocationApp()) {
-            new AlertDialog.Builder(this)
+            appDialogBuilder()
                     .setTitle(t("Select GeoJoystick", "GeoJoystick auswählen"))
                     .setMessage(t(
                             "In Developer options, choose GeoJoystick under Select mock location app, then return here.",
