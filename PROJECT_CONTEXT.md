@@ -6,12 +6,13 @@ GeoJoystick is an open-source Android mock-location joystick intended for emulat
 
 ## Current milestone
 
-Version 0.1.2 public / F-Droid baseline
+Version 0.1.3 release candidate
 
-- Public release: v0.1.2
-- Version code: 102
+- Current public release: v0.1.2
+- Release candidate: v0.1.3
+- Version code: 103
 - F-Droid submission MR !42238 has been merged into fdroid/fdroiddata master
-- F-Droid metadata uses app commit `154292316bf10b02cb3c2cf89476fa3c103a64dd`
+- F-Droid currently publishes v0.1.2 from app commit `154292316bf10b02cb3c2cf89476fa3c103a64dd`
 - Standard Android Developer Options mock-location provider
 - Foreground service publishing GPS and network test-provider locations
 - Movable overlay joystick with expanded and compact modes
@@ -36,21 +37,22 @@ Public descriptions should present GeoJoystick as a mock-location utility for em
 
 The app is GPL-3.0-only, has no ads, no analytics, no accounts, and uses direct Android framework code. Upstream Fastlane-style metadata exists under `fastlane/metadata/android/en-US/`.
 
-The F-Droid submission has been merged. The final F-Droid metadata includes `AntiFeatures: TetheredNet` because the map picker uses OpenStreetMap services.
+The F-Droid submission has been merged and the first store listing is live. The final F-Droid metadata includes `AntiFeatures: TetheredNet` because the map picker uses OpenStreetMap services.
 
 ## Validation status
 
 - F-Droid MR build/test/rewritemeta pipeline passed after the TetheredNet metadata update
 - Reproducible-build issue was fixed by signing the F-Droid CI-built unsigned APK with the release key using v2 signing and preserved alignment
-- Physical-phone smoke test confirmed the release installs and basic dialogs open
-- Known issue: dark theme is not applied correctly to dialogs on a physical device
+- Physical-phone smoke test confirmed the public release installs and standard mock location works
+- Dark-dialog fix was validated on a physical phone and merged into `main`
+- Dedicated GeoJoystick store icon prepared for v0.1.3
 
 ## Current build
 
-- Version: 0.1.2
-- Version code: 102
+- Version: 0.1.3
+- Version code: 103
 - Baseline: public / F-Droid release line
-- Current fix candidate: make dialogs follow the selected dark theme
+- Release changes: dark-theme dialog fix and dedicated store-listing icon
 
 ## Canonical public repository
 
