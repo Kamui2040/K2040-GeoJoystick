@@ -1,0 +1,2 @@
+- Fixed dialogs not following the selected dark theme.
+- Added a dedicated GeoJoystick store icon.
