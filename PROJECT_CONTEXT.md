@@ -6,13 +6,12 @@ GeoJoystick is an open-source Android mock-location joystick intended for emulat
 
 ## Current milestone
 
-Version 0.1.3 release candidate
+Version 0.1.3 public release
 
-- Current public release: v0.1.2
-- Release candidate: v0.1.3
+- Public release: v0.1.3
 - Version code: 103
 - F-Droid submission MR !42238 has been merged into fdroid/fdroiddata master
-- F-Droid currently publishes v0.1.2 from app commit `154292316bf10b02cb3c2cf89476fa3c103a64dd`
+- F-Droid currently publishes v0.1.2 until the v0.1.3 metadata/build update is processed
 - Standard Android Developer Options mock-location provider
 - Foreground service publishing GPS and network test-provider locations
 - Movable overlay joystick with expanded and compact modes
@@ -44,8 +43,9 @@ The F-Droid submission has been merged and the first store listing is live. The 
 - F-Droid MR build/test/rewritemeta pipeline passed after the TetheredNet metadata update
 - Reproducible-build issue was fixed by signing the F-Droid CI-built unsigned APK with the release key using v2 signing and preserved alignment
 - Physical-phone smoke test confirmed the public release installs and standard mock location works
-- Dark-dialog fix was validated on a physical phone and merged into `main`
-- Dedicated GeoJoystick store icon prepared for v0.1.3
+- Dark-dialog fix was validated on a physical phone
+- GitHub Actions successfully built both debug and unsigned release APKs for v0.1.3
+- Dedicated GeoJoystick store icon included for v0.1.3
 
 ## Current build
 
