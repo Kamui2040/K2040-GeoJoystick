@@ -23,6 +23,13 @@ It uses Android's standard mock-location provider flow, shows a small floating j
 - Persistent foreground notification
 - No ads, subscriptions, accounts, analytics, billing, or updater
 
+## Downloads
+
+- GitHub Releases: https://github.com/Kamui2040/K2040-GeoJoystick/releases
+- APKPure: https://apkpure.com/p/com.k2040.geojoystick
+
+GitHub Releases remains the canonical source for release notes and published release assets. The APKPure page is an official store listing for the same app package, `com.k2040.geojoystick`.
+
 ## Build on Windows
 
 The project intentionally uses a small Python bootstrap instead of committing a Gradle wrapper binary.
@@ -71,5 +78,7 @@ GPL-3.0-only. See `LICENSE` and `NOTICE.md`.
 ## Links
 
 Source repository: https://github.com/Kamui2040/K2040-GeoJoystick
+
+APKPure: https://apkpure.com/p/com.k2040.geojoystick
 
 Support development: https://ko-fi.com/k2040
