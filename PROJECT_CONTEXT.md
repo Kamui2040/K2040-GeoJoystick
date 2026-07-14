@@ -12,6 +12,7 @@ Version 0.1.3 public release
 - Version code: 103
 - F-Droid submission MR !42238 has been merged into fdroid/fdroiddata master
 - F-Droid currently publishes v0.1.2 until the v0.1.3 metadata/build update is processed
+- Official APKPure listing is live: https://apkpure.com/p/com.k2040.geojoystick
 - Standard Android Developer Options mock-location provider
 - Foreground service publishing GPS and network test-provider locations
 - Movable overlay joystick with expanded and compact modes
@@ -37,6 +38,10 @@ Public descriptions should present GeoJoystick as a mock-location utility for em
 The app is GPL-3.0-only, has no ads, no analytics, no accounts, and uses direct Android framework code. Upstream Fastlane-style metadata exists under `fastlane/metadata/android/en-US/`.
 
 The F-Droid submission has been merged and the first store listing is live. The final F-Droid metadata includes `AntiFeatures: TetheredNet` because the map picker uses OpenStreetMap services.
+
+## Other distribution
+
+The official APKPure listing is live at https://apkpure.com/p/com.k2040.geojoystick. GitHub Releases remains the canonical source for release notes and published release assets. No APKPure installation smoke test is recorded in this repository yet.
 
 ## Validation status
 
