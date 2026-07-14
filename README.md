@@ -74,11 +74,8 @@ The Ko-fi link is optional and the app has no paid features, subscriptions, ads,
 
 GPL-3.0-only. See `LICENSE` and `NOTICE.md`.
 
-
 ## Links
 
 Source repository: https://github.com/Kamui2040/K2040-GeoJoystick
-
-APKPure: https://apkpure.com/p/com.k2040.geojoystick
 
 Support development: https://ko-fi.com/k2040
