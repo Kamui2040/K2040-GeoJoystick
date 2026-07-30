@@ -1,64 +1,85 @@
 # Project Context
 
-## Purpose
+Last verified: 2026-07-30
 
-GeoJoystick is an open-source Android mock-location joystick intended for emulator and developer testing. It provides a floating joystick, speed presets, manual coordinates, an internal map picker, map-link coordinate import, and a persistent foreground service.
+## Identity
 
-## Current milestone
+- Product: **GeoJoystick**
+- Public canonical repository: `Kamui2040/K2040-GeoJoystick`
+- Package: `com.k2040.geojoystick`
+- Default branch: `main`
+- Licence: GPL-3.0-only
+- MAIN_PC checkout: `D:\Projects\Android\K2040-GeoJoystick\repo`
+- Private Drive workspace: `Projects/Android/K2040-GeoJoystick`
 
-Version 0.1.3 public release
+This document owns mutable project state. Durable product, safety, privacy and workflow rules belong in `AGENTS.md`; public privacy disclosure belongs in `PRIVACY.md`; F-Droid procedure belongs in `FDROID_NOTES.md`.
 
-- Public release: v0.1.3
-- Version code: 103
-- F-Droid submission MR !42238 has been merged into fdroid/fdroiddata master
-- F-Droid currently publishes v0.1.2 until the v0.1.3 metadata/build update is processed
-- Official APKPure listing is live: https://apkpure.com/p/com.k2040.geojoystick
-- Standard Android Developer Options mock-location provider
-- Foreground service publishing GPS and network test-provider locations
-- Movable overlay joystick with expanded and compact modes
-- Walk, run, bike-style, and user-defined custom speed presets
-- Hold, pause, hide, stop, saved overlay mode, saved speed, overlay opacity, high contrast, and reset overlay position
-- App settings for System/Light/Dark appearance and System/English/German language
-- Optional restore-last-position behavior and five named favorite-location slots
-- OpenStreetMap tile-based picker with no API key and no external JavaScript dependency
-- Coordinate extraction from full or shortened map links
-- In-app About / Support section with K2040 avatar and Ko-fi link
-- No ads, billing, accounts, analytics, subscriptions, or updater
+## Current release and distribution
 
-## Upstream relationship
+- Current public version: **0.1.3** (`versionCode 103`)
+- GitHub release line: `v0.1.3`
+- F-Droid publishes 0.1.3/103 and retains 0.1.2/102
+- F-Droid anti-feature disclosure: `TetheredNet`, due to user-initiated OpenStreetMap tile access
+- APKPure listing is live for the same package
+- GitHub Releases remains canonical for release notes and developer-published reference assets
+- F-Droid is the official FLOSS source-built distribution
 
-The project reuses and simplifies the architecture and movement approach of `ZCShou/GoGoGo`, baseline commit `de0d596190c57b8ca71481f60ce6b9e50af5107f`, under GPL-3.0-only. The Baidu SDK, embedded signing configuration, updater, logging stack, history database, and legacy permissions are intentionally not carried over.
+Published F-Droid 0.1.3 evidence is tied to source commit `e19b1ee13216b2de4f4cd890f00b2adabddd802f`, the accepted v2-only signer process and copied-signature/allowed-signer verification. It does not automatically validate later commits.
 
-## Release positioning
+## Product baseline
 
-Public descriptions should present GeoJoystick as a mock-location utility for emulator and developer testing. Do not market it as game tooling, cheating software, anti-detection tooling, or a bypass utility.
+GeoJoystick is a transparent Android mock-location joystick for emulator and developer testing. The public release includes:
 
-## F-Droid / FLOSS status
+- standard Developer Options mock-app selection;
+- GPS/network test-provider publication through a foreground service;
+- manual coordinates and altitude;
+- OpenStreetMap picker and map-link coordinate extraction;
+- movable compact/expanded overlay;
+- walk, run, bike-style and custom speed presets;
+- hold, pause, hide and stop;
+- favorites and optional last-position restoration;
+- overlay opacity, contrast and position reset;
+- System/Light/Dark appearance;
+- System/English/German language;
+- no ads, billing, accounts, analytics, tracking, subscriptions or updater.
 
-The app is GPL-3.0-only, has no ads, no analytics, no accounts, and uses direct Android framework code. Upstream Fastlane-style metadata exists under `fastlane/metadata/android/en-US/`.
+## Current technical evidence
 
-The F-Droid submission has been merged and the first store listing is live. The final F-Droid metadata includes `AntiFeatures: TetheredNet` because the map picker uses OpenStreetMap services.
+Verify live values before changes. The last audited release line used Java 17, compile SDK 35, target SDK 32, minimum SDK 27 and Gradle 8.13. `app/build.gradle`, the manifest and repository build tooling remain authoritative.
 
-## Other distribution
+The app uses direct Java/Android framework code, bundled map HTML/JavaScript, OpenStreetMap tiles and no declared app dependency or identified native binary. `NOTICE.md` records the GPL derivative relationship to `ZCShou/GoGoGo` baseline `de0d596190c57b8ca71481f60ce6b9e50af5107f`.
 
-The official APKPure listing is live at https://apkpure.com/p/com.k2040.geojoystick. GitHub Releases remains the canonical source for release notes and published release assets. No APKPure installation smoke test is recorded in this repository yet.
+## Verified evidence and limits
 
-## Validation status
+Recorded evidence includes F-Droid build/metadata/reproducibility checks, public-release installation and standard mock-location smoke testing, physical-device validation of the dark-dialog fix and historical GitHub Actions builds for v0.1.3.
 
-- F-Droid MR build/test/rewritemeta pipeline passed after the TetheredNet metadata update
-- Reproducible-build issue was fixed by signing the F-Droid CI-built unsigned APK with the release key using v2 signing and preserved alignment
-- Physical-phone smoke test confirmed the public release installs and standard mock location works
-- Dark-dialog fix was validated on a physical phone
-- GitHub Actions successfully built both debug and unsigned release APKs for v0.1.3
-- Dedicated GeoJoystick store icon included for v0.1.3
+Historical Actions results are evidence only. GitHub Actions is no longer authorized for the PC workflow and the tracked workflow is removed by the current governance-alignment branch.
 
-## Current build
+Broader lifecycle gaps remain for provider-ready/publish acknowledgement, app-op loss, Developer Options changes, reboot/process death and exact UI/service reconciliation. Link resolution and the WebView bridge also require future hostile-input hardening. These are implementation tasks, not claims of current failure in every path.
 
-- Version: 0.1.3
-- Version code: 103
-- Baseline: public / F-Droid release line
-- Release changes: dark-theme dialog fix and dedicated store-listing icon
+## Current maintenance state
 
-## Canonical public repository
+Branch `docs/autonomy-governance-alignment` aligns repository governance with the installed Project Instructions. Its intended scope is limited to:
 
-https://github.com/Kamui2040/K2040-GeoJoystick
+- self-contained autonomous repository rules;
+- current F-Droid/release documentation;
+- public README links/disclosures;
+- removal of `.github/workflows/android-build.yml`;
+- no source, manifest, dependency, build-tool, signing, package, device or release change.
+
+Remaining gates:
+
+- MAIN_PC review of the branch and `git diff --check`;
+- optional local Markdown/link checks;
+- user approval before merge to `main`;
+- implementation of a repository-owned unsigned-release/lint mode remains separate and requires local build validation;
+- lifecycle, hostile-input, permission/target-SDK and reproducibility maintenance remain separate tasks;
+- signing, installation, store submission, public tag/release and final signoff remain manual.
+
+## Public links
+
+- Source: `https://github.com/Kamui2040/K2040-GeoJoystick`
+- Releases: `https://github.com/Kamui2040/K2040-GeoJoystick/releases`
+- F-Droid: `https://f-droid.org/packages/com.k2040.geojoystick/`
+- APKPure: `https://apkpure.com/p/com.k2040.geojoystick`
+- Privacy: `PRIVACY.md`
