@@ -59,7 +59,11 @@ Broader lifecycle gaps remain for provider-ready/publish acknowledgement, app-op
 
 ## Current maintenance state
 
-Branch `docs/autonomy-governance-alignment` aligns repository governance with the installed Project Instructions. Its intended scope is limited to:
+- Branch: `docs/autonomy-governance-alignment`
+- Draft pull request: `#4` — **Align governance with autonomous maintenance**
+- Base: `main`
+
+The pull request scope is limited to:
 
 - self-contained autonomous repository rules;
 - current F-Droid/release documentation;
