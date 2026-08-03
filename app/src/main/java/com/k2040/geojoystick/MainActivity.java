@@ -13,7 +13,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,6 +22,7 @@ import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowInsets;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -57,7 +57,8 @@ public final class MainActivity extends Activity {
     private static final String PREF_OVERLAY_HIGH_CONTRAST = "overlay_high_contrast";
     private static final String PREF_CUSTOM_SPEED = "overlay_custom_speed";
     private static final String PREF_CUSTOM_SPEED_NAME = "overlay_custom_speed_name";
-    private static final String PREF_LICENSE_ACCEPTED = "license_accepted";
+    private static final String PREF_WELCOME_ACKNOWLEDGED = "welcome_acknowledged";
+    private static final String PREF_LEGACY_LICENSE_ACCEPTED = "license_accepted";
     private static final String APPEARANCE_SYSTEM = "system";
     private static final String APPEARANCE_LIGHT = "light";
     private static final String APPEARANCE_DARK = "dark";
@@ -92,16 +93,23 @@ public final class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         preferences = getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         loadUiSettings();
+        if (!isWelcomeAcknowledged()) {
+            showWelcomePage();
+            return;
+        }
+
         buildInterface();
         handleIncomingIntent(getIntent());
-        if (!preferences.getBoolean(PREF_LICENSE_ACCEPTED, false)) {
-            statusText.post(this::showFirstLaunchDialogIfNeeded);
-        } else if (savedInstanceState != null) {
+        if (savedInstanceState != null) {
             String restoredPage = savedInstanceState.getString(STATE_CURRENT_PAGE, "main");
             if ("settings".equals(restoredPage)) {
                 showSettingsPage();
             } else if ("about".equals(restoredPage)) {
                 showAboutPage();
+            } else if ("changelog".equals(restoredPage)) {
+                showChangelogPage();
+            } else if ("license-about".equals(restoredPage)) {
+                showLicensePage("about");
             }
         }
     }
@@ -137,6 +145,15 @@ public final class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
+        if ("license-welcome".equals(currentPage)) {
+            showWelcomePage();
+            return;
+        }
+        if ("license-about".equals(currentPage)
+                || "changelog".equals(currentPage)) {
+            showAboutPage();
+            return;
+        }
         if (!"main".equals(currentPage)) {
             buildInterface();
             return;
@@ -293,12 +310,18 @@ public final class MainActivity extends Activity {
         supportButton.setOnClickListener(view -> openExternalUrl("https://ko-fi.com/k2040"));
         root.addView(supportButton, matchWidth());
 
+        TextView supportDisclosure = sectionText(supportDisclosureText(), 12, colorTextDim);
+        supportDisclosure.setGravity(Gravity.CENTER);
+        supportDisclosure.setPadding(dp(8), dp(4), dp(8), 0);
+        root.addView(supportDisclosure, matchWidth());
+
         TextView bottomDescription = sectionText(aboutDescriptionText(), 13, colorTextDim);
         bottomDescription.setGravity(Gravity.CENTER);
         bottomDescription.setPadding(dp(4), dp(8), dp(4), 0);
         root.addView(bottomDescription, matchWidth());
 
         setContentView(scrollView);
+        applySystemBarInsets(scrollView);
         updateStatus();
     }
 
@@ -325,6 +348,7 @@ public final class MainActivity extends Activity {
         root.addView(backButton, matchWidth());
 
         setContentView(scrollView);
+        applySystemBarInsets(scrollView);
     }
 
     private void showAboutPage() {
@@ -343,19 +367,78 @@ public final class MainActivity extends Activity {
         root.addView(title);
         root.addView(aboutCardView(false), matchWidth());
 
-        Button licenseButton = fullButton(t("License", "Lizenz"));
-        licenseButton.setOnClickListener(view -> openLicenseDialog());
+        Button changelogButton = fullButton(t("What's new", "Neuigkeiten"));
+        changelogButton.setOnClickListener(view -> showChangelogPage());
+        root.addView(changelogButton, matchWidth());
+
+        Button licenseButton = fullButton(t("View GPL-3.0", "GPL-3.0 anzeigen"));
+        licenseButton.setOnClickListener(view -> showLicensePage("about"));
         root.addView(licenseButton, matchWidth());
 
         Button supportButton = fullButton(t("Support K2040 on Ko-fi", "K2040 auf Ko-fi unterstützen"));
         supportButton.setOnClickListener(view -> openExternalUrl("https://ko-fi.com/k2040"));
         root.addView(supportButton, matchWidth());
 
+        TextView supportDisclosure = sectionText(supportDisclosureText(), 12, colorTextDim);
+        supportDisclosure.setGravity(Gravity.CENTER);
+        supportDisclosure.setPadding(dp(8), dp(4), dp(8), dp(6));
+        root.addView(supportDisclosure, matchWidth());
+
         Button backButton = fullButton(t("Back", "Zurück"));
         backButton.setOnClickListener(view -> buildInterface());
         root.addView(backButton, matchWidth());
 
         setContentView(scrollView);
+        applySystemBarInsets(scrollView);
+    }
+
+    private void showChangelogPage() {
+        saveVisibleCoordinateFields();
+        currentPage = "changelog";
+
+        ScrollView scrollView = new ScrollView(this);
+        scrollView.setBackgroundColor(colorBackground);
+
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(dp(18), dp(18), dp(18), dp(24));
+        root.setBackgroundColor(colorBackground);
+        scrollView.addView(root);
+
+        TextView title = sectionText(t("What's new", "Neuigkeiten"), 28, colorText);
+        title.setPadding(0, 0, 0, dp(10));
+        root.addView(title);
+
+        TextView changes = sectionText(changelogText(), 14, colorText);
+        changes.setTextIsSelectable(true);
+        changes.setPadding(dp(12), dp(12), dp(12), dp(12));
+        changes.setBackground(cardBackground());
+        root.addView(changes, matchWidth());
+
+        Button backButton = fullButton(t("Back", "Zurück"));
+        backButton.setOnClickListener(view -> showAboutPage());
+        root.addView(backButton, matchWidth());
+
+        setContentView(scrollView);
+        applySystemBarInsets(scrollView);
+    }
+
+    private String changelogText() {
+        return t(
+                "Version 0.1.3\n"
+                        + "• Dialogs now follow the selected dark theme.\n"
+                        + "• GeoJoystick now uses a dedicated icon in store listings.\n\n"
+                        + "Version 0.1.0\n"
+                        + "• Initial public release with coordinate and altitude entry, "
+                        + "map selection and link import, favorites, appearance and "
+                        + "language settings, and floating joystick controls.",
+                "Version 0.1.3\n"
+                        + "• Dialoge folgen nun dem ausgewählten dunklen Design.\n"
+                        + "• GeoJoystick verwendet nun ein eigenes Symbol in Store-Einträgen.\n\n"
+                        + "Version 0.1.0\n"
+                        + "• Erste öffentliche Version mit Koordinaten- und Höheneingabe, "
+                        + "Kartenauswahl und Linkimport, Favoriten, Darstellungs- und "
+                        + "Spracheinstellungen sowie schwebender Joystick-Steuerung.");
     }
 
     private void addSetupSection(LinearLayout root) {
@@ -468,9 +551,7 @@ public final class MainActivity extends Activity {
         card.addView(aboutRow);
 
         if (firstLaunch) {
-            TextView licenseNote = sectionText(t(
-                    "Please review and accept the GPL-3.0-only license to continue.",
-                    "Bitte prüfe und akzeptiere die GPL-3.0-only-Lizenz, um fortzufahren."), 12, colorTextDim);
+            TextView licenseNote = sectionText(welcomeDisclaimerText(), 12, colorTextDim);
             licenseNote.setPadding(0, dp(10), 0, 0);
             card.addView(licenseNote);
         }
@@ -481,72 +562,195 @@ public final class MainActivity extends Activity {
         return new AlertDialog.Builder(this, darkMode ? R.style.AppDialogThemeDark : R.style.AppDialogThemeLight);
     }
 
-    private void showFirstLaunchDialogIfNeeded() {
-        if (preferences.getBoolean(PREF_LICENSE_ACCEPTED, false) || isFinishing()) {
-            return;
-        }
-        AlertDialog dialog = appDialogBuilder()
-                .setTitle(t("About GeoJoystick", "Über GeoJoystick"))
-                .setView(aboutCardView(true))
-                .setPositiveButton(t("Accept", "Akzeptieren"), null)
-                .setNegativeButton(t("Refuse", "Ablehnen"), null)
-                .setNeutralButton(t("License", "Lizenz"), null)
-                .create();
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.setOnCancelListener(cancel -> finish());
-        dialog.setOnShowListener(window -> {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
-                preferences.edit().putBoolean(PREF_LICENSE_ACCEPTED, true).apply();
-                dialog.dismiss();
-            });
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(view -> {
-                dialog.dismiss();
-                finish();
-            });
-            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(view -> openLicenseDialog());
-        });
-        dialog.show();
+    private boolean isWelcomeAcknowledged() {
+        return preferences.getBoolean(PREF_WELCOME_ACKNOWLEDGED, false)
+                || preferences.getBoolean(PREF_LEGACY_LICENSE_ACCEPTED, false);
     }
 
-    private void openLicenseDialog() {
-        LinearLayout dialogRoot = new LinearLayout(this);
-        dialogRoot.setOrientation(LinearLayout.VERTICAL);
-        dialogRoot.setPadding(dp(14), dp(12), dp(14), dp(10));
-        dialogRoot.setBackgroundColor(colorCard);
+    private void showWelcomePage() {
+        currentPage = "welcome";
 
-        TextView title = sectionText("GPL-3.0-only", 20, colorText);
-        title.setPadding(dp(2), 0, dp(2), dp(8));
-        dialogRoot.addView(title, matchWidth());
+        ScrollView scrollView = new ScrollView(this);
+        scrollView.setFillViewport(true);
+        scrollView.setBackgroundColor(colorBackground);
 
-        TextView licenseText = sectionText(readAssetText("LICENSE"), 11, colorText);
-        licenseText.setTextIsSelectable(true);
-        licenseText.setPadding(dp(10), dp(8), dp(10), dp(8));
-        licenseText.setBackgroundColor(colorInput);
-
-        ScrollView scroller = new ScrollView(this);
-        scroller.setBackground(cardBackground());
-        scroller.addView(licenseText);
-        int maxHeight = Math.min(dp(560), Math.round(getResources().getDisplayMetrics().heightPixels * 0.70f));
-        LinearLayout.LayoutParams scrollerParams = new LinearLayout.LayoutParams(
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setGravity(Gravity.CENTER_HORIZONTAL);
+        root.setPadding(dp(20), dp(24), dp(20), dp(24));
+        root.setBackgroundColor(colorBackground);
+        scrollView.addView(root, new ScrollView.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                maxHeight);
-        scrollerParams.setMargins(0, 0, 0, dp(8));
-        dialogRoot.addView(scroller, scrollerParams);
+                ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        Button closeButton = fullButton(t("Close", "Schließen"));
-        dialogRoot.addView(closeButton, matchWidth());
+        TextView title = sectionText(t(
+                "Welcome to GeoJoystick",
+                "Willkommen bei GeoJoystick"), 28, colorText);
+        title.setGravity(Gravity.CENTER);
+        title.setPadding(0, 0, 0, dp(14));
+        root.addView(title, matchWidth());
 
-        AlertDialog dialog = appDialogBuilder()
-                .setView(dialogRoot)
-                .create();
-        closeButton.setOnClickListener(view -> dialog.dismiss());
-        dialog.setOnShowListener(window -> {
-            if (dialog.getWindow() != null) {
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(colorCard));
+        ImageView avatar = new ImageView(this);
+        avatar.setImageResource(R.drawable.k2040_avatar);
+        avatar.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        avatar.setContentDescription(t("K2040 avatar", "K2040-Avatar"));
+        LinearLayout.LayoutParams avatarParams = new LinearLayout.LayoutParams(dp(128), dp(128));
+        avatarParams.gravity = Gravity.CENTER_HORIZONTAL;
+        avatarParams.bottomMargin = dp(14);
+        root.addView(avatar, avatarParams);
+
+        TextView disclaimer = sectionText(welcomeDisclaimerText(), 15, colorText);
+        disclaimer.setGravity(Gravity.CENTER);
+        disclaimer.setPadding(dp(12), dp(12), dp(12), dp(12));
+        disclaimer.setBackground(cardBackground());
+        root.addView(disclaimer, matchWidth());
+
+        Button licenseButton = fullButton(t("View GPL-3.0", "GPL-3.0 anzeigen"));
+        licenseButton.setOnClickListener(view -> showLicensePage("welcome"));
+        root.addView(licenseButton, matchWidth());
+
+        Button supportButton = fullButton(t(
+                "Support K2040 on Ko-fi",
+                "K2040 auf Ko-fi unterstützen"));
+        supportButton.setOnClickListener(view -> openExternalUrl("https://ko-fi.com/k2040"));
+        root.addView(supportButton, matchWidth());
+
+        TextView supportDisclosure = sectionText(supportDisclosureText(), 12, colorTextDim);
+        supportDisclosure.setGravity(Gravity.CENTER);
+        supportDisclosure.setPadding(dp(8), dp(4), dp(8), dp(10));
+        root.addView(supportDisclosure, matchWidth());
+
+        TextView acknowledgementNote = sectionText(t(
+                "By continuing, you confirm that you have acknowledged this notice. This is not acceptance of the GPL.",
+                "Mit „Weiter“ bestätigen Sie, dass Sie diesen Hinweis zur Kenntnis genommen haben. Dies ist keine Zustimmung zur GPL."),
+                12,
+                colorTextDim);
+        acknowledgementNote.setGravity(Gravity.CENTER);
+        acknowledgementNote.setPadding(dp(8), dp(8), dp(8), dp(4));
+        root.addView(acknowledgementNote, matchWidth());
+
+        Button continueButton = fullButton(t(
+                "Acknowledged — Continue",
+                "Zur Kenntnis genommen – Weiter"));
+        continueButton.setOnClickListener(view -> {
+            preferences.edit().putBoolean(PREF_WELCOME_ACKNOWLEDGED, true).apply();
+            buildInterface();
+            handleIncomingIntent(getIntent());
+        });
+        root.addView(continueButton, matchWidth());
+
+        setContentView(scrollView);
+        applySystemBarInsets(scrollView);
+    }
+
+    private void showLicensePage(String returnPage) {
+        boolean returnToWelcome = "welcome".equals(returnPage)
+                && !isWelcomeAcknowledged();
+        currentPage = returnToWelcome ? "license-welcome" : "license-about";
+
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(dp(16), dp(18), dp(16), dp(18));
+        root.setBackgroundColor(colorBackground);
+
+        TextView title = sectionText("GPL-3.0-only", 24, colorText);
+        title.setGravity(Gravity.CENTER);
+        title.setPadding(0, 0, 0, dp(8));
+        root.addView(title, matchWidth());
+
+        TextView languageNote = sectionText(t(
+                "The bundled English GPL text is the authoritative license text.",
+                "Der enthaltene englische GPL-Text ist der maßgebliche Lizenztext."),
+                12,
+                colorTextDim);
+        languageNote.setGravity(Gravity.CENTER);
+        languageNote.setPadding(dp(8), 0, dp(8), dp(8));
+        root.addView(languageNote, matchWidth());
+
+        Button backButton = fullButton(t("Back", "Zurück"));
+        backButton.setOnClickListener(view -> {
+            if (returnToWelcome) {
+                showWelcomePage();
+            } else {
+                showAboutPage();
             }
         });
-        dialog.show();
+        root.addView(backButton, matchWidth());
+
+        TextView licenseText = sectionText(
+                reflowLicenseText(readAssetText("LICENSE")),
+                11,
+                colorText);
+        licenseText.setTextIsSelectable(true);
+        licenseText.setPadding(dp(12), dp(10), dp(12), dp(10));
+        licenseText.setBackground(cardBackground());
+
+        ScrollView scroller = new ScrollView(this);
+        scroller.setFillViewport(true);
+        scroller.addView(licenseText);
+        LinearLayout.LayoutParams scrollerParams =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        0,
+                        1f);
+        scrollerParams.topMargin = dp(8);
+        root.addView(scroller, scrollerParams);
+
+        setContentView(root);
+        applySystemBarInsets(root);
     }
+
+    private String reflowLicenseText(String text) {
+        if (text == null || text.isEmpty()) {
+            return "";
+        }
+
+        String normalized = text
+                .replace("\r\n", "\n")
+                .replace('\r', '\n');
+        String[] paragraphs = normalized.split("\\n[ \\t]*\\n");
+        StringBuilder output = new StringBuilder();
+
+        for (String paragraph : paragraphs) {
+            String[] lines = paragraph.split("\\n");
+            StringBuilder joined = new StringBuilder();
+
+            for (String line : lines) {
+                String trimmed = line.trim();
+                if (trimmed.isEmpty()) {
+                    continue;
+                }
+                if (joined.length() > 0) {
+                    joined.append(' ');
+                }
+                joined.append(trimmed);
+            }
+
+            if (joined.length() == 0) {
+                continue;
+            }
+            if (output.length() > 0) {
+                output.append("\n\n");
+            }
+            output.append(joined);
+        }
+
+        return output.toString();
+    }
+
+
+    private String welcomeDisclaimerText() {
+        return t(
+                "GeoJoystick is free software licensed under the GNU General Public License version 3. No warranty is provided.",
+                "GeoJoystick ist freie Software unter der GNU General Public License Version 3. Es besteht keine Gewährleistung.");
+    }
+
+    private String supportDisclosureText() {
+        return t(
+                "Donations are entirely optional. They do not unlock features or provide any additional benefits.",
+                "Spenden sind vollständig freiwillig. Sie schalten keine Funktionen frei und bieten keinerlei zusätzliche Vorteile.");
+    }
+
 
     private String readAssetText(String name) {
         StringBuilder builder = new StringBuilder();
@@ -686,7 +890,10 @@ public final class MainActivity extends Activity {
     }
 
     private void updateOpacityLabel(TextView label, int opacity) {
-        label.setText(t("Overlay opacity: ", "Overlay-Deckkraft: ") + opacity + "%");
+        label.setText(String.format(
+                Locale.US,
+                t("Overlay opacity: %d%%", "Overlay-Deckkraft: %d%%"),
+                opacity));
     }
 
     private int getOverlayOpacity() {
@@ -1274,6 +1481,27 @@ public final class MainActivity extends Activity {
                 .putLong(PREF_LONGITUDE, Double.doubleToRawLongBits(longitude))
                 .putLong(PREF_ALTITUDE, Double.doubleToRawLongBits(altitude))
                 .apply();
+    }
+
+    private void applySystemBarInsets(View view) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            return;
+        }
+        int baseLeft = view.getPaddingLeft();
+        int baseTop = view.getPaddingTop();
+        int baseRight = view.getPaddingRight();
+        int baseBottom = view.getPaddingBottom();
+        view.setOnApplyWindowInsetsListener((target, insets) -> {
+            android.graphics.Insets safe = insets.getInsets(
+                    WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
+            target.setPadding(
+                    baseLeft + safe.left,
+                    baseTop + safe.top,
+                    baseRight + safe.right,
+                    baseBottom + safe.bottom);
+            return insets;
+        });
+        view.requestApplyInsets();
     }
 
     private String t(String english, String germanText) {

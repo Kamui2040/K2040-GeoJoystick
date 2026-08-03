@@ -327,11 +327,9 @@ public final class MockLocationService extends Service {
             location.setSpeed((float) (Math.hypot(eastFactor, northFactor) * speedMetersPerSecond));
             location.setTime(System.currentTimeMillis());
             location.setElapsedRealtimeNanos(SystemClock.elapsedRealtimeNanos());
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                location.setVerticalAccuracyMeters(5.0f);
-                location.setSpeedAccuracyMetersPerSecond(0.5f);
-                location.setBearingAccuracyDegrees(3.0f);
-            }
+            location.setVerticalAccuracyMeters(5.0f);
+            location.setSpeedAccuracyMetersPerSecond(0.5f);
+            location.setBearingAccuracyDegrees(3.0f);
             Bundle extras = new Bundle();
             extras.putInt("satellites", 12);
             location.setExtras(extras);

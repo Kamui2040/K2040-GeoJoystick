@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src https://tile.openstreetmap.org data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'" />
     <title>Choose location</title>
     <style>
         html, body, #map {
@@ -119,8 +120,12 @@
     const minZoom = 2;
     const maxZoom = 19;
     const params = new URLSearchParams(location.search);
-    let markerLat = Number(params.get("lat") || 52.520008);
-    let markerLng = Number(params.get("lng") || 13.404954);
+    const initialLat = Number(params.get("lat"));
+    const initialLng = Number(params.get("lng"));
+    let markerLat = Number.isFinite(initialLat) ? clamp(initialLat, -85.05112878, 85.05112878) : 52.520008;
+    let markerLng = Number.isFinite(initialLng) ? initialLng : 13.404954;
+    while (markerLng < -180) markerLng += 360;
+    while (markerLng > 180) markerLng -= 360;
     let zoom = 15;
 
     const map = document.getElementById("map");
@@ -170,8 +175,13 @@
     }
 
     function setMarker(lat, lng, shouldSend) {
-        markerLat = clamp(Number(lat), -85.05112878, 85.05112878);
-        markerLng = Number(lng);
+        const numericLat = Number(lat);
+        const numericLng = Number(lng);
+        if (!Number.isFinite(numericLat) || !Number.isFinite(numericLng)) {
+            return;
+        }
+        markerLat = clamp(numericLat, -85.05112878, 85.05112878);
+        markerLng = numericLng;
         while (markerLng < -180) markerLng += 360;
         while (markerLng > 180) markerLng -= 360;
         updateMarkerPosition();

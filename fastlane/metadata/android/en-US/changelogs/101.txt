@@ -1,2 +1,1 @@
-- Add Gradle wrapper metadata for F-Droid build detection.
-- No app behavior changes.
+No user-facing changes.

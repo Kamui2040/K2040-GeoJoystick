@@ -59,12 +59,12 @@ final class JoystickOverlay {
     private final WindowManager.LayoutParams params;
     private final LinearLayout root;
     private final LinearLayout titleRow;
-    private final TextView dragHandle;
+    private final DragTextView dragHandle;
     private final JoystickView joystickView;
     private final LinearLayout speedRow;
     private final LinearLayout controlRow;
     private final TextView coordinateText;
-    private final Button toggleModeButton;
+    private final DragButton toggleModeButton;
     private final IconButton walkButton;
     private final IconButton runButton;
     private final IconButton bikeButton;
@@ -121,8 +121,8 @@ final class JoystickOverlay {
         titleRow = new LinearLayout(context);
         titleRow.setGravity(Gravity.CENTER_VERTICAL);
 
-        dragHandle = new TextView(context);
-        dragHandle.setText("GeoJoystick");
+        dragHandle = new DragTextView(context);
+        dragHandle.setText(R.string.app_name);
         dragHandle.setTextColor(colorText);
         dragHandle.setTextSize(7);
         dragHandle.setPadding(dp(2), dp(1), dp(4), dp(1));
@@ -297,7 +297,7 @@ final class JoystickOverlay {
         titleParams.width = compactMode ? dp(88) : dp(118);
         titleParams.height = compactMode ? dp(14) : dp(19);
         titleRow.setLayoutParams(titleParams);
-        titleRow.setGravity(compactMode ? Gravity.RIGHT : Gravity.CENTER_VERTICAL);
+        titleRow.setGravity(compactMode ? Gravity.END : Gravity.CENTER_VERTICAL);
 
         root.setBackground(compactMode ? null : panelBackground());
         root.setPadding(
@@ -437,8 +437,8 @@ final class JoystickOverlay {
                 | (blue & 0xFF);
     }
 
-    private Button controlButton(String text, int textSize) {
-        Button button = new Button(context);
+    private DragButton controlButton(String text, int textSize) {
+        DragButton button = new DragButton(context);
         button.setText(text);
         button.setTextColor(colorTextDim);
         button.setTextSize(textSize);
@@ -547,6 +547,30 @@ final class JoystickOverlay {
 
     private int dp(int value) {
         return Math.round(value * context.getResources().getDisplayMetrics().density);
+    }
+
+    private static final class DragTextView extends TextView {
+        DragTextView(Context context) {
+            super(context);
+        }
+
+        @Override
+        public boolean performClick() {
+            super.performClick();
+            return true;
+        }
+    }
+
+    private static final class DragButton extends Button {
+        DragButton(Context context) {
+            super(context);
+        }
+
+        @Override
+        public boolean performClick() {
+            super.performClick();
+            return true;
+        }
     }
 
     private final class DragListener implements View.OnTouchListener {

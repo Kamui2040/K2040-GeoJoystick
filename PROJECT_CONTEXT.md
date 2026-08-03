@@ -2,63 +2,61 @@
 
 ## Purpose
 
-GeoJoystick is an open-source Android mock-location joystick intended for emulator and developer testing. It provides a floating joystick, speed presets, manual coordinates, an internal map picker, map-link coordinate import, and a persistent foreground service.
+GeoJoystick is an open-source Android mock-location joystick for emulator and developer testing. It uses Android's standard Developer Options mock-location flow and a visible foreground service.
 
-## Current milestone
-
-Version 0.1.3 public release
-
-- Public release: v0.1.3
-- Version code: 103
-- F-Droid submission MR !42238 has been merged into fdroid/fdroiddata master
-- F-Droid currently publishes v0.1.2 until the v0.1.3 metadata/build update is processed
-- Official APKPure listing is live: https://apkpure.com/p/com.k2040.geojoystick
-- Standard Android Developer Options mock-location provider
-- Foreground service publishing GPS and network test-provider locations
-- Movable overlay joystick with expanded and compact modes
-- Walk, run, bike-style, and user-defined custom speed presets
-- Hold, pause, hide, stop, saved overlay mode, saved speed, overlay opacity, high contrast, and reset overlay position
-- App settings for System/Light/Dark appearance and System/English/German language
-- Optional restore-last-position behavior and five named favorite-location slots
-- OpenStreetMap tile-based picker with no API key and no external JavaScript dependency
-- Coordinate extraction from full or shortened map links
-- In-app About / Support section with K2040 avatar and Ko-fi link
-- No ads, billing, accounts, analytics, subscriptions, or updater
-
-## Upstream relationship
-
-The project reuses and simplifies the architecture and movement approach of `ZCShou/GoGoGo`, baseline commit `de0d596190c57b8ca71481f60ce6b9e50af5107f`, under GPL-3.0-only. The Baidu SDK, embedded signing configuration, updater, logging stack, history database, and legacy permissions are intentionally not carried over.
-
-## Release positioning
-
-Public descriptions should present GeoJoystick as a mock-location utility for emulator and developer testing. Do not market it as game tooling, cheating software, anti-detection tooling, or a bypass utility.
-
-## F-Droid / FLOSS status
-
-The app is GPL-3.0-only, has no ads, no analytics, no accounts, and uses direct Android framework code. Upstream Fastlane-style metadata exists under `fastlane/metadata/android/en-US/`.
-
-The F-Droid submission has been merged and the first store listing is live. The final F-Droid metadata includes `AntiFeatures: TetheredNet` because the map picker uses OpenStreetMap services.
-
-## Other distribution
-
-The official APKPure listing is live at https://apkpure.com/p/com.k2040.geojoystick. GitHub Releases remains the canonical source for release notes and published release assets. No APKPure installation smoke test is recorded in this repository yet.
-
-## Validation status
-
-- F-Droid MR build/test/rewritemeta pipeline passed after the TetheredNet metadata update
-- Reproducible-build issue was fixed by signing the F-Droid CI-built unsigned APK with the release key using v2 signing and preserved alignment
-- Physical-phone smoke test confirmed the public release installs and standard mock location works
-- Dark-dialog fix was validated on a physical phone
-- GitHub Actions successfully built both debug and unsigned release APKs for v0.1.3
-- Dedicated GeoJoystick store icon included for v0.1.3
-
-## Current build
+## Current public release
 
 - Version: 0.1.3
 - Version code: 103
-- Baseline: public / F-Droid release line
-- Release changes: dark-theme dialog fix and dedicated store-listing icon
+- Package: `com.k2040.geojoystick`
+- Licence: GPL-3.0-only
+- Source: `https://github.com/Kamui2040/K2040-GeoJoystick`
+- F-Droid: `https://f-droid.org/packages/com.k2040.geojoystick/`
+- APKPure: `https://apkpure.com/p/com.k2040.geojoystick`
 
-## Canonical public repository
+GitHub Releases is the canonical source for developer-published release assets and release notes.
 
-https://github.com/Kamui2040/K2040-GeoJoystick
+## Product baseline
+
+- Manual latitude, longitude, and altitude
+- OpenStreetMap-based map picker with bundled HTML and JavaScript
+- Coordinate import from supported copied or shared map links
+- Floating joystick with compact and expanded modes
+- Walk, run, bike-style, and custom speed presets
+- Hold, pause, hide, and stop controls
+- Named favorites and optional position restoration
+- Overlay opacity, contrast, and position settings
+- System, Light, and Dark appearance
+- System, English, and German language
+- Persistent foreground notification with a reliable stop action
+- No ads, billing, subscriptions, accounts, analytics, tracking, or updater
+
+GeoJoystick does not conceal Android mock-location status and is not presented as game, cheating, anti-detection, integrity-bypass, or ban-evasion tooling.
+
+## Current source baseline
+
+Verify exact values from the live build and manifest files before release.
+
+- Minimum SDK: 27
+- Compile SDK: 35
+- Target SDK: 35
+- Java source and target compatibility: 17
+- Gradle distribution: 8.13
+- Preferred Android Build-Tools: 35.0.0
+- `MainActivity`: exported for launcher and reviewed `text/plain` sharing
+- `MapActivity`: non-exported
+- `MockLocationService`: non-exported
+- Cleartext traffic: disabled
+- App backup: disabled
+
+The map picker retrieves OpenStreetMap tiles only when opened. Supported HTTPS map links may use the network when the user explicitly imports them. F-Droid therefore declares `TetheredNet`.
+
+## Upstream relationship
+
+The project is informed by `ZCShou/GoGoGo`, baseline commit `de0d596190c57b8ca71481f60ce6b9e50af5107f`, under GPL-3.0-only.
+
+The Baidu SDK, related native binaries, embedded signing, updater, logging stack, history database, and legacy permissions are not included.
+
+## Public documentation policy
+
+Public changelogs contain only changes that affect people using GeoJoystick. Internal workflow preferences, machine-specific setup, device-specific QA notes, long build logs, and private release evidence are maintained outside the public repository.
