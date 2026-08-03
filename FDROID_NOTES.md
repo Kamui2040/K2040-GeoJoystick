@@ -1,6 +1,6 @@
 # F-Droid maintenance notes
 
-Last verified: 2026-07-24
+Last verified: 2026-08-04
 
 ## Published package
 
