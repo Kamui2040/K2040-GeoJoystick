@@ -17,20 +17,20 @@ GeoJoystick is an open-source Android mock-location joystick for emulator and de
 
 GitHub Releases is canonical for release notes and developer-published assets. F-Droid is the official FLOSS source-built distribution. F-Droid declares `TetheredNet` for user-initiated OpenStreetMap access.
 
-## Current repository state
+## Current repository and recovery state
 
-- Remote `main`: `b0153a6c3ba1940f636d3930b99ebe1af4a68f59`
+- Remote `main`, verified 2026-08-04: `b0153a6c3ba1940f636d3930b99ebe1af4a68f59`
 - Recovery branch: `recovery/pre-reinstall-maintenance-20260804`
 - Exact recovery checkpoint: `0d8da0833240a85faaf3b18bf56871089f975642`
 - Recovered checkpoint tree: `b85093723cbbbb37a3240e7aaf9e2078d32e4f63`
-- Recovered records: 60
+- Governance reconciliation baseline: `e9d8dedba5b224c98a8f4cd4bc4c4c827c7fd4da`
+- Locally validated baseline tree: `0c00f48c928b4b5111d7b2c4114cd6db5b6455df`
 - Backup state: preserved and unchanged
-- Working tree at checkpoint: clean
 - Push/publication: not performed
 
-The checkpoint reproduces the exact validated pre-reinstall maintenance tree. It includes source, resource, manifest, parser, build-tooling, metadata, and public-documentation work. Detailed recovery evidence remains private and is not a public build dependency.
+The recovery checkpoint reproduces the exact validated pre-reinstall maintenance tree. The governance baseline adds sanitized repository rules and mutable-state documentation without replacing the recovered implementation. Detailed recovery and validation evidence remains private and is not a build, installation, or runtime dependency.
 
-Draft PR #4 (`docs/autonomy-governance-alignment`, head `8980e4ce131e5ec9fbfe2874180715b4dc4a9c7f`) remains open and unmerged. It overlaps the recovery branch in governance documentation and workflow removal, but contains machine-specific paths and superseded execution boundaries. Do not merge it into the recovery branch. Keep it open only until a validated replacement branch/PR exists, then close it without rewriting public history.
+Draft PR #4 (`docs/autonomy-governance-alignment`, head `8980e4ce131e5ec9fbfe2874180715b4dc4a9c7f`) remains open, unmerged, and superseded. Do not merge it into the recovery branch. Close it only after the validated recovery branch has been pushed and a replacement draft PR exists.
 
 ## Current source and toolchain baseline
 
@@ -38,7 +38,7 @@ Verify live files before release or publication.
 
 - Android Gradle Plugin: 8.12.3
 - Gradle: 8.13
-- Java source/target and required runtime: 17
+- Java source, target, and required runtime: 17
 - Minimum SDK: 27
 - Compile SDK: 35
 - Target SDK: 35
@@ -50,9 +50,36 @@ Verify live files before release or publication.
 - App backup: disabled
 - Android Studio: optional; command-line repository tooling is authoritative
 
-Accepted workstation baseline from 2026-08-03: PowerShell 7.6.4, Git 2.55.0, GitHub CLI 2.97.0, Python 3.12.10 x64, JDK 17.0.20, Android API 35, Build Tools 35.0.0, ADB 37.0.1, and 7-Zip 26.02.
+Accepted workstation baseline: PowerShell 7.6.4, Git 2.55.0, GitHub CLI 2.97.0, Python 3.12.10 x64, JDK 17.0.20, Android API 35, Build Tools 35.0.0, ADB 37.0.1, and 7-Zip 26.02.
 
-Repository-scoped Gradle/AGP task discovery and the recovered branch's build/test/lint behavior still require validation on the reinstalled workstation.
+## Accepted local validation
+
+The recovered branch was validated on the reinstalled MAIN_PC against commit `e9d8dedba5b224c98a8f4cd4bc4c4c827c7fd4da` and tree `0c00f48c928b4b5111d7b2c4114cd6db5b6455df`.
+
+Accepted results:
+
+- repository identity, branch, commit, tree, and clean working state: pass;
+- Gradle 8.13 distribution checksum and bootstrap: pass;
+- Gradle launcher JVM and daemon JVM bound to JDK 17.0.20: pass;
+- dependency-free `LocationLinkParser` self-test: pass;
+- `:app:clean`: pass with `UP-TO-DATE` recorded truthfully;
+- `:app:assembleDebug`: executed successfully;
+- debug APK package/version identity and signature verification: pass;
+- `:app:lintRelease`: executed successfully;
+- release lint: zero fatal issues, zero errors, and two warnings;
+- retained warning IDs: `GradleDependency` and `OldTargetApi`;
+- stale empty untracked `mipmap-anydpi-v26` directory: removed without a tracked source change;
+- `ObsoleteSdkInt`: absent from the fresh lint report;
+- `:app:lintVitalRelease`: executed successfully, not skipped or absent;
+- `:app:assembleRelease`: executed successfully;
+- unsigned release APK package/version identity, ZIP/CRC integrity, and unsigned state: pass;
+- debug and unsigned release artifacts remained unchanged during the final lint rerun;
+- `git diff --check`: pass;
+- final working tree before this documentation update: clean.
+
+The two retained lint warnings reflect the accepted API 35 baseline. Compile/target SDK migration to API 36 requires a separate permission, foreground-service, notification, overlay, app-op, compatibility, F-Droid, and device-validation review; the warnings are not treated as permanently waived.
+
+No APK was signed for release, installed, submitted to a store, published, or tested on a physical device during this recovery validation. Generated APKs and detailed logs remain local/private and are not committed.
 
 ## Product baseline
 
@@ -73,21 +100,20 @@ GeoJoystick does not conceal Android mock-location status and is not game, cheat
 
 ## Known implementation and validation gaps
 
-- Re-run repository-owned parser, debug, release-lint, and unsigned-release validation after the workstation reinstall.
 - Distinguish provider readiness, successful publish, active service, notification, overlay, and UI state throughout lifecycle reconciliation.
 - Reassess app-op loss, Developer Options changes, provider removal, reboot, and process death.
 - Continue hostile-input hardening for shared links, redirects, WebView messages, and external data.
+- Perform the API 36 compile/target SDK migration only as a separate reviewed change.
 - Reassess foreground-service, notification, overlay, exported-component, permission, and app-op behavior at each target-SDK change.
 - Keep signing, installation, device QA, F-Droid reproducibility, store publication, public merge/release, and final signoff as separate evidence gates.
 
 ## Next accepted stages
 
-1. Commit this sanitized governance reconciliation on the recovery branch.
-2. Run a separate local repository/toolchain and build validation using repository-owned entry points; do not query or depend on GitHub Actions.
-3. Reconcile any validated build findings in a focused follow-up commit.
-4. Push the non-default branch and open a replacement draft PR only after local validation is accepted.
-5. Close superseded draft PR #4 after the replacement PR exists.
-6. Keep `main` merge, tag, release, store actions, signing, installation, and final signoff separate.
+1. Push the validated non-default recovery branch only after a fresh fetch and remote-ancestry verification.
+2. Open a replacement draft pull request against `main`.
+3. Close superseded draft PR #4 only after the replacement draft exists.
+4. Keep `main` merge, tags, releases, signing, installation, store actions, and final signoff separate.
+5. Continue lifecycle, hostile-input, permission, target-SDK, and reproducibility maintenance as focused follow-up work.
 
 ## Public documentation policy
 
