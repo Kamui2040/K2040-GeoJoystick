@@ -24,16 +24,19 @@ GitHub Releases is canonical for developer-published assets and release notes. F
 - Recovery checkpoint tree: `b85093723cbbbb37a3240e7aaf9e2078d32e4f63`
 - Governance reconciliation: `e9d8dedba5b224c98a8f4cd4bc4c4c827c7fd4da`
 - Validation-record commit: `6d7bbeb0354003db3a145f6972c08293ab60fe88`
-- Published branch head and local `HEAD`: `900940a97de4a4239d1752f76be4051e37dd9f76`
-- Published head tree: `a6714d3f6a301ea9248a468da531ee17546d4eaa`
-- Draft PR #5: open, draft, unmerged, targeting `main`
+- Prior PR-state documentation commit: `900940a97de4a4239d1752f76be4051e37dd9f76`
+- Validated corrective implementation commit: `f8c8a45d798dc676d377548cd8470c19e6cce02c`
+- Validated corrective implementation tree: `f3ddad345231215497a45e02f447de26cf0e3ede`
+- Draft PR #5: open, draft, mergeable, unmerged, targeting `main`
 - Draft PR #4: closed unmerged as superseded
 
-PR #5 remains draft and not merge-ready. Its published head and description do not yet contain the accepted corrective implementation and validation record. The validated local tree must be committed and pushed intentionally, then the PR description must be reconciled before review readiness is reconsidered.
+The commit containing this document is a documentation-only state reconciliation that follows the validated corrective implementation commit. Verify the live branch and PR head before publication-sensitive work.
 
-## Current local working tree
+PR #5 contains the accepted corrective implementation, but its description still refers to the earlier unvalidated four-file patch. Keep it draft until the description is reconciled and the remaining physical-device gates are completed or explicitly deferred.
 
-Exactly thirteen intentional unstaged files are modified:
+## Published corrective scope
+
+The validated corrective implementation commit contains these thirteen reviewed paths:
 
 - `AGENTS.md`
 - `PROJECT_CONTEXT.md`
@@ -48,6 +51,8 @@ Exactly thirteen intentional unstaged files are modified:
 - `app/src/main/java/com/k2040/geojoystick/MockLocationService.java`
 - `app/src/main/res/values/strings.xml`
 - `tools/test_location_link_parser.py`
+
+The branch was clean after the corrective commit and push. This documentation-only reconciliation must also leave the branch clean after its own commit and push.
 
 The accepted implementation:
 
@@ -93,7 +98,7 @@ Verify live files and executables before use.
 
 ## Accepted local validation
 
-The accepted corrective validation was performed on 2026-08-04 against local `HEAD` `900940a97de4a4239d1752f76be4051e37dd9f76`, tree `a6714d3f6a301ea9248a468da531ee17546d4eaa`, and the thirteen-path unstaged implementation state that preceded this documentation-only reconciliation.
+The accepted corrective validation was performed on 2026-08-04 against the thirteen-path implementation state based on `900940a97de4a4239d1752f76be4051e37dd9f76` and was then committed without build-input changes as `f8c8a45d798dc676d377548cd8470c19e6cce02c`, tree `f3ddad345231215497a45e02f447de26cf0e3ede`. `PROJECT_CONTEXT.md` was reconciled after validation; source and build inputs were unchanged.
 
 Accepted results:
 
@@ -142,7 +147,7 @@ GeoJoystick does not conceal Android mock-location status and is not game, cheat
 
 ## Remaining gaps
 
-- Commit and push the accepted thirteen-path tree to draft PR #5, then reconcile its stale description.
+- Reconcile draft PR #5's stale description with the published corrective commit and accepted validation evidence.
 - Reconcile app-op loss, Developer Options changes, provider removal, reboot/process-death behavior and truthful UI state on a physical device.
 - Review overlay touch-target sizing and accessibility at device scale as a separate UI change.
 - Harden `tools/build.py` ZIP extraction, downloads, subprocess timeouts and JDK ranking; make `build.bat` independent of caller working directory.
@@ -152,9 +157,9 @@ GeoJoystick does not conceal Android mock-location status and is not game, cheat
 
 ## Next accepted stages
 
-1. Reconcile this documentation-only status update and rerun exact repository checks plus `git diff --check`.
-2. Commit the accepted thirteen-path tree intentionally on `recovery/pre-reinstall-maintenance-20260804`.
-3. Push the non-default branch and update draft PR #5 with the new commit, validation evidence and remaining device gates.
+1. Commit and fast-forward push this documentation-only state reconciliation.
+2. Update draft PR #5 with the final branch head, accepted validation evidence and remaining device gates.
+3. Keep PR #5 draft until physical-device QA is completed or explicitly deferred by the user.
 4. Perform signing, installation and physical-device QA separately.
 5. Do not merge `main`, tag, publish or submit to stores without user signoff.
 
