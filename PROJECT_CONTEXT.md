@@ -26,11 +26,13 @@ GitHub Releases is canonical for release notes and developer-published assets. F
 - Governance reconciliation baseline: `e9d8dedba5b224c98a8f4cd4bc4c4c827c7fd4da`
 - Locally validated baseline tree: `0c00f48c928b4b5111d7b2c4114cd6db5b6455df`
 - Backup state: preserved and unchanged
-- Push/publication: not performed
+- Initial validated branch publication: `6d7bbeb0354003db3a145f6972c08293ab60fe88`
+- Active replacement draft PR: #5 from `recovery/pre-reinstall-maintenance-20260804` to `main`
+- Superseded draft PR #4: closed unmerged
 
 The recovery checkpoint reproduces the exact validated pre-reinstall maintenance tree. The governance baseline adds sanitized repository rules and mutable-state documentation without replacing the recovered implementation. Detailed recovery and validation evidence remains private and is not a build, installation, or runtime dependency.
 
-Draft PR #4 (`docs/autonomy-governance-alignment`, head `8980e4ce131e5ec9fbfe2874180715b4dc4a9c7f`) remains open, unmerged, and superseded. Do not merge it into the recovery branch. Close it only after the validated recovery branch has been pushed and a replacement draft PR exists.
+Draft PR #5 (`recovery/pre-reinstall-maintenance-20260804` to `main`) is the active validated replacement. Draft PR #4 (`docs/autonomy-governance-alignment`) was closed unmerged after PR #5 was confirmed. Do not merge PR #4 or rewrite public history.
 
 ## Current source and toolchain baseline
 
@@ -109,11 +111,10 @@ GeoJoystick does not conceal Android mock-location status and is not game, cheat
 
 ## Next accepted stages
 
-1. Push the validated non-default recovery branch only after a fresh fetch and remote-ancestry verification.
-2. Open a replacement draft pull request against `main`.
-3. Close superseded draft PR #4 only after the replacement draft exists.
-4. Keep `main` merge, tags, releases, signing, installation, store actions, and final signoff separate.
-5. Continue lifecycle, hostile-input, permission, target-SDK, and reproducibility maintenance as focused follow-up work.
+1. Review draft PR #5 against `main` and keep it in draft until its source and documentation scope is accepted.
+2. Re-run relevant local validation gates for any later source, build-tool, dependency, manifest, resource, or target-SDK change.
+3. Keep `main` merge, tags, releases, signing, installation, store actions, and final signoff separate.
+4. Continue lifecycle, hostile-input, permission, API 36, and reproducibility maintenance as focused follow-up work.
 
 ## Public documentation policy
 
