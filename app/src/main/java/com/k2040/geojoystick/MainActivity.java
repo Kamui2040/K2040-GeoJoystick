@@ -1,13 +1,16 @@
 package com.k2040.geojoystick;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AppOpsManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -67,6 +70,11 @@ public final class MainActivity extends Activity {
     private static final String LANGUAGE_GERMAN = "de";
     private static final int FAVORITE_COUNT = 5;
     private static final String STATE_CURRENT_PAGE = "current_page";
+    private static final String STATE_DRAFT_INITIALIZED = "draft_initialized";
+    private static final String STATE_DRAFT_LATITUDE = "draft_latitude";
+    private static final String STATE_DRAFT_LONGITUDE = "draft_longitude";
+    private static final String STATE_DRAFT_ALTITUDE = "draft_altitude";
+    private static final String STATE_INCOMING_INTENT_CONSUMED = "incoming_intent_consumed";
 
     private SharedPreferences preferences;
     private EditText latitudeInput;
@@ -75,6 +83,22 @@ public final class MainActivity extends Activity {
     private TextView statusText;
     private final Button[] favoriteButtons = new Button[FAVORITE_COUNT];
     private boolean pendingStart;
+    private boolean stateReceiverRegistered;
+    private boolean incomingIntentConsumed;
+    private volatile int importRequestId;
+    private boolean draftInitialized;
+    private double draftLatitude = Double.NaN;
+    private double draftLongitude = Double.NaN;
+    private double draftAltitude = Double.NaN;
+    private final BroadcastReceiver simulationStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null
+                    && MockLocationService.ACTION_STATE_CHANGED.equals(intent.getAction())) {
+                updateStatus();
+            }
+        }
+    };
     private String currentPage = "main";
     private boolean darkMode;
     private boolean german;
@@ -93,6 +117,9 @@ public final class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         preferences = getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         loadUiSettings();
+        restoreDraftCoordinates(savedInstanceState);
+        incomingIntentConsumed = savedInstanceState != null
+                && savedInstanceState.getBoolean(STATE_INCOMING_INTENT_CONSUMED, false);
         if (!isWelcomeAcknowledged()) {
             showWelcomePage();
             return;
@@ -118,12 +145,14 @@ public final class MainActivity extends Activity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
+        incomingIntentConsumed = false;
         handleIncomingIntent(intent);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        registerSimulationStateReceiver();
         updateStatus();
         if (pendingStart && Settings.canDrawOverlays(this) && isSelectedMockLocationApp()) {
             pendingStart = false;
@@ -134,13 +163,29 @@ public final class MainActivity extends Activity {
     @Override
     protected void onPause() {
         saveVisibleCoordinateFields();
+        unregisterSimulationStateReceiver();
         super.onPause();
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        saveVisibleCoordinateFields();
         super.onSaveInstanceState(outState);
         outState.putString(STATE_CURRENT_PAGE, currentPage);
+        outState.putBoolean(STATE_DRAFT_INITIALIZED, draftInitialized);
+        outState.putBoolean(STATE_INCOMING_INTENT_CONSUMED, incomingIntentConsumed);
+        if (draftInitialized) {
+            outState.putDouble(STATE_DRAFT_LATITUDE, draftLatitude);
+            outState.putDouble(STATE_DRAFT_LONGITUDE, draftLongitude);
+            outState.putDouble(STATE_DRAFT_ALTITUDE, draftAltitude);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        importRequestId++;
+        unregisterSimulationStateReceiver();
+        super.onDestroy();
     }
 
     @Override
@@ -164,10 +209,34 @@ public final class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_MAP && resultCode == RESULT_OK && data != null) {
-            double lat = data.getDoubleExtra(MapActivity.EXTRA_LATITUDE, getLatitude());
-            double lng = data.getDoubleExtra(MapActivity.EXTRA_LONGITUDE, getLongitude());
-            setCoordinateInputs(lat, lng, getAltitude());
+        if (requestCode != REQUEST_MAP || resultCode != RESULT_OK || data == null) {
+            return;
+        }
+        if (!data.hasExtra(MapActivity.EXTRA_LATITUDE)
+                || !data.hasExtra(MapActivity.EXTRA_LONGITUDE)) {
+            Toast.makeText(
+                    this,
+                    t("The map returned no valid coordinates",
+                            "Die Karte hat keine gültigen Koordinaten zurückgegeben"),
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+        double lat = data.getDoubleExtra(MapActivity.EXTRA_LATITUDE, Double.NaN);
+        double lng = data.getDoubleExtra(MapActivity.EXTRA_LONGITUDE, Double.NaN);
+        if (!setHorizontalCoordinateInputs(lat, lng)) {
+            Toast.makeText(
+                    this,
+                    t("The map returned invalid coordinates",
+                            "Die Karte hat ungültige Koordinaten zurückgegeben"),
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (!Double.isFinite(safeAltitude())) {
+            Toast.makeText(
+                    this,
+                    t("Location selected. Enter an altitude before starting.",
+                            "Standort ausgewählt. Gib vor dem Start eine Höhe ein."),
+                    Toast.LENGTH_LONG).show();
         }
     }
 
@@ -767,14 +836,54 @@ public final class MainActivity extends Activity {
     }
 
     private double[] loadInitialCoordinates() {
-        double fallbackLat = Double.longBitsToDouble(preferences.getLong(PREF_LATITUDE, Double.doubleToLongBits(52.520008)));
-        double fallbackLng = Double.longBitsToDouble(preferences.getLong(PREF_LONGITUDE, Double.doubleToLongBits(13.404954)));
-        double fallbackAlt = Double.longBitsToDouble(preferences.getLong(PREF_ALTITUDE, Double.doubleToLongBits(55.0)));
-        return new double[]{
-                Double.longBitsToDouble(preferences.getLong(PREF_MANUAL_LATITUDE, Double.doubleToLongBits(fallbackLat))),
-                Double.longBitsToDouble(preferences.getLong(PREF_MANUAL_LONGITUDE, Double.doubleToLongBits(fallbackLng))),
-                Double.longBitsToDouble(preferences.getLong(PREF_MANUAL_ALTITUDE, Double.doubleToLongBits(fallbackAlt)))
-        };
+        if (draftInitialized) {
+            return new double[]{draftLatitude, draftLongitude, draftAltitude};
+        }
+
+        double[] manual = readStoredCoordinates(
+                PREF_MANUAL_LATITUDE,
+                PREF_MANUAL_LONGITUDE,
+                PREF_MANUAL_ALTITUDE);
+        if (manual != null) {
+            setDraftCoordinates(manual[0], manual[1], manual[2]);
+            return manual;
+        }
+
+        if (preferences.getBoolean(PREF_RESTORE_LAST_POSITION, true)) {
+            double[] lastActive = readStoredCoordinates(
+                    PREF_LATITUDE,
+                    PREF_LONGITUDE,
+                    PREF_ALTITUDE);
+            if (lastActive != null) {
+                setDraftCoordinates(lastActive[0], lastActive[1], lastActive[2]);
+                return lastActive;
+            }
+        }
+
+        setDraftCoordinates(Double.NaN, Double.NaN, Double.NaN);
+        return new double[]{Double.NaN, Double.NaN, Double.NaN};
+    }
+
+    private double[] readStoredCoordinates(
+            String latitudeKey,
+            String longitudeKey,
+            String altitudeKey) {
+        if (!preferences.contains(latitudeKey)
+                || !preferences.contains(longitudeKey)
+                || !preferences.contains(altitudeKey)) {
+            return null;
+        }
+
+        double latitude = Double.longBitsToDouble(
+                preferences.getLong(latitudeKey, 0L));
+        double longitude = Double.longBitsToDouble(
+                preferences.getLong(longitudeKey, 0L));
+        double altitude = Double.longBitsToDouble(
+                preferences.getLong(altitudeKey, 0L));
+        if (!validCoordinateValues(latitude, longitude, altitude)) {
+            return null;
+        }
+        return new double[]{latitude, longitude, altitude};
     }
 
     private void chooseAppearance() {
@@ -837,14 +946,24 @@ public final class MainActivity extends Activity {
     private void toggleRestoreLastPosition() {
         saveVisibleCoordinateFields();
         boolean next = !preferences.getBoolean(PREF_RESTORE_LAST_POSITION, true);
-        SharedPreferences.Editor editor = preferences.edit().putBoolean(PREF_RESTORE_LAST_POSITION, next);
+        SharedPreferences.Editor editor = preferences.edit()
+                .putBoolean(PREF_RESTORE_LAST_POSITION, next);
         if (next) {
-            double lat = Double.longBitsToDouble(preferences.getLong(PREF_LATITUDE, Double.doubleToLongBits(52.520008)));
-            double lng = Double.longBitsToDouble(preferences.getLong(PREF_LONGITUDE, Double.doubleToLongBits(13.404954)));
-            double alt = Double.longBitsToDouble(preferences.getLong(PREF_ALTITUDE, Double.doubleToLongBits(55.0)));
-            editor.putLong(PREF_MANUAL_LATITUDE, Double.doubleToRawLongBits(lat))
-                    .putLong(PREF_MANUAL_LONGITUDE, Double.doubleToRawLongBits(lng))
-                    .putLong(PREF_MANUAL_ALTITUDE, Double.doubleToRawLongBits(alt));
+            double[] lastActive = readStoredCoordinates(
+                    PREF_LATITUDE,
+                    PREF_LONGITUDE,
+                    PREF_ALTITUDE);
+            if (lastActive != null) {
+                editor.putLong(
+                                PREF_MANUAL_LATITUDE,
+                                Double.doubleToRawLongBits(lastActive[0]))
+                        .putLong(
+                                PREF_MANUAL_LONGITUDE,
+                                Double.doubleToRawLongBits(lastActive[1]))
+                        .putLong(
+                                PREF_MANUAL_ALTITUDE,
+                                Double.doubleToRawLongBits(lastActive[2]));
+            }
         }
         editor.apply();
         recreate();
@@ -937,7 +1056,10 @@ public final class MainActivity extends Activity {
                 .create();
         dialog.setOnShowListener(window -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
             try {
-                double value = clampSpeed(Double.parseDouble(speedInput.getText().toString().trim()));
+                double value = Double.parseDouble(speedInput.getText().toString().trim());
+                if (!Double.isFinite(value) || value < 0.1 || value > 50.0) {
+                    throw new NumberFormatException("Speed out of range");
+                }
                 String name = nameInput.getText().toString().trim();
                 if (name.isEmpty()) {
                     name = "Custom";
@@ -985,11 +1107,24 @@ public final class MainActivity extends Activity {
             editFavorite(slot, false);
             return;
         }
-        double lat = favoriteDouble(slot, "latitude", getLatitude());
-        double lng = favoriteDouble(slot, "longitude", getLongitude());
-        double alt = favoriteDouble(slot, "altitude", getAltitude());
+
+        double lat = favoriteDouble(slot, "latitude", Double.NaN);
+        double lng = favoriteDouble(slot, "longitude", Double.NaN);
+        double alt = favoriteDouble(slot, "altitude", Double.NaN);
+        if (!validCoordinateValues(lat, lng, alt)) {
+            Toast.makeText(
+                    this,
+                    t("The saved favorite is invalid",
+                            "Der gespeicherte Favorit ist ungültig"),
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
         setCoordinateInputs(lat, lng, alt);
-        Toast.makeText(this, t("Favorite loaded into coordinate fields", "Favorit in Koordinatenfelder geladen"), Toast.LENGTH_SHORT).show();
+        Toast.makeText(
+                this,
+                t("Favorite loaded into coordinate fields",
+                        "Favorit in Koordinatenfelder geladen"),
+                Toast.LENGTH_SHORT).show();
     }
 
     private void editFavorite(int slot, boolean useSavedValues) {
@@ -1116,7 +1251,10 @@ public final class MainActivity extends Activity {
     }
 
     private EditText coordinateInput(String hint, double value) {
-        EditText input = textInput(hint, String.format(Locale.US, "%.6f", value));
+        String initialValue = Double.isFinite(value)
+                ? String.format(Locale.US, "%.6f", value)
+                : "";
+        EditText input = textInput(hint, initialValue);
         input.setSelectAllOnFocus(true);
         input.setInputType(InputType.TYPE_CLASS_NUMBER
                 | InputType.TYPE_NUMBER_FLAG_DECIMAL
@@ -1207,18 +1345,53 @@ public final class MainActivity extends Activity {
         return params;
     }
 
+    private void scheduleRuntimeStatusRefresh() {
+        if (statusText == null) {
+            return;
+        }
+        statusText.post(this::updateStatus);
+        statusText.postDelayed(this::updateStatus, 300L);
+        statusText.postDelayed(this::updateStatus, 1_000L);
+    }
+
     private void updateStatus() {
         if (statusText == null) {
             return;
         }
+
         boolean overlayGranted = Settings.canDrawOverlays(this);
         boolean mockSelected = isSelectedMockLocationApp();
+        boolean simulationStarting = MockLocationService.isSimulationStarting();
+        boolean simulationActive = MockLocationService.isSimulationActive();
+
+        String simulationState;
+        if (simulationActive) {
+            simulationState = t("active", "aktiv");
+        } else if (simulationStarting) {
+            simulationState = t("starting", "wird gestartet");
+        } else {
+            simulationState = t("inactive", "inaktiv");
+        }
+
         statusText.setText(String.format(
                 Locale.US,
-                t("Overlay: %s     Mock location app: %s", "Overlay: %s     Mock-Standort-App: %s"),
-                overlayGranted ? t("ready", "bereit") : t("not granted", "nicht erlaubt"),
-                mockSelected ? t("selected", "ausgewählt") : t("not selected", "nicht ausgewählt")));
-        statusText.setTextColor(overlayGranted && mockSelected ? 0xFF2E7D32 : 0xFFC62828);
+                t("Overlay: %s\nMock location app: %s\nSimulation: %s",
+                        "Overlay: %s\nMock-Standort-App: %s\nSimulation: %s"),
+                overlayGranted
+                        ? t("ready", "bereit")
+                        : t("not granted", "nicht erlaubt"),
+                mockSelected
+                        ? t("selected", "ausgewählt")
+                        : t("not selected", "nicht ausgewählt"),
+                simulationState));
+
+        if (simulationActive && overlayGranted && mockSelected) {
+            statusText.setTextColor(0xFF2E7D32);
+        } else if (simulationStarting) {
+            statusText.setTextColor(0xFFF57C00);
+        } else {
+            statusText.setTextColor(0xFFC62828);
+        }
     }
 
     private void startMocking() {
@@ -1249,7 +1422,7 @@ public final class MainActivity extends Activity {
         double lat = getLatitude();
         double lng = getLongitude();
         double alt = getAltitude();
-        saveCoordinates(lat, lng, alt);
+        saveManualCoordinates(lat, lng, alt);
         requestNotificationPermissionIfNeeded();
 
         Intent intent = new Intent(this, MockLocationService.class)
@@ -1257,14 +1430,43 @@ public final class MainActivity extends Activity {
                 .putExtra(MockLocationService.EXTRA_LATITUDE, lat)
                 .putExtra(MockLocationService.EXTRA_LONGITUDE, lng)
                 .putExtra(MockLocationService.EXTRA_ALTITUDE, alt);
-        startForegroundService(intent);
-        Toast.makeText(this, t("GeoJoystick started", "GeoJoystick gestartet"), Toast.LENGTH_SHORT).show();
+        try {
+            startForegroundService(intent);
+            Toast.makeText(
+                    this,
+                    t("GeoJoystick start requested",
+                            "GeoJoystick-Start angefordert"),
+                    Toast.LENGTH_SHORT).show();
+            scheduleRuntimeStatusRefresh();
+        } catch (RuntimeException exception) {
+            Toast.makeText(
+                    this,
+                    t("GeoJoystick could not be started",
+                            "GeoJoystick konnte nicht gestartet werden"),
+                    Toast.LENGTH_LONG).show();
+            updateStatus();
+        }
     }
 
     private void stopMocking() {
         Intent intent = new Intent(this, MockLocationService.class)
                 .setAction(MockLocationService.ACTION_STOP);
-        startService(intent);
+        try {
+            startService(intent);
+            Toast.makeText(
+                    this,
+                    t("GeoJoystick stop requested",
+                            "GeoJoystick-Stopp angefordert"),
+                    Toast.LENGTH_SHORT).show();
+            scheduleRuntimeStatusRefresh();
+        } catch (RuntimeException exception) {
+            Toast.makeText(
+                    this,
+                    t("GeoJoystick could not be stopped",
+                            "GeoJoystick konnte nicht gestoppt werden"),
+                    Toast.LENGTH_LONG).show();
+            updateStatus();
+        }
     }
 
     private void resetOverlayPosition() {
@@ -1276,12 +1478,13 @@ public final class MainActivity extends Activity {
     }
 
     private void openMap() {
-        if (!validCoordinates()) {
-            return;
+        Intent intent = new Intent(this, MapActivity.class);
+        double latitude = safeLatitude();
+        double longitude = safeLongitude();
+        if (validHorizontalCoordinateValues(latitude, longitude)) {
+            intent.putExtra(MapActivity.EXTRA_LATITUDE, latitude)
+                    .putExtra(MapActivity.EXTRA_LONGITUDE, longitude);
         }
-        Intent intent = new Intent(this, MapActivity.class)
-                .putExtra(MapActivity.EXTRA_LATITUDE, getLatitude())
-                .putExtra(MapActivity.EXTRA_LONGITUDE, getLongitude());
         startActivityForResult(intent, REQUEST_MAP);
     }
 
@@ -1301,10 +1504,15 @@ public final class MainActivity extends Activity {
     }
 
     private void handleIncomingIntent(Intent intent) {
-        if (intent == null || !Intent.ACTION_SEND.equals(intent.getAction())) {
+        if (intent == null
+                || incomingIntentConsumed
+                || !Intent.ACTION_SEND.equals(intent.getAction())) {
             return;
         }
+        incomingIntentConsumed = true;
         CharSequence text = intent.getCharSequenceExtra(Intent.EXTRA_TEXT);
+        intent.setAction(null);
+        intent.removeExtra(Intent.EXTRA_TEXT);
         if (text != null) {
             importLocationText(text.toString());
         }
@@ -1315,18 +1523,30 @@ public final class MainActivity extends Activity {
             Toast.makeText(this, t("No location link found", "Kein Standortlink gefunden"), Toast.LENGTH_SHORT).show();
             return;
         }
+        final int requestId = ++importRequestId;
         Toast.makeText(this, t("Reading location link…", "Standortlink wird gelesen…"), Toast.LENGTH_SHORT).show();
         new Thread(() -> {
             double[] coordinates = LocationLinkParser.resolveCoordinates(text);
             runOnUiThread(() -> {
+                if (requestId != importRequestId || isFinishing() || isDestroyed()) {
+                    return;
+                }
                 if (coordinates == null) {
                     Toast.makeText(this, t("Could not extract coordinates from that link", "Aus diesem Link konnten keine Koordinaten gelesen werden"), Toast.LENGTH_LONG).show();
-                } else {
-                    setCoordinateInputs(coordinates[0], coordinates[1], getAltitude());
-                    Toast.makeText(this, t("Coordinates imported", "Koordinaten importiert"), Toast.LENGTH_SHORT).show();
+                    return;
                 }
+                if (!setHorizontalCoordinateInputs(coordinates[0], coordinates[1])) {
+                    Toast.makeText(this, t("The imported coordinates were invalid", "Die importierten Koordinaten waren ungültig"), Toast.LENGTH_LONG).show();
+                    return;
+                }
+                Toast.makeText(
+                        this,
+                        Double.isFinite(safeAltitude())
+                                ? t("Coordinates imported", "Koordinaten importiert")
+                                : t("Coordinates imported. Enter an altitude before starting.", "Koordinaten importiert. Gib vor dem Start eine Höhe ein."),
+                        Toast.LENGTH_LONG).show();
             });
-        }, "MapLinkResolver").start();
+        }, "MapLinkResolver-" + requestId).start();
     }
 
     private void openInMaps() {
@@ -1378,6 +1598,41 @@ public final class MainActivity extends Activity {
         return mode == AppOpsManager.MODE_ALLOWED;
     }
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
+    private void registerSimulationStateReceiver() {
+        if (stateReceiverRegistered) {
+            return;
+        }
+        IntentFilter filter = new IntentFilter(MockLocationService.ACTION_STATE_CHANGED);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(
+                    simulationStateReceiver,
+                    filter,
+                    MockLocationService.PERMISSION_INTERNAL_STATE,
+                    null,
+                    Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(
+                    simulationStateReceiver,
+                    filter,
+                    MockLocationService.PERMISSION_INTERNAL_STATE,
+                    null);
+        }
+        stateReceiverRegistered = true;
+    }
+
+    private void unregisterSimulationStateReceiver() {
+        if (!stateReceiverRegistered) {
+            return;
+        }
+        try {
+            unregisterReceiver(simulationStateReceiver);
+        } catch (IllegalArgumentException ignored) {
+            // The lifecycle may already have unregistered the receiver.
+        }
+        stateReceiverRegistered = false;
+    }
+
     private void requestNotificationPermissionIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -1401,8 +1656,16 @@ public final class MainActivity extends Activity {
     }
 
     private boolean validCoordinateValues(double lat, double lng, double alt) {
-        return Double.isFinite(lat) && Double.isFinite(lng) && Double.isFinite(alt)
-                && lat >= -90.0 && lat <= 90.0 && lng >= -180.0 && lng <= 180.0;
+        return validHorizontalCoordinateValues(lat, lng) && Double.isFinite(alt);
+    }
+
+    private boolean validHorizontalCoordinateValues(double lat, double lng) {
+        return Double.isFinite(lat)
+                && Double.isFinite(lng)
+                && lat >= -90.0
+                && lat <= 90.0
+                && lng >= -180.0
+                && lng <= 180.0;
     }
 
     private double getLatitude() {
@@ -1419,49 +1682,89 @@ public final class MainActivity extends Activity {
 
     private double safeLatitude() {
         try {
-            return getLatitude();
+            double value = getLatitude();
+            return Double.isFinite(value) ? value : Double.NaN;
         } catch (NumberFormatException exception) {
-            return 52.520008;
+            return Double.NaN;
         }
     }
 
     private double safeLongitude() {
         try {
-            return getLongitude();
+            double value = getLongitude();
+            return Double.isFinite(value) ? value : Double.NaN;
         } catch (NumberFormatException exception) {
-            return 13.404954;
+            return Double.NaN;
         }
     }
 
     private double safeAltitude() {
         try {
-            return getAltitude();
+            double value = getAltitude();
+            return Double.isFinite(value) ? value : Double.NaN;
         } catch (NumberFormatException exception) {
-            return 55.0;
+            return Double.NaN;
         }
     }
 
-    private void setCoordinateInputs(double latitude, double longitude, double altitude) {
+    private void setCoordinateInputs(
+            double latitude,
+            double longitude,
+            double altitude) {
+        if (!validCoordinateValues(latitude, longitude, altitude)) {
+            return;
+        }
+        setDraftCoordinates(latitude, longitude, altitude);
         latitudeInput.setText(String.format(Locale.US, "%.6f", latitude));
         longitudeInput.setText(String.format(Locale.US, "%.6f", longitude));
         altitudeInput.setText(String.format(Locale.US, "%.6f", altitude));
         saveManualCoordinates(latitude, longitude, altitude);
     }
 
+    private boolean setHorizontalCoordinateInputs(double latitude, double longitude) {
+        if (!validHorizontalCoordinateValues(latitude, longitude)
+                || latitudeInput == null
+                || longitudeInput == null) {
+            return false;
+        }
+        double altitude = safeAltitude();
+        setDraftCoordinates(latitude, longitude, altitude);
+        latitudeInput.setText(String.format(Locale.US, "%.6f", latitude));
+        longitudeInput.setText(String.format(Locale.US, "%.6f", longitude));
+        if (validCoordinateValues(latitude, longitude, altitude)) {
+            saveManualCoordinates(latitude, longitude, altitude);
+        }
+        return true;
+    }
+
     private void saveVisibleCoordinateFields() {
         if (latitudeInput == null || longitudeInput == null || altitudeInput == null) {
             return;
         }
-        try {
-            double lat = getLatitude();
-            double lng = getLongitude();
-            double alt = getAltitude();
-            if (validCoordinateValues(lat, lng, alt)) {
-                saveManualCoordinates(lat, lng, alt);
-            }
-        } catch (NumberFormatException ignored) {
-            // Keep the last valid saved values while the user is editing invalid text.
+        double latitude = safeLatitude();
+        double longitude = safeLongitude();
+        double altitude = safeAltitude();
+        setDraftCoordinates(latitude, longitude, altitude);
+        if (validCoordinateValues(latitude, longitude, altitude)) {
+            saveManualCoordinates(latitude, longitude, altitude);
         }
+    }
+
+    private void setDraftCoordinates(double latitude, double longitude, double altitude) {
+        draftLatitude = latitude;
+        draftLongitude = longitude;
+        draftAltitude = altitude;
+        draftInitialized = true;
+    }
+
+    private void restoreDraftCoordinates(Bundle state) {
+        if (state == null || !state.getBoolean(STATE_DRAFT_INITIALIZED, false)) {
+            return;
+        }
+        setDraftCoordinates(
+                state.getDouble(STATE_DRAFT_LATITUDE, Double.NaN),
+                state.getDouble(STATE_DRAFT_LONGITUDE, Double.NaN),
+                state.getDouble(STATE_DRAFT_ALTITUDE, Double.NaN));
     }
 
     private void saveManualCoordinates(double latitude, double longitude, double altitude) {
@@ -1469,17 +1772,6 @@ public final class MainActivity extends Activity {
                 .putLong(PREF_MANUAL_LATITUDE, Double.doubleToRawLongBits(latitude))
                 .putLong(PREF_MANUAL_LONGITUDE, Double.doubleToRawLongBits(longitude))
                 .putLong(PREF_MANUAL_ALTITUDE, Double.doubleToRawLongBits(altitude))
-                .apply();
-    }
-
-    private void saveCoordinates(double latitude, double longitude, double altitude) {
-        preferences.edit()
-                .putLong(PREF_MANUAL_LATITUDE, Double.doubleToRawLongBits(latitude))
-                .putLong(PREF_MANUAL_LONGITUDE, Double.doubleToRawLongBits(longitude))
-                .putLong(PREF_MANUAL_ALTITUDE, Double.doubleToRawLongBits(altitude))
-                .putLong(PREF_LATITUDE, Double.doubleToRawLongBits(latitude))
-                .putLong(PREF_LONGITUDE, Double.doubleToRawLongBits(longitude))
-                .putLong(PREF_ALTITUDE, Double.doubleToRawLongBits(altitude))
                 .apply();
     }
 

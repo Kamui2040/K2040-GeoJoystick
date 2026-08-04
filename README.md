@@ -27,9 +27,9 @@ It uses Android's standard mock-location provider flow, shows a floating joystic
 
 - F-Droid: `https://f-droid.org/packages/com.k2040.geojoystick/`
 - GitHub Releases: `https://github.com/Kamui2040/K2040-GeoJoystick/releases`
-- APKPure: `https://apkpure.com/p/com.k2040.geojoystick`
+- Additional package listing: `https://apkpure.com/p/com.k2040.geojoystick`
 
-GitHub Releases is canonical for release notes and developer-published assets. F-Droid is the official FLOSS source-built distribution. APKPure is an official listing for package `com.k2040.geojoystick`.
+GitHub Releases is canonical for developer-published assets and release notes. F-Droid is the official FLOSS source-built distribution. APKPure is an additional package listing for `com.k2040.geojoystick`; verify release identity against the canonical GitHub/F-Droid sources.
 
 ## Build locally
 
@@ -54,7 +54,6 @@ Expected outputs:
 - `dist\SHA256SUMS.txt`
 
 Signing is intentionally separate. Do not commit APKs, keys, credentials, `local.properties`, or generated output.
-
 
 ## Basic setup
 

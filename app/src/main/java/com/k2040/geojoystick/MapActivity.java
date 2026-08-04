@@ -45,10 +45,16 @@ public final class MapActivity extends Activity {
     private static final String LANGUAGE_GERMAN = "de";
     private static final String INTERNAL_HOST = "appassets.androidplatform.net";
     private static final String TILE_HOST = "tile.openstreetmap.org";
+    private static final String STATE_HAS_SELECTION = "map_has_selection";
+    private static final String STATE_LATITUDE = "map_selected_latitude";
+    private static final String STATE_LONGITUDE = "map_selected_longitude";
+    private static final double MAX_MAP_LATITUDE = 85.05112878;
 
-    private double selectedLatitude;
-    private double selectedLongitude;
+    private double selectedLatitude = Double.NaN;
+    private double selectedLongitude = Double.NaN;
+    private boolean hasSelection;
     private TextView coordinateText;
+    private Button useButton;
     private WebView webView;
     private boolean german;
     private int colorBackground;
@@ -59,11 +65,7 @@ public final class MapActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         loadUiSettings();
-
-        double requestedLatitude = getIntent().getDoubleExtra(EXTRA_LATITUDE, 52.520008);
-        double requestedLongitude = getIntent().getDoubleExtra(EXTRA_LONGITUDE, 13.404954);
-        selectedLatitude = validLatitude(requestedLatitude) ? requestedLatitude : 52.520008;
-        selectedLongitude = validLongitude(requestedLongitude) ? requestedLongitude : 13.404954;
+        restoreInitialSelection(savedInstanceState, getIntent());
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -78,7 +80,12 @@ public final class MapActivity extends Activity {
         coordinateText.setTextSize(13);
         coordinateText.setTextColor(colorText);
         updateCoordinateText();
-        toolbar.addView(coordinateText, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        toolbar.addView(
+                coordinateText,
+                new LinearLayout.LayoutParams(
+                        0,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        1f));
 
         Button cancel = new Button(this);
         cancel.setText(t("Cancel", "Abbrechen"));
@@ -86,23 +93,54 @@ public final class MapActivity extends Activity {
         cancel.setOnClickListener(view -> finish());
         toolbar.addView(cancel);
 
-        Button use = new Button(this);
-        use.setText(t("Use location", "Standort nutzen"));
-        use.setAllCaps(false);
-        use.setOnClickListener(view -> returnSelection());
-        toolbar.addView(use);
+        useButton = new Button(this);
+        useButton.setText(t("Use location", "Standort nutzen"));
+        useButton.setAllCaps(false);
+        useButton.setEnabled(hasSelection);
+        useButton.setOnClickListener(view -> returnSelection());
+        toolbar.addView(useButton);
         root.addView(toolbar);
 
         webView = new WebView(this);
         configureWebView(webView);
-        root.addView(webView, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                0,
-                1f));
+        root.addView(
+                webView,
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        0,
+                        1f));
 
         setContentView(root);
         applySystemBarInsets(root);
         loadBundledMap();
+    }
+
+    private void restoreInitialSelection(Bundle savedInstanceState, Intent launchIntent) {
+        if (savedInstanceState != null
+                && savedInstanceState.getBoolean(STATE_HAS_SELECTION, false)) {
+            double latitude = savedInstanceState.getDouble(STATE_LATITUDE, Double.NaN);
+            double longitude = savedInstanceState.getDouble(STATE_LONGITUDE, Double.NaN);
+            if (validLatitude(latitude) && validLongitude(longitude)) {
+                selectedLatitude = latitude;
+                selectedLongitude = longitude;
+                hasSelection = true;
+                return;
+            }
+        }
+
+        if (launchIntent == null
+                || !launchIntent.hasExtra(EXTRA_LATITUDE)
+                || !launchIntent.hasExtra(EXTRA_LONGITUDE)) {
+            return;
+        }
+
+        double latitude = launchIntent.getDoubleExtra(EXTRA_LATITUDE, Double.NaN);
+        double longitude = launchIntent.getDoubleExtra(EXTRA_LONGITUDE, Double.NaN);
+        if (validLatitude(latitude) && validLongitude(longitude)) {
+            selectedLatitude = latitude;
+            selectedLongitude = longitude;
+            hasSelection = true;
+        }
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -119,6 +157,13 @@ public final class MapActivity extends Activity {
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
         settings.setSafeBrowsingEnabled(true);
         settings.setMediaPlaybackRequiresUserGesture(true);
+        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        String userAgent = settings.getUserAgentString();
+        settings.setUserAgentString(
+                (userAgent == null ? "" : userAgent + " ")
+                        + "GeoJoystick/"
+                        + BuildConfig.VERSION_NAME
+                        + " (com.k2040.geojoystick; map picker)");
 
         WebView.setWebContentsDebuggingEnabled(false);
         view.setWebViewClient(new RestrictedWebViewClient());
@@ -128,22 +173,32 @@ public final class MapActivity extends Activity {
     private void loadBundledMap() {
         try {
             String html = readAsset("map.html");
-            String baseUrl = String.format(
-                    Locale.US,
-                    "https://%s/map.html?lat=%.8f&lng=%.8f",
-                    INTERNAL_HOST,
-                    selectedLatitude,
-                    selectedLongitude);
-            webView.loadDataWithBaseURL(baseUrl, html, "text/html", StandardCharsets.UTF_8.name(), null);
+            String baseUrl = "https://" + INTERNAL_HOST + "/map.html";
+            if (hasSelection) {
+                baseUrl = String.format(
+                        Locale.US,
+                        "%s?lat=%.8f&lng=%.8f",
+                        baseUrl,
+                        selectedLatitude,
+                        selectedLongitude);
+            }
+            webView.loadDataWithBaseURL(
+                    baseUrl,
+                    html,
+                    "text/html",
+                    StandardCharsets.UTF_8.name(),
+                    null);
         } catch (IOException exception) {
             coordinateText.setText(t("Map unavailable", "Karte nicht verfügbar"));
+            useButton.setEnabled(false);
         }
     }
 
     private String readAsset(String name) throws IOException {
         StringBuilder content = new StringBuilder();
         try (InputStream input = getAssets().open(name);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
+             BufferedReader reader = new BufferedReader(
+                     new InputStreamReader(input, StandardCharsets.UTF_8))) {
             char[] buffer = new char[4096];
             int read;
             while ((read = reader.read(buffer)) >= 0) {
@@ -151,6 +206,16 @@ public final class MapActivity extends Activity {
             }
         }
         return content.toString();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(STATE_HAS_SELECTION, hasSelection);
+        if (hasSelection) {
+            outState.putDouble(STATE_LATITUDE, selectedLatitude);
+            outState.putDouble(STATE_LONGITUDE, selectedLongitude);
+        }
     }
 
     @Override
@@ -168,7 +233,8 @@ public final class MapActivity extends Activity {
         SharedPreferences preferences = getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         String language = preferences.getString(PREF_LANGUAGE, LANGUAGE_SYSTEM);
         german = LANGUAGE_GERMAN.equals(language)
-                || (LANGUAGE_SYSTEM.equals(language) && Locale.getDefault().getLanguage().equals("de"));
+                || (LANGUAGE_SYSTEM.equals(language)
+                && Locale.getDefault().getLanguage().equals("de"));
         String appearance = preferences.getString(PREF_APPEARANCE, APPEARANCE_SYSTEM);
         boolean dark = APPEARANCE_DARK.equals(appearance)
                 || (APPEARANCE_SYSTEM.equals(appearance) && isSystemDarkMode());
@@ -177,11 +243,18 @@ public final class MapActivity extends Activity {
     }
 
     private boolean isSystemDarkMode() {
-        int nightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        int nightMode = getResources().getConfiguration().uiMode
+                & Configuration.UI_MODE_NIGHT_MASK;
         return nightMode == Configuration.UI_MODE_NIGHT_YES;
     }
 
     private void updateCoordinateText() {
+        if (!hasSelection) {
+            coordinateText.setText(t(
+                    "No location selected — tap the map",
+                    "Kein Standort ausgewählt – tippe auf die Karte"));
+            return;
+        }
         coordinateText.setText(String.format(
                 Locale.US,
                 t("Selected: %.6f, %.6f", "Ausgewählt: %.6f, %.6f"),
@@ -190,6 +263,11 @@ public final class MapActivity extends Activity {
     }
 
     private void returnSelection() {
+        if (!hasSelection
+                || !validLatitude(selectedLatitude)
+                || !validLongitude(selectedLongitude)) {
+            return;
+        }
         Intent result = new Intent();
         result.putExtra(EXTRA_LATITUDE, selectedLatitude);
         result.putExtra(EXTRA_LONGITUDE, selectedLongitude);
@@ -198,7 +276,9 @@ public final class MapActivity extends Activity {
     }
 
     private boolean validLatitude(double value) {
-        return Double.isFinite(value) && value >= -90.0 && value <= 90.0;
+        return Double.isFinite(value)
+                && value >= -MAX_MAP_LATITUDE
+                && value <= MAX_MAP_LATITUDE;
     }
 
     private boolean validLongitude(double value) {
@@ -247,7 +327,11 @@ public final class MapActivity extends Activity {
         }
         if (uri == null
                 || !"https".equalsIgnoreCase(uri.getScheme())
-                || !TILE_HOST.equalsIgnoreCase(uri.getHost())) {
+                || !TILE_HOST.equalsIgnoreCase(uri.getHost())
+                || uri.getPort() != -1
+                || uri.getUserInfo() != null
+                || uri.getQuery() != null
+                || uri.getFragment() != null) {
             return false;
         }
         String path = uri.getPath();
@@ -276,7 +360,9 @@ public final class MapActivity extends Activity {
         }
 
         @Override
-        public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+        public WebResourceResponse shouldInterceptRequest(
+                WebView view,
+                WebResourceRequest request) {
             return isAllowedResource(request.getUrl()) ? null : blockedResponse();
         }
 
@@ -295,6 +381,8 @@ public final class MapActivity extends Activity {
             runOnUiThread(() -> {
                 selectedLatitude = latitude;
                 selectedLongitude = longitude;
+                hasSelection = true;
+                useButton.setEnabled(true);
                 updateCoordinateText();
             });
         }

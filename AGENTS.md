@@ -17,7 +17,7 @@ Keep private planning, QA, diagnostics, backups, and credentials outside public 
 
 Safe reversible work is authorized on non-default branches: inspect, fetch, edit, stage, commit, rebase or merge non-default branches, maintain documentation and metadata, preserve evidence, perform bounded cleanup, and prepare draft pull requests or issues.
 
-Preserve unrelated work and keep `main` stable. Explicit user involvement remains required for unavailable workstation or physical-device execution, local build/test/lint handoffs, secrets or signing, installation, irreversible actions, public default-branch merge or publication, store submission, public tags/releases/announcements, and final signoff.
+Preserve unrelated work and keep `main` stable. Explicit user involvement remains required for unavailable workstation or physical-device execution, local build/test/lint handoffs, secrets or signing, installation, irreversible actions not already approved by the current request, public default-branch merge or publication, store submission, public tags/releases/announcements, and final signoff.
 
 ## Product and safety contract
 
@@ -61,7 +61,7 @@ Preserve attribution to `ZCShou/GoGoGo`, baseline commit `de0d596190c57b8ca71481
 
 ## Workflow, validation, and cleanup
 
-Read the project and shared error/failure dictionaries before scripts, repository mutation, or handoff. Update them with confirmed failures and prevention rules without duplicating existing entries.
+Read the project and shared error/failure dictionaries before scripts, repository mutation, or handoff. Update them only with confirmed reusable prevention rules; do not duplicate incidents or store mutable project state there.
 
 Never create, trigger, monitor, query, require, or depend on GitHub Actions or other cloud CI for the PC workflow. Inspect tracked workflow triggers before pushes or publication-sensitive work.
 
@@ -71,4 +71,4 @@ Validate exact paths, identity, encoding, permissions, lifecycle, hostile input,
 
 Before ADB work, enumerate devices and target the intended serial explicitly. Use synthetic coordinates and sanitized evidence. Installation and final physical-device signoff remain separate.
 
-Clean continuously but only after preserving accepted evidence. Remove only verified obsolete project-scoped items. Preserve active work, unresolved evidence, user data, backups, releases, secrets, unrelated changes, and Git history.
+Retain an item only when it has a current operational, legal, provenance, rollback, or unresolved-evidence purpose. Keep at most one useful rollback copy. Remove verified obsolete project-scoped logs, failed attempts, helpers, generated output, and superseded drafts while preserving active work, accepted evidence, valid user data, releases, secrets, unrelated changes, and Git history.
