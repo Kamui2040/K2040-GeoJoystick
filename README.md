@@ -40,6 +40,7 @@ From the repository root, run:
 - `build.bat` — build the debug APK
 - `build.bat --release` — run release lint and build the unsigned release APK
 - `build.bat --all` — build debug and unsigned release APKs and run release lint
+- `build.bat --signed-release` — run release lint, build the unsigned APK, prompt for the release-key passwords, and create a verified signed APK
 
 Equivalent Python entry point:
 
@@ -51,9 +52,12 @@ Expected outputs:
 
 - `dist\GeoJoystick-debug.apk`
 - `dist\GeoJoystick-release-unsigned.apk`
+- `dist\GeoJoystick-release.apk` when `--signed-release` is explicitly requested
 - `dist\SHA256SUMS.txt`
 
-Signing is intentionally separate. Do not commit APKs, keys, credentials, `local.properties`, or generated output.
+Signed release creation is maintainer-only and explicit. The bootstrap uses the canonical external keystore at `..\secrets\geojoystick-release.jks`, verifies its accepted file hash and certificate fingerprints, signs with APK Signature Scheme v2 only, and independently verifies the resulting APK certificate, signing schemes, alignment, and unchanged unsigned input. The unsigned release is always retained.
+
+Signing passwords are entered through hidden interactive prompts for the current process only; the build tooling does not write them to files or logs. The keystore, passwords, APKs, `local.properties`, and generated output must remain outside Git. Public and F-Droid source builds remain fully functional without private signing material.
 
 ## Basic setup
 

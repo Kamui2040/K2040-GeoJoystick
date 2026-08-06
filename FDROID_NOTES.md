@@ -32,9 +32,10 @@ Local build entry points:
 - `build.bat` — debug APK
 - `build.bat --release` — unsigned release APK plus release lint
 - `build.bat --all` — debug and unsigned release APKs plus release lint
+- `build.bat --signed-release` — unsigned release plus an explicitly requested, verified signed APK
 - `python tools/build.py` — equivalent Python entry point
 
-The local bootstrap downloads Gradle from the official distribution service and verifies its published SHA-256 checksum.
+The local bootstrap downloads Gradle from the official distribution service and verifies its published SHA-256 checksum. Maintainer signing is available only through the explicit `--signed-release` mode and the canonical external `..\secrets\geojoystick-release.jks` keystore. Passwords are entered through hidden prompts for the current process and are not written to files or logs. The bootstrap verifies the accepted keystore identity and certificate fingerprints before signing and verifies the resulting APK independently. The unsigned release output is always retained. Public and F-Droid source builds do not depend on private storage.
 
 ## Update metadata
 
@@ -50,7 +51,7 @@ For each version:
 
 ## Reproducible reference APK
 
-The developer reference APK must be signed from the exact unsigned APK produced by the corresponding F-Droid build. Do not substitute a local rebuild or modify the APK after signing.
+The developer reference APK must be signed from the exact unsigned APK produced by the corresponding F-Droid build. Do not substitute a local rebuild or modify the APK after signing. The explicitly signed local release is not by itself F-Droid reproducibility evidence; use it as a reference asset only after the unsigned payload has been proven identical to the corresponding F-Droid build.
 
 For the currently accepted process:
 

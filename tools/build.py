@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import getpass
 import hashlib
 import os
 import platform
@@ -13,10 +14,11 @@ import subprocess
 import sys
 import urllib.request
 import zipfile
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal, NoReturn
 
-BuildMode = Literal["debug", "release", "all"]
+BuildMode = Literal["debug", "release", "all", "signed-release"]
 
 GRADLE_VERSION = "8.13"
 GRADLE_URL = f"https://services.gradle.org/distributions/gradle-{GRADLE_VERSION}-bin.zip"
@@ -27,6 +29,26 @@ PREFERRED_BUILD_TOOLS = "35.0.0"
 ROOT = Path(__file__).resolve().parents[1]
 CACHE_ROOT = Path(os.environ.get("LOCALAPPDATA", ROOT / ".tools")) / "K2040" / "GeoJoystick"
 GRADLE_HOME = CACHE_ROOT / f"gradle-{GRADLE_VERSION}"
+
+MAX_SIGNING_PASSWORD_LENGTH = 1024
+EXPECTED_RELEASE_KEY_ALIAS = "geojoystick-release"
+EXPECTED_RELEASE_KEYSTORE_FILE = "geojoystick-release.jks"
+EXPECTED_RELEASE_KEYSTORE_SHA256 = (
+    "1926785c9a40e39c29a7835534630e452e9a521414551d5cbe27ac307cfd1dc3"
+)
+EXPECTED_RELEASE_CERT_SHA1 = "9c83829cb0477a9bc66382a5ab9e01f243d824c4"
+EXPECTED_RELEASE_CERT_SHA256 = (
+    "e0a833050d7c8fce7ddce85b2a86561304456d87b67bd6be1577d8f657e16778"
+)
+RELEASE_KEYSTORE = ROOT.parent / "secrets" / EXPECTED_RELEASE_KEYSTORE_FILE
+
+
+@dataclass(frozen=True)
+class ReleaseSigningSession:
+    store_file: Path
+    key_alias: str
+    store_password: str
+    key_password: str
 
 
 def fail(message: str) -> NoReturn:
@@ -49,7 +71,17 @@ def parse_args() -> BuildMode:
         action="store_true",
         help="Build debug and unsigned release APKs and run release lint.",
     )
+    group.add_argument(
+        "--signed-release",
+        action="store_true",
+        help=(
+            "Run release lint, build the unsigned release APK, prompt for the "
+            "release-key passwords, and create a verified v2-only signed APK."
+        ),
+    )
     arguments = parser.parse_args()
+    if arguments.signed_release:
+        return "signed-release"
     if arguments.all:
         return "all"
     if arguments.release:
@@ -342,8 +374,312 @@ def write_local_properties(sdk: Path) -> None:
     (ROOT / "local.properties").write_text(f"sdk.dir={value}\n", encoding="utf-8", newline="\n")
 
 
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def normalize_fingerprint(value: str) -> str:
+    normalized = re.sub(r"[^0-9A-Fa-f]", "", value).lower()
+    if not normalized:
+        fail("A certificate fingerprint was empty after normalization.")
+    return normalized
+
+
+def require_signing_password(value: str, label: str) -> str:
+    if not value:
+        fail(f"{label} must not be empty.")
+    if len(value) > MAX_SIGNING_PASSWORD_LENGTH:
+        fail(f"{label} exceeds the supported length limit.")
+    if any(character in value for character in "\x00\r\n"):
+        fail(f"{label} contains an unsupported control character.")
+    return value
+
+
+def collect_release_signing_session() -> ReleaseSigningSession:
+    store_file = RELEASE_KEYSTORE
+    if store_file.is_symlink() or not store_file.is_file():
+        fail(f"Release keystore must be a regular non-symlink file: {store_file}")
+
+    actual_store_hash = sha256_file(store_file)
+    if actual_store_hash != EXPECTED_RELEASE_KEYSTORE_SHA256:
+        fail(
+            "Release keystore SHA-256 mismatch: "
+            f"expected {EXPECTED_RELEASE_KEYSTORE_SHA256}, got {actual_store_hash}"
+        )
+
+    print(f"Release keystore: {store_file}")
+    print(f"Release keystore SHA-256: {actual_store_hash}")
+    print("Release signing passwords are read interactively and are not stored.")
+
+    store_password = require_signing_password(
+        getpass.getpass("Release-keystore password: "),
+        "Release-keystore password",
+    )
+    key_password = getpass.getpass(
+        "Private-key password (press Enter to reuse the keystore password): "
+    )
+    if not key_password:
+        key_password = store_password
+    else:
+        key_password = require_signing_password(
+            key_password,
+            "Private-key password",
+        )
+
+    return ReleaseSigningSession(
+        store_file=store_file,
+        key_alias=EXPECTED_RELEASE_KEY_ALIAS,
+        store_password=store_password,
+        key_password=key_password,
+    )
+
+def run_captured(
+    command: list[str],
+    *,
+    environment: dict[str, str],
+    timeout_seconds: int,
+) -> str:
+    try:
+        result = subprocess.run(
+            command,
+            cwd=ROOT,
+            env=environment,
+            capture_output=True,
+            check=False,
+            timeout=timeout_seconds,
+        )
+    except subprocess.TimeoutExpired:
+        fail(f"Command timed out after {timeout_seconds} seconds: {command[0]}")
+
+    output = (result.stdout + result.stderr).decode("utf-8", errors="replace")
+    if result.returncode != 0:
+        fail(
+            f"Command failed with result code {result.returncode}: {command[0]}\n"
+            f"{output}"
+        )
+    return output
+
+
+def extract_keytool_fingerprint(output: str, algorithm: str, expected_length: int) -> str:
+    match = re.search(
+        rf"(?im)^\s*{re.escape(algorithm)}\s*:\s*([0-9a-f:]+)\s*$",
+        output,
+    )
+    if match is None:
+        fail(f"keytool output did not contain the {algorithm} certificate fingerprint.")
+    fingerprint = normalize_fingerprint(match.group(1))
+    if len(fingerprint) != expected_length:
+        fail(f"keytool returned an invalid {algorithm} fingerprint length.")
+    return fingerprint
+
+
+def verify_release_keystore(
+    signing: ReleaseSigningSession,
+    java_home: Path,
+) -> None:
+    keytool = java_home / "bin" / ("keytool.exe" if os.name == "nt" else "keytool")
+    if not keytool.is_file():
+        fail(f"JDK keytool was not found: {keytool}")
+
+    environment = os.environ.copy()
+    environment["GEOJOYSTICK_STORE_PASSWORD"] = signing.store_password
+    command = [
+        str(keytool),
+        "-list",
+        "-v",
+        "-keystore",
+        str(signing.store_file),
+        "-alias",
+        signing.key_alias,
+        "-storepass:env",
+        "GEOJOYSTICK_STORE_PASSWORD",
+    ]
+    output = run_captured(command, environment=environment, timeout_seconds=60)
+
+    sha1 = extract_keytool_fingerprint(output, "SHA1", 40)
+    sha256 = extract_keytool_fingerprint(output, "SHA256", 64)
+    if sha1 != EXPECTED_RELEASE_CERT_SHA1:
+        fail(
+            "Release certificate SHA-1 mismatch: "
+            f"expected {EXPECTED_RELEASE_CERT_SHA1}, got {sha1}"
+        )
+    if sha256 != EXPECTED_RELEASE_CERT_SHA256:
+        fail(
+            "Release certificate SHA-256 mismatch: "
+            f"expected {EXPECTED_RELEASE_CERT_SHA256}, got {sha256}"
+        )
+
+    print(f"Release key alias: {signing.key_alias}")
+    print(f"Release certificate SHA-1: {sha1}")
+    print(f"Release certificate SHA-256: {sha256}")
+    print("Release signing identity: PASS")
+
+
+def build_tool_path(sdk: Path, build_tools: str, tool: str) -> Path:
+    if os.name == "nt":
+        suffix = ".bat" if tool == "apksigner" else ".exe"
+    else:
+        suffix = ""
+    path = sdk / "build-tools" / build_tools / f"{tool}{suffix}"
+    if not path.is_file():
+        fail(f"Android Build Tools executable was not found: {path}")
+    return path
+
+
+def extract_apksigner_fingerprint(
+    output: str,
+    algorithm: str,
+    expected_length: int,
+) -> str:
+    match = re.search(
+        rf"(?im)^.*certificate\s+{re.escape(algorithm)}\s+digest\s*:\s*"
+        r"([0-9a-f:]+)\s*$",
+        output,
+    )
+    if match is None:
+        fail(f"apksigner output did not contain the {algorithm} certificate digest.")
+    fingerprint = normalize_fingerprint(match.group(1))
+    if len(fingerprint) != expected_length:
+        fail(f"apksigner returned an invalid {algorithm} digest length.")
+    return fingerprint
+
+
+def extract_scheme_result(output: str, scheme: str) -> bool | None:
+    match = re.search(
+        rf"(?im)^\s*Verified using {re.escape(scheme)} scheme.*:\s*(true|false)\s*$",
+        output,
+    )
+    if match is None:
+        return None
+    return match.group(1).lower() == "true"
+
+
+def sign_release_apk(
+    artifacts: list[tuple[str, Path]],
+    signing: ReleaseSigningSession,
+    sdk: Path,
+    build_tools: str,
+    java_home: Path,
+) -> tuple[str, Path]:
+    unsigned_matches = [
+        path for name, path in artifacts if name == "GeoJoystick-release-unsigned.apk"
+    ]
+    if len(unsigned_matches) != 1:
+        fail("Expected exactly one unsigned release APK before signing.")
+    unsigned_apk = unsigned_matches[0]
+
+    apksigner = build_tool_path(sdk, build_tools, "apksigner")
+    zipalign = build_tool_path(sdk, build_tools, "zipalign")
+    signed_apk = unsigned_apk.with_name("app-release-signed.apk")
+    idsig = Path(f"{signed_apk}.idsig")
+    signed_apk.unlink(missing_ok=True)
+    idsig.unlink(missing_ok=True)
+
+    unsigned_hash_before = sha256_file(unsigned_apk)
+    environment = os.environ.copy()
+    environment["JAVA_HOME"] = str(java_home)
+    environment["PATH"] = (
+        str(java_home / "bin") + os.pathsep + environment.get("PATH", "")
+    )
+    environment["GEOJOYSTICK_STORE_PASSWORD"] = signing.store_password
+    environment["GEOJOYSTICK_KEY_PASSWORD"] = signing.key_password
+
+    print("Signing release APK with the verified external release key.")
+    sign_command = [
+        str(apksigner),
+        "sign",
+        "--ks",
+        str(signing.store_file),
+        "--ks-key-alias",
+        signing.key_alias,
+        "--ks-pass",
+        "env:GEOJOYSTICK_STORE_PASSWORD",
+        "--key-pass",
+        "env:GEOJOYSTICK_KEY_PASSWORD",
+        "--v1-signing-enabled",
+        "false",
+        "--v2-signing-enabled",
+        "true",
+        "--v3-signing-enabled",
+        "false",
+        "--v4-signing-enabled",
+        "false",
+        "--out",
+        str(signed_apk),
+        str(unsigned_apk),
+    ]
+    run_captured(sign_command, environment=environment, timeout_seconds=120)
+
+    if not signed_apk.is_file():
+        fail(f"apksigner completed but the signed APK was not found: {signed_apk}")
+    if idsig.exists():
+        fail(f"Unexpected APK Signature Scheme v4 sidecar was created: {idsig}")
+
+    unsigned_hash_after = sha256_file(unsigned_apk)
+    if unsigned_hash_after != unsigned_hash_before:
+        fail("The unsigned release APK changed during signing.")
+
+    alignment_output = run_captured(
+        [str(zipalign), "-c", "-P", "16", "4", str(signed_apk)],
+        environment=environment,
+        timeout_seconds=60,
+    )
+    if alignment_output.strip():
+        print(alignment_output.strip())
+
+    verification = run_captured(
+        [str(apksigner), "verify", "--verbose", "--print-certs", str(signed_apk)],
+        environment=environment,
+        timeout_seconds=60,
+    )
+    sha1 = extract_apksigner_fingerprint(verification, "SHA-1", 40)
+    sha256 = extract_apksigner_fingerprint(verification, "SHA-256", 64)
+    if sha1 != EXPECTED_RELEASE_CERT_SHA1:
+        fail(
+            "Signed APK certificate SHA-1 mismatch: "
+            f"expected {EXPECTED_RELEASE_CERT_SHA1}, got {sha1}"
+        )
+    if sha256 != EXPECTED_RELEASE_CERT_SHA256:
+        fail(
+            "Signed APK certificate SHA-256 mismatch: "
+            f"expected {EXPECTED_RELEASE_CERT_SHA256}, got {sha256}"
+        )
+
+    required_schemes = {
+        "v1": False,
+        "v2": True,
+        "v3": False,
+        "v4": False,
+    }
+    for scheme, expected in required_schemes.items():
+        actual = extract_scheme_result(verification, scheme)
+        if actual is None:
+            fail(f"apksigner did not report the {scheme} signing-scheme result.")
+        if actual is not expected:
+            fail(
+                f"Unexpected {scheme} signing-scheme result: "
+                f"expected {expected}, got {actual}"
+            )
+
+    v31 = extract_scheme_result(verification, "v3.1")
+    if v31 is True:
+        fail("APK Signature Scheme v3.1 was unexpectedly enabled.")
+
+    print(f"Unsigned release SHA-256: {unsigned_hash_before}")
+    print(f"Signed release certificate SHA-1: {sha1}")
+    print(f"Signed release certificate SHA-256: {sha256}")
+    print("Signed release alignment: PASS")
+    print("Signed release schemes: v2 only")
+    return ("GeoJoystick-release.apk", signed_apk)
+
+
 def gradle_tasks(mode: BuildMode) -> list[str]:
-    if mode == "release":
+    if mode in {"release", "signed-release"}:
         return ["clean", "lintRelease", "lintVitalRelease", "assembleRelease"]
     if mode == "all":
         return [
@@ -365,7 +701,7 @@ def expected_artifacts(mode: BuildMode) -> list[tuple[str, Path]]:
                 ROOT / "app" / "build" / "outputs" / "apk" / "debug" / "app-debug.apk",
             )
         )
-    if mode in {"release", "all"}:
+    if mode in {"release", "all", "signed-release"}:
         artifacts.append(
             (
                 "GeoJoystick-release-unsigned.apk",
@@ -468,6 +804,7 @@ def publish(artifacts: list[tuple[str, Path]]) -> None:
     known_outputs = [
         dist / "GeoJoystick-debug.apk",
         dist / "GeoJoystick-release-unsigned.apk",
+        dist / "GeoJoystick-release.apk",
         dist / "SHA256SUMS.txt",
     ]
     for output in known_outputs:
@@ -521,6 +858,22 @@ def main() -> None:
     write_local_properties(sdk)
     gradle = ensure_gradle()
     artifacts = run_build(gradle, java_home, build_tools, mode)
+
+    if mode == "signed-release":
+        signing = collect_release_signing_session()
+        verify_release_keystore(signing, java_home)
+        artifacts.append(
+            sign_release_apk(
+                artifacts,
+                signing,
+                sdk,
+                build_tools,
+                java_home,
+            )
+        )
+    elif mode in {"release", "all"}:
+        print("Release signing: not requested; unsigned release retained.")
+
     publish(artifacts)
 
 
