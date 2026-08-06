@@ -31,12 +31,14 @@ GitHub Releases is canonical for developer-published assets and release notes. F
 - Validated release-signing implementation commit: `498abe66702ce9f7c03fc8f206bfdfaf32623544`
 - Validated release-signing implementation tree: `7d10f6ea3806e75ed7926b986917ae6bc7bea720`
 - Release-signing context reconciliation milestone: `9bd417fe28966b5e7411282da23e3034cb0ce351`, tree `105a42ca610f68f3d908158d7ad60ce90e535b71`
-- Draft PR #5: open, draft, mergeable, unmerged, targeting `main`; its recovery head branch was fast-forwarded through the release-signing context reconciliation milestone and its description was reconciled on 2026-08-06
+- Validated launcher-icon implementation commit: `5b33902411efdb58f8df707a93bc191aa6e88959`
+- Validated launcher-icon implementation tree: `f7f01ad8b11cbdadd39a312ffc8ab66ada3e6b82`
+- Draft PR #5: open, draft, mergeable, unmerged, targeting `main`; its recovery head branch was fast-forwarded through the validated launcher-icon milestone; description reconciliation for that milestone remains pending
 - Draft PR #4: closed unmerged as superseded
 
-The release-signing implementation and context-reconciliation commits are durable public milestone references. Obtain mutable branch and PR tips from live GitHub state instead of updating this document solely to chase its own documentation commit.
+The release-signing implementation, context-reconciliation and launcher-icon commits are durable public milestone references. Obtain mutable branch and PR tips from live GitHub state instead of updating this document solely to chase its own documentation commit.
 
-PR #5 now includes the accepted corrective implementation, validated release-signing workflow and reconciled project context. Keep it draft until the remaining physical-device gates are completed or explicitly deferred.
+PR #5 now includes the accepted corrective implementation, validated release-signing workflow, reconciled project context and validated launcher-icon correction. Keep it draft until the remaining physical-device lifecycle gates are completed or explicitly deferred.
 
 ## Published corrective scope
 
@@ -80,6 +82,16 @@ The accepted implementation:
 - extends the dependency-free parser test harness for the new boundaries.
 
 The corrective Android source and parser-test inputs remain unchanged since the accepted 13-path Android validation. The later release-signing milestone changes only `tools/build.py`, `README.md` and `FDROID_NOTES.md`; it does not alter Android runtime behavior.
+
+The validated launcher-icon milestone changes only these five Android resource paths:
+
+- `app/src/main/res/drawable-nodpi/ic_launcher_artwork.png`
+- `app/src/main/res/drawable/ic_launcher_foreground.xml`
+- `app/src/main/res/drawable/ic_launcher_monochrome.xml`
+- `app/src/main/res/mipmap-anydpi/ic_launcher.xml`
+- `app/src/main/res/mipmap-anydpi/ic_launcher_round.xml`
+
+It reuses the tracked 512×512 Fastlane icon as the adaptive launcher artwork, removes the obsolete visible location-pin foreground and supplies a joystick silhouette for themed monochrome icons. It does not change mock-location or service runtime behavior.
 
 ## Toolchain baseline
 
@@ -157,7 +169,33 @@ Accepted results:
 
 Private canonical evidence is retained outside public Git under `ReleaseSigningIntegration-Current`, `ReleaseSigningValidation-Current`, `ReleaseSigningCommit-Current` and `ReleaseSigningContextReconciliation-Current`.
 
-No APK was retained or published. Draft PR #5's head branch and description were reconciled after validation; installation, physical-device QA, store submission, tag, release, PR merge and `main` update were not performed. No GitHub Actions workflow was created, dispatched, rerun or used for validation.
+No release APK from the signing-milestone validation was committed or published. Subsequent physical-device installation and launcher-icon QA are recorded below. Draft PR #5 remains unmerged and `main` remains unchanged. No GitHub Actions workflow was created, dispatched, rerun or used for validation.
+
+## Accepted physical-device installation and launcher-icon validation
+
+Physical-device QA was performed on 2026-08-06 using the designated Android 16 (SDK 36) QA device, with its serial omitted from public documentation.
+
+Accepted results:
+
+- the pre-existing 0.1.3 (`103`) installation used the Android Debug signer `c30801681a8a1a5d2b4bfe036fabb9bcd968c14f25af4c0f7273cd16f2f65eaa`, which was incompatible with the accepted release signer;
+- after explicit user authorization, the debug-signed package and its app data were removed and the validated release-signed package was installed;
+- GeoJoystick was manually reselected as the mock-location app through Developer Options; that selection was not automated;
+- launcher-icon source commit `5b33902411efdb58f8df707a93bc191aa6e88959`, tree `f7f01ad8b11cbdadd39a312ffc8ab66ada3e6b82`, contains exactly the five reviewed resource paths listed above;
+- parser self-test, release lint/build, unsigned resource-table preflight and signed/installed AAPT2 resource-table verification: pass;
+- signed and installed APK SHA-256: `b62178083e0f1a18d427893d781ec13be5c135d2afcdffa49e3b0d43e7472613`;
+- accepted signer certificate SHA-256: `e0a833050d7c8fce7ddce85b2a86561304456d87b67bd6be1577d8f657e16778`;
+- signature schemes: v1 false, v2 true, v3 false and v4 false;
+- APK alignment: pass;
+- mock-location app-op after installation: `ALLOW`;
+- visual launcher QA: user confirmed the intended icon is correct;
+- final application process state: stopped;
+- the app was not launched for simulation, no coordinates were queried and no simulation was started;
+- generated APK/build output cleanup: pass;
+- final source state after the launcher-icon commit and branch publication: clean, one worktree, zero tracked workflows and synchronized non-default branches.
+
+Private canonical evidence is retained outside public Git under `DeviceQAPreflight-Current`, `InstalledSignerInventory-Current`, `DeviceQAResetInstallation-Current`, `LauncherIconValidation-Current` and `LauncherIconCommit-Current`.
+
+One verified debug-signed rollback APK remains privately outside Git while it has an operational rollback purpose. No APK is committed or publicly published.
 
 ## Product baseline
 
@@ -172,26 +210,28 @@ No APK was retained or published. Draft PR #5's head branch and description were
 - System/Light/Dark appearance
 - System/English/German language
 - Truthful foreground notification and stop action
+- Accepted adaptive launcher icon using the intended joystick artwork and monochrome symbol
 - No ads, billing, subscriptions, accounts, analytics, tracking, telemetry or updater
 
 GeoJoystick does not conceal Android mock-location status and is not game, cheating, anti-detection, integrity-bypass or ban-evasion tooling.
 
 ## Remaining gaps
 
-- Keep draft PR #5 in draft until physical-device QA is completed or explicitly deferred.
-- Reconcile app-op loss, Developer Options changes, provider removal, reboot/process-death behavior and truthful UI state on a physical device.
+- Keep draft PR #5 in draft until the remaining physical-device behavior and accessibility QA is completed or explicitly deferred.
+- Test app-op loss, Developer Options changes, provider removal, reboot and process-death reconciliation on the designated physical device.
+- Validate truthful foreground-service, notification, overlay and UI-active state using synthetic coordinates, finishing with simulation inactive.
 - Review overlay touch-target sizing and accessibility at device scale as a separate UI change.
 - Continue the separate `tools/build.py` hardening scope for ZIP extraction, downloads, subprocess timeouts and JDK ranking; make `build.bat` independent of caller working directory.
-- Replace store screenshots with sanitized synthetic fixtures after source/device acceptance and decide the final store-icon corner treatment.
+- Replace store screenshots with sanitized synthetic fixtures after source/device acceptance.
 - Treat API 36 compile/target migration as a separate permission, foreground-service, notification, overlay, app-op, F-Droid and device-validation change.
-- Keep installation, device QA, reproducibility, store publication, public merge/release and final signoff as separate gates.
+- Keep remaining device QA, reproducibility, store publication, public merge/release and final signoff as separate gates.
 
 ## Next accepted stages
 
-1. Synchronize the clean MAIN_PC repository with the reconciled non-default remote branches before further local work.
-2. Perform installation and physical-device QA separately using synthetic coordinates and an explicitly selected ADB device.
-3. Keep PR #5 draft until the remaining physical-device gates are completed or explicitly deferred.
-4. Continue build-script hardening, store-asset replacement and API 36 migration only as separate reviewed scopes.
+1. Reconcile draft PR #5's description with the stable launcher-icon source milestone; do not update this document merely to chase the resulting documentation commit.
+2. Continue the remaining physical-device behavior QA using synthetic coordinates and the explicitly selected ADB device, finishing inactive.
+3. Keep PR #5 draft until the remaining physical-device and accessibility gates are completed or explicitly deferred.
+4. Continue build-script hardening, sanitized store-asset replacement and API 36 migration only as separate reviewed scopes.
 5. Do not merge `main`, tag, publish or submit to stores without user signoff.
 
 ## Public documentation policy
