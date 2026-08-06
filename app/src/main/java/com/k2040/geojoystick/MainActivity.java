@@ -1,19 +1,21 @@
 package com.k2040.geojoystick;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AppOpsManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,6 +25,7 @@ import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowInsets;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -57,7 +60,8 @@ public final class MainActivity extends Activity {
     private static final String PREF_OVERLAY_HIGH_CONTRAST = "overlay_high_contrast";
     private static final String PREF_CUSTOM_SPEED = "overlay_custom_speed";
     private static final String PREF_CUSTOM_SPEED_NAME = "overlay_custom_speed_name";
-    private static final String PREF_LICENSE_ACCEPTED = "license_accepted";
+    private static final String PREF_WELCOME_ACKNOWLEDGED = "welcome_acknowledged";
+    private static final String PREF_LEGACY_LICENSE_ACCEPTED = "license_accepted";
     private static final String APPEARANCE_SYSTEM = "system";
     private static final String APPEARANCE_LIGHT = "light";
     private static final String APPEARANCE_DARK = "dark";
@@ -66,6 +70,11 @@ public final class MainActivity extends Activity {
     private static final String LANGUAGE_GERMAN = "de";
     private static final int FAVORITE_COUNT = 5;
     private static final String STATE_CURRENT_PAGE = "current_page";
+    private static final String STATE_DRAFT_INITIALIZED = "draft_initialized";
+    private static final String STATE_DRAFT_LATITUDE = "draft_latitude";
+    private static final String STATE_DRAFT_LONGITUDE = "draft_longitude";
+    private static final String STATE_DRAFT_ALTITUDE = "draft_altitude";
+    private static final String STATE_INCOMING_INTENT_CONSUMED = "incoming_intent_consumed";
 
     private SharedPreferences preferences;
     private EditText latitudeInput;
@@ -74,6 +83,22 @@ public final class MainActivity extends Activity {
     private TextView statusText;
     private final Button[] favoriteButtons = new Button[FAVORITE_COUNT];
     private boolean pendingStart;
+    private boolean stateReceiverRegistered;
+    private boolean incomingIntentConsumed;
+    private volatile int importRequestId;
+    private boolean draftInitialized;
+    private double draftLatitude = Double.NaN;
+    private double draftLongitude = Double.NaN;
+    private double draftAltitude = Double.NaN;
+    private final BroadcastReceiver simulationStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null
+                    && MockLocationService.ACTION_STATE_CHANGED.equals(intent.getAction())) {
+                updateStatus();
+            }
+        }
+    };
     private String currentPage = "main";
     private boolean darkMode;
     private boolean german;
@@ -92,16 +117,26 @@ public final class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         preferences = getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         loadUiSettings();
+        restoreDraftCoordinates(savedInstanceState);
+        incomingIntentConsumed = savedInstanceState != null
+                && savedInstanceState.getBoolean(STATE_INCOMING_INTENT_CONSUMED, false);
+        if (!isWelcomeAcknowledged()) {
+            showWelcomePage();
+            return;
+        }
+
         buildInterface();
         handleIncomingIntent(getIntent());
-        if (!preferences.getBoolean(PREF_LICENSE_ACCEPTED, false)) {
-            statusText.post(this::showFirstLaunchDialogIfNeeded);
-        } else if (savedInstanceState != null) {
+        if (savedInstanceState != null) {
             String restoredPage = savedInstanceState.getString(STATE_CURRENT_PAGE, "main");
             if ("settings".equals(restoredPage)) {
                 showSettingsPage();
             } else if ("about".equals(restoredPage)) {
                 showAboutPage();
+            } else if ("changelog".equals(restoredPage)) {
+                showChangelogPage();
+            } else if ("license-about".equals(restoredPage)) {
+                showLicensePage("about");
             }
         }
     }
@@ -110,12 +145,14 @@ public final class MainActivity extends Activity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
+        incomingIntentConsumed = false;
         handleIncomingIntent(intent);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        registerSimulationStateReceiver();
         updateStatus();
         if (pendingStart && Settings.canDrawOverlays(this) && isSelectedMockLocationApp()) {
             pendingStart = false;
@@ -126,17 +163,42 @@ public final class MainActivity extends Activity {
     @Override
     protected void onPause() {
         saveVisibleCoordinateFields();
+        unregisterSimulationStateReceiver();
         super.onPause();
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        saveVisibleCoordinateFields();
         super.onSaveInstanceState(outState);
         outState.putString(STATE_CURRENT_PAGE, currentPage);
+        outState.putBoolean(STATE_DRAFT_INITIALIZED, draftInitialized);
+        outState.putBoolean(STATE_INCOMING_INTENT_CONSUMED, incomingIntentConsumed);
+        if (draftInitialized) {
+            outState.putDouble(STATE_DRAFT_LATITUDE, draftLatitude);
+            outState.putDouble(STATE_DRAFT_LONGITUDE, draftLongitude);
+            outState.putDouble(STATE_DRAFT_ALTITUDE, draftAltitude);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        importRequestId++;
+        unregisterSimulationStateReceiver();
+        super.onDestroy();
     }
 
     @Override
     public void onBackPressed() {
+        if ("license-welcome".equals(currentPage)) {
+            showWelcomePage();
+            return;
+        }
+        if ("license-about".equals(currentPage)
+                || "changelog".equals(currentPage)) {
+            showAboutPage();
+            return;
+        }
         if (!"main".equals(currentPage)) {
             buildInterface();
             return;
@@ -147,10 +209,34 @@ public final class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_MAP && resultCode == RESULT_OK && data != null) {
-            double lat = data.getDoubleExtra(MapActivity.EXTRA_LATITUDE, getLatitude());
-            double lng = data.getDoubleExtra(MapActivity.EXTRA_LONGITUDE, getLongitude());
-            setCoordinateInputs(lat, lng, getAltitude());
+        if (requestCode != REQUEST_MAP || resultCode != RESULT_OK || data == null) {
+            return;
+        }
+        if (!data.hasExtra(MapActivity.EXTRA_LATITUDE)
+                || !data.hasExtra(MapActivity.EXTRA_LONGITUDE)) {
+            Toast.makeText(
+                    this,
+                    t("The map returned no valid coordinates",
+                            "Die Karte hat keine gültigen Koordinaten zurückgegeben"),
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+        double lat = data.getDoubleExtra(MapActivity.EXTRA_LATITUDE, Double.NaN);
+        double lng = data.getDoubleExtra(MapActivity.EXTRA_LONGITUDE, Double.NaN);
+        if (!setHorizontalCoordinateInputs(lat, lng)) {
+            Toast.makeText(
+                    this,
+                    t("The map returned invalid coordinates",
+                            "Die Karte hat ungültige Koordinaten zurückgegeben"),
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (!Double.isFinite(safeAltitude())) {
+            Toast.makeText(
+                    this,
+                    t("Location selected. Enter an altitude before starting.",
+                            "Standort ausgewählt. Gib vor dem Start eine Höhe ein."),
+                    Toast.LENGTH_LONG).show();
         }
     }
 
@@ -293,12 +379,18 @@ public final class MainActivity extends Activity {
         supportButton.setOnClickListener(view -> openExternalUrl("https://ko-fi.com/k2040"));
         root.addView(supportButton, matchWidth());
 
+        TextView supportDisclosure = sectionText(supportDisclosureText(), 12, colorTextDim);
+        supportDisclosure.setGravity(Gravity.CENTER);
+        supportDisclosure.setPadding(dp(8), dp(4), dp(8), 0);
+        root.addView(supportDisclosure, matchWidth());
+
         TextView bottomDescription = sectionText(aboutDescriptionText(), 13, colorTextDim);
         bottomDescription.setGravity(Gravity.CENTER);
         bottomDescription.setPadding(dp(4), dp(8), dp(4), 0);
         root.addView(bottomDescription, matchWidth());
 
         setContentView(scrollView);
+        applySystemBarInsets(scrollView);
         updateStatus();
     }
 
@@ -325,6 +417,7 @@ public final class MainActivity extends Activity {
         root.addView(backButton, matchWidth());
 
         setContentView(scrollView);
+        applySystemBarInsets(scrollView);
     }
 
     private void showAboutPage() {
@@ -343,19 +436,78 @@ public final class MainActivity extends Activity {
         root.addView(title);
         root.addView(aboutCardView(false), matchWidth());
 
-        Button licenseButton = fullButton(t("License", "Lizenz"));
-        licenseButton.setOnClickListener(view -> openLicenseDialog());
+        Button changelogButton = fullButton(t("What's new", "Neuigkeiten"));
+        changelogButton.setOnClickListener(view -> showChangelogPage());
+        root.addView(changelogButton, matchWidth());
+
+        Button licenseButton = fullButton(t("View GPL-3.0", "GPL-3.0 anzeigen"));
+        licenseButton.setOnClickListener(view -> showLicensePage("about"));
         root.addView(licenseButton, matchWidth());
 
         Button supportButton = fullButton(t("Support K2040 on Ko-fi", "K2040 auf Ko-fi unterstützen"));
         supportButton.setOnClickListener(view -> openExternalUrl("https://ko-fi.com/k2040"));
         root.addView(supportButton, matchWidth());
 
+        TextView supportDisclosure = sectionText(supportDisclosureText(), 12, colorTextDim);
+        supportDisclosure.setGravity(Gravity.CENTER);
+        supportDisclosure.setPadding(dp(8), dp(4), dp(8), dp(6));
+        root.addView(supportDisclosure, matchWidth());
+
         Button backButton = fullButton(t("Back", "Zurück"));
         backButton.setOnClickListener(view -> buildInterface());
         root.addView(backButton, matchWidth());
 
         setContentView(scrollView);
+        applySystemBarInsets(scrollView);
+    }
+
+    private void showChangelogPage() {
+        saveVisibleCoordinateFields();
+        currentPage = "changelog";
+
+        ScrollView scrollView = new ScrollView(this);
+        scrollView.setBackgroundColor(colorBackground);
+
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(dp(18), dp(18), dp(18), dp(24));
+        root.setBackgroundColor(colorBackground);
+        scrollView.addView(root);
+
+        TextView title = sectionText(t("What's new", "Neuigkeiten"), 28, colorText);
+        title.setPadding(0, 0, 0, dp(10));
+        root.addView(title);
+
+        TextView changes = sectionText(changelogText(), 14, colorText);
+        changes.setTextIsSelectable(true);
+        changes.setPadding(dp(12), dp(12), dp(12), dp(12));
+        changes.setBackground(cardBackground());
+        root.addView(changes, matchWidth());
+
+        Button backButton = fullButton(t("Back", "Zurück"));
+        backButton.setOnClickListener(view -> showAboutPage());
+        root.addView(backButton, matchWidth());
+
+        setContentView(scrollView);
+        applySystemBarInsets(scrollView);
+    }
+
+    private String changelogText() {
+        return t(
+                "Version 0.1.3\n"
+                        + "• Dialogs now follow the selected dark theme.\n"
+                        + "• GeoJoystick now uses a dedicated icon in store listings.\n\n"
+                        + "Version 0.1.0\n"
+                        + "• Initial public release with coordinate and altitude entry, "
+                        + "map selection and link import, favorites, appearance and "
+                        + "language settings, and floating joystick controls.",
+                "Version 0.1.3\n"
+                        + "• Dialoge folgen nun dem ausgewählten dunklen Design.\n"
+                        + "• GeoJoystick verwendet nun ein eigenes Symbol in Store-Einträgen.\n\n"
+                        + "Version 0.1.0\n"
+                        + "• Erste öffentliche Version mit Koordinaten- und Höheneingabe, "
+                        + "Kartenauswahl und Linkimport, Favoriten, Darstellungs- und "
+                        + "Spracheinstellungen sowie schwebender Joystick-Steuerung.");
     }
 
     private void addSetupSection(LinearLayout root) {
@@ -468,9 +620,7 @@ public final class MainActivity extends Activity {
         card.addView(aboutRow);
 
         if (firstLaunch) {
-            TextView licenseNote = sectionText(t(
-                    "Please review and accept the GPL-3.0-only license to continue.",
-                    "Bitte prüfe und akzeptiere die GPL-3.0-only-Lizenz, um fortzufahren."), 12, colorTextDim);
+            TextView licenseNote = sectionText(welcomeDisclaimerText(), 12, colorTextDim);
             licenseNote.setPadding(0, dp(10), 0, 0);
             card.addView(licenseNote);
         }
@@ -481,72 +631,195 @@ public final class MainActivity extends Activity {
         return new AlertDialog.Builder(this, darkMode ? R.style.AppDialogThemeDark : R.style.AppDialogThemeLight);
     }
 
-    private void showFirstLaunchDialogIfNeeded() {
-        if (preferences.getBoolean(PREF_LICENSE_ACCEPTED, false) || isFinishing()) {
-            return;
-        }
-        AlertDialog dialog = appDialogBuilder()
-                .setTitle(t("About GeoJoystick", "Über GeoJoystick"))
-                .setView(aboutCardView(true))
-                .setPositiveButton(t("Accept", "Akzeptieren"), null)
-                .setNegativeButton(t("Refuse", "Ablehnen"), null)
-                .setNeutralButton(t("License", "Lizenz"), null)
-                .create();
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.setOnCancelListener(cancel -> finish());
-        dialog.setOnShowListener(window -> {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
-                preferences.edit().putBoolean(PREF_LICENSE_ACCEPTED, true).apply();
-                dialog.dismiss();
-            });
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(view -> {
-                dialog.dismiss();
-                finish();
-            });
-            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(view -> openLicenseDialog());
-        });
-        dialog.show();
+    private boolean isWelcomeAcknowledged() {
+        return preferences.getBoolean(PREF_WELCOME_ACKNOWLEDGED, false)
+                || preferences.getBoolean(PREF_LEGACY_LICENSE_ACCEPTED, false);
     }
 
-    private void openLicenseDialog() {
-        LinearLayout dialogRoot = new LinearLayout(this);
-        dialogRoot.setOrientation(LinearLayout.VERTICAL);
-        dialogRoot.setPadding(dp(14), dp(12), dp(14), dp(10));
-        dialogRoot.setBackgroundColor(colorCard);
+    private void showWelcomePage() {
+        currentPage = "welcome";
 
-        TextView title = sectionText("GPL-3.0-only", 20, colorText);
-        title.setPadding(dp(2), 0, dp(2), dp(8));
-        dialogRoot.addView(title, matchWidth());
+        ScrollView scrollView = new ScrollView(this);
+        scrollView.setFillViewport(true);
+        scrollView.setBackgroundColor(colorBackground);
 
-        TextView licenseText = sectionText(readAssetText("LICENSE"), 11, colorText);
-        licenseText.setTextIsSelectable(true);
-        licenseText.setPadding(dp(10), dp(8), dp(10), dp(8));
-        licenseText.setBackgroundColor(colorInput);
-
-        ScrollView scroller = new ScrollView(this);
-        scroller.setBackground(cardBackground());
-        scroller.addView(licenseText);
-        int maxHeight = Math.min(dp(560), Math.round(getResources().getDisplayMetrics().heightPixels * 0.70f));
-        LinearLayout.LayoutParams scrollerParams = new LinearLayout.LayoutParams(
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setGravity(Gravity.CENTER_HORIZONTAL);
+        root.setPadding(dp(20), dp(24), dp(20), dp(24));
+        root.setBackgroundColor(colorBackground);
+        scrollView.addView(root, new ScrollView.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                maxHeight);
-        scrollerParams.setMargins(0, 0, 0, dp(8));
-        dialogRoot.addView(scroller, scrollerParams);
+                ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        Button closeButton = fullButton(t("Close", "Schließen"));
-        dialogRoot.addView(closeButton, matchWidth());
+        TextView title = sectionText(t(
+                "Welcome to GeoJoystick",
+                "Willkommen bei GeoJoystick"), 28, colorText);
+        title.setGravity(Gravity.CENTER);
+        title.setPadding(0, 0, 0, dp(14));
+        root.addView(title, matchWidth());
 
-        AlertDialog dialog = appDialogBuilder()
-                .setView(dialogRoot)
-                .create();
-        closeButton.setOnClickListener(view -> dialog.dismiss());
-        dialog.setOnShowListener(window -> {
-            if (dialog.getWindow() != null) {
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(colorCard));
+        ImageView avatar = new ImageView(this);
+        avatar.setImageResource(R.drawable.k2040_avatar);
+        avatar.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        avatar.setContentDescription(t("K2040 avatar", "K2040-Avatar"));
+        LinearLayout.LayoutParams avatarParams = new LinearLayout.LayoutParams(dp(128), dp(128));
+        avatarParams.gravity = Gravity.CENTER_HORIZONTAL;
+        avatarParams.bottomMargin = dp(14);
+        root.addView(avatar, avatarParams);
+
+        TextView disclaimer = sectionText(welcomeDisclaimerText(), 15, colorText);
+        disclaimer.setGravity(Gravity.CENTER);
+        disclaimer.setPadding(dp(12), dp(12), dp(12), dp(12));
+        disclaimer.setBackground(cardBackground());
+        root.addView(disclaimer, matchWidth());
+
+        Button licenseButton = fullButton(t("View GPL-3.0", "GPL-3.0 anzeigen"));
+        licenseButton.setOnClickListener(view -> showLicensePage("welcome"));
+        root.addView(licenseButton, matchWidth());
+
+        Button supportButton = fullButton(t(
+                "Support K2040 on Ko-fi",
+                "K2040 auf Ko-fi unterstützen"));
+        supportButton.setOnClickListener(view -> openExternalUrl("https://ko-fi.com/k2040"));
+        root.addView(supportButton, matchWidth());
+
+        TextView supportDisclosure = sectionText(supportDisclosureText(), 12, colorTextDim);
+        supportDisclosure.setGravity(Gravity.CENTER);
+        supportDisclosure.setPadding(dp(8), dp(4), dp(8), dp(10));
+        root.addView(supportDisclosure, matchWidth());
+
+        TextView acknowledgementNote = sectionText(t(
+                "By continuing, you confirm that you have acknowledged this notice. This is not acceptance of the GPL.",
+                "Mit „Weiter“ bestätigen Sie, dass Sie diesen Hinweis zur Kenntnis genommen haben. Dies ist keine Zustimmung zur GPL."),
+                12,
+                colorTextDim);
+        acknowledgementNote.setGravity(Gravity.CENTER);
+        acknowledgementNote.setPadding(dp(8), dp(8), dp(8), dp(4));
+        root.addView(acknowledgementNote, matchWidth());
+
+        Button continueButton = fullButton(t(
+                "Acknowledged — Continue",
+                "Zur Kenntnis genommen – Weiter"));
+        continueButton.setOnClickListener(view -> {
+            preferences.edit().putBoolean(PREF_WELCOME_ACKNOWLEDGED, true).apply();
+            buildInterface();
+            handleIncomingIntent(getIntent());
+        });
+        root.addView(continueButton, matchWidth());
+
+        setContentView(scrollView);
+        applySystemBarInsets(scrollView);
+    }
+
+    private void showLicensePage(String returnPage) {
+        boolean returnToWelcome = "welcome".equals(returnPage)
+                && !isWelcomeAcknowledged();
+        currentPage = returnToWelcome ? "license-welcome" : "license-about";
+
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(dp(16), dp(18), dp(16), dp(18));
+        root.setBackgroundColor(colorBackground);
+
+        TextView title = sectionText("GPL-3.0-only", 24, colorText);
+        title.setGravity(Gravity.CENTER);
+        title.setPadding(0, 0, 0, dp(8));
+        root.addView(title, matchWidth());
+
+        TextView languageNote = sectionText(t(
+                "The bundled English GPL text is the authoritative license text.",
+                "Der enthaltene englische GPL-Text ist der maßgebliche Lizenztext."),
+                12,
+                colorTextDim);
+        languageNote.setGravity(Gravity.CENTER);
+        languageNote.setPadding(dp(8), 0, dp(8), dp(8));
+        root.addView(languageNote, matchWidth());
+
+        Button backButton = fullButton(t("Back", "Zurück"));
+        backButton.setOnClickListener(view -> {
+            if (returnToWelcome) {
+                showWelcomePage();
+            } else {
+                showAboutPage();
             }
         });
-        dialog.show();
+        root.addView(backButton, matchWidth());
+
+        TextView licenseText = sectionText(
+                reflowLicenseText(readAssetText("LICENSE")),
+                11,
+                colorText);
+        licenseText.setTextIsSelectable(true);
+        licenseText.setPadding(dp(12), dp(10), dp(12), dp(10));
+        licenseText.setBackground(cardBackground());
+
+        ScrollView scroller = new ScrollView(this);
+        scroller.setFillViewport(true);
+        scroller.addView(licenseText);
+        LinearLayout.LayoutParams scrollerParams =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        0,
+                        1f);
+        scrollerParams.topMargin = dp(8);
+        root.addView(scroller, scrollerParams);
+
+        setContentView(root);
+        applySystemBarInsets(root);
     }
+
+    private String reflowLicenseText(String text) {
+        if (text == null || text.isEmpty()) {
+            return "";
+        }
+
+        String normalized = text
+                .replace("\r\n", "\n")
+                .replace('\r', '\n');
+        String[] paragraphs = normalized.split("\\n[ \\t]*\\n");
+        StringBuilder output = new StringBuilder();
+
+        for (String paragraph : paragraphs) {
+            String[] lines = paragraph.split("\\n");
+            StringBuilder joined = new StringBuilder();
+
+            for (String line : lines) {
+                String trimmed = line.trim();
+                if (trimmed.isEmpty()) {
+                    continue;
+                }
+                if (joined.length() > 0) {
+                    joined.append(' ');
+                }
+                joined.append(trimmed);
+            }
+
+            if (joined.length() == 0) {
+                continue;
+            }
+            if (output.length() > 0) {
+                output.append("\n\n");
+            }
+            output.append(joined);
+        }
+
+        return output.toString();
+    }
+
+
+    private String welcomeDisclaimerText() {
+        return t(
+                "GeoJoystick is free software licensed under the GNU General Public License version 3. No warranty is provided.",
+                "GeoJoystick ist freie Software unter der GNU General Public License Version 3. Es besteht keine Gewährleistung.");
+    }
+
+    private String supportDisclosureText() {
+        return t(
+                "Donations are entirely optional. They do not unlock features or provide any additional benefits.",
+                "Spenden sind vollständig freiwillig. Sie schalten keine Funktionen frei und bieten keinerlei zusätzliche Vorteile.");
+    }
+
 
     private String readAssetText(String name) {
         StringBuilder builder = new StringBuilder();
@@ -563,14 +836,54 @@ public final class MainActivity extends Activity {
     }
 
     private double[] loadInitialCoordinates() {
-        double fallbackLat = Double.longBitsToDouble(preferences.getLong(PREF_LATITUDE, Double.doubleToLongBits(52.520008)));
-        double fallbackLng = Double.longBitsToDouble(preferences.getLong(PREF_LONGITUDE, Double.doubleToLongBits(13.404954)));
-        double fallbackAlt = Double.longBitsToDouble(preferences.getLong(PREF_ALTITUDE, Double.doubleToLongBits(55.0)));
-        return new double[]{
-                Double.longBitsToDouble(preferences.getLong(PREF_MANUAL_LATITUDE, Double.doubleToLongBits(fallbackLat))),
-                Double.longBitsToDouble(preferences.getLong(PREF_MANUAL_LONGITUDE, Double.doubleToLongBits(fallbackLng))),
-                Double.longBitsToDouble(preferences.getLong(PREF_MANUAL_ALTITUDE, Double.doubleToLongBits(fallbackAlt)))
-        };
+        if (draftInitialized) {
+            return new double[]{draftLatitude, draftLongitude, draftAltitude};
+        }
+
+        double[] manual = readStoredCoordinates(
+                PREF_MANUAL_LATITUDE,
+                PREF_MANUAL_LONGITUDE,
+                PREF_MANUAL_ALTITUDE);
+        if (manual != null) {
+            setDraftCoordinates(manual[0], manual[1], manual[2]);
+            return manual;
+        }
+
+        if (preferences.getBoolean(PREF_RESTORE_LAST_POSITION, true)) {
+            double[] lastActive = readStoredCoordinates(
+                    PREF_LATITUDE,
+                    PREF_LONGITUDE,
+                    PREF_ALTITUDE);
+            if (lastActive != null) {
+                setDraftCoordinates(lastActive[0], lastActive[1], lastActive[2]);
+                return lastActive;
+            }
+        }
+
+        setDraftCoordinates(Double.NaN, Double.NaN, Double.NaN);
+        return new double[]{Double.NaN, Double.NaN, Double.NaN};
+    }
+
+    private double[] readStoredCoordinates(
+            String latitudeKey,
+            String longitudeKey,
+            String altitudeKey) {
+        if (!preferences.contains(latitudeKey)
+                || !preferences.contains(longitudeKey)
+                || !preferences.contains(altitudeKey)) {
+            return null;
+        }
+
+        double latitude = Double.longBitsToDouble(
+                preferences.getLong(latitudeKey, 0L));
+        double longitude = Double.longBitsToDouble(
+                preferences.getLong(longitudeKey, 0L));
+        double altitude = Double.longBitsToDouble(
+                preferences.getLong(altitudeKey, 0L));
+        if (!validCoordinateValues(latitude, longitude, altitude)) {
+            return null;
+        }
+        return new double[]{latitude, longitude, altitude};
     }
 
     private void chooseAppearance() {
@@ -633,14 +946,24 @@ public final class MainActivity extends Activity {
     private void toggleRestoreLastPosition() {
         saveVisibleCoordinateFields();
         boolean next = !preferences.getBoolean(PREF_RESTORE_LAST_POSITION, true);
-        SharedPreferences.Editor editor = preferences.edit().putBoolean(PREF_RESTORE_LAST_POSITION, next);
+        SharedPreferences.Editor editor = preferences.edit()
+                .putBoolean(PREF_RESTORE_LAST_POSITION, next);
         if (next) {
-            double lat = Double.longBitsToDouble(preferences.getLong(PREF_LATITUDE, Double.doubleToLongBits(52.520008)));
-            double lng = Double.longBitsToDouble(preferences.getLong(PREF_LONGITUDE, Double.doubleToLongBits(13.404954)));
-            double alt = Double.longBitsToDouble(preferences.getLong(PREF_ALTITUDE, Double.doubleToLongBits(55.0)));
-            editor.putLong(PREF_MANUAL_LATITUDE, Double.doubleToRawLongBits(lat))
-                    .putLong(PREF_MANUAL_LONGITUDE, Double.doubleToRawLongBits(lng))
-                    .putLong(PREF_MANUAL_ALTITUDE, Double.doubleToRawLongBits(alt));
+            double[] lastActive = readStoredCoordinates(
+                    PREF_LATITUDE,
+                    PREF_LONGITUDE,
+                    PREF_ALTITUDE);
+            if (lastActive != null) {
+                editor.putLong(
+                                PREF_MANUAL_LATITUDE,
+                                Double.doubleToRawLongBits(lastActive[0]))
+                        .putLong(
+                                PREF_MANUAL_LONGITUDE,
+                                Double.doubleToRawLongBits(lastActive[1]))
+                        .putLong(
+                                PREF_MANUAL_ALTITUDE,
+                                Double.doubleToRawLongBits(lastActive[2]));
+            }
         }
         editor.apply();
         recreate();
@@ -686,7 +1009,10 @@ public final class MainActivity extends Activity {
     }
 
     private void updateOpacityLabel(TextView label, int opacity) {
-        label.setText(t("Overlay opacity: ", "Overlay-Deckkraft: ") + opacity + "%");
+        label.setText(String.format(
+                Locale.US,
+                t("Overlay opacity: %d%%", "Overlay-Deckkraft: %d%%"),
+                opacity));
     }
 
     private int getOverlayOpacity() {
@@ -730,7 +1056,10 @@ public final class MainActivity extends Activity {
                 .create();
         dialog.setOnShowListener(window -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
             try {
-                double value = clampSpeed(Double.parseDouble(speedInput.getText().toString().trim()));
+                double value = Double.parseDouble(speedInput.getText().toString().trim());
+                if (!Double.isFinite(value) || value < 0.1 || value > 50.0) {
+                    throw new NumberFormatException("Speed out of range");
+                }
                 String name = nameInput.getText().toString().trim();
                 if (name.isEmpty()) {
                     name = "Custom";
@@ -778,11 +1107,24 @@ public final class MainActivity extends Activity {
             editFavorite(slot, false);
             return;
         }
-        double lat = favoriteDouble(slot, "latitude", getLatitude());
-        double lng = favoriteDouble(slot, "longitude", getLongitude());
-        double alt = favoriteDouble(slot, "altitude", getAltitude());
+
+        double lat = favoriteDouble(slot, "latitude", Double.NaN);
+        double lng = favoriteDouble(slot, "longitude", Double.NaN);
+        double alt = favoriteDouble(slot, "altitude", Double.NaN);
+        if (!validCoordinateValues(lat, lng, alt)) {
+            Toast.makeText(
+                    this,
+                    t("The saved favorite is invalid",
+                            "Der gespeicherte Favorit ist ungültig"),
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
         setCoordinateInputs(lat, lng, alt);
-        Toast.makeText(this, t("Favorite loaded into coordinate fields", "Favorit in Koordinatenfelder geladen"), Toast.LENGTH_SHORT).show();
+        Toast.makeText(
+                this,
+                t("Favorite loaded into coordinate fields",
+                        "Favorit in Koordinatenfelder geladen"),
+                Toast.LENGTH_SHORT).show();
     }
 
     private void editFavorite(int slot, boolean useSavedValues) {
@@ -909,7 +1251,10 @@ public final class MainActivity extends Activity {
     }
 
     private EditText coordinateInput(String hint, double value) {
-        EditText input = textInput(hint, String.format(Locale.US, "%.6f", value));
+        String initialValue = Double.isFinite(value)
+                ? String.format(Locale.US, "%.6f", value)
+                : "";
+        EditText input = textInput(hint, initialValue);
         input.setSelectAllOnFocus(true);
         input.setInputType(InputType.TYPE_CLASS_NUMBER
                 | InputType.TYPE_NUMBER_FLAG_DECIMAL
@@ -1000,18 +1345,53 @@ public final class MainActivity extends Activity {
         return params;
     }
 
+    private void scheduleRuntimeStatusRefresh() {
+        if (statusText == null) {
+            return;
+        }
+        statusText.post(this::updateStatus);
+        statusText.postDelayed(this::updateStatus, 300L);
+        statusText.postDelayed(this::updateStatus, 1_000L);
+    }
+
     private void updateStatus() {
         if (statusText == null) {
             return;
         }
+
         boolean overlayGranted = Settings.canDrawOverlays(this);
         boolean mockSelected = isSelectedMockLocationApp();
+        boolean simulationStarting = MockLocationService.isSimulationStarting();
+        boolean simulationActive = MockLocationService.isSimulationActive();
+
+        String simulationState;
+        if (simulationActive) {
+            simulationState = t("active", "aktiv");
+        } else if (simulationStarting) {
+            simulationState = t("starting", "wird gestartet");
+        } else {
+            simulationState = t("inactive", "inaktiv");
+        }
+
         statusText.setText(String.format(
                 Locale.US,
-                t("Overlay: %s     Mock location app: %s", "Overlay: %s     Mock-Standort-App: %s"),
-                overlayGranted ? t("ready", "bereit") : t("not granted", "nicht erlaubt"),
-                mockSelected ? t("selected", "ausgewählt") : t("not selected", "nicht ausgewählt")));
-        statusText.setTextColor(overlayGranted && mockSelected ? 0xFF2E7D32 : 0xFFC62828);
+                t("Overlay: %s\nMock location app: %s\nSimulation: %s",
+                        "Overlay: %s\nMock-Standort-App: %s\nSimulation: %s"),
+                overlayGranted
+                        ? t("ready", "bereit")
+                        : t("not granted", "nicht erlaubt"),
+                mockSelected
+                        ? t("selected", "ausgewählt")
+                        : t("not selected", "nicht ausgewählt"),
+                simulationState));
+
+        if (simulationActive && overlayGranted && mockSelected) {
+            statusText.setTextColor(0xFF2E7D32);
+        } else if (simulationStarting) {
+            statusText.setTextColor(0xFFF57C00);
+        } else {
+            statusText.setTextColor(0xFFC62828);
+        }
     }
 
     private void startMocking() {
@@ -1042,7 +1422,7 @@ public final class MainActivity extends Activity {
         double lat = getLatitude();
         double lng = getLongitude();
         double alt = getAltitude();
-        saveCoordinates(lat, lng, alt);
+        saveManualCoordinates(lat, lng, alt);
         requestNotificationPermissionIfNeeded();
 
         Intent intent = new Intent(this, MockLocationService.class)
@@ -1050,14 +1430,43 @@ public final class MainActivity extends Activity {
                 .putExtra(MockLocationService.EXTRA_LATITUDE, lat)
                 .putExtra(MockLocationService.EXTRA_LONGITUDE, lng)
                 .putExtra(MockLocationService.EXTRA_ALTITUDE, alt);
-        startForegroundService(intent);
-        Toast.makeText(this, t("GeoJoystick started", "GeoJoystick gestartet"), Toast.LENGTH_SHORT).show();
+        try {
+            startForegroundService(intent);
+            Toast.makeText(
+                    this,
+                    t("GeoJoystick start requested",
+                            "GeoJoystick-Start angefordert"),
+                    Toast.LENGTH_SHORT).show();
+            scheduleRuntimeStatusRefresh();
+        } catch (RuntimeException exception) {
+            Toast.makeText(
+                    this,
+                    t("GeoJoystick could not be started",
+                            "GeoJoystick konnte nicht gestartet werden"),
+                    Toast.LENGTH_LONG).show();
+            updateStatus();
+        }
     }
 
     private void stopMocking() {
         Intent intent = new Intent(this, MockLocationService.class)
                 .setAction(MockLocationService.ACTION_STOP);
-        startService(intent);
+        try {
+            startService(intent);
+            Toast.makeText(
+                    this,
+                    t("GeoJoystick stop requested",
+                            "GeoJoystick-Stopp angefordert"),
+                    Toast.LENGTH_SHORT).show();
+            scheduleRuntimeStatusRefresh();
+        } catch (RuntimeException exception) {
+            Toast.makeText(
+                    this,
+                    t("GeoJoystick could not be stopped",
+                            "GeoJoystick konnte nicht gestoppt werden"),
+                    Toast.LENGTH_LONG).show();
+            updateStatus();
+        }
     }
 
     private void resetOverlayPosition() {
@@ -1069,12 +1478,13 @@ public final class MainActivity extends Activity {
     }
 
     private void openMap() {
-        if (!validCoordinates()) {
-            return;
+        Intent intent = new Intent(this, MapActivity.class);
+        double latitude = safeLatitude();
+        double longitude = safeLongitude();
+        if (validHorizontalCoordinateValues(latitude, longitude)) {
+            intent.putExtra(MapActivity.EXTRA_LATITUDE, latitude)
+                    .putExtra(MapActivity.EXTRA_LONGITUDE, longitude);
         }
-        Intent intent = new Intent(this, MapActivity.class)
-                .putExtra(MapActivity.EXTRA_LATITUDE, getLatitude())
-                .putExtra(MapActivity.EXTRA_LONGITUDE, getLongitude());
         startActivityForResult(intent, REQUEST_MAP);
     }
 
@@ -1094,10 +1504,15 @@ public final class MainActivity extends Activity {
     }
 
     private void handleIncomingIntent(Intent intent) {
-        if (intent == null || !Intent.ACTION_SEND.equals(intent.getAction())) {
+        if (intent == null
+                || incomingIntentConsumed
+                || !Intent.ACTION_SEND.equals(intent.getAction())) {
             return;
         }
+        incomingIntentConsumed = true;
         CharSequence text = intent.getCharSequenceExtra(Intent.EXTRA_TEXT);
+        intent.setAction(null);
+        intent.removeExtra(Intent.EXTRA_TEXT);
         if (text != null) {
             importLocationText(text.toString());
         }
@@ -1108,18 +1523,30 @@ public final class MainActivity extends Activity {
             Toast.makeText(this, t("No location link found", "Kein Standortlink gefunden"), Toast.LENGTH_SHORT).show();
             return;
         }
+        final int requestId = ++importRequestId;
         Toast.makeText(this, t("Reading location link…", "Standortlink wird gelesen…"), Toast.LENGTH_SHORT).show();
         new Thread(() -> {
             double[] coordinates = LocationLinkParser.resolveCoordinates(text);
             runOnUiThread(() -> {
+                if (requestId != importRequestId || isFinishing() || isDestroyed()) {
+                    return;
+                }
                 if (coordinates == null) {
                     Toast.makeText(this, t("Could not extract coordinates from that link", "Aus diesem Link konnten keine Koordinaten gelesen werden"), Toast.LENGTH_LONG).show();
-                } else {
-                    setCoordinateInputs(coordinates[0], coordinates[1], getAltitude());
-                    Toast.makeText(this, t("Coordinates imported", "Koordinaten importiert"), Toast.LENGTH_SHORT).show();
+                    return;
                 }
+                if (!setHorizontalCoordinateInputs(coordinates[0], coordinates[1])) {
+                    Toast.makeText(this, t("The imported coordinates were invalid", "Die importierten Koordinaten waren ungültig"), Toast.LENGTH_LONG).show();
+                    return;
+                }
+                Toast.makeText(
+                        this,
+                        Double.isFinite(safeAltitude())
+                                ? t("Coordinates imported", "Koordinaten importiert")
+                                : t("Coordinates imported. Enter an altitude before starting.", "Koordinaten importiert. Gib vor dem Start eine Höhe ein."),
+                        Toast.LENGTH_LONG).show();
             });
-        }, "MapLinkResolver").start();
+        }, "MapLinkResolver-" + requestId).start();
     }
 
     private void openInMaps() {
@@ -1171,6 +1598,41 @@ public final class MainActivity extends Activity {
         return mode == AppOpsManager.MODE_ALLOWED;
     }
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
+    private void registerSimulationStateReceiver() {
+        if (stateReceiverRegistered) {
+            return;
+        }
+        IntentFilter filter = new IntentFilter(MockLocationService.ACTION_STATE_CHANGED);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(
+                    simulationStateReceiver,
+                    filter,
+                    MockLocationService.PERMISSION_INTERNAL_STATE,
+                    null,
+                    Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(
+                    simulationStateReceiver,
+                    filter,
+                    MockLocationService.PERMISSION_INTERNAL_STATE,
+                    null);
+        }
+        stateReceiverRegistered = true;
+    }
+
+    private void unregisterSimulationStateReceiver() {
+        if (!stateReceiverRegistered) {
+            return;
+        }
+        try {
+            unregisterReceiver(simulationStateReceiver);
+        } catch (IllegalArgumentException ignored) {
+            // The lifecycle may already have unregistered the receiver.
+        }
+        stateReceiverRegistered = false;
+    }
+
     private void requestNotificationPermissionIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -1194,8 +1656,16 @@ public final class MainActivity extends Activity {
     }
 
     private boolean validCoordinateValues(double lat, double lng, double alt) {
-        return Double.isFinite(lat) && Double.isFinite(lng) && Double.isFinite(alt)
-                && lat >= -90.0 && lat <= 90.0 && lng >= -180.0 && lng <= 180.0;
+        return validHorizontalCoordinateValues(lat, lng) && Double.isFinite(alt);
+    }
+
+    private boolean validHorizontalCoordinateValues(double lat, double lng) {
+        return Double.isFinite(lat)
+                && Double.isFinite(lng)
+                && lat >= -90.0
+                && lat <= 90.0
+                && lng >= -180.0
+                && lng <= 180.0;
     }
 
     private double getLatitude() {
@@ -1212,49 +1682,89 @@ public final class MainActivity extends Activity {
 
     private double safeLatitude() {
         try {
-            return getLatitude();
+            double value = getLatitude();
+            return Double.isFinite(value) ? value : Double.NaN;
         } catch (NumberFormatException exception) {
-            return 52.520008;
+            return Double.NaN;
         }
     }
 
     private double safeLongitude() {
         try {
-            return getLongitude();
+            double value = getLongitude();
+            return Double.isFinite(value) ? value : Double.NaN;
         } catch (NumberFormatException exception) {
-            return 13.404954;
+            return Double.NaN;
         }
     }
 
     private double safeAltitude() {
         try {
-            return getAltitude();
+            double value = getAltitude();
+            return Double.isFinite(value) ? value : Double.NaN;
         } catch (NumberFormatException exception) {
-            return 55.0;
+            return Double.NaN;
         }
     }
 
-    private void setCoordinateInputs(double latitude, double longitude, double altitude) {
+    private void setCoordinateInputs(
+            double latitude,
+            double longitude,
+            double altitude) {
+        if (!validCoordinateValues(latitude, longitude, altitude)) {
+            return;
+        }
+        setDraftCoordinates(latitude, longitude, altitude);
         latitudeInput.setText(String.format(Locale.US, "%.6f", latitude));
         longitudeInput.setText(String.format(Locale.US, "%.6f", longitude));
         altitudeInput.setText(String.format(Locale.US, "%.6f", altitude));
         saveManualCoordinates(latitude, longitude, altitude);
     }
 
+    private boolean setHorizontalCoordinateInputs(double latitude, double longitude) {
+        if (!validHorizontalCoordinateValues(latitude, longitude)
+                || latitudeInput == null
+                || longitudeInput == null) {
+            return false;
+        }
+        double altitude = safeAltitude();
+        setDraftCoordinates(latitude, longitude, altitude);
+        latitudeInput.setText(String.format(Locale.US, "%.6f", latitude));
+        longitudeInput.setText(String.format(Locale.US, "%.6f", longitude));
+        if (validCoordinateValues(latitude, longitude, altitude)) {
+            saveManualCoordinates(latitude, longitude, altitude);
+        }
+        return true;
+    }
+
     private void saveVisibleCoordinateFields() {
         if (latitudeInput == null || longitudeInput == null || altitudeInput == null) {
             return;
         }
-        try {
-            double lat = getLatitude();
-            double lng = getLongitude();
-            double alt = getAltitude();
-            if (validCoordinateValues(lat, lng, alt)) {
-                saveManualCoordinates(lat, lng, alt);
-            }
-        } catch (NumberFormatException ignored) {
-            // Keep the last valid saved values while the user is editing invalid text.
+        double latitude = safeLatitude();
+        double longitude = safeLongitude();
+        double altitude = safeAltitude();
+        setDraftCoordinates(latitude, longitude, altitude);
+        if (validCoordinateValues(latitude, longitude, altitude)) {
+            saveManualCoordinates(latitude, longitude, altitude);
         }
+    }
+
+    private void setDraftCoordinates(double latitude, double longitude, double altitude) {
+        draftLatitude = latitude;
+        draftLongitude = longitude;
+        draftAltitude = altitude;
+        draftInitialized = true;
+    }
+
+    private void restoreDraftCoordinates(Bundle state) {
+        if (state == null || !state.getBoolean(STATE_DRAFT_INITIALIZED, false)) {
+            return;
+        }
+        setDraftCoordinates(
+                state.getDouble(STATE_DRAFT_LATITUDE, Double.NaN),
+                state.getDouble(STATE_DRAFT_LONGITUDE, Double.NaN),
+                state.getDouble(STATE_DRAFT_ALTITUDE, Double.NaN));
     }
 
     private void saveManualCoordinates(double latitude, double longitude, double altitude) {
@@ -1265,15 +1775,25 @@ public final class MainActivity extends Activity {
                 .apply();
     }
 
-    private void saveCoordinates(double latitude, double longitude, double altitude) {
-        preferences.edit()
-                .putLong(PREF_MANUAL_LATITUDE, Double.doubleToRawLongBits(latitude))
-                .putLong(PREF_MANUAL_LONGITUDE, Double.doubleToRawLongBits(longitude))
-                .putLong(PREF_MANUAL_ALTITUDE, Double.doubleToRawLongBits(altitude))
-                .putLong(PREF_LATITUDE, Double.doubleToRawLongBits(latitude))
-                .putLong(PREF_LONGITUDE, Double.doubleToRawLongBits(longitude))
-                .putLong(PREF_ALTITUDE, Double.doubleToRawLongBits(altitude))
-                .apply();
+    private void applySystemBarInsets(View view) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            return;
+        }
+        int baseLeft = view.getPaddingLeft();
+        int baseTop = view.getPaddingTop();
+        int baseRight = view.getPaddingRight();
+        int baseBottom = view.getPaddingBottom();
+        view.setOnApplyWindowInsetsListener((target, insets) -> {
+            android.graphics.Insets safe = insets.getInsets(
+                    WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
+            target.setPadding(
+                    baseLeft + safe.left,
+                    baseTop + safe.top,
+                    baseRight + safe.right,
+                    baseBottom + safe.bottom);
+            return insets;
+        });
+        view.requestApplyInsets();
     }
 
     private String t(String english, String germanText) {

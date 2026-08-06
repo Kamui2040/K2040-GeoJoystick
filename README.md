@@ -2,7 +2,7 @@
 
 GeoJoystick is an open-source Android mock-location joystick for emulator and developer testing.
 
-It uses Android's standard mock-location provider flow, shows a small floating joystick overlay, and publishes GPS/network test-provider locations while the foreground service is active. It does not attempt to hide or bypass mock-location status.
+It uses Android's standard mock-location provider flow, shows a floating joystick overlay, and publishes GPS/network test-provider locations while the foreground service is active. It does not attempt to hide or bypass mock-location status.
 
 ## Included
 
@@ -14,34 +14,50 @@ It uses Android's standard mock-location provider flow, shows a small floating j
 - Walk, run, bike-style, and user-defined custom speed presets
 - Hold, pause, hide, and stop controls
 - Saved overlay mode and speed preset between starts
-- App appearance setting: System, Light, or Dark
-- App language setting: System, English, or German
+- App appearance: System, Light, or Dark
+- App language: System, English, or German
 - Optional restore of the last active position
 - Five compact named favorite-location slots
 - Overlay opacity and high-contrast settings
 - Reset overlay position from the main screen
 - Persistent foreground notification
-- No ads, subscriptions, accounts, analytics, billing, or updater
+- No ads, subscriptions, accounts, analytics, tracking, billing, paid entitlements, or updater
 
 ## Downloads
 
-- GitHub Releases: https://github.com/Kamui2040/K2040-GeoJoystick/releases
-- APKPure: https://apkpure.com/p/com.k2040.geojoystick
+- F-Droid: `https://f-droid.org/packages/com.k2040.geojoystick/`
+- GitHub Releases: `https://github.com/Kamui2040/K2040-GeoJoystick/releases`
+- Additional package listing: `https://apkpure.com/p/com.k2040.geojoystick`
 
-GitHub Releases remains the canonical source for release notes and published release assets. The APKPure page is an official store listing for the same app package, `com.k2040.geojoystick`.
+GitHub Releases is canonical for developer-published assets and release notes. F-Droid is the official FLOSS source-built distribution. APKPure is an additional package listing for `com.k2040.geojoystick`; verify release identity against the canonical GitHub/F-Droid sources.
 
-## Build on Windows
+## Build locally
 
-The project intentionally uses a small Python bootstrap instead of committing a Gradle wrapper binary.
+The project uses a small Python bootstrap instead of committing a Gradle wrapper binary.
 
-1. Keep the checkout at `D:\Projects\Android\K2040-GeoJoystick\repo`.
-2. Run `build.bat`.
+From the repository root, run:
 
-The script uses the newest installed stable Build-Tools version 35.0.0 or newer. If Platform 35 or suitable Build-Tools are missing and Android SDK Command-line Tools are installed, it installs the required SDK packages automatically.
+- `build.bat` — build the debug APK
+- `build.bat --release` — run release lint and build the unsigned release APK
+- `build.bat --all` — build debug and unsigned release APKs and run release lint
+- `build.bat --signed-release` — run release lint, build the unsigned APK, prompt for the release-key passwords, and create a verified signed APK
 
-The script locates Android Studio's JDK and Android SDK, downloads Gradle 8.13 from the official Gradle distribution service, verifies its published SHA-256 checksum, builds the debug APK, and copies it to:
+Equivalent Python entry point:
 
-`dist\GeoJoystick-debug.apk`
+`python tools\build.py`
+
+The bootstrap first runs the dependency-free map-link parser self-test, then locates a suitable JDK and Android SDK, installs missing SDK components when command-line tools are available, downloads Gradle from the official distribution service, verifies the published SHA-256 checksum, and writes outputs to `dist`.
+
+Expected outputs:
+
+- `dist\GeoJoystick-debug.apk`
+- `dist\GeoJoystick-release-unsigned.apk`
+- `dist\GeoJoystick-release.apk` when `--signed-release` is explicitly requested
+- `dist\SHA256SUMS.txt`
+
+Signed release creation is maintainer-only and explicit. The bootstrap uses the canonical external keystore at `..\secrets\geojoystick-release.jks`, verifies its accepted file hash and certificate fingerprints, signs with APK Signature Scheme v2 only, and independently verifies the resulting APK certificate, signing schemes, alignment, and unchanged unsigned input. The unsigned release is always retained.
+
+Signing passwords are entered through hidden interactive prompts for the current process only; the build tooling does not write them to files or logs. The keystore, passwords, APKs, `local.properties`, and generated output must remain outside Git. Public and F-Droid source builds remain fully functional without private signing material.
 
 ## Basic setup
 
@@ -50,25 +66,35 @@ The script locates Android Studio's JDK and Android SDK, downloads Gradle 8.13 f
 3. In Android Developer options, select **GeoJoystick** as the mock-location app.
 4. Choose a location or import a map link.
 5. Press **Start overlay**, then use the floating overlay.
-6. Use **Settings** for app appearance, language, setup actions, overlay opacity, high contrast, restore-last-position, reset overlay position, favorites, and custom speed.
+6. Use **Settings** for appearance, language, setup actions, overlay opacity, high contrast, restoration, reset position, favorites, and custom speed.
 
-The app uses ordinary Android mock locations and does not attempt to conceal that status.
+The app uses ordinary Android mock locations and does not conceal that status.
 
-## Map note
+## Map and network note
 
-The built-in picker uses OpenStreetMap tiles and Leaflet. It does not require an API key. Map links can be shared or copied into the app for coordinate extraction.
+The picker uses bundled HTML/JavaScript and OpenStreetMap tiles. It does not require an API key or load remote JavaScript. Opening the map and resolving supported HTTPS map links can use the network. Navigation is restricted to the bundled map origin and the approved OpenStreetMap tile host.
 
-For F-Droid submission prep, see `FDROID_NOTES.md`.
+F-Droid therefore discloses the map picker under `TetheredNet`.
+
+Do not bulk-download or abusively cache map tiles. Preserve OpenStreetMap attribution and usage-policy compliance.
+
+For F-Droid maintenance and reproducible builds, see `FDROID_NOTES.md`.
+
+## Security
+
+Report potential vulnerabilities through the private route described in `SECURITY.md`. Do not publish sensitive details, private coordinates, shared links, or exploit steps in public issues.
 
 ## Support
 
 GeoJoystick is created by **K2040**.
 
-If you find the app useful, you can support development on Ko-fi:
+Optional support:
 
 `https://ko-fi.com/k2040`
 
-The Ko-fi link is optional and the app has no paid features, subscriptions, ads, analytics, accounts, or billing.
+Donations are entirely optional. They do not unlock features or provide any additional benefits.
+
+The app has no paid features, subscriptions, advertisements, analytics, tracking, accounts, billing, or restricted functionality.
 
 ## Licence
 
@@ -76,6 +102,10 @@ GPL-3.0-only. See `LICENSE` and `NOTICE.md`.
 
 ## Links
 
-Source repository: https://github.com/Kamui2040/K2040-GeoJoystick
-
-Support development: https://ko-fi.com/k2040
+- Source: `https://github.com/Kamui2040/K2040-GeoJoystick`
+- Changelog: `CHANGELOG.md`
+- Contributing: `CONTRIBUTING.md`
+- F-Droid: `https://f-droid.org/packages/com.k2040.geojoystick/`
+- Privacy: `PRIVACY.md`
+- Security: `SECURITY.md`
+- Support: `https://ko-fi.com/k2040`

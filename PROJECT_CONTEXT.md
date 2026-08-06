@@ -1,64 +1,239 @@
 # Project Context
 
-## Purpose
+Last verified: 2026-08-06
 
-GeoJoystick is an open-source Android mock-location joystick intended for emulator and developer testing. It provides a floating joystick, speed presets, manual coordinates, an internal map picker, map-link coordinate import, and a persistent foreground service.
+## Identity and public release
 
-## Current milestone
+GeoJoystick is a GPL-3.0-only Android mock-location joystick for emulator and developer testing through Android Developer Options and a visible foreground service.
 
-Version 0.1.3 public release
+- Repository: `Kamui2040/K2040-GeoJoystick`
+- Default branch: `main`
+- Package: `com.k2040.geojoystick`
+- Current public version: 0.1.3 (`versionCode 103`)
+- F-Droid: `https://f-droid.org/packages/com.k2040.geojoystick/`
+- GitHub Releases: `https://github.com/Kamui2040/K2040-GeoJoystick/releases`
+- Additional package listing: `https://apkpure.com/p/com.k2040.geojoystick`
 
-- Public release: v0.1.3
-- Version code: 103
-- F-Droid submission MR !42238 has been merged into fdroid/fdroiddata master
-- F-Droid currently publishes v0.1.2 until the v0.1.3 metadata/build update is processed
-- Official APKPure listing is live: https://apkpure.com/p/com.k2040.geojoystick
-- Standard Android Developer Options mock-location provider
-- Foreground service publishing GPS and network test-provider locations
-- Movable overlay joystick with expanded and compact modes
-- Walk, run, bike-style, and user-defined custom speed presets
-- Hold, pause, hide, stop, saved overlay mode, saved speed, overlay opacity, high contrast, and reset overlay position
-- App settings for System/Light/Dark appearance and System/English/German language
-- Optional restore-last-position behavior and five named favorite-location slots
-- OpenStreetMap tile-based picker with no API key and no external JavaScript dependency
-- Coordinate extraction from full or shortened map links
-- In-app About / Support section with K2040 avatar and Ko-fi link
-- No ads, billing, accounts, analytics, subscriptions, or updater
+GitHub Releases is canonical for developer-published assets and release notes. F-Droid is the official FLOSS source-built distribution and declares `TetheredNet` for user-initiated OpenStreetMap access.
 
-## Upstream relationship
+## Repository and pull-request state
 
-The project reuses and simplifies the architecture and movement approach of `ZCShou/GoGoGo`, baseline commit `de0d596190c57b8ca71481f60ce6b9e50af5107f`, under GPL-3.0-only. The Baidu SDK, embedded signing configuration, updater, logging stack, history database, and legacy permissions are intentionally not carried over.
+- Remote `main`: `b0153a6c3ba1940f636d3930b99ebe1af4a68f59`
+- Recovery branch: `recovery/pre-reinstall-maintenance-20260804`
+- Recovery checkpoint: `0d8da0833240a85faaf3b18bf56871089f975642`
+- Recovery checkpoint tree: `b85093723cbbbb37a3240e7aaf9e2078d32e4f63`
+- Governance reconciliation: `e9d8dedba5b224c98a8f4cd4bc4c4c827c7fd4da`
+- Validation-record commit: `6d7bbeb0354003db3a145f6972c08293ab60fe88`
+- Prior PR-state documentation commit: `900940a97de4a4239d1752f76be4051e37dd9f76`
+- Validated corrective implementation commit: `f8c8a45d798dc676d377548cd8470c19e6cce02c`
+- Validated corrective implementation tree: `f3ddad345231215497a45e02f447de26cf0e3ede`
+- Release-signing branch: `maintenance/release-signing-20260806`
+- Validated release-signing implementation commit: `498abe66702ce9f7c03fc8f206bfdfaf32623544`
+- Validated release-signing implementation tree: `7d10f6ea3806e75ed7926b986917ae6bc7bea720`
+- Release-signing context reconciliation milestone: `9bd417fe28966b5e7411282da23e3034cb0ce351`, tree `105a42ca610f68f3d908158d7ad60ce90e535b71`
+- Validated launcher-icon implementation commit: `5b33902411efdb58f8df707a93bc191aa6e88959`
+- Validated launcher-icon implementation tree: `f7f01ad8b11cbdadd39a312ffc8ab66ada3e6b82`
+- Draft PR #5: open, draft, mergeable, unmerged, targeting `main`; its recovery head branch was fast-forwarded through the validated launcher-icon milestone; description reconciliation for that milestone remains pending
+- Draft PR #4: closed unmerged as superseded
 
-## Release positioning
+The release-signing implementation, context-reconciliation and launcher-icon commits are durable public milestone references. Obtain mutable branch and PR tips from live GitHub state instead of updating this document solely to chase its own documentation commit.
 
-Public descriptions should present GeoJoystick as a mock-location utility for emulator and developer testing. Do not market it as game tooling, cheating software, anti-detection tooling, or a bypass utility.
+PR #5 now includes the accepted corrective implementation, validated release-signing workflow, reconciled project context and validated launcher-icon correction. Keep it draft until the remaining physical-device lifecycle gates are completed or explicitly deferred.
 
-## F-Droid / FLOSS status
+## Published corrective scope
 
-The app is GPL-3.0-only, has no ads, no analytics, no accounts, and uses direct Android framework code. Upstream Fastlane-style metadata exists under `fastlane/metadata/android/en-US/`.
+The validated corrective implementation commit contains these thirteen reviewed paths:
 
-The F-Droid submission has been merged and the first store listing is live. The final F-Droid metadata includes `AntiFeatures: TetheredNet` because the map picker uses OpenStreetMap services.
+- `AGENTS.md`
+- `PROJECT_CONTEXT.md`
+- `README.md`
+- `app/build.gradle`
+- `app/src/main/AndroidManifest.xml`
+- `app/src/main/assets/map.html`
+- `app/src/main/java/com/k2040/geojoystick/JoystickOverlay.java`
+- `app/src/main/java/com/k2040/geojoystick/LocationLinkParser.java`
+- `app/src/main/java/com/k2040/geojoystick/MainActivity.java`
+- `app/src/main/java/com/k2040/geojoystick/MapActivity.java`
+- `app/src/main/java/com/k2040/geojoystick/MockLocationService.java`
+- `app/src/main/res/values/strings.xml`
+- `tools/test_location_link_parser.py`
 
-## Other distribution
+The branch was clean after the corrective commit and push. The later release-signing and documentation milestones also left their non-default branches clean and synchronized.
 
-The official APKPure listing is live at https://apkpure.com/p/com.k2040.geojoystick. GitHub Releases remains the canonical source for release notes and published release assets. No APKPure installation smoke test is recorded in this repository yet.
+The accepted implementation:
 
-## Validation status
+- opens the map without assigning a default selection or coordinates;
+- keeps the map unselected until the user taps it and requires altitude only when starting simulation;
+- preserves partial coordinate drafts without persisting them as a valid active position;
+- consumes shared intents once and rejects stale out-of-order link-import results;
+- rejects non-finite and out-of-range coordinates, altitude and custom-speed input;
+- removes Berlin and other unconfirmed runtime defaults from the map, activity and overlay flow;
+- stops service instances created by inactive, unsupported or failed actions;
+- separates attempted movement coordinates from the last successfully published position;
+- marks simulation active only after valid coordinates, ready providers and successful publication;
+- persists last-active coordinates only after successful publication;
+- clears active state and reports provider or publication failure without erasing saved user data;
+- package-scopes and signature-protects the internal state broadcast, with an explicitly non-exported Android 13+ receiver;
+- removes exact coordinates from the foreground notification and localizes its status and actions;
+- removes the restrictive OpenStreetMap tile referrer policy and identifies the WebView map client;
+- restricts map-link resolution to supported HTTPS hosts, bounded redirects/content, public destinations and unambiguous coordinate formats;
+- enables generated `BuildConfig` for the app version used by the map client identifier;
+- removes the confirmed unused notification-channel resource;
+- extends the dependency-free parser test harness for the new boundaries.
 
-- F-Droid MR build/test/rewritemeta pipeline passed after the TetheredNet metadata update
-- Reproducible-build issue was fixed by signing the F-Droid CI-built unsigned APK with the release key using v2 signing and preserved alignment
-- Physical-phone smoke test confirmed the public release installs and standard mock location works
-- Dark-dialog fix was validated on a physical phone
-- GitHub Actions successfully built both debug and unsigned release APKs for v0.1.3
-- Dedicated GeoJoystick store icon included for v0.1.3
+The corrective Android source and parser-test inputs remain unchanged since the accepted 13-path Android validation. The later release-signing milestone changes only `tools/build.py`, `README.md` and `FDROID_NOTES.md`; it does not alter Android runtime behavior.
 
-## Current build
+The validated launcher-icon milestone changes only these five Android resource paths:
 
-- Version: 0.1.3
-- Version code: 103
-- Baseline: public / F-Droid release line
-- Release changes: dark-theme dialog fix and dedicated store-listing icon
+- `app/src/main/res/drawable-nodpi/ic_launcher_artwork.png`
+- `app/src/main/res/drawable/ic_launcher_foreground.xml`
+- `app/src/main/res/drawable/ic_launcher_monochrome.xml`
+- `app/src/main/res/mipmap-anydpi/ic_launcher.xml`
+- `app/src/main/res/mipmap-anydpi/ic_launcher_round.xml`
 
-## Canonical public repository
+It reuses the tracked 512×512 Fastlane icon as the adaptive launcher artwork, removes the obsolete visible location-pin foreground and supplies a joystick silhouette for themed monochrome icons. It does not change mock-location or service runtime behavior.
 
-https://github.com/Kamui2040/K2040-GeoJoystick
+## Toolchain baseline
+
+Verify live files and executables before use.
+
+- Android Gradle Plugin: 8.12.3
+- Gradle: 8.13
+- Java source/target/runtime: 17
+- Minimum SDK: 27
+- Compile SDK: 35
+- Target SDK: 35
+- Preferred Build Tools: 35.0.0
+- PowerShell: 7.6.4
+- Git: 2.55.0
+- GitHub CLI: 2.97.0
+- Python: 3.12.10 x64
+- JDK: 17.0.20
+- ADB: 37.0.1
+- Android Studio: optional; repository command-line tooling is authoritative
+
+## Accepted local validation
+
+The accepted corrective validation was performed on 2026-08-04 against the thirteen-path implementation state based on `900940a97de4a4239d1752f76be4051e37dd9f76` and was then committed without build-input changes as `f8c8a45d798dc676d377548cd8470c19e6cce02c`, tree `f3ddad345231215497a45e02f447de26cf0e3ede`. `PROJECT_CONTEXT.md` was reconciled after validation; source and build inputs were unchanged.
+
+Accepted results:
+
+- exact repository identity, origin, branch, `HEAD`, tree and single-worktree state: pass;
+- zero staged and untracked paths before and after validation: pass;
+- tracked GitHub workflow count: zero;
+- `git diff --check`: pass;
+- Python 3.12.10 x64: verified;
+- JDK and `javac` 17.0.20: verified;
+- Gradle 8.13: verified;
+- Android API 35 and Build Tools 35.0.0: verified;
+- `LocationLinkParser` self-test: pass;
+- generated debug and release `BuildConfig`: pass;
+- debug Java compilation and `:app:assembleDebug`: pass;
+- release Java compilation and `:app:assembleRelease`: pass;
+- `:app:lintRelease`: pass with zero fatal issues, zero errors and exactly `GradleDependency: 1` plus `OldTargetApi: 1`;
+- `:app:lintVitalRelease`: legitimately skipped because no vital work was required;
+- debug APK identity: `com.k2040.geojoystick`, version 0.1.3 (`103`), minSdk 27, targetSdk 35;
+- debug APK ZIP/CRC, alignment and signature verification: pass;
+- unsigned release APK identity, ZIP/CRC, alignment and unsigned-state verification: pass;
+- generated `.gradle`, build, `dist` and `local.properties` output cleanup after success: pass;
+- final repository state: thirteen modified paths, zero staged, zero untracked, zero ignored and zero generated residue.
+
+Private canonical evidence is retained outside public Git under `BuildValidation-Current`.
+
+That 2026-08-04 corrective validation did not perform release signing, installation, physical-device QA, store submission, tagging, public release, PR merge or a `main` update. No GitHub Actions or cloud CI endpoint was queried or used.
+
+## Accepted release-signing integration and validation
+
+The separate release-signing milestone was validated and published on 2026-08-06 as commit `498abe66702ce9f7c03fc8f206bfdfaf32623544`, tree `7d10f6ea3806e75ed7926b986917ae6bc7bea720`.
+
+The accepted workflow:
+
+- adds an explicit local `--signed-release` mode while preserving the unsigned release path used for public/F-Droid builds;
+- reads keystore and private-key passwords interactively and does not persist them in files, Git, reports or command-line arguments;
+- keeps the release keystore outside the repository and independently verifies its known file identity, alias and certificate fingerprint;
+- signs the exact unsigned release artifact with APK Signature Scheme v2 only;
+- independently verifies package `com.k2040.geojoystick`, version 0.1.3 (`103`), minSdk 27, targetSdk 35, signer identity and APK alignment;
+- preserves a clean public source tree and removes generated APKs and build output after validation.
+
+Accepted results:
+
+- `LocationLinkParser` self-test: pass;
+- release lint, `lintVitalRelease` handling and release assembly: pass;
+- unsigned release APK SHA-256: `d6e886af513ebcfce195b2e0676a75522045b4f1d1267a7ae8c766f413e1ed01`;
+- signed validation APK SHA-256: `039f39c1e79a8519f2ced66f9a944a6d2482c4b8d58b387579cabc9e1fb77d94`;
+- accepted signer certificate SHA-256: `e0a833050d7c8fce7ddce85b2a86561304456d87b67bd6be1577d8f657e16778`;
+- signature schemes: v1 false, v2 true, v3 false and v4 false;
+- signed APK alignment: pass;
+- generated APK/output cleanup: pass;
+- final repository state after commit and push: clean, one worktree, zero tracked workflows, synchronized upstream.
+
+Private canonical evidence is retained outside public Git under `ReleaseSigningIntegration-Current`, `ReleaseSigningValidation-Current`, `ReleaseSigningCommit-Current` and `ReleaseSigningContextReconciliation-Current`.
+
+No release APK from the signing-milestone validation was committed or published. Subsequent physical-device installation and launcher-icon QA are recorded below. Draft PR #5 remains unmerged and `main` remains unchanged. No GitHub Actions workflow was created, dispatched, rerun or used for validation.
+
+## Accepted physical-device installation and launcher-icon validation
+
+Physical-device QA was performed on 2026-08-06 using the designated Android 16 (SDK 36) QA device, with its serial omitted from public documentation.
+
+Accepted results:
+
+- the pre-existing 0.1.3 (`103`) installation used the Android Debug signer `c30801681a8a1a5d2b4bfe036fabb9bcd968c14f25af4c0f7273cd16f2f65eaa`, which was incompatible with the accepted release signer;
+- after explicit user authorization, the debug-signed package and its app data were removed and the validated release-signed package was installed;
+- GeoJoystick was manually reselected as the mock-location app through Developer Options; that selection was not automated;
+- launcher-icon source commit `5b33902411efdb58f8df707a93bc191aa6e88959`, tree `f7f01ad8b11cbdadd39a312ffc8ab66ada3e6b82`, contains exactly the five reviewed resource paths listed above;
+- parser self-test, release lint/build, unsigned resource-table preflight and signed/installed AAPT2 resource-table verification: pass;
+- signed and installed APK SHA-256: `b62178083e0f1a18d427893d781ec13be5c135d2afcdffa49e3b0d43e7472613`;
+- accepted signer certificate SHA-256: `e0a833050d7c8fce7ddce85b2a86561304456d87b67bd6be1577d8f657e16778`;
+- signature schemes: v1 false, v2 true, v3 false and v4 false;
+- APK alignment: pass;
+- mock-location app-op after installation: `ALLOW`;
+- visual launcher QA: user confirmed the intended icon is correct;
+- final application process state: stopped;
+- the app was not launched for simulation, no coordinates were queried and no simulation was started;
+- generated APK/build output cleanup: pass;
+- final source state after the launcher-icon commit and branch publication: clean, one worktree, zero tracked workflows and synchronized non-default branches.
+
+Private canonical evidence is retained outside public Git under `DeviceQAPreflight-Current`, `InstalledSignerInventory-Current`, `DeviceQAResetInstallation-Current`, `LauncherIconValidation-Current` and `LauncherIconCommit-Current`.
+
+One verified debug-signed rollback APK remains privately outside Git while it has an operational rollback purpose. No APK is committed or publicly published.
+
+## Product baseline
+
+- Manual latitude, longitude and altitude
+- Bundled OpenStreetMap picker with no remote JavaScript
+- Supported copied/shared map-link import
+- Floating compact and expanded joystick modes
+- Walk, run, bike-style and custom speed presets
+- Hold, pause, hide and stop controls
+- Favorites and optional position restoration
+- Overlay opacity, contrast and position settings
+- System/Light/Dark appearance
+- System/English/German language
+- Truthful foreground notification and stop action
+- Accepted adaptive launcher icon using the intended joystick artwork and monochrome symbol
+- No ads, billing, subscriptions, accounts, analytics, tracking, telemetry or updater
+
+GeoJoystick does not conceal Android mock-location status and is not game, cheating, anti-detection, integrity-bypass or ban-evasion tooling.
+
+## Remaining gaps
+
+- Keep draft PR #5 in draft until the remaining physical-device behavior and accessibility QA is completed or explicitly deferred.
+- Test app-op loss, Developer Options changes, provider removal, reboot and process-death reconciliation on the designated physical device.
+- Validate truthful foreground-service, notification, overlay and UI-active state using synthetic coordinates, finishing with simulation inactive.
+- Review overlay touch-target sizing and accessibility at device scale as a separate UI change.
+- Continue the separate `tools/build.py` hardening scope for ZIP extraction, downloads, subprocess timeouts and JDK ranking; make `build.bat` independent of caller working directory.
+- Replace store screenshots with sanitized synthetic fixtures after source/device acceptance.
+- Treat API 36 compile/target migration as a separate permission, foreground-service, notification, overlay, app-op, F-Droid and device-validation change.
+- Keep remaining device QA, reproducibility, store publication, public merge/release and final signoff as separate gates.
+
+## Next accepted stages
+
+1. Reconcile draft PR #5's description with the stable launcher-icon source milestone; do not update this document merely to chase the resulting documentation commit.
+2. Continue the remaining physical-device behavior QA using synthetic coordinates and the explicitly selected ADB device, finishing inactive.
+3. Keep PR #5 draft until the remaining physical-device and accessibility gates are completed or explicitly deferred.
+4. Continue build-script hardening, sanitized store-asset replacement and API 36 migration only as separate reviewed scopes.
+5. Do not merge `main`, tag, publish or submit to stores without user signoff.
+
+## Public documentation policy
+
+Public documentation contains user-facing behavior, contribution rules, security/privacy terms, attribution, release/F-Droid maintenance and current project state. Machine-specific paths, device identifiers, authentic coordinates, private QA, large logs and internal workflow history remain outside public Git.
