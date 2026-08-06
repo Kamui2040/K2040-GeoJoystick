@@ -30,13 +30,13 @@ GitHub Releases is canonical for developer-published assets and release notes. F
 - Release-signing branch: `maintenance/release-signing-20260806`
 - Validated release-signing implementation commit: `498abe66702ce9f7c03fc8f206bfdfaf32623544`
 - Validated release-signing implementation tree: `7d10f6ea3806e75ed7926b986917ae6bc7bea720`
-- Release-signing branch upstream: `origin/maintenance/release-signing-20260806`, synchronized `+0 -0`
-- Draft PR #5: open, draft, mergeable, unmerged, targeting `main`; its head remains `recovery/pre-reinstall-maintenance-20260804` at `1244575175a3422a6c87842302725601e7b3cf65`
+- Release-signing context reconciliation milestone: `9bd417fe28966b5e7411282da23e3034cb0ce351`, tree `105a42ca610f68f3d908158d7ad60ce90e535b71`
+- Draft PR #5: open, draft, mergeable, unmerged, targeting `main`; its recovery head branch was fast-forwarded through the release-signing context reconciliation milestone and its description was reconciled on 2026-08-06
 - Draft PR #4: closed unmerged as superseded
 
-The release-signing milestone commit is the durable public reference for the validated signing workflow. Obtain mutable branch tips from live Git state instead of updating this document solely to chase its own documentation commit.
+The release-signing implementation and context-reconciliation commits are durable public milestone references. Obtain mutable branch and PR tips from live GitHub state instead of updating this document solely to chase its own documentation commit.
 
-PR #5 contains the accepted corrective implementation but does not yet include the release-signing milestone. Keep it draft until its head and description are reconciled and the remaining physical-device gates are completed or explicitly deferred.
+PR #5 now includes the accepted corrective implementation, validated release-signing workflow and reconciled project context. Keep it draft until the remaining physical-device gates are completed or explicitly deferred.
 
 ## Published corrective scope
 
@@ -56,7 +56,7 @@ The validated corrective implementation commit contains these thirteen reviewed 
 - `app/src/main/res/values/strings.xml`
 - `tools/test_location_link_parser.py`
 
-The branch was clean after the corrective commit and push. This documentation-only reconciliation must also leave the branch clean after its own commit and push.
+The branch was clean after the corrective commit and push. The later release-signing and documentation milestones also left their non-default branches clean and synchronized.
 
 The accepted implementation:
 
@@ -155,9 +155,9 @@ Accepted results:
 - generated APK/output cleanup: pass;
 - final repository state after commit and push: clean, one worktree, zero tracked workflows, synchronized upstream.
 
-Private canonical evidence is retained outside public Git under `ReleaseSigningIntegration-Current`, `ReleaseSigningValidation-Current` and `ReleaseSigningCommit-Current`.
+Private canonical evidence is retained outside public Git under `ReleaseSigningIntegration-Current`, `ReleaseSigningValidation-Current`, `ReleaseSigningCommit-Current` and `ReleaseSigningContextReconciliation-Current`.
 
-No APK was retained or published. Installation, physical-device QA, store submission, tag, release, PR update, PR merge and `main` update were not performed. No GitHub Actions or cloud CI runtime endpoint was queried or used.
+No APK was retained or published. Draft PR #5's head branch and description were reconciled after validation; installation, physical-device QA, store submission, tag, release, PR merge and `main` update were not performed. No GitHub Actions workflow was created, dispatched, rerun or used for validation.
 
 ## Product baseline
 
@@ -178,7 +178,7 @@ GeoJoystick does not conceal Android mock-location status and is not game, cheat
 
 ## Remaining gaps
 
-- Fast-forward the recovery branch used by draft PR #5 to the reconciled release-signing branch head, then update the PR description with the accepted corrective and signing evidence.
+- Keep draft PR #5 in draft until physical-device QA is completed or explicitly deferred.
 - Reconcile app-op loss, Developer Options changes, provider removal, reboot/process-death behavior and truthful UI state on a physical device.
 - Review overlay touch-target sizing and accessibility at device scale as a separate UI change.
 - Continue the separate `tools/build.py` hardening scope for ZIP extraction, downloads, subprocess timeouts and JDK ranking; make `build.bat` independent of caller working directory.
@@ -188,10 +188,10 @@ GeoJoystick does not conceal Android mock-location status and is not game, cheat
 
 ## Next accepted stages
 
-1. Commit and push this documentation-only state reconciliation on `maintenance/release-signing-20260806`.
-2. Fast-forward `recovery/pre-reinstall-maintenance-20260804` to the reconciled branch head and update draft PR #5 with the accepted signing evidence and remaining device gates.
-3. Keep PR #5 draft until physical-device QA is completed or explicitly deferred by the user.
-4. Perform installation and physical-device QA separately.
+1. Synchronize the clean MAIN_PC repository with the reconciled non-default remote branches before further local work.
+2. Perform installation and physical-device QA separately using synthetic coordinates and an explicitly selected ADB device.
+3. Keep PR #5 draft until the remaining physical-device gates are completed or explicitly deferred.
+4. Continue build-script hardening, store-asset replacement and API 36 migration only as separate reviewed scopes.
 5. Do not merge `main`, tag, publish or submit to stores without user signoff.
 
 ## Public documentation policy
