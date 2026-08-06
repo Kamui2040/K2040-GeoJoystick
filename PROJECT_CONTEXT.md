@@ -1,6 +1,6 @@
 # Project Context
 
-Last verified: 2026-08-04
+Last verified: 2026-08-06
 
 ## Identity and public release
 
@@ -27,12 +27,16 @@ GitHub Releases is canonical for developer-published assets and release notes. F
 - Prior PR-state documentation commit: `900940a97de4a4239d1752f76be4051e37dd9f76`
 - Validated corrective implementation commit: `f8c8a45d798dc676d377548cd8470c19e6cce02c`
 - Validated corrective implementation tree: `f3ddad345231215497a45e02f447de26cf0e3ede`
-- Draft PR #5: open, draft, mergeable, unmerged, targeting `main`
+- Release-signing branch: `maintenance/release-signing-20260806`
+- Validated release-signing implementation commit: `498abe66702ce9f7c03fc8f206bfdfaf32623544`
+- Validated release-signing implementation tree: `7d10f6ea3806e75ed7926b986917ae6bc7bea720`
+- Release-signing branch upstream: `origin/maintenance/release-signing-20260806`, synchronized `+0 -0`
+- Draft PR #5: open, draft, mergeable, unmerged, targeting `main`; its head remains `recovery/pre-reinstall-maintenance-20260804` at `1244575175a3422a6c87842302725601e7b3cf65`
 - Draft PR #4: closed unmerged as superseded
 
-The commit containing this document is a documentation-only state reconciliation that follows the validated corrective implementation commit. Verify the live branch and PR head before publication-sensitive work.
+The release-signing milestone commit is the durable public reference for the validated signing workflow. Obtain mutable branch tips from live Git state instead of updating this document solely to chase its own documentation commit.
 
-PR #5 contains the accepted corrective implementation, but its description still refers to the earlier unvalidated four-file patch. Keep it draft until the description is reconciled and the remaining physical-device gates are completed or explicitly deferred.
+PR #5 contains the accepted corrective implementation but does not yet include the release-signing milestone. Keep it draft until its head and description are reconciled and the remaining physical-device gates are completed or explicitly deferred.
 
 ## Published corrective scope
 
@@ -75,7 +79,7 @@ The accepted implementation:
 - removes the confirmed unused notification-channel resource;
 - extends the dependency-free parser test harness for the new boundaries.
 
-The source and test inputs have not changed since the accepted 13-path Android validation. This `PROJECT_CONTEXT.md` reconciliation is documentation-only and does not alter build inputs.
+The corrective Android source and parser-test inputs remain unchanged since the accepted 13-path Android validation. The later release-signing milestone changes only `tools/build.py`, `README.md` and `FDROID_NOTES.md`; it does not alter Android runtime behavior.
 
 ## Toolchain baseline
 
@@ -122,11 +126,38 @@ Accepted results:
 - generated `.gradle`, build, `dist` and `local.properties` output cleanup after success: pass;
 - final repository state: thirteen modified paths, zero staged, zero untracked, zero ignored and zero generated residue.
 
-Private canonical evidence:
+Private canonical evidence is retained outside public Git under `BuildValidation-Current`.
 
-`G:\My Drive\Projects\Android\K2040-GeoJoystick\Reports\DeepReview\BuildValidation-Current`
+That 2026-08-04 corrective validation did not perform release signing, installation, physical-device QA, store submission, tagging, public release, PR merge or a `main` update. No GitHub Actions or cloud CI endpoint was queried or used.
 
-No release signing, installation, physical-device QA, store submission, tag, public release, PR merge or `main` update was performed. No GitHub Actions or cloud CI endpoint was queried or used. Generated APKs remain private and uncommitted.
+## Accepted release-signing integration and validation
+
+The separate release-signing milestone was validated and published on 2026-08-06 as commit `498abe66702ce9f7c03fc8f206bfdfaf32623544`, tree `7d10f6ea3806e75ed7926b986917ae6bc7bea720`.
+
+The accepted workflow:
+
+- adds an explicit local `--signed-release` mode while preserving the unsigned release path used for public/F-Droid builds;
+- reads keystore and private-key passwords interactively and does not persist them in files, Git, reports or command-line arguments;
+- keeps the release keystore outside the repository and independently verifies its known file identity, alias and certificate fingerprint;
+- signs the exact unsigned release artifact with APK Signature Scheme v2 only;
+- independently verifies package `com.k2040.geojoystick`, version 0.1.3 (`103`), minSdk 27, targetSdk 35, signer identity and APK alignment;
+- preserves a clean public source tree and removes generated APKs and build output after validation.
+
+Accepted results:
+
+- `LocationLinkParser` self-test: pass;
+- release lint, `lintVitalRelease` handling and release assembly: pass;
+- unsigned release APK SHA-256: `d6e886af513ebcfce195b2e0676a75522045b4f1d1267a7ae8c766f413e1ed01`;
+- signed validation APK SHA-256: `039f39c1e79a8519f2ced66f9a944a6d2482c4b8d58b387579cabc9e1fb77d94`;
+- accepted signer certificate SHA-256: `e0a833050d7c8fce7ddce85b2a86561304456d87b67bd6be1577d8f657e16778`;
+- signature schemes: v1 false, v2 true, v3 false and v4 false;
+- signed APK alignment: pass;
+- generated APK/output cleanup: pass;
+- final repository state after commit and push: clean, one worktree, zero tracked workflows, synchronized upstream.
+
+Private canonical evidence is retained outside public Git under `ReleaseSigningIntegration-Current`, `ReleaseSigningValidation-Current` and `ReleaseSigningCommit-Current`.
+
+No APK was retained or published. Installation, physical-device QA, store submission, tag, release, PR update, PR merge and `main` update were not performed. No GitHub Actions or cloud CI runtime endpoint was queried or used.
 
 ## Product baseline
 
@@ -147,20 +178,20 @@ GeoJoystick does not conceal Android mock-location status and is not game, cheat
 
 ## Remaining gaps
 
-- Reconcile draft PR #5's stale description with the published corrective commit and accepted validation evidence.
+- Fast-forward the recovery branch used by draft PR #5 to the reconciled release-signing branch head, then update the PR description with the accepted corrective and signing evidence.
 - Reconcile app-op loss, Developer Options changes, provider removal, reboot/process-death behavior and truthful UI state on a physical device.
 - Review overlay touch-target sizing and accessibility at device scale as a separate UI change.
-- Harden `tools/build.py` ZIP extraction, downloads, subprocess timeouts and JDK ranking; make `build.bat` independent of caller working directory.
+- Continue the separate `tools/build.py` hardening scope for ZIP extraction, downloads, subprocess timeouts and JDK ranking; make `build.bat` independent of caller working directory.
 - Replace store screenshots with sanitized synthetic fixtures after source/device acceptance and decide the final store-icon corner treatment.
 - Treat API 36 compile/target migration as a separate permission, foreground-service, notification, overlay, app-op, F-Droid and device-validation change.
-- Keep signing, installation, device QA, reproducibility, store publication, public merge/release and final signoff as separate gates.
+- Keep installation, device QA, reproducibility, store publication, public merge/release and final signoff as separate gates.
 
 ## Next accepted stages
 
-1. Commit and fast-forward push this documentation-only state reconciliation.
-2. Update draft PR #5 with the final branch head, accepted validation evidence and remaining device gates.
+1. Commit and push this documentation-only state reconciliation on `maintenance/release-signing-20260806`.
+2. Fast-forward `recovery/pre-reinstall-maintenance-20260804` to the reconciled branch head and update draft PR #5 with the accepted signing evidence and remaining device gates.
 3. Keep PR #5 draft until physical-device QA is completed or explicitly deferred by the user.
-4. Perform signing, installation and physical-device QA separately.
+4. Perform installation and physical-device QA separately.
 5. Do not merge `main`, tag, publish or submit to stores without user signoff.
 
 ## Public documentation policy
