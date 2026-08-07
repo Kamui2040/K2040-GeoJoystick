@@ -152,11 +152,11 @@ public final class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        if ("license-welcome".equals(currentPage)) {
+        if ("license-welcome".equals(currentPage) || "changelog-welcome".equals(currentPage)) {
             showWelcomePage();
             return;
         }
-        if ("license-about".equals(currentPage) || "changelog".equals(currentPage)) {
+        if ("license-about".equals(currentPage) || "changelog-about".equals(currentPage)) {
             showAboutPage();
             return;
         }
@@ -199,8 +199,8 @@ public final class MainActivity extends Activity {
             showSettingsPage();
         } else if ("about".equals(page)) {
             showAboutPage();
-        } else if ("changelog".equals(page)) {
-            showChangelogPage();
+        } else if ("changelog".equals(page) || "changelog-about".equals(page)) {
+            showChangelogPage(false);
         } else if ("license-about".equals(page)) {
             showLicensePage(false);
         }
@@ -484,7 +484,7 @@ public final class MainActivity extends Activity {
         root.addView(trustPanel(), margin(4, 6));
 
         LinearLayout info = card();
-        info.addView(infoRow("Version 0.1.3", t("What's new", "Neuigkeiten"), this::showChangelogPage), innerRow());
+        info.addView(infoRow("Version 0.1.3", t("What's new", "Neuigkeiten"), () -> showChangelogPage(false)), innerRow());
         info.addView(infoRow(t("License & usage", "Lizenz & Nutzung"), "GPL-3.0-only", () -> showLicensePage(false)), innerRow());
         info.addView(infoRow(t("Support on Ko-fi", "Auf Ko-fi unterstützen"),
                 t("Optional · no features unlocked", "Optional · keine Funktionen werden freigeschaltet"),
@@ -500,18 +500,23 @@ public final class MainActivity extends Activity {
         applySystemBarInsets(page);
     }
 
-    private void showChangelogPage() {
-        currentPage = "changelog";
+    private void showChangelogPage(boolean returnToWelcome) {
+        currentPage = returnToWelcome && !settings.welcomeAcknowledged()
+                ? "changelog-welcome" : "changelog-about";
         ScrollView page = pageScroll();
         LinearLayout root = pageRoot();
         page.addView(root);
-        root.addView(pageHeader(t("What's new", "Neuigkeiten"), this::showAboutPage), margin(0, 4));
+        Runnable backAction = "changelog-welcome".equals(currentPage)
+                ? this::showWelcomePage : this::showAboutPage;
+        root.addView(pageHeader(t("Changelog", "Änderungsprotokoll"), backAction), margin(0, 4));
+
+        LinearLayout changesCard = card();
         TextView changes = text(changelogText(), 14, palette.text, false);
         changes.setTextIsSelectable(true);
         changes.setLineSpacing(0, 1.12f);
-        changes.setPadding(dp(16), dp(16), dp(16), dp(16));
-        changes.setBackground(GeoUi.surface(this, palette));
-        root.addView(changes, margin(4, 6));
+        changes.setPadding(dp(4), dp(4), dp(4), dp(4));
+        changesCard.addView(changes, innerRow());
+        root.addView(changesCard, margin(4, 6));
         setContentView(page);
         applySystemBarInsets(page);
     }
@@ -574,32 +579,22 @@ public final class MainActivity extends Activity {
         TextView title = text("GeoJoystick", 25, palette.text, true);
         title.setGravity(Gravity.CENTER);
         body.addView(title, innerRow());
-        TextView description = text(t("Mock-location joystick for Android.",
-                "Mock-Standort-Joystick für Android."), 11, palette.textDim, false);
-        description.setGravity(Gravity.CENTER);
-        description.setPadding(dp(8), 0, dp(8), dp(6));
-        body.addView(description, innerRow());
 
-        body.addView(welcomeRow("Version 0.1.3", this::showVersionDialog), innerRow());
-        body.addView(welcomeRow(t("License & usage", "Lizenz & Nutzung"),
+        body.addView(welcomeExpandableRow(t("About", "Über"), welcomeAboutText()), innerRow());
+        body.addView(welcomeNavigationRow("Version 0.1.3", () -> showChangelogPage(true)), innerRow());
+        body.addView(welcomeNavigationRow(t("License & usage", "Lizenz & Nutzung"),
                 () -> showLicensePage(true)), innerRow());
-        body.addView(welcomeRow(t("Support on Ko-fi", "Auf Ko-fi unterstützen"),
+        body.addView(welcomeNavigationRow(t("Support on Ko-fi", "Auf Ko-fi unterstützen"),
                 () -> openExternalUrl("https://ko-fi.com/k2040")), innerRow());
-
-        body.addView(welcomeTrustPanel(), innerRow());
-
-        TextView thanks = text(t("♥  Thank you for trying GeoJoystick.",
-                "♥  Danke, dass du GeoJoystick ausprobierst."), 11, palette.textDim, false);
-        thanks.setGravity(Gravity.CENTER);
-        thanks.setPadding(dp(8), dp(6), dp(8), 0);
-        body.addView(thanks, innerRow());
+        body.addView(welcomeExpandableRow(t("Thanks & credits", "Dank & Mitwirkende"),
+                welcomeThanksText()), innerRow());
 
         TextView acknowledgement = text(
                 t("Continue only confirms acknowledgement of this notice.",
                         "Weiter bestätigt nur die Kenntnisnahme dieses Hinweises."),
                 9, palette.textDim, false);
         acknowledgement.setGravity(Gravity.CENTER);
-        acknowledgement.setPadding(dp(8), 0, dp(8), dp(2));
+        acknowledgement.setPadding(dp(8), dp(3), dp(8), dp(2));
         body.addView(acknowledgement, innerRow());
 
         modal.addView(bodyScroll, new LinearLayout.LayoutParams(
@@ -613,7 +608,7 @@ public final class MainActivity extends Activity {
         });
         modal.addView(continueButton, margin(5, 0));
 
-        int width = Math.min(dp(360), getResources().getDisplayMetrics().widthPixels - dp(48));
+        int width = Math.min(dp(336), getResources().getDisplayMetrics().widthPixels - dp(56));
         int height = Math.min(dp(452), getResources().getDisplayMetrics().heightPixels - dp(128));
         FrameLayout.LayoutParams modalParams = new FrameLayout.LayoutParams(
                 Math.max(dp(260), width),
@@ -625,14 +620,6 @@ public final class MainActivity extends Activity {
         applySystemBarInsets(stage);
         modal.requestFocus();
         bodyScroll.post(() -> bodyScroll.scrollTo(0, 0));
-    }
-
-    private void showVersionDialog() {
-        appDialogBuilder()
-                .setTitle("GeoJoystick 0.1.3")
-                .setMessage(changelogText())
-                .setPositiveButton(t("Close", "Schließen"), null)
-                .show();
     }
 
     private void showLicensePage(boolean returnToWelcome) {
@@ -683,29 +670,52 @@ public final class MainActivity extends Activity {
         return trust;
     }
 
-    private LinearLayout welcomeTrustPanel() {
-        LinearLayout trust = new LinearLayout(this);
-        trust.setOrientation(LinearLayout.VERTICAL);
-        trust.setPadding(dp(10), dp(8), dp(10), dp(8));
-        trust.setBackground(GeoUi.rounded(this, palette.accentSoft, 12, palette.accent, 1));
-        TextView headline = text(t("Local · No account · No unnecessary tracking",
-                "Lokal · Kein Konto · Kein unnötiges Tracking"), 10, palette.text, true);
-        headline.setGravity(Gravity.CENTER);
-        headline.setSingleLine(true);
-        trust.addView(headline);
-        return trust;
+    private LinearLayout welcomeNavigationRow(String title, Runnable action) {
+        LinearLayout row = welcomeRowHeader(title, "›");
+        row.setBackground(GeoUi.surface(this, palette));
+        row.setContentDescription(title + ". " + t("Open", "Öffnen"));
+        row.setOnClickListener(view -> action.run());
+        return row;
     }
 
-    private LinearLayout welcomeRow(String title, Runnable action) {
+    private LinearLayout welcomeExpandableRow(String title, String detailText) {
+        LinearLayout section = new LinearLayout(this);
+        section.setOrientation(LinearLayout.VERTICAL);
+        section.setBackground(GeoUi.surface(this, palette));
+
+        LinearLayout header = welcomeRowHeader(title, "⌄");
+        TextView chevron = (TextView) header.getChildAt(1);
+        TextView detail = text(detailText, 10, palette.textDim, false);
+        detail.setPadding(dp(16), 0, dp(16), dp(12));
+        detail.setLineSpacing(0, 1.08f);
+        detail.setVisibility(View.GONE);
+        detail.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+        section.addView(header);
+        section.addView(detail, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        header.setContentDescription(title + ". " + t("Collapsed", "Eingeklappt"));
+        header.setOnClickListener(view -> {
+            boolean expand = detail.getVisibility() != View.VISIBLE;
+            detail.setVisibility(expand ? View.VISIBLE : View.GONE);
+            detail.setImportantForAccessibility(expand
+                    ? View.IMPORTANT_FOR_ACCESSIBILITY_YES
+                    : View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+            chevron.setText(expand ? "⌃" : "⌄");
+            header.setContentDescription(title + ". "
+                    + (expand ? t("Expanded", "Ausgeklappt") : t("Collapsed", "Eingeklappt")));
+        });
+        return section;
+    }
+
+    private LinearLayout welcomeRowHeader(String title, String chevronText) {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setPadding(dp(16), 0, dp(10), 0);
         row.setMinimumHeight(dp(48));
-        row.setBackground(GeoUi.surface(this, palette));
         row.setClickable(true);
         row.setFocusable(true);
-        row.setContentDescription(title + ". " + t("Open", "Öffnen"));
 
         TextView label = text(title, 12, palette.text, false);
         label.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
@@ -713,13 +723,26 @@ public final class MainActivity extends Activity {
         row.addView(label, new LinearLayout.LayoutParams(
                 0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
 
-        TextView chevron = text("›", 18, palette.textDim, false);
+        TextView chevron = text(chevronText, 18, palette.textDim, false);
         chevron.setGravity(Gravity.CENTER);
         chevron.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         row.addView(chevron, new LinearLayout.LayoutParams(dp(28), ViewGroup.LayoutParams.MATCH_PARENT));
-
-        row.setOnClickListener(view -> action.run());
         return row;
+    }
+
+    private String welcomeAboutText() {
+        return t(
+                "Transparent mock-location joystick for Android developer and emulator testing.\n\n"
+                        + "Local · No account · No unnecessary tracking\n"
+                        + "Coordinates and settings stay on your device. No analytics and no account system.",
+                "Transparenter Mock-Standort-Joystick für Android-Entwicklung und Emulator-Tests.\n\n"
+                        + "Lokal · Kein Konto · Kein unnötiges Tracking\n"
+                        + "Koordinaten und Einstellungen bleiben auf deinem Gerät. Keine Analysen und kein Kontosystem.");
+    }
+
+    private String welcomeThanksText() {
+        return t("Thank you for trying GeoJoystick.",
+                "Danke, dass du GeoJoystick ausprobierst.");
     }
 
     private Button infoRow(String title, String subtitle, Runnable action) {
@@ -1397,18 +1420,12 @@ public final class MainActivity extends Activity {
 
     private String changelogText() {
         return t(
-                "Privacy & trust\n"
-                        + "• GeoJoystick keeps coordinates and settings on your device.\n"
-                        + "• No account system, analytics, or unnecessary tracking.\n\n"
-                        + "Version 0.1.3\n"
+                "Version 0.1.3\n"
                         + "• Dialogs now follow the selected dark theme.\n"
                         + "• GeoJoystick now uses a dedicated icon in store listings.\n\n"
                         + "Version 0.1.0\n"
                         + "• Initial public release with coordinate and altitude entry, map selection and link import, favorites, appearance and language settings, and floating joystick controls.",
-                "Datenschutz & Vertrauen\n"
-                        + "• GeoJoystick speichert Koordinaten und Einstellungen auf deinem Gerät.\n"
-                        + "• Kein Kontosystem, keine Analysen und kein unnötiges Tracking.\n\n"
-                        + "Version 0.1.3\n"
+                "Version 0.1.3\n"
                         + "• Dialoge folgen nun dem ausgewählten dunklen Design.\n"
                         + "• GeoJoystick verwendet nun ein eigenes Symbol in Store-Einträgen.\n\n"
                         + "Version 0.1.0\n"
