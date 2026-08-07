@@ -31,6 +31,7 @@ final class JoystickOverlay {
     private static final String PREF_SELECTED_SPEED = "overlay_selected_speed";
     private static final String PREF_SELECTED_SPEED_KIND = "overlay_selected_speed_kind";
     private static final String PREF_OVERLAY_OPACITY = "overlay_opacity_percent";
+    private static final String PREF_OVERLAY_SIZE = "overlay_size_percent";
     private static final String PREF_OVERLAY_HIGH_CONTRAST = "overlay_high_contrast";
     private static final String PREF_CUSTOM_SPEED = "overlay_custom_speed";
     private static final String PREF_CUSTOM_SPEED_NAME = "overlay_custom_speed_name";
@@ -81,6 +82,7 @@ final class JoystickOverlay {
     private boolean paused;
     private boolean highContrast;
     private int overlayOpacityPercent;
+    private int overlaySizePercent;
     private int colorPanel;
     private int colorBorder;
     private int colorButton;
@@ -119,18 +121,18 @@ final class JoystickOverlay {
         root = new LinearLayout(context);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setGravity(Gravity.CENTER_HORIZONTAL);
-        root.setPadding(dp(10), dp(8), dp(10), dp(10));
+        root.setPadding(dp(6), dp(6), dp(6), dp(8));
         root.setBackground(panelBackground());
-        root.setElevation(dp(12));
+        root.setElevation(dp(10));
 
         titleRow = new LinearLayout(context);
         titleRow.setGravity(Gravity.CENTER_VERTICAL);
         dragHandle = new DragTextView(context);
         dragHandle.setText(R.string.app_name);
         dragHandle.setTextColor(colorText);
-        dragHandle.setTextSize(14);
+        dragHandle.setTextSize(13);
         dragHandle.setGravity(Gravity.CENTER_VERTICAL);
-        dragHandle.setPadding(dp(4), 0, dp(8), 0);
+        dragHandle.setPadding(dp(4), 0, dp(6), 0);
         dragHandle.setContentDescription(t("Move GeoJoystick overlay", "GeoJoystick-Overlay verschieben"));
         dragHandle.setOnTouchListener(new DragListener());
         titleRow.addView(dragHandle, new LinearLayout.LayoutParams(0, dp(48), 1f));
@@ -139,8 +141,8 @@ final class JoystickOverlay {
         toggleModeButton.setContentDescription(t("Switch to compact overlay", "Zum kompakten Overlay wechseln"));
         toggleModeButton.setOnClickListener(view -> toggleOverlayMode());
         toggleModeButton.setOnTouchListener(new DragListener());
-        titleRow.addView(toggleModeButton, new LinearLayout.LayoutParams(dp(44), dp(44)));
-        root.addView(titleRow, new LinearLayout.LayoutParams(dp(216), dp(48)));
+        titleRow.addView(toggleModeButton, new LinearLayout.LayoutParams(dp(48), dp(48)));
+        root.addView(titleRow, new LinearLayout.LayoutParams(dp(200), dp(48)));
 
         joystickView = new JoystickView(context);
         joystickView.setHighContrast(highContrast);
@@ -152,10 +154,10 @@ final class JoystickOverlay {
                 listener.onVectorChanged(east, north);
             }
         });
-        LinearLayout.LayoutParams joystickParams = new LinearLayout.LayoutParams(dp(132), dp(132));
+        LinearLayout.LayoutParams joystickParams = new LinearLayout.LayoutParams(dp(106), dp(106));
         joystickParams.gravity = Gravity.CENTER_HORIZONTAL;
-        joystickParams.topMargin = dp(4);
-        joystickParams.bottomMargin = dp(10);
+        joystickParams.topMargin = dp(2);
+        joystickParams.bottomMargin = dp(6);
         root.addView(joystickView, joystickParams);
 
         speedRow = new LinearLayout(context);
@@ -172,7 +174,7 @@ final class JoystickOverlay {
         addIconButton(speedRow, runButton);
         addIconButton(speedRow, bikeButton);
         addIconButton(speedRow, customButton);
-        root.addView(speedRow, new LinearLayout.LayoutParams(dp(216), dp(48)));
+        root.addView(speedRow, new LinearLayout.LayoutParams(dp(200), dp(48)));
 
         controlRow = new LinearLayout(context);
         controlRow.setGravity(Gravity.CENTER);
@@ -187,15 +189,15 @@ final class JoystickOverlay {
         addControlButton(controlRow, pauseButton);
         addControlButton(controlRow, holdButton);
         addControlButton(controlRow, stopButton);
-        root.addView(controlRow, rowParams(216, 52, 4));
+        root.addView(controlRow, rowParams(200, 48, 2));
 
         coordinateText = new TextView(context);
         coordinateText.setTextColor(colorTextDim);
-        coordinateText.setTextSize(11);
+        coordinateText.setTextSize(10);
         coordinateText.setGravity(Gravity.CENTER);
         coordinateText.setSingleLine(true);
-        coordinateText.setPadding(dp(4), dp(4), dp(4), 0);
-        root.addView(coordinateText, new LinearLayout.LayoutParams(dp(216), dp(34)));
+        coordinateText.setPadding(dp(3), dp(2), dp(3), 0);
+        root.addView(coordinateText, new LinearLayout.LayoutParams(dp(200), dp(28)));
 
         updateSpeedButtonStates();
         updateToggleStates();
@@ -287,23 +289,45 @@ final class JoystickOverlay {
         styleToggleButton();
 
         LinearLayout.LayoutParams toggleParams = (LinearLayout.LayoutParams) toggleModeButton.getLayoutParams();
-        toggleParams.width = dp(44);
-        toggleParams.height = dp(44);
+        toggleParams.width = dp(48);
+        toggleParams.height = dp(48);
         toggleModeButton.setLayoutParams(toggleParams);
 
+        int panelWidth = Math.max(dp(200), scaledDp(216));
+        int joystickSize = compactMode
+                ? Math.max(dp(88), scaledDp(116))
+                : Math.max(dp(92), scaledDp(132));
+
         LinearLayout.LayoutParams titleParams = (LinearLayout.LayoutParams) titleRow.getLayoutParams();
-        titleParams.width = compactMode ? dp(148) : dp(216);
+        titleParams.width = compactMode ? Math.max(dp(104), joystickSize) : panelWidth;
         titleParams.height = dp(48);
         titleRow.setLayoutParams(titleParams);
         titleRow.setGravity(compactMode ? Gravity.END : Gravity.CENTER_VERTICAL);
 
         LinearLayout.LayoutParams joystickParams = (LinearLayout.LayoutParams) joystickView.getLayoutParams();
-        joystickParams.width = compactMode ? dp(116) : dp(132);
-        joystickParams.height = compactMode ? dp(116) : dp(132);
-        joystickParams.bottomMargin = compactMode ? dp(4) : dp(10);
+        joystickParams.width = joystickSize;
+        joystickParams.height = joystickSize;
+        joystickParams.topMargin = compactMode ? 0 : dp(2);
+        joystickParams.bottomMargin = compactMode ? dp(2) : dp(6);
         joystickView.setLayoutParams(joystickParams);
 
-        root.setPadding(dp(10), compactMode ? dp(4) : dp(8), dp(10), compactMode ? dp(8) : dp(10));
+        LinearLayout.LayoutParams speedParams = (LinearLayout.LayoutParams) speedRow.getLayoutParams();
+        speedParams.width = panelWidth;
+        speedParams.height = dp(48);
+        speedRow.setLayoutParams(speedParams);
+
+        LinearLayout.LayoutParams controlParams = (LinearLayout.LayoutParams) controlRow.getLayoutParams();
+        controlParams.width = panelWidth;
+        controlParams.height = dp(48);
+        controlParams.topMargin = dp(2);
+        controlRow.setLayoutParams(controlParams);
+
+        LinearLayout.LayoutParams coordinateParams = (LinearLayout.LayoutParams) coordinateText.getLayoutParams();
+        coordinateParams.width = panelWidth;
+        coordinateParams.height = dp(28);
+        coordinateText.setLayoutParams(coordinateParams);
+
+        root.setPadding(dp(6), compactMode ? dp(3) : dp(6), dp(6), compactMode ? dp(5) : dp(8));
         root.setBackground(panelBackground());
         root.requestLayout();
     }
@@ -334,7 +358,7 @@ final class JoystickOverlay {
             return;
         }
         coordinateText.setText(String.format(Locale.US,
-                "%.5f, %.5f  ·  %.1f m/s", currentLatitude, currentLongitude, currentSpeed));
+                "%.5f, %.5f · %.1f m/s", currentLatitude, currentLongitude, currentSpeed));
     }
 
     private String loadSavedSpeedKind() {
@@ -386,9 +410,14 @@ final class JoystickOverlay {
 
     private boolean loadStyleSettings(boolean force) {
         int newOpacity = Math.max(30, Math.min(100, preferences.getInt(PREF_OVERLAY_OPACITY, 85)));
+        int newSize = Math.max(70, Math.min(120, preferences.getInt(PREF_OVERLAY_SIZE, 80)));
         boolean newContrast = preferences.getBoolean(PREF_OVERLAY_HIGH_CONTRAST, false);
-        if (!force && newOpacity == overlayOpacityPercent && newContrast == highContrast) return false;
+        if (!force
+                && newOpacity == overlayOpacityPercent
+                && newSize == overlaySizePercent
+                && newContrast == highContrast) return false;
         overlayOpacityPercent = newOpacity;
+        overlaySizePercent = newSize;
         highContrast = newContrast;
         int panelAlpha = Math.round(255.0f * overlayOpacityPercent / 100.0f);
         colorPanel = argb(panelAlpha, 0x0B, 0x16, 0x22);
@@ -418,10 +447,10 @@ final class JoystickOverlay {
         button.setTextColor(colorTextDim);
         button.setTextSize(textSize);
         button.setAllCaps(false);
-        button.setMinHeight(dp(44));
-        button.setMinWidth(dp(44));
-        button.setMinimumHeight(dp(44));
-        button.setMinimumWidth(dp(44));
+        button.setMinHeight(dp(48));
+        button.setMinWidth(dp(48));
+        button.setMinimumHeight(dp(48));
+        button.setMinimumWidth(dp(48));
         button.setPadding(0, 0, 0, 0);
         button.setBackground(buttonBackground(false));
         button.setStateListAnimator(null);
@@ -433,10 +462,10 @@ final class JoystickOverlay {
         button.setContentDescription(description);
         button.setText("");
         button.setAllCaps(false);
-        button.setMinHeight(dp(44));
-        button.setMinWidth(dp(44));
-        button.setMinimumHeight(dp(44));
-        button.setMinimumWidth(dp(44));
+        button.setMinHeight(dp(48));
+        button.setMinWidth(dp(48));
+        button.setMinimumHeight(dp(48));
+        button.setMinimumWidth(dp(48));
         button.setPadding(0, 0, 0, 0);
         button.setBackground(buttonBackground(false));
         button.setStateListAnimator(null);
@@ -444,16 +473,16 @@ final class JoystickOverlay {
     }
 
     private void addIconButton(LinearLayout row, Button button) {
-        LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(dp(44), dp(44));
-        buttonParams.leftMargin = dp(4);
-        buttonParams.rightMargin = dp(4);
+        LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(dp(48), dp(48));
+        buttonParams.leftMargin = dp(1);
+        buttonParams.rightMargin = dp(1);
         row.addView(button, buttonParams);
     }
 
     private void addControlButton(LinearLayout row, Button button) {
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(52), dp(48));
-        params.leftMargin = dp(8);
-        params.rightMargin = dp(8);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(48), dp(48));
+        params.leftMargin = dp(4);
+        params.rightMargin = dp(4);
         row.addView(button, params);
     }
 
@@ -476,7 +505,7 @@ final class JoystickOverlay {
     private GradientDrawable panelBackground() {
         GradientDrawable drawable = new GradientDrawable();
         drawable.setColor(colorPanel);
-        drawable.setCornerRadius(dp(18));
+        drawable.setCornerRadius(dp(16));
         drawable.setStroke(dp(highContrast ? 2 : 1), colorBorder);
         return drawable;
     }
@@ -487,6 +516,10 @@ final class JoystickOverlay {
         drawable.setCornerRadius(dp(11));
         drawable.setStroke(dp(active || highContrast ? 2 : 1), active ? colorAccent : colorBorder);
         return drawable;
+    }
+
+    private int scaledDp(int baseDp) {
+        return dp(Math.round(baseDp * overlaySizePercent / 100.0f));
     }
 
     private int dp(int value) {
