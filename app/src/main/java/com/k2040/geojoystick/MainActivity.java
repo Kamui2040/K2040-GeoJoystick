@@ -225,14 +225,14 @@ public final class MainActivity extends Activity {
         ScrollView page = pageScroll();
         LinearLayout root = pageRoot();
         page.addView(root);
-        root.addView(appHeader(), margin(0, 4));
+        root.addView(appHeader(), margin(0, 2));
 
         LinearLayout status = card();
         addCardTitle(status, t("Status", "Status"));
         mockStatus = addStatusRow(status, t("Mock location", "Mock-Standort"));
         overlayStatus = addStatusRow(status, t("Overlay permission", "Overlay-Berechtigung"));
         simulationStatus = addStatusRow(status, t("Simulation", "Simulation"));
-        root.addView(status, margin(4, 6));
+        root.addView(status, margin(2, 4));
 
         LinearLayout coordinates = card();
         addCardTitle(coordinates, t("Coordinates", "Koordinaten"));
@@ -243,7 +243,7 @@ public final class MainActivity extends Activity {
         coordinates.addView(latitudeInput, innerRow());
         coordinates.addView(longitudeInput, innerRow());
         coordinates.addView(altitudeInput, innerRow());
-        root.addView(coordinates, margin(4, 6));
+        root.addView(coordinates, margin(2, 4));
 
         LinearLayout quick = new LinearLayout(this);
         quick.setOrientation(LinearLayout.HORIZONTAL);
@@ -257,16 +257,16 @@ public final class MainActivity extends Activity {
         quick.addView(map, tileWeight());
         quick.addView(paste, tileWeight());
         quick.addView(favorite, tileWeight());
-        root.addView(quick, margin(2, 4));
+        root.addView(quick, margin(1, 3));
 
         LinearLayout favoriteCard = card();
         LinearLayout favoriteHeader = new LinearLayout(this);
         favoriteHeader.setGravity(Gravity.CENTER_VERTICAL);
-        TextView favoriteTitle = text(t("Favorites", "Favoriten"), 14, palette.text, true);
+        TextView favoriteTitle = text(t("Favorites", "Favoriten"), 13, palette.text, true);
         favoriteHeader.addView(favoriteTitle,
                 new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        TextView favoriteHint = text(t("Tap to load · hold to edit",
-                "Tippen zum Laden · halten zum Bearbeiten"), 10, palette.textDim, false);
+        TextView favoriteHint = text(t("Tap · hold to edit",
+                "Tippen · halten zum Bearbeiten"), 9, palette.textDim, false);
         favoriteHeader.addView(favoriteHint);
         favoriteCard.addView(favoriteHeader, innerRow());
 
@@ -274,7 +274,7 @@ public final class MainActivity extends Activity {
         scroller.setHorizontalScrollBarEnabled(false);
         LinearLayout favoriteRow = new LinearLayout(this);
         favoriteRow.setOrientation(LinearLayout.HORIZONTAL);
-        favoriteRow.setPadding(0, dp(4), 0, dp(2));
+        favoriteRow.setPadding(0, dp(2), 0, 0);
         for (int slot = 0; slot < GeoSettings.FAVORITE_COUNT; slot++) {
             final int index = slot;
             Button button = favoriteButton(index);
@@ -284,52 +284,52 @@ public final class MainActivity extends Activity {
                 return true;
             });
             favoriteButtons[index] = button;
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(112), dp(58));
-            params.rightMargin = dp(8);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(100), dp(52));
+            params.rightMargin = dp(6);
             favoriteRow.addView(button, params);
         }
         scroller.addView(favoriteRow);
         favoriteCard.addView(scroller, innerRow());
-        root.addView(favoriteCard, margin(4, 6));
+        root.addView(favoriteCard, margin(2, 4));
         refreshFavoriteButtons();
 
         Button start = GeoUi.button(this, palette,
                 t("▶  Start simulation", "▶  Simulation starten"), true);
         start.setOnClickListener(view -> startMocking());
-        root.addView(start, margin(8, 4));
+        root.addView(start, margin(5, 3));
 
         Button stop = GeoUi.button(this, palette,
                 t("■  Stop simulation", "■  Simulation stoppen"), false);
         stop.setOnClickListener(view -> stopMocking());
-        root.addView(stop, margin(4, 4));
+        root.addView(stop, margin(2, 3));
 
         TextView footer = text(t("Open source · GPL-3.0-only · Local-first",
                 "Open Source · GPL-3.0-only · Lokal"), 10, palette.textDim, false);
         footer.setGravity(Gravity.CENTER);
-        footer.setPadding(dp(8), dp(8), dp(8), dp(4));
+        footer.setPadding(dp(8), dp(6), dp(8), dp(2));
         footer.setOnClickListener(view -> showAboutPage());
-        root.addView(footer, margin(2, 4));
+        root.addView(footer, margin(1, 2));
         return page;
     }
 
     private LinearLayout appHeader() {
         LinearLayout header = new LinearLayout(this);
         header.setGravity(Gravity.CENTER_VERTICAL);
-        header.setPadding(dp(2), dp(2), dp(2), dp(8));
+        header.setPadding(dp(2), dp(2), dp(2), dp(4));
 
         ImageView avatar = new ImageView(this);
         avatar.setImageResource(R.drawable.k2040_avatar);
         avatar.setScaleType(ImageView.ScaleType.CENTER_CROP);
         avatar.setContentDescription(t("About GeoJoystick", "Über GeoJoystick"));
         avatar.setOnClickListener(view -> showAboutPage());
-        header.addView(avatar, new LinearLayout.LayoutParams(dp(44), dp(44)));
+        header.addView(avatar, new LinearLayout.LayoutParams(dp(40), dp(40)));
 
         LinearLayout titles = new LinearLayout(this);
         titles.setOrientation(LinearLayout.VERTICAL);
-        titles.setPadding(dp(12), 0, 0, 0);
-        titles.addView(text("GeoJoystick", 22, palette.text, true));
+        titles.setPadding(dp(10), 0, 0, 0);
+        titles.addView(text("GeoJoystick", 20, palette.text, true));
         titles.addView(text(t("Transparent mock-location simulation",
-                "Transparente Mock-Standort-Simulation"), 10, palette.textDim, false));
+                "Transparente Mock-Standort-Simulation"), 9, palette.textDim, false));
         header.addView(titles,
                 new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
@@ -348,7 +348,7 @@ public final class MainActivity extends Activity {
         page.addView(root);
         root.addView(pageHeader(t("Settings", "Einstellungen"), this::showHomePage), margin(0, 4));
 
-        root.addView(section(t("Setup", "Einrichtung")), margin(8, 2));
+        root.addView(section(t("Setup", "Einrichtung")), margin(6, 1));
         LinearLayout setup = card();
         setup.addView(settingRow(
                 t("Mock location settings", "Mock-Standort-Einstellungen"),
@@ -372,9 +372,9 @@ public final class MainActivity extends Activity {
                         "Zuletzt erfolgreich veröffentlichte Koordinaten als nächsten Entwurf verwenden"),
                 settings.restoreLastPosition() ? t("On", "Ein") : t("Off", "Aus"),
                 this::toggleRestoreLastPosition), innerRow());
-        root.addView(setup, margin(2, 6));
+        root.addView(setup, margin(1, 4));
 
-        root.addView(section(t("Behavior", "Verhalten")), margin(8, 2));
+        root.addView(section(t("Behavior", "Verhalten")), margin(6, 1));
         LinearLayout behavior = card();
         behavior.addView(settingRow(
                 t("Simulation speed", "Simulationsgeschwindigkeit"),
@@ -386,11 +386,33 @@ public final class MainActivity extends Activity {
                 t("Increase contrast of the floating controls", "Kontrast der schwebenden Steuerung erhöhen"),
                 settings.highContrastOverlay() ? t("On", "Ein") : t("Off", "Aus"),
                 this::toggleHighContrast), innerRow());
-        root.addView(behavior, margin(2, 6));
+        root.addView(behavior, margin(1, 4));
 
-        root.addView(section(t("Overlay", "Overlay")), margin(8, 2));
+        root.addView(section(t("Overlay", "Overlay")), margin(6, 1));
         LinearLayout overlay = card();
-        TextView opacityLabel = text("", 13, palette.text, false);
+
+        TextView sizeLabel = text("", 12, palette.text, false);
+        SeekBar size = new SeekBar(this);
+        size.setMax(50);
+        size.setProgress(settings.overlaySize() - 70);
+        updateOverlaySizeLabel(sizeLabel, settings.overlaySize());
+        size.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int value = progress + 70;
+                updateOverlaySizeLabel(sizeLabel, value);
+                if (fromUser) settings.setOverlaySize(value);
+            }
+
+            @Override public void onStartTrackingTouch(SeekBar seekBar) { }
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {
+                settings.setOverlaySize(seekBar.getProgress() + 70);
+            }
+        });
+        overlay.addView(sizeLabel, innerRow());
+        overlay.addView(size, innerRow());
+
+        TextView opacityLabel = text("", 12, palette.text, false);
         SeekBar opacity = new SeekBar(this);
         opacity.setMax(70);
         opacity.setProgress(settings.overlayOpacity() - 30);
@@ -412,9 +434,9 @@ public final class MainActivity extends Activity {
         });
         overlay.addView(opacityLabel, innerRow());
         overlay.addView(opacity, innerRow());
-        root.addView(overlay, margin(2, 6));
+        root.addView(overlay, margin(1, 4));
 
-        root.addView(section(t("Appearance & language", "Darstellung & Sprache")), margin(8, 2));
+        root.addView(section(t("Appearance & language", "Darstellung & Sprache")), margin(6, 1));
         LinearLayout appearance = card();
         appearance.addView(settingRow(
                 t("Theme", "Darstellung"),
@@ -424,7 +446,7 @@ public final class MainActivity extends Activity {
                 t("Language", "Sprache"),
                 t("System, English or Deutsch", "System, English oder Deutsch"),
                 languageLabel(), this::chooseLanguage), innerRow());
-        root.addView(appearance, margin(2, 6));
+        root.addView(appearance, margin(1, 4));
 
         setContentView(page);
         applySystemBarInsets(page);
@@ -498,10 +520,13 @@ public final class MainActivity extends Activity {
         currentPage = "welcome";
         FrameLayout stage = new FrameLayout(this);
         stage.setBackgroundColor(palette.background);
+        stage.setClickable(true);
+        stage.setFocusable(true);
 
         ScrollView background = buildHomePage();
         background.setAlpha(settings.isDark() ? 0.34f : 0.26f);
         background.setEnabled(false);
+        background.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
         background.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
         stage.addView(background, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -510,6 +535,8 @@ public final class MainActivity extends Activity {
         View scrim = new View(this);
         scrim.setBackgroundColor(Color.BLACK);
         scrim.setAlpha(settings.isDark() ? 0.60f : 0.43f);
+        scrim.setClickable(true);
+        scrim.setFocusable(true);
         scrim.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         stage.addView(scrim, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -517,9 +544,11 @@ public final class MainActivity extends Activity {
 
         LinearLayout modal = new LinearLayout(this);
         modal.setOrientation(LinearLayout.VERTICAL);
-        modal.setPadding(dp(16), dp(16), dp(16), dp(14));
+        modal.setPadding(dp(14), dp(12), dp(14), dp(12));
         modal.setBackground(GeoUi.elevated(this, palette));
         modal.setElevation(dp(18));
+        modal.setClickable(true);
+        modal.setFocusable(true);
 
         ScrollView bodyScroll = new ScrollView(this);
         bodyScroll.setFillViewport(false);
@@ -532,66 +561,60 @@ public final class MainActivity extends Activity {
         avatar.setImageResource(R.drawable.k2040_avatar);
         avatar.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         avatar.setContentDescription(t("K2040 avatar", "K2040-Avatar"));
-        LinearLayout.LayoutParams avatarParams = new LinearLayout.LayoutParams(dp(108), dp(108));
+        LinearLayout.LayoutParams avatarParams = new LinearLayout.LayoutParams(dp(76), dp(76));
         avatarParams.gravity = Gravity.CENTER_HORIZONTAL;
-        avatarParams.bottomMargin = dp(6);
+        avatarParams.bottomMargin = dp(3);
         body.addView(avatar, avatarParams);
 
-        TextView title = text("GeoJoystick", 28, palette.text, true);
+        TextView title = text("GeoJoystick", 24, palette.text, true);
         title.setGravity(Gravity.CENTER);
         body.addView(title, innerRow());
-        TextView description = text(t("Transparent mock-location simulation for Android.",
-                "Transparente Mock-Standort-Simulation für Android."), 13, palette.textDim, false);
+        TextView description = text(t("Mock-location joystick for Android.",
+                "Mock-Standort-Joystick für Android."), 11, palette.textDim, false);
         description.setGravity(Gravity.CENTER);
-        description.setPadding(dp(8), 0, dp(8), dp(8));
+        description.setPadding(dp(8), 0, dp(8), dp(4));
         body.addView(description, innerRow());
 
         body.addView(welcomeRow("Version 0.1.3",
-                t("Build and release information", "Build- und Versionsinformationen"),
-                this::showVersionDialog), innerRow());
+                t("What's new", "Neuigkeiten"), this::showVersionDialog), innerRow());
         body.addView(welcomeRow(t("License & usage", "Lizenz & Nutzung"),
-                t("GPL-3.0-only · no warranty", "GPL-3.0-only · keine Gewährleistung"),
-                () -> showLicensePage(true)), innerRow());
+                "GPL-3.0-only", () -> showLicensePage(true)), innerRow());
         body.addView(welcomeRow(t("Support on Ko-fi", "Auf Ko-fi unterstützen"),
-                t("Optional donation · no features unlocked", "Optionale Spende · keine Funktionen werden freigeschaltet"),
+                t("Optional · no unlocks", "Optional · keine Freischaltungen"),
                 () -> openExternalUrl("https://ko-fi.com/k2040")), innerRow());
 
-        TextView disclosure = text(supportDisclosureText(), 10, palette.textDim, false);
-        disclosure.setGravity(Gravity.CENTER);
-        disclosure.setPadding(dp(8), dp(2), dp(8), dp(6));
-        body.addView(disclosure, innerRow());
-        body.addView(trustPanel(), innerRow());
+        body.addView(welcomeTrustPanel(), innerRow());
 
         TextView thanks = text(t("♥  Thank you for trying GeoJoystick.",
-                "♥  Danke, dass du GeoJoystick ausprobierst."), 12, palette.textDim, false);
+                "♥  Danke, dass du GeoJoystick ausprobierst."), 11, palette.textDim, false);
         thanks.setGravity(Gravity.CENTER);
-        thanks.setPadding(dp(8), dp(8), dp(8), dp(2));
+        thanks.setPadding(dp(8), dp(5), dp(8), 0);
         body.addView(thanks, innerRow());
 
         TextView acknowledgement = text(
-                t("Continuing confirms that you have acknowledged this notice. It is not acceptance of the GPL.",
-                        "Mit „Weiter“ bestätigst du, dass du diesen Hinweis zur Kenntnis genommen hast. Dies ist keine Zustimmung zur GPL."),
-                10, palette.textDim, false);
+                t("Continue only confirms acknowledgement of this notice.",
+                        "Weiter bestätigt nur die Kenntnisnahme dieses Hinweises."),
+                9, palette.textDim, false);
         acknowledgement.setGravity(Gravity.CENTER);
-        acknowledgement.setPadding(dp(8), dp(2), dp(8), dp(4));
+        acknowledgement.setPadding(dp(8), 0, dp(8), dp(2));
         body.addView(acknowledgement, innerRow());
 
         modal.addView(bodyScroll, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
         Button continueButton = GeoUi.button(this, palette,
-                t("Acknowledge & continue", "Zur Kenntnis genommen & weiter"), true);
+                t("Continue", "Weiter"), true);
         continueButton.setOnClickListener(view -> {
             settings.acknowledgeWelcome();
             showHomePage();
             handleIncomingIntent(getIntent());
         });
-        modal.addView(continueButton, margin(8, 0));
+        modal.addView(continueButton, margin(5, 0));
 
-        int width = Math.min(dp(420), getResources().getDisplayMetrics().widthPixels - dp(32));
-        int height = Math.min(dp(500), getResources().getDisplayMetrics().heightPixels - dp(64));
+        int width = Math.min(dp(380), getResources().getDisplayMetrics().widthPixels - dp(40));
+        int height = Math.min(dp(410), getResources().getDisplayMetrics().heightPixels - dp(144));
         FrameLayout.LayoutParams modalParams = new FrameLayout.LayoutParams(
                 Math.max(dp(260), width),
-                Math.max(dp(320), height),
+                Math.max(dp(300), height),
                 Gravity.CENTER);
         stage.addView(modal, modalParams);
 
@@ -652,6 +675,18 @@ public final class MainActivity extends Activity {
                 10, palette.textDim, false);
         detail.setPadding(0, dp(4), 0, 0);
         trust.addView(detail);
+        return trust;
+    }
+
+    private LinearLayout welcomeTrustPanel() {
+        LinearLayout trust = new LinearLayout(this);
+        trust.setOrientation(LinearLayout.VERTICAL);
+        trust.setPadding(dp(10), dp(8), dp(10), dp(8));
+        trust.setBackground(GeoUi.rounded(this, palette.accentSoft, 12, palette.accent, 1));
+        TextView headline = text(t("Local · No account · No unnecessary tracking",
+                "Lokal · Kein Konto · Kein unnötiges Tracking"), 10, palette.text, true);
+        headline.setGravity(Gravity.CENTER);
+        trust.addView(headline);
         return trust;
     }
 
@@ -815,6 +850,11 @@ public final class MainActivity extends Activity {
                     }
                 }));
         dialog.show();
+    }
+
+    private void updateOverlaySizeLabel(TextView label, int sizePercent) {
+        label.setText(String.format(Locale.US,
+                t("Overlay size: %d%%", "Overlay-Größe: %d%%"), sizePercent));
     }
 
     private void updateOpacityLabel(TextView label, int opacity) {
@@ -1241,7 +1281,7 @@ public final class MainActivity extends Activity {
         input.setTextSize(14);
         input.setTextColor(palette.text);
         input.setHintTextColor(palette.textDim);
-        input.setPadding(dp(12), dp(10), dp(12), dp(10));
+        input.setPadding(dp(12), dp(8), dp(12), dp(8));
         input.setMinHeight(dp(48));
         input.setBackground(GeoUi.input(this, palette));
         return input;
@@ -1258,7 +1298,7 @@ public final class MainActivity extends Activity {
     private LinearLayout pageRoot() {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(dp(16), dp(14), dp(16), dp(24));
+        root.setPadding(dp(16), dp(10), dp(16), dp(18));
         root.setBackgroundColor(palette.background);
         return root;
     }
@@ -1269,7 +1309,7 @@ public final class MainActivity extends Activity {
 
     private void addCardTitle(LinearLayout card, String value) {
         TextView title = text(value, 13, palette.text, true);
-        title.setPadding(dp(2), 0, dp(2), dp(6));
+        title.setPadding(dp(2), 0, dp(2), dp(4));
         card.addView(title);
     }
 
@@ -1280,17 +1320,17 @@ public final class MainActivity extends Activity {
         name.setGravity(Gravity.CENTER_VERTICAL);
         TextView value = text(t("Checking…", "Wird geprüft…"), 12, palette.textDim, true);
         value.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
-        row.addView(name, new LinearLayout.LayoutParams(0, dp(48), 1f));
-        row.addView(value, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(48)));
+        row.addView(name, new LinearLayout.LayoutParams(0, dp(42), 1f));
+        row.addView(value, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(42)));
         card.addView(row);
         return value;
     }
 
     private Button actionTile(String symbol, String label) {
         Button button = GeoUi.button(this, palette, symbol + "\n" + label, false);
-        button.setTextSize(12);
-        button.setMinHeight(dp(66));
-        button.setMinimumHeight(dp(66));
+        button.setTextSize(11);
+        button.setMinHeight(dp(58));
+        button.setMinimumHeight(dp(58));
         return button;
     }
 
@@ -1307,8 +1347,8 @@ public final class MainActivity extends Activity {
     private LinearLayout.LayoutParams innerRow() {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.topMargin = dp(3);
-        params.bottomMargin = dp(3);
+        params.topMargin = dp(2);
+        params.bottomMargin = dp(2);
         return params;
     }
 
@@ -1317,8 +1357,8 @@ public final class MainActivity extends Activity {
     }
 
     private LinearLayout.LayoutParams tileWeight() {
-        LinearLayout.LayoutParams params = GeoUi.weighted(this, 3);
-        params.height = dp(68);
+        LinearLayout.LayoutParams params = GeoUi.weighted(this, 2);
+        params.height = dp(60);
         return params;
     }
 
