@@ -544,43 +544,46 @@ public final class MainActivity extends Activity {
 
         LinearLayout modal = new LinearLayout(this);
         modal.setOrientation(LinearLayout.VERTICAL);
-        modal.setPadding(dp(14), dp(12), dp(14), dp(12));
+        modal.setPadding(dp(16), dp(14), dp(16), dp(14));
         modal.setBackground(GeoUi.elevated(this, palette));
         modal.setElevation(dp(18));
         modal.setClickable(true);
         modal.setFocusable(true);
+        modal.setFocusableInTouchMode(true);
 
         ScrollView bodyScroll = new ScrollView(this);
         bodyScroll.setFillViewport(false);
+        bodyScroll.setFocusable(false);
+        bodyScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
         LinearLayout body = new LinearLayout(this);
         body.setOrientation(LinearLayout.VERTICAL);
         body.setGravity(Gravity.CENTER_HORIZONTAL);
+        body.setPadding(0, dp(4), 0, dp(2));
         bodyScroll.addView(body);
 
         ImageView avatar = new ImageView(this);
         avatar.setImageResource(R.drawable.k2040_avatar);
         avatar.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         avatar.setContentDescription(t("K2040 avatar", "K2040-Avatar"));
-        LinearLayout.LayoutParams avatarParams = new LinearLayout.LayoutParams(dp(76), dp(76));
+        LinearLayout.LayoutParams avatarParams = new LinearLayout.LayoutParams(dp(88), dp(88));
         avatarParams.gravity = Gravity.CENTER_HORIZONTAL;
-        avatarParams.bottomMargin = dp(3);
+        avatarParams.topMargin = dp(2);
+        avatarParams.bottomMargin = dp(4);
         body.addView(avatar, avatarParams);
 
-        TextView title = text("GeoJoystick", 24, palette.text, true);
+        TextView title = text("GeoJoystick", 25, palette.text, true);
         title.setGravity(Gravity.CENTER);
         body.addView(title, innerRow());
         TextView description = text(t("Mock-location joystick for Android.",
                 "Mock-Standort-Joystick für Android."), 11, palette.textDim, false);
         description.setGravity(Gravity.CENTER);
-        description.setPadding(dp(8), 0, dp(8), dp(4));
+        description.setPadding(dp(8), 0, dp(8), dp(6));
         body.addView(description, innerRow());
 
-        body.addView(welcomeRow("Version 0.1.3",
-                t("What's new", "Neuigkeiten"), this::showVersionDialog), innerRow());
+        body.addView(welcomeRow("Version 0.1.3", this::showVersionDialog), innerRow());
         body.addView(welcomeRow(t("License & usage", "Lizenz & Nutzung"),
-                "GPL-3.0-only", () -> showLicensePage(true)), innerRow());
+                () -> showLicensePage(true)), innerRow());
         body.addView(welcomeRow(t("Support on Ko-fi", "Auf Ko-fi unterstützen"),
-                t("Optional · no unlocks", "Optional · keine Freischaltungen"),
                 () -> openExternalUrl("https://ko-fi.com/k2040")), innerRow());
 
         body.addView(welcomeTrustPanel(), innerRow());
@@ -588,7 +591,7 @@ public final class MainActivity extends Activity {
         TextView thanks = text(t("♥  Thank you for trying GeoJoystick.",
                 "♥  Danke, dass du GeoJoystick ausprobierst."), 11, palette.textDim, false);
         thanks.setGravity(Gravity.CENTER);
-        thanks.setPadding(dp(8), dp(5), dp(8), 0);
+        thanks.setPadding(dp(8), dp(6), dp(8), 0);
         body.addView(thanks, innerRow());
 
         TextView acknowledgement = text(
@@ -610,16 +613,18 @@ public final class MainActivity extends Activity {
         });
         modal.addView(continueButton, margin(5, 0));
 
-        int width = Math.min(dp(380), getResources().getDisplayMetrics().widthPixels - dp(40));
-        int height = Math.min(dp(410), getResources().getDisplayMetrics().heightPixels - dp(144));
+        int width = Math.min(dp(360), getResources().getDisplayMetrics().widthPixels - dp(48));
+        int height = Math.min(dp(452), getResources().getDisplayMetrics().heightPixels - dp(128));
         FrameLayout.LayoutParams modalParams = new FrameLayout.LayoutParams(
                 Math.max(dp(260), width),
-                Math.max(dp(300), height),
+                Math.max(dp(340), height),
                 Gravity.CENTER);
         stage.addView(modal, modalParams);
 
         setContentView(stage);
         applySystemBarInsets(stage);
+        modal.requestFocus();
+        bodyScroll.post(() -> bodyScroll.scrollTo(0, 0));
     }
 
     private void showVersionDialog() {
@@ -686,12 +691,35 @@ public final class MainActivity extends Activity {
         TextView headline = text(t("Local · No account · No unnecessary tracking",
                 "Lokal · Kein Konto · Kein unnötiges Tracking"), 10, palette.text, true);
         headline.setGravity(Gravity.CENTER);
+        headline.setSingleLine(true);
         trust.addView(headline);
         return trust;
     }
 
-    private Button welcomeRow(String title, String subtitle, Runnable action) {
-        return infoRow(title, subtitle, action);
+    private LinearLayout welcomeRow(String title, Runnable action) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(16), 0, dp(10), 0);
+        row.setMinimumHeight(dp(48));
+        row.setBackground(GeoUi.surface(this, palette));
+        row.setClickable(true);
+        row.setFocusable(true);
+        row.setContentDescription(title + ". " + t("Open", "Öffnen"));
+
+        TextView label = text(title, 12, palette.text, false);
+        label.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+        label.setSingleLine(true);
+        row.addView(label, new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
+
+        TextView chevron = text("›", 18, palette.textDim, false);
+        chevron.setGravity(Gravity.CENTER);
+        chevron.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        row.addView(chevron, new LinearLayout.LayoutParams(dp(28), ViewGroup.LayoutParams.MATCH_PARENT));
+
+        row.setOnClickListener(view -> action.run());
+        return row;
     }
 
     private Button infoRow(String title, String subtitle, Runnable action) {
@@ -1369,12 +1397,18 @@ public final class MainActivity extends Activity {
 
     private String changelogText() {
         return t(
-                "Version 0.1.3\n"
+                "Privacy & trust\n"
+                        + "• GeoJoystick keeps coordinates and settings on your device.\n"
+                        + "• No account system, analytics, or unnecessary tracking.\n\n"
+                        + "Version 0.1.3\n"
                         + "• Dialogs now follow the selected dark theme.\n"
                         + "• GeoJoystick now uses a dedicated icon in store listings.\n\n"
                         + "Version 0.1.0\n"
                         + "• Initial public release with coordinate and altitude entry, map selection and link import, favorites, appearance and language settings, and floating joystick controls.",
-                "Version 0.1.3\n"
+                "Datenschutz & Vertrauen\n"
+                        + "• GeoJoystick speichert Koordinaten und Einstellungen auf deinem Gerät.\n"
+                        + "• Kein Kontosystem, keine Analysen und kein unnötiges Tracking.\n\n"
+                        + "Version 0.1.3\n"
                         + "• Dialoge folgen nun dem ausgewählten dunklen Design.\n"
                         + "• GeoJoystick verwendet nun ein eigenes Symbol in Store-Einträgen.\n\n"
                         + "Version 0.1.0\n"
@@ -1402,11 +1436,11 @@ public final class MainActivity extends Activity {
     private String reflowLicenseText(String text) {
         if (text == null || text.isEmpty()) return "";
         String normalized = text.replace("\r\n", "\n").replace('\r', '\n');
-        String[] paragraphs = normalized.split("\\n[ \\t]*\\n");
+        String[] paragraphs = normalized.split("\n[ \\t]*\n");
         StringBuilder output = new StringBuilder();
         for (String paragraph : paragraphs) {
             StringBuilder joined = new StringBuilder();
-            for (String line : paragraph.split("\\n")) {
+            for (String line : paragraph.split("\n")) {
                 String trimmed = line.trim();
                 if (trimmed.isEmpty()) continue;
                 if (joined.length() > 0) joined.append(' ');
