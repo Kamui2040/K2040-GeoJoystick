@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -57,8 +59,7 @@ public final class MapActivity extends Activity {
     private Button useButton;
     private WebView webView;
     private boolean german;
-    private int colorBackground;
-    private int colorText;
+    private GeoUi.Palette palette;
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override
@@ -67,51 +68,73 @@ public final class MapActivity extends Activity {
         loadUiSettings();
         restoreInitialSelection(savedInstanceState, getIntent());
 
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(colorBackground);
-
-        LinearLayout toolbar = new LinearLayout(this);
-        toolbar.setGravity(Gravity.CENTER_VERTICAL);
-        toolbar.setPadding(dp(8), dp(5), dp(8), dp(5));
-        toolbar.setBackgroundColor(colorBackground);
-
-        coordinateText = new TextView(this);
-        coordinateText.setTextSize(13);
-        coordinateText.setTextColor(colorText);
-        updateCoordinateText();
-        toolbar.addView(
-                coordinateText,
-                new LinearLayout.LayoutParams(
-                        0,
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        1f));
-
-        Button cancel = new Button(this);
-        cancel.setText(t("Cancel", "Abbrechen"));
-        cancel.setAllCaps(false);
-        cancel.setOnClickListener(view -> finish());
-        toolbar.addView(cancel);
-
-        useButton = new Button(this);
-        useButton.setText(t("Use location", "Standort nutzen"));
-        useButton.setAllCaps(false);
-        useButton.setEnabled(hasSelection);
-        useButton.setOnClickListener(view -> returnSelection());
-        toolbar.addView(useButton);
-        root.addView(toolbar);
+        FrameLayout stage = new FrameLayout(this);
+        stage.setBackgroundColor(palette.background);
 
         webView = new WebView(this);
         configureWebView(webView);
-        root.addView(
-                webView,
-                new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        0,
-                        1f));
+        stage.addView(webView, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
 
-        setContentView(root);
-        applySystemBarInsets(root);
+        LinearLayout chrome = new LinearLayout(this);
+        chrome.setOrientation(LinearLayout.VERTICAL);
+        chrome.setPadding(dp(12), dp(12), dp(12), dp(12));
+        chrome.setClickable(false);
+
+        LinearLayout toolbar = GeoUi.card(this, palette);
+        toolbar.setOrientation(LinearLayout.HORIZONTAL);
+        toolbar.setGravity(Gravity.CENTER_VERTICAL);
+        toolbar.setElevation(dp(8));
+
+        Button back = GeoUi.iconButton(this, palette, "‹", t("Cancel map selection", "Kartenauswahl abbrechen"));
+        back.setOnClickListener(view -> finish());
+        toolbar.addView(back, new LinearLayout.LayoutParams(dp(48), dp(48)));
+
+        LinearLayout titleBlock = new LinearLayout(this);
+        titleBlock.setOrientation(LinearLayout.VERTICAL);
+        titleBlock.setPadding(dp(10), 0, dp(10), 0);
+        TextView title = GeoUi.text(this, t("Choose location", "Standort wählen"), 17, palette.text);
+        title.setTypeface(Typeface.DEFAULT_BOLD);
+        coordinateText = GeoUi.text(this, "", 11, palette.textDim);
+        coordinateText.setSingleLine(true);
+        titleBlock.addView(title);
+        titleBlock.addView(coordinateText);
+        toolbar.addView(titleBlock, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        useButton = GeoUi.button(this, palette, t("Use location", "Standort nutzen"), true);
+        useButton.setEnabled(hasSelection);
+        useButton.setAlpha(hasSelection ? 1f : 0.48f);
+        useButton.setOnClickListener(view -> returnSelection());
+        toolbar.addView(useButton, new LinearLayout.LayoutParams(dp(128), dp(48)));
+        chrome.addView(toolbar, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        TextView hint = GeoUi.text(
+                this,
+                t("Tap the map to place the marker. No location is selected automatically.",
+                        "Tippe auf die Karte, um die Markierung zu setzen. Es wird kein Standort automatisch ausgewählt."),
+                11,
+                palette.textDim);
+        hint.setGravity(Gravity.CENTER);
+        hint.setPadding(dp(12), dp(8), dp(12), dp(8));
+        hint.setBackground(GeoUi.rounded(this, palette.elevated, 12, palette.border, 1));
+        LinearLayout.LayoutParams hintParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        hintParams.topMargin = dp(8);
+        chrome.addView(hint, hintParams);
+
+        FrameLayout.LayoutParams chromeParams = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                Gravity.TOP);
+        stage.addView(chrome, chromeParams);
+
+        updateCoordinateText();
+        setContentView(stage);
+        applySystemBarInsets(stage);
         loadBundledMap();
     }
 
@@ -190,7 +213,7 @@ public final class MapActivity extends Activity {
                     null);
         } catch (IOException exception) {
             coordinateText.setText(t("Map unavailable", "Karte nicht verfügbar"));
-            useButton.setEnabled(false);
+            setUseButtonEnabled(false);
         }
     }
 
@@ -238,8 +261,9 @@ public final class MapActivity extends Activity {
         String appearance = preferences.getString(PREF_APPEARANCE, APPEARANCE_SYSTEM);
         boolean dark = APPEARANCE_DARK.equals(appearance)
                 || (APPEARANCE_SYSTEM.equals(appearance) && isSystemDarkMode());
-        colorBackground = dark ? 0xFF10171C : Color.WHITE;
-        colorText = dark ? 0xFFECEFF1 : 0xFF263238;
+        palette = new GeoUi.Palette(dark);
+        getWindow().setStatusBarColor(palette.background);
+        getWindow().setNavigationBarColor(palette.background);
     }
 
     private boolean isSystemDarkMode() {
@@ -251,15 +275,20 @@ public final class MapActivity extends Activity {
     private void updateCoordinateText() {
         if (!hasSelection) {
             coordinateText.setText(t(
-                    "No location selected — tap the map",
-                    "Kein Standort ausgewählt – tippe auf die Karte"));
+                    "No location selected",
+                    "Kein Standort ausgewählt"));
             return;
         }
         coordinateText.setText(String.format(
                 Locale.US,
-                t("Selected: %.6f, %.6f", "Ausgewählt: %.6f, %.6f"),
+                t("%.6f, %.6f", "%.6f, %.6f"),
                 selectedLatitude,
                 selectedLongitude));
+    }
+
+    private void setUseButtonEnabled(boolean enabled) {
+        useButton.setEnabled(enabled);
+        useButton.setAlpha(enabled ? 1f : 0.48f);
     }
 
     private void returnSelection() {
@@ -311,7 +340,7 @@ public final class MapActivity extends Activity {
     }
 
     private int dp(int value) {
-        return Math.round(value * getResources().getDisplayMetrics().density);
+        return GeoUi.dp(this, value);
     }
 
     private static boolean isAllowedInternalPage(Uri uri) {
@@ -382,7 +411,7 @@ public final class MapActivity extends Activity {
                 selectedLatitude = latitude;
                 selectedLongitude = longitude;
                 hasSelection = true;
-                useButton.setEnabled(true);
+                setUseButtonEnabled(true);
                 updateCoordinateText();
             });
         }
