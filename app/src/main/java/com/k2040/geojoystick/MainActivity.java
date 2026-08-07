@@ -599,20 +599,39 @@ public final class MainActivity extends Activity {
 
         modal.addView(bodyScroll, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-        Button continueButton = GeoUi.button(this, palette,
-                t("Continue", "Weiter"), true);
+
+        LinearLayout actions = new LinearLayout(this);
+        actions.setOrientation(LinearLayout.HORIZONTAL);
+        actions.setGravity(Gravity.CENTER);
+
+        Button cancelButton = welcomeActionButton(t("Cancel", "Abbrechen"), false);
+        cancelButton.setContentDescription(t(
+                "Cancel and close GeoJoystick",
+                "Abbrechen und GeoJoystick schließen"));
+        cancelButton.setOnClickListener(view -> finishAndRemoveTask());
+
+        Button continueButton = welcomeActionButton(t("Continue", "Weiter"), true);
         continueButton.setOnClickListener(view -> {
             settings.acknowledgeWelcome();
             showHomePage();
             handleIncomingIntent(getIntent());
         });
-        modal.addView(continueButton, margin(5, 0));
+
+        LinearLayout.LayoutParams cancelParams = new LinearLayout.LayoutParams(dp(124), dp(48));
+        cancelParams.rightMargin = dp(2);
+        LinearLayout.LayoutParams continueParams = new LinearLayout.LayoutParams(dp(124), dp(48));
+        continueParams.leftMargin = dp(2);
+        actions.addView(cancelButton, cancelParams);
+        actions.addView(continueButton, continueParams);
+        modal.addView(actions, margin(4, 0));
 
         int width = Math.min(dp(336), getResources().getDisplayMetrics().widthPixels - dp(56));
-        int height = Math.min(dp(452), getResources().getDisplayMetrics().heightPixels - dp(128));
+        int availableHeight = Math.max(dp(340),
+                getResources().getDisplayMetrics().heightPixels - dp(64));
+        int height = Math.min(dp(528), availableHeight);
         FrameLayout.LayoutParams modalParams = new FrameLayout.LayoutParams(
                 Math.max(dp(260), width),
-                Math.max(dp(340), height),
+                height,
                 Gravity.CENTER);
         stage.addView(modal, modalParams);
 
@@ -728,6 +747,29 @@ public final class MainActivity extends Activity {
         chevron.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         row.addView(chevron, new LinearLayout.LayoutParams(dp(28), ViewGroup.LayoutParams.MATCH_PARENT));
         return row;
+    }
+
+    private Button welcomeActionButton(String label, boolean primary) {
+        Button button = new Button(this);
+        button.setText(label);
+        button.setAllCaps(false);
+        button.setTextSize(12);
+        button.setTextColor(primary ? Color.WHITE : palette.text);
+        button.setGravity(Gravity.CENTER);
+        button.setMinWidth(0);
+        button.setMinimumWidth(0);
+        button.setMinHeight(0);
+        button.setMinimumHeight(0);
+        button.setPadding(dp(10), 0, dp(10), 0);
+        button.setBackground(new android.graphics.drawable.InsetDrawable(
+                GeoUi.rounded(this,
+                        primary ? palette.accent : palette.surface,
+                        20,
+                        primary ? palette.accent : palette.border,
+                        1),
+                dp(6), dp(4), dp(6), dp(4)));
+        button.setStateListAnimator(null);
+        return button;
     }
 
     private String welcomeAboutText() {
