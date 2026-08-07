@@ -108,7 +108,7 @@ final class GeoUi {
     static LinearLayout card(Context context, Palette palette) {
         LinearLayout card = new LinearLayout(context);
         card.setOrientation(LinearLayout.VERTICAL);
-        card.setPadding(dp(context, 14), dp(context, 12), dp(context, 14), dp(context, 12));
+        card.setPadding(dp(context, 12), dp(context, 10), dp(context, 12), dp(context, 10));
         card.setBackground(surface(context, palette));
         return card;
     }
@@ -126,7 +126,7 @@ final class GeoUi {
         label.setTypeface(Typeface.DEFAULT_BOLD);
         label.setAllCaps(true);
         label.setLetterSpacing(0.08f);
-        label.setPadding(dp(context, 2), dp(context, 6), dp(context, 2), dp(context, 4));
+        label.setPadding(dp(context, 2), dp(context, 4), dp(context, 2), dp(context, 3));
         return label;
     }
 
@@ -143,7 +143,7 @@ final class GeoUi {
         button.setGravity(Gravity.CENTER);
         button.setMinHeight(dp(context, 48));
         button.setMinimumHeight(dp(context, 48));
-        button.setPadding(dp(context, 14), dp(context, 10), dp(context, 14), dp(context, 10));
+        button.setPadding(dp(context, 12), dp(context, 8), dp(context, 12), dp(context, 8));
         button.setBackground(primary ? primary(context, palette) : secondary(context, palette));
         button.setStateListAnimator(null);
         return button;
