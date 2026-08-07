@@ -6,8 +6,6 @@
         <item name="android:navigationBarColor">#07111C</item>
         <item name="android:statusBarColor">#07111C</item>
         <item name="android:colorAccent">#2F8CFF</item>
-        <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowLightNavigationBar">false</item>
     </style>
 
     <style name="AppDialogThemeLight" parent="android:style/Theme.Material.Light.Dialog.Alert">
