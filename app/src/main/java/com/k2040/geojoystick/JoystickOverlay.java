@@ -42,7 +42,6 @@ final class JoystickOverlay {
     private static final String SPEED_RUN = "run";
     private static final String SPEED_BIKE = "bike";
     private static final String SPEED_CUSTOM = "custom";
-
     private static final double WALK_SPEED = 1.2;
     private static final double RUN_SPEED = 3.6;
     private static final double BIKE_SPEED = 10.0;
@@ -63,18 +62,19 @@ final class JoystickOverlay {
     private final LinearLayout root;
     private final LinearLayout titleRow;
     private final DragTextView dragHandle;
+    private final DragButton toggleModeButton;
     private final JoystickView joystickView;
     private final LinearLayout speedRow;
     private final LinearLayout controlRow;
     private final TextView coordinateText;
-    private final DragButton toggleModeButton;
     private final IconButton walkButton;
     private final IconButton runButton;
     private final IconButton bikeButton;
     private final IconButton customButton;
-    private final IconButton holdButton;
     private final IconButton pauseButton;
+    private final IconButton holdButton;
     private final IconButton stopButton;
+
     private boolean shown;
     private boolean compactMode;
     private boolean holdEnabled;
@@ -85,7 +85,6 @@ final class JoystickOverlay {
     private int colorBorder;
     private int colorButton;
     private int colorButtonActive;
-    private int colorButtonCompact;
     private int colorText;
     private int colorTextDim;
     private int colorAccent;
@@ -97,8 +96,8 @@ final class JoystickOverlay {
     JoystickOverlay(Context context, Listener listener) {
         this.context = context;
         this.listener = listener;
-        this.windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        this.preferences = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        preferences = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         loadStyleSettings(true);
 
         params = new WindowManager.LayoutParams(
@@ -112,33 +111,36 @@ final class JoystickOverlay {
         params.gravity = Gravity.TOP | Gravity.START;
         params.x = preferences.getInt(PREF_OVERLAY_X, dp(24));
         params.y = preferences.getInt(PREF_OVERLAY_Y, dp(120));
+
         compactMode = preferences.getBoolean(PREF_OVERLAY_COMPACT_MODE, false);
         selectedSpeedKind = loadSavedSpeedKind();
         currentSpeed = speedForKind(selectedSpeedKind);
 
         root = new LinearLayout(context);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(dp(4), dp(3), dp(4), dp(4));
+        root.setGravity(Gravity.CENTER_HORIZONTAL);
+        root.setPadding(dp(10), dp(8), dp(10), dp(10));
         root.setBackground(panelBackground());
+        root.setElevation(dp(12));
 
         titleRow = new LinearLayout(context);
         titleRow.setGravity(Gravity.CENTER_VERTICAL);
-
         dragHandle = new DragTextView(context);
         dragHandle.setText(R.string.app_name);
         dragHandle.setTextColor(colorText);
-        dragHandle.setTextSize(7);
-        dragHandle.setPadding(dp(2), dp(1), dp(4), dp(1));
+        dragHandle.setTextSize(14);
+        dragHandle.setGravity(Gravity.CENTER_VERTICAL);
+        dragHandle.setPadding(dp(4), 0, dp(8), 0);
         dragHandle.setContentDescription(t("Move GeoJoystick overlay", "GeoJoystick-Overlay verschieben"));
         dragHandle.setOnTouchListener(new DragListener());
-        titleRow.addView(dragHandle, new LinearLayout.LayoutParams(0, dp(18), 1f));
+        titleRow.addView(dragHandle, new LinearLayout.LayoutParams(0, dp(48), 1f));
 
-        toggleModeButton = controlButton("−", 7);
+        toggleModeButton = controlButton("−", 20);
         toggleModeButton.setContentDescription(t("Switch to compact overlay", "Zum kompakten Overlay wechseln"));
         toggleModeButton.setOnClickListener(view -> toggleOverlayMode());
         toggleModeButton.setOnTouchListener(new DragListener());
-        titleRow.addView(toggleModeButton, new LinearLayout.LayoutParams(dp(18), dp(16)));
-        root.addView(titleRow, new LinearLayout.LayoutParams(dp(118), dp(19)));
+        titleRow.addView(toggleModeButton, new LinearLayout.LayoutParams(dp(44), dp(44)));
+        root.addView(titleRow, new LinearLayout.LayoutParams(dp(216), dp(48)));
 
         joystickView = new JoystickView(context);
         joystickView.setHighContrast(highContrast);
@@ -150,10 +152,10 @@ final class JoystickOverlay {
                 listener.onVectorChanged(east, north);
             }
         });
-        LinearLayout.LayoutParams joystickParams = new LinearLayout.LayoutParams(dp(88), dp(88));
+        LinearLayout.LayoutParams joystickParams = new LinearLayout.LayoutParams(dp(132), dp(132));
         joystickParams.gravity = Gravity.CENTER_HORIZONTAL;
-        joystickParams.topMargin = dp(1);
-        joystickParams.bottomMargin = dp(4);
+        joystickParams.topMargin = dp(4);
+        joystickParams.bottomMargin = dp(10);
         root.addView(joystickView, joystickParams);
 
         speedRow = new LinearLayout(context);
@@ -166,39 +168,34 @@ final class JoystickOverlay {
         runButton.setOnClickListener(view -> setSpeed(SPEED_RUN));
         bikeButton.setOnClickListener(view -> setSpeed(SPEED_BIKE));
         customButton.setOnClickListener(view -> setSpeed(SPEED_CUSTOM));
-        addSpeedButtonToRow(speedRow, walkButton);
-        addSpeedButtonToRow(speedRow, runButton);
-        addSpeedGroupSpacer(speedRow);
-        addSpeedButtonToRow(speedRow, bikeButton);
-        addSpeedButtonToRow(speedRow, customButton);
-        root.addView(speedRow, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dp(23)));
+        addIconButton(speedRow, walkButton);
+        addIconButton(speedRow, runButton);
+        addIconButton(speedRow, bikeButton);
+        addIconButton(speedRow, customButton);
+        root.addView(speedRow, new LinearLayout.LayoutParams(dp(216), dp(48)));
 
         controlRow = new LinearLayout(context);
-        controlRow.setGravity(Gravity.CENTER_VERTICAL);
-        pauseButton = iconButton(
-                ICON_PLAY_PAUSE,
+        controlRow.setGravity(Gravity.CENTER);
+        pauseButton = iconButton(ICON_PLAY_PAUSE,
                 t("Movement active; tap to pause", "Bewegung aktiv; zum Pausieren tippen"));
         holdButton = iconButton(ICON_LOCK, t("Enable hold", "Halten aktivieren"));
-        stopButton = iconButton(
-                ICON_STOP,
+        stopButton = iconButton(ICON_STOP,
                 t("Stop GeoJoystick service and close overlay", "GeoJoystick-Dienst stoppen und Overlay schließen"));
         pauseButton.setOnClickListener(view -> togglePause());
         holdButton.setOnClickListener(view -> toggleHold());
         stopButton.setOnClickListener(view -> stopMovement());
-        addControlButtonLeft(controlRow, pauseButton);
-        addControlSpacer(controlRow);
-        addControlButtonCenter(controlRow, holdButton);
-        addControlSpacer(controlRow);
-        addControlButtonRight(controlRow, stopButton);
-        root.addView(controlRow, new LinearLayout.LayoutParams(dp(118), dp(23)));
+        addControlButton(controlRow, pauseButton);
+        addControlButton(controlRow, holdButton);
+        addControlButton(controlRow, stopButton);
+        root.addView(controlRow, rowParams(216, 52, 4));
 
         coordinateText = new TextView(context);
         coordinateText.setTextColor(colorTextDim);
-        coordinateText.setTextSize(6);
-        coordinateText.setGravity(Gravity.CENTER_VERTICAL);
+        coordinateText.setTextSize(11);
+        coordinateText.setGravity(Gravity.CENTER);
         coordinateText.setSingleLine(true);
-        coordinateText.setPadding(dp(2), dp(1), dp(2), 0);
-        root.addView(coordinateText, new LinearLayout.LayoutParams(dp(118), dp(12)));
+        coordinateText.setPadding(dp(4), dp(4), dp(4), 0);
+        root.addView(coordinateText, new LinearLayout.LayoutParams(dp(216), dp(34)));
 
         updateSpeedButtonStates();
         updateToggleStates();
@@ -207,9 +204,7 @@ final class JoystickOverlay {
     }
 
     void show() {
-        if (shown || !Settings.canDrawOverlays(context)) {
-            return;
-        }
+        if (shown || !Settings.canDrawOverlays(context)) return;
         windowManager.addView(root, params);
         shown = true;
     }
@@ -264,9 +259,7 @@ final class JoystickOverlay {
 
     private void togglePause() {
         paused = !paused;
-        if (paused) {
-            joystickView.reset();
-        }
+        if (paused) joystickView.reset();
         updateToggleStates();
     }
 
@@ -277,19 +270,16 @@ final class JoystickOverlay {
 
     private void toggleOverlayMode() {
         compactMode = !compactMode;
-        preferences.edit()
-                .putBoolean(PREF_OVERLAY_COMPACT_MODE, compactMode)
-                .apply();
+        preferences.edit().putBoolean(PREF_OVERLAY_COMPACT_MODE, compactMode).apply();
         applyOverlayMode();
     }
 
     private void applyOverlayMode() {
-        int expandedVisibility = compactMode ? View.GONE : View.VISIBLE;
-        dragHandle.setVisibility(expandedVisibility);
-        speedRow.setVisibility(expandedVisibility);
-        controlRow.setVisibility(expandedVisibility);
-        coordinateText.setVisibility(expandedVisibility);
-
+        int expanded = compactMode ? View.GONE : View.VISIBLE;
+        dragHandle.setVisibility(expanded);
+        speedRow.setVisibility(expanded);
+        controlRow.setVisibility(expanded);
+        coordinateText.setVisibility(expanded);
         toggleModeButton.setText(compactMode ? "+" : "−");
         toggleModeButton.setContentDescription(compactMode
                 ? t("Switch to expanded overlay", "Zum erweiterten Overlay wechseln")
@@ -297,22 +287,24 @@ final class JoystickOverlay {
         styleToggleButton();
 
         LinearLayout.LayoutParams toggleParams = (LinearLayout.LayoutParams) toggleModeButton.getLayoutParams();
-        toggleParams.width = compactMode ? dp(16) : dp(18);
-        toggleParams.height = compactMode ? dp(14) : dp(16);
+        toggleParams.width = dp(44);
+        toggleParams.height = dp(44);
         toggleModeButton.setLayoutParams(toggleParams);
 
         LinearLayout.LayoutParams titleParams = (LinearLayout.LayoutParams) titleRow.getLayoutParams();
-        titleParams.width = compactMode ? dp(88) : dp(118);
-        titleParams.height = compactMode ? dp(14) : dp(19);
+        titleParams.width = compactMode ? dp(148) : dp(216);
+        titleParams.height = dp(48);
         titleRow.setLayoutParams(titleParams);
         titleRow.setGravity(compactMode ? Gravity.END : Gravity.CENTER_VERTICAL);
 
-        root.setBackground(compactMode ? null : panelBackground());
-        root.setPadding(
-                compactMode ? 0 : dp(4),
-                compactMode ? 0 : dp(3),
-                compactMode ? 0 : dp(4),
-                compactMode ? 0 : dp(4));
+        LinearLayout.LayoutParams joystickParams = (LinearLayout.LayoutParams) joystickView.getLayoutParams();
+        joystickParams.width = compactMode ? dp(116) : dp(132);
+        joystickParams.height = compactMode ? dp(116) : dp(132);
+        joystickParams.bottomMargin = compactMode ? dp(4) : dp(10);
+        joystickView.setLayoutParams(joystickParams);
+
+        root.setPadding(dp(10), compactMode ? dp(4) : dp(8), dp(10), compactMode ? dp(8) : dp(10));
+        root.setBackground(panelBackground());
         root.requestLayout();
     }
 
@@ -324,81 +316,11 @@ final class JoystickOverlay {
         customButton.setContentDescription(t("Custom speed: ", "Eigene Geschwindigkeit: ") + customSpeedName());
     }
 
-    private String loadSavedSpeedKind() {
-        String kind = preferences.getString(PREF_SELECTED_SPEED_KIND, null);
-        if (SPEED_WALK.equals(kind) || SPEED_RUN.equals(kind) || SPEED_BIKE.equals(kind) || SPEED_CUSTOM.equals(kind)) {
-            return kind;
-        }
-        double savedSpeed = Double.longBitsToDouble(
-                preferences.getLong(PREF_SELECTED_SPEED, Double.doubleToLongBits(WALK_SPEED)));
-        if (Math.abs(savedSpeed - RUN_SPEED) < 0.05) {
-            return SPEED_RUN;
-        }
-        if (Math.abs(savedSpeed - BIKE_SPEED) < 0.05) {
-            return SPEED_BIKE;
-        }
-        if (Math.abs(savedSpeed - customSpeed()) < 0.05) {
-            return SPEED_CUSTOM;
-        }
-        return SPEED_WALK;
-    }
-
-    private double speedForKind(String kind) {
-        if (SPEED_RUN.equals(kind)) {
-            return RUN_SPEED;
-        }
-        if (SPEED_BIKE.equals(kind)) {
-            return BIKE_SPEED;
-        }
-        if (SPEED_CUSTOM.equals(kind)) {
-            return customSpeed();
-        }
-        return WALK_SPEED;
-    }
-
-    private double normalizeSpeed(double speed) {
-        if (!Double.isFinite(speed)) {
-            return WALK_SPEED;
-        }
-        if (Math.abs(speed - RUN_SPEED) < 0.05) {
-            return RUN_SPEED;
-        }
-        if (Math.abs(speed - BIKE_SPEED) < 0.05) {
-            return BIKE_SPEED;
-        }
-        double custom = customSpeed();
-        if (Math.abs(speed - custom) < 0.05) {
-            return custom;
-        }
-        if (Math.abs(speed - WALK_SPEED) < 0.05) {
-            return WALK_SPEED;
-        }
-        return Math.max(0.1, Math.min(50.0, speed));
-    }
-
-    private double customSpeed() {
-        double saved = Double.longBitsToDouble(
-                preferences.getLong(PREF_CUSTOM_SPEED, Double.doubleToLongBits(5.0)));
-        if (!Double.isFinite(saved)) {
-            return 5.0;
-        }
-        return Math.max(0.1, Math.min(50.0, saved));
-    }
-
-    private String customSpeedName() {
-        String name = preferences.getString(PREF_CUSTOM_SPEED_NAME, "Custom");
-        if (name == null || name.trim().isEmpty()) {
-            return "Custom";
-        }
-        return name.trim();
-    }
-
     private void updateToggleStates() {
         pauseButton.setContentDescription(paused
                 ? t("Movement paused; tap to resume", "Bewegung pausiert; zum Fortsetzen tippen")
                 : t("Movement active; tap to pause", "Bewegung aktiv; zum Pausieren tippen"));
         styleIconButton(pauseButton, !paused);
-
         holdButton.setContentDescription(holdEnabled
                 ? t("Disable hold", "Halten deaktivieren")
                 : t("Enable hold", "Halten aktivieren"));
@@ -411,40 +333,71 @@ final class JoystickOverlay {
             coordinateText.setText(t("Position unavailable", "Position nicht verfügbar"));
             return;
         }
-        coordinateText.setText(String.format(
-                Locale.US,
-                "%.5f, %.5f · %.1f m/s",
-                currentLatitude,
-                currentLongitude,
-                currentSpeed));
+        coordinateText.setText(String.format(Locale.US,
+                "%.5f, %.5f  ·  %.1f m/s", currentLatitude, currentLongitude, currentSpeed));
+    }
+
+    private String loadSavedSpeedKind() {
+        String kind = preferences.getString(PREF_SELECTED_SPEED_KIND, null);
+        if (SPEED_WALK.equals(kind) || SPEED_RUN.equals(kind)
+                || SPEED_BIKE.equals(kind) || SPEED_CUSTOM.equals(kind)) return kind;
+        double saved = Double.longBitsToDouble(preferences.getLong(
+                PREF_SELECTED_SPEED, Double.doubleToLongBits(WALK_SPEED)));
+        if (Math.abs(saved - RUN_SPEED) < 0.05) return SPEED_RUN;
+        if (Math.abs(saved - BIKE_SPEED) < 0.05) return SPEED_BIKE;
+        if (Math.abs(saved - customSpeed()) < 0.05) return SPEED_CUSTOM;
+        return SPEED_WALK;
+    }
+
+    private double speedForKind(String kind) {
+        if (SPEED_RUN.equals(kind)) return RUN_SPEED;
+        if (SPEED_BIKE.equals(kind)) return BIKE_SPEED;
+        if (SPEED_CUSTOM.equals(kind)) return customSpeed();
+        return WALK_SPEED;
+    }
+
+    private double normalizeSpeed(double speed) {
+        if (!Double.isFinite(speed)) return WALK_SPEED;
+        if (Math.abs(speed - RUN_SPEED) < 0.05) return RUN_SPEED;
+        if (Math.abs(speed - BIKE_SPEED) < 0.05) return BIKE_SPEED;
+        double custom = customSpeed();
+        if (Math.abs(speed - custom) < 0.05) return custom;
+        if (Math.abs(speed - WALK_SPEED) < 0.05) return WALK_SPEED;
+        return Math.max(0.1, Math.min(50.0, speed));
+    }
+
+    private double customSpeed() {
+        double saved = Double.longBitsToDouble(preferences.getLong(
+                PREF_CUSTOM_SPEED, Double.doubleToLongBits(5.0)));
+        return Double.isFinite(saved) ? Math.max(0.1, Math.min(50.0, saved)) : 5.0;
+    }
+
+    private String customSpeedName() {
+        String name = preferences.getString(PREF_CUSTOM_SPEED_NAME, "Custom");
+        return name == null || name.trim().isEmpty() ? "Custom" : name.trim();
     }
 
     private String t(String english, String germanText) {
         String language = preferences.getString(PREF_LANGUAGE, LANGUAGE_SYSTEM);
         boolean german = LANGUAGE_GERMAN.equals(language)
-                || (LANGUAGE_SYSTEM.equals(language)
-                && Locale.getDefault().getLanguage().equals("de"));
+                || (LANGUAGE_SYSTEM.equals(language) && Locale.getDefault().getLanguage().equals("de"));
         return german ? germanText : english;
     }
 
     private boolean loadStyleSettings(boolean force) {
         int newOpacity = Math.max(30, Math.min(100, preferences.getInt(PREF_OVERLAY_OPACITY, 85)));
-        boolean newHighContrast = preferences.getBoolean(PREF_OVERLAY_HIGH_CONTRAST, false);
-        if (!force && newOpacity == overlayOpacityPercent && newHighContrast == highContrast) {
-            return false;
-        }
+        boolean newContrast = preferences.getBoolean(PREF_OVERLAY_HIGH_CONTRAST, false);
+        if (!force && newOpacity == overlayOpacityPercent && newContrast == highContrast) return false;
         overlayOpacityPercent = newOpacity;
-        highContrast = newHighContrast;
+        highContrast = newContrast;
         int panelAlpha = Math.round(255.0f * overlayOpacityPercent / 100.0f);
-        colorPanel = argb(panelAlpha, 0x1A, 0x23, 0x29);
-        colorBorder = highContrast ? 0xFFECEFF1 : 0x8090A4AE;
-        colorButton = highContrast ? 0x66263238 : 0x33263238;
-        colorButtonActive = highContrast ? 0xCC29A8FF : 0x80338FCE;
-        int compactAlpha = Math.max(32, Math.round((highContrast ? 120.0f : 70.0f) * overlayOpacityPercent / 100.0f));
-        colorButtonCompact = argb(compactAlpha, 0x26, 0x32, 0x38);
-        colorText = 0xFFECEFF1;
-        colorTextDim = highContrast ? 0xFFECEFF1 : 0xCCCFD8DC;
-        colorAccent = highContrast ? 0xFFFFFFFF : 0xFF29A8FF;
+        colorPanel = argb(panelAlpha, 0x0B, 0x16, 0x22);
+        colorBorder = highContrast ? 0xFFF3F7FB : 0xB04A6176;
+        colorButton = highContrast ? 0xCC17293A : 0xA817293A;
+        colorButtonActive = highContrast ? 0xFF2F8CFF : 0xE62F8CFF;
+        colorText = 0xFFF3F7FB;
+        colorTextDim = highContrast ? 0xFFF3F7FB : 0xD9A8B6C5;
+        colorAccent = highContrast ? 0xFFFFFFFF : 0xFF58A6FF;
         if (root != null) {
             dragHandle.setTextColor(colorText);
             coordinateText.setTextColor(colorTextDim);
@@ -455,10 +408,8 @@ final class JoystickOverlay {
     }
 
     private int argb(int alpha, int red, int green, int blue) {
-        return ((alpha & 0xFF) << 24)
-                | ((red & 0xFF) << 16)
-                | ((green & 0xFF) << 8)
-                | (blue & 0xFF);
+        return ((alpha & 0xFF) << 24) | ((red & 0xFF) << 16)
+                | ((green & 0xFF) << 8) | (blue & 0xFF);
     }
 
     private DragButton controlButton(String text, int textSize) {
@@ -467,12 +418,13 @@ final class JoystickOverlay {
         button.setTextColor(colorTextDim);
         button.setTextSize(textSize);
         button.setAllCaps(false);
-        button.setMinHeight(0);
-        button.setMinWidth(0);
-        button.setMinimumHeight(0);
-        button.setMinimumWidth(0);
-        button.setPadding(dp(2), 0, dp(2), 0);
+        button.setMinHeight(dp(44));
+        button.setMinWidth(dp(44));
+        button.setMinimumHeight(dp(44));
+        button.setMinimumWidth(dp(44));
+        button.setPadding(0, 0, 0, 0);
         button.setBackground(buttonBackground(false));
+        button.setStateListAnimator(null);
         return button;
     }
 
@@ -481,63 +433,39 @@ final class JoystickOverlay {
         button.setContentDescription(description);
         button.setText("");
         button.setAllCaps(false);
-        button.setMinHeight(0);
-        button.setMinWidth(0);
-        button.setMinimumHeight(0);
-        button.setMinimumWidth(0);
+        button.setMinHeight(dp(44));
+        button.setMinWidth(dp(44));
+        button.setMinimumHeight(dp(44));
+        button.setMinimumWidth(dp(44));
         button.setPadding(0, 0, 0, 0);
         button.setBackground(buttonBackground(false));
+        button.setStateListAnimator(null);
         return button;
     }
 
-    private void addSpeedButtonToRow(LinearLayout row, Button button) {
-        LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(dp(26), dp(20));
-        buttonParams.leftMargin = dp(1);
-        buttonParams.rightMargin = dp(1);
+    private void addIconButton(LinearLayout row, Button button) {
+        LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(dp(44), dp(44));
+        buttonParams.leftMargin = dp(4);
+        buttonParams.rightMargin = dp(4);
         row.addView(button, buttonParams);
     }
 
-    private void addSpeedGroupSpacer(LinearLayout row) {
-        View spacer = new View(context);
-        LinearLayout.LayoutParams spacerParams = new LinearLayout.LayoutParams(dp(6), 0);
-        row.addView(spacer, spacerParams);
+    private void addControlButton(LinearLayout row, Button button) {
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(52), dp(48));
+        params.leftMargin = dp(8);
+        params.rightMargin = dp(8);
+        row.addView(button, params);
     }
 
-    private void addControlButtonLeft(LinearLayout row, Button button) {
-        LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(dp(18), dp(20));
-        buttonParams.leftMargin = dp(2);
-        buttonParams.rightMargin = dp(1);
-        row.addView(button, buttonParams);
-    }
-
-    private void addControlButtonCenter(LinearLayout row, Button button) {
-        LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(dp(18), dp(20));
-        buttonParams.leftMargin = dp(1);
-        buttonParams.rightMargin = dp(1);
-        row.addView(button, buttonParams);
-    }
-
-    private void addControlButtonRight(LinearLayout row, Button button) {
-        LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(dp(18), dp(20));
-        buttonParams.leftMargin = dp(1);
-        buttonParams.rightMargin = dp(2);
-        row.addView(button, buttonParams);
-    }
-
-    private void addControlSpacer(LinearLayout row) {
-        View spacer = new View(context);
-        LinearLayout.LayoutParams spacerParams = new LinearLayout.LayoutParams(0, 0, 1f);
-        row.addView(spacer, spacerParams);
+    private LinearLayout.LayoutParams rowParams(int widthDp, int heightDp, int topMarginDp) {
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(widthDp), dp(heightDp));
+        params.topMargin = dp(topMarginDp);
+        return params;
     }
 
     private void styleToggleButton() {
-        toggleModeButton.setTextColor(compactMode ? colorText : colorTextDim);
-        toggleModeButton.setBackground(toggleButtonBackground());
-    }
-
-    private void styleButton(Button button, boolean active) {
-        button.setTextColor(active ? colorText : colorTextDim);
-        button.setBackground(buttonBackground(active));
+        toggleModeButton.setTextColor(colorTextDim);
+        toggleModeButton.setBackground(buttonBackground(false));
     }
 
     private void styleIconButton(IconButton button, boolean active) {
@@ -548,7 +476,7 @@ final class JoystickOverlay {
     private GradientDrawable panelBackground() {
         GradientDrawable drawable = new GradientDrawable();
         drawable.setColor(colorPanel);
-        drawable.setCornerRadius(dp(7));
+        drawable.setCornerRadius(dp(18));
         drawable.setStroke(dp(highContrast ? 2 : 1), colorBorder);
         return drawable;
     }
@@ -556,16 +484,8 @@ final class JoystickOverlay {
     private GradientDrawable buttonBackground(boolean active) {
         GradientDrawable drawable = new GradientDrawable();
         drawable.setColor(active ? colorButtonActive : colorButton);
-        drawable.setCornerRadius(dp(5));
+        drawable.setCornerRadius(dp(11));
         drawable.setStroke(dp(active || highContrast ? 2 : 1), active ? colorAccent : colorBorder);
-        return drawable;
-    }
-
-    private GradientDrawable toggleButtonBackground() {
-        GradientDrawable drawable = new GradientDrawable();
-        drawable.setColor(compactMode ? colorButtonCompact : colorButton);
-        drawable.setCornerRadius(dp(5));
-        drawable.setStroke(dp(highContrast ? 2 : 1), compactMode ? colorAccent : colorBorder);
         return drawable;
     }
 
@@ -574,27 +494,13 @@ final class JoystickOverlay {
     }
 
     private static final class DragTextView extends TextView {
-        DragTextView(Context context) {
-            super(context);
-        }
-
-        @Override
-        public boolean performClick() {
-            super.performClick();
-            return true;
-        }
+        DragTextView(Context context) { super(context); }
+        @Override public boolean performClick() { super.performClick(); return true; }
     }
 
     private static final class DragButton extends Button {
-        DragButton(Context context) {
-            super(context);
-        }
-
-        @Override
-        public boolean performClick() {
-            super.performClick();
-            return true;
-        }
+        DragButton(Context context) { super(context); }
+        @Override public boolean performClick() { super.performClick(); return true; }
     }
 
     private final class DragListener implements View.OnTouchListener {
@@ -617,14 +523,10 @@ final class JoystickOverlay {
                 case MotionEvent.ACTION_MOVE:
                     int dx = Math.round(event.getRawX() - startRawX);
                     int dy = Math.round(event.getRawY() - startRawY);
-                    if (Math.abs(dx) > dp(2) || Math.abs(dy) > dp(2)) {
-                        moved = true;
-                    }
+                    if (Math.abs(dx) > dp(3) || Math.abs(dy) > dp(3)) moved = true;
                     params.x = startX + dx;
                     params.y = startY + dy;
-                    if (shown) {
-                        windowManager.updateViewLayout(root, params);
-                    }
+                    if (shown) windowManager.updateViewLayout(root, params);
                     return true;
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
@@ -632,9 +534,7 @@ final class JoystickOverlay {
                             .putInt(PREF_OVERLAY_X, params.x)
                             .putInt(PREF_OVERLAY_Y, params.y)
                             .apply();
-                    if (!moved) {
-                        view.performClick();
-                    }
+                    if (!moved) view.performClick();
                     return true;
                 default:
                     return false;
@@ -665,60 +565,40 @@ final class JoystickOverlay {
         protected void onDraw(Canvas canvas) {
             super.onDraw(canvas);
             int resId = iconResource();
-            if (resId == 0) {
-                return;
-            }
+            if (resId == 0) return;
             if (iconDrawable == null || iconResId != resId) {
                 iconDrawable = context.getDrawable(resId);
-                if (iconDrawable != null) {
-                    iconDrawable = iconDrawable.mutate();
-                }
+                if (iconDrawable != null) iconDrawable = iconDrawable.mutate();
                 iconResId = resId;
             }
-            if (iconDrawable == null) {
-                return;
-            }
+            if (iconDrawable == null) return;
             int inset = iconInset();
             int side = Math.max(1, Math.min(getWidth(), getHeight()) - inset * 2);
             int left = (getWidth() - side) / 2;
             int top = (getHeight() - side) / 2;
             iconDrawable.setBounds(left, top, left + side, top + side);
             iconDrawable.setTint(active ? colorText : (contrast ? colorText : colorTextDim));
-            iconDrawable.setAlpha(active || contrast ? 255 : 225);
+            iconDrawable.setAlpha(active || contrast ? 255 : 230);
             iconDrawable.draw(canvas);
         }
 
         private int iconResource() {
             switch (iconType) {
-                case ICON_WALK:
-                    return active ? R.drawable.overlay_ic_walk_filled : R.drawable.overlay_ic_walk_outline;
-                case ICON_RUN:
-                    return active ? R.drawable.overlay_ic_run_filled : R.drawable.overlay_ic_run_outline;
-                case ICON_BIKE:
-                    return active ? R.drawable.overlay_ic_bike_filled : R.drawable.overlay_ic_bike_outline;
-                case ICON_GAUGE:
-                    return active ? R.drawable.overlay_ic_gauge_filled : R.drawable.overlay_ic_gauge_outline;
-                case ICON_LOCK:
-                    return active ? R.drawable.overlay_ic_lock_filled : R.drawable.overlay_ic_lock_outline;
-                case ICON_PLAY_PAUSE:
-                    return active ? R.drawable.overlay_ic_play_filled : R.drawable.overlay_ic_pause_outline;
-                case ICON_STOP:
-                    return R.drawable.overlay_ic_x_outline;
-                default:
-                    return 0;
+                case ICON_WALK: return active ? R.drawable.overlay_ic_walk_filled : R.drawable.overlay_ic_walk_outline;
+                case ICON_RUN: return active ? R.drawable.overlay_ic_run_filled : R.drawable.overlay_ic_run_outline;
+                case ICON_BIKE: return active ? R.drawable.overlay_ic_bike_filled : R.drawable.overlay_ic_bike_outline;
+                case ICON_GAUGE: return active ? R.drawable.overlay_ic_gauge_filled : R.drawable.overlay_ic_gauge_outline;
+                case ICON_LOCK: return active ? R.drawable.overlay_ic_lock_filled : R.drawable.overlay_ic_lock_outline;
+                case ICON_PLAY_PAUSE: return active ? R.drawable.overlay_ic_play_filled : R.drawable.overlay_ic_pause_outline;
+                case ICON_STOP: return R.drawable.overlay_ic_x_outline;
+                default: return 0;
             }
         }
 
         private int iconInset() {
-            switch (iconType) {
-                case ICON_BIKE:
-                case ICON_GAUGE:
-                    return dp(1);
-                case ICON_STOP:
-                    return dp(2);
-                default:
-                    return dp(1);
-            }
+            if (iconType == ICON_STOP) return dp(12);
+            if (iconType == ICON_BIKE || iconType == ICON_GAUGE) return dp(8);
+            return dp(9);
         }
     }
 }
