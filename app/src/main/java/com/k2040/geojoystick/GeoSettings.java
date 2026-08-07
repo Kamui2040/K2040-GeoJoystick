@@ -21,6 +21,7 @@ final class GeoSettings {
     static final String PREF_LANGUAGE = "app_language";
     static final String PREF_RESTORE_LAST_POSITION = "restore_last_position";
     static final String PREF_OVERLAY_OPACITY = "overlay_opacity_percent";
+    static final String PREF_OVERLAY_SIZE = "overlay_size_percent";
     static final String PREF_OVERLAY_HIGH_CONTRAST = "overlay_high_contrast";
     static final String PREF_CUSTOM_SPEED = "overlay_custom_speed";
     static final String PREF_CUSTOM_SPEED_NAME = "overlay_custom_speed_name";
@@ -120,6 +121,14 @@ final class GeoSettings {
 
     void setOverlayOpacity(int value) {
         preferences.edit().putInt(PREF_OVERLAY_OPACITY, Math.max(30, Math.min(100, value))).apply();
+    }
+
+    int overlaySize() {
+        return Math.max(70, Math.min(120, preferences.getInt(PREF_OVERLAY_SIZE, 80)));
+    }
+
+    void setOverlaySize(int value) {
+        preferences.edit().putInt(PREF_OVERLAY_SIZE, Math.max(70, Math.min(120, value))).apply();
     }
 
     boolean highContrastOverlay() {
