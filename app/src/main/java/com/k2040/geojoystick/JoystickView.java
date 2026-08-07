@@ -34,8 +34,8 @@ final class JoystickView extends View {
         knobPaint.setStyle(Paint.Style.FILL);
         updatePaintColors();
         setContentDescription("Movement joystick");
-        setMinimumWidth(dp(96));
-        setMinimumHeight(dp(96));
+        setMinimumWidth(dp(88));
+        setMinimumHeight(dp(88));
     }
 
     void setListener(Listener listener) {
@@ -91,7 +91,7 @@ final class JoystickView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int preferred = dp(132);
+        int preferred = dp(112);
         int width = resolveSize(preferred, widthMeasureSpec);
         int height = resolveSize(preferred, heightMeasureSpec);
         int size = Math.min(width, height);
@@ -127,10 +127,10 @@ final class JoystickView extends View {
     private void drawDirectionGuides(Canvas canvas, float radius) {
         float length = Math.max(dp(5), radius * 0.11f);
         float offset = radius * 0.78f;
-        drawChevron(canvas, centerX, centerY - offset, 0f, length);
-        drawChevron(canvas, centerX + offset, centerY, 90f, length);
-        drawChevron(canvas, centerX, centerY + offset, 180f, length);
-        drawChevron(canvas, centerX - offset, centerY, 270f, length);
+        drawChevron(canvas, centerX, centerY - offset, -90f, length);
+        drawChevron(canvas, centerX + offset, centerY, 0f, length);
+        drawChevron(canvas, centerX, centerY + offset, 90f, length);
+        drawChevron(canvas, centerX - offset, centerY, 180f, length);
     }
 
     private void drawChevron(Canvas canvas, float x, float y, float degrees, float length) {
