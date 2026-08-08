@@ -539,7 +539,7 @@ public final class MainActivity extends Activity {
         modal.setFocusable(true);
         modal.setFocusableInTouchMode(true);
 
-        TextView title = text(t("Changelog", "Änderungsprotokoll"), 20, palette.text, true);
+        TextView title = text(BuildConfig.VERSION_NAME, 20, palette.text, true);
         title.setGravity(Gravity.CENTER);
         title.setPadding(dp(4), dp(2), dp(4), dp(8));
         modal.addView(title, innerRow());
@@ -639,8 +639,16 @@ public final class MainActivity extends Activity {
         title.setGravity(Gravity.CENTER);
         body.addView(title, innerRow());
 
+        TextView version = text(BuildConfig.VERSION_NAME, 9, palette.textDim, false);
+        version.setGravity(Gravity.CENTER);
+        version.setPadding(dp(4), 0, dp(4), dp(2));
+        body.addView(version, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+
         body.addView(welcomeExpandableRow(t("About", "Über"), welcomeAboutText()), innerRow());
-        body.addView(welcomeNavigationRow("Version 0.1.3", () -> showChangelogPage(true)), innerRow());
+        body.addView(welcomeNavigationRow(t("Changelog", "Änderungsprotokoll"),
+                () -> showChangelogPage(true)), innerRow());
         body.addView(welcomeNavigationRow(t("License & usage", "Lizenz & Nutzung"),
                 () -> showLicensePage(true)), innerRow());
         body.addView(welcomeNavigationRow(t("Support on Ko-fi", "Auf Ko-fi unterstützen"),
@@ -924,9 +932,7 @@ public final class MainActivity extends Activity {
 
     private int indexOf(String[] values, String current) {
         for (int i = 0; i < values.length; i++) {
-            if (values[i].equals(current)) {
-                return i;
-            }
+            if (values[i].equals(current)) return i;
         }
         return 0;
     }
@@ -1521,15 +1527,13 @@ public final class MainActivity extends Activity {
 
     private String changelogText() {
         return t(
-                "Version 0.1.3\n"
-                        + "• Dialogs now follow the selected dark theme.\n"
+                "• Dialogs now follow the selected dark theme.\n"
                         + "• GeoJoystick now uses a dedicated icon in store listings.\n\n"
-                        + "Version 0.1.0\n"
+                        + "0.1.0\n"
                         + "• Initial public release with coordinate and altitude entry, map selection and link import, favorites, appearance and language settings, and floating joystick controls.",
-                "Version 0.1.3\n"
-                        + "• Dialoge folgen nun dem ausgewählten dunklen Design.\n"
+                "• Dialoge folgen nun dem ausgewählten dunklen Design.\n"
                         + "• GeoJoystick verwendet nun ein eigenes Symbol in Store-Einträgen.\n\n"
-                        + "Version 0.1.0\n"
+                        + "0.1.0\n"
                         + "• Erste öffentliche Version mit Koordinaten- und Höheneingabe, Kartenauswahl und Linkimport, Favoriten, Darstellungs- und Spracheinstellungen sowie schwebender Joystick-Steuerung.");
     }
 
