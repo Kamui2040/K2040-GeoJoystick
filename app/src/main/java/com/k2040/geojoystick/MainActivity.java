@@ -610,7 +610,7 @@ public final class MainActivity extends Activity {
                 "Abbrechen und GeoJoystick schließen"));
         cancelButton.setOnClickListener(view -> finishAndRemoveTask());
 
-        Button continueButton = welcomeActionButton(t("Continue", "Weiter"), true);
+        Button continueButton = welcomeActionButton(t("Continue", "Weiter"), false);
         continueButton.setOnClickListener(view -> {
             settings.acknowledgeWelcome();
             showHomePage();
