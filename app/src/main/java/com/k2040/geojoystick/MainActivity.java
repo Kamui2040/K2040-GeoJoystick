@@ -932,7 +932,9 @@ public final class MainActivity extends Activity {
 
     private int indexOf(String[] values, String current) {
         for (int i = 0; i < values.length; i++) {
-            if (values[i].equals(current)) return i;
+            if (values[i].equals(current)) {
+                return i;
+            }
         }
         return 0;
     }
