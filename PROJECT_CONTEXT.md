@@ -31,6 +31,8 @@ GitHub Releases is canonical for developer-published assets and release notes. F
 
 The current development branch was created from the exact Feedback 5 validation branch. Before this context reconciliation, GitHub comparison reported it identical to `f4a650fbef4ac012b21b81d693319f4472514a5f`. The validation branch is exactly one commit ahead of the Feedback 5 source branch and adds only `tools/build_signed.py`.
 
+During workstation-migration retention review, the five existing Fastlane phone screenshots were confirmed to contain unsanitized real-location material from the older release line. They were removed from the current development branch. No replacement screenshots were added; sanitized synthetic screenshots remain a later release-preparation gate. Historical public Git objects are not rewritten by this non-default-branch cleanup.
+
 Do not update this document solely to record the commit created by a documentation-only reconciliation. Verify mutable branch tips live when resuming work.
 
 ## Stable corrective baseline
@@ -141,7 +143,7 @@ The project command-line build path is authoritative; Android Studio is optional
 - Validate truthful foreground-service, notification, overlay and UI-active state with synthetic coordinates, finishing inactive.
 - Complete accessibility and device-scale touch-target review where still outstanding.
 - Continue the separate `tools/build.py` hardening scope for downloads, extraction, subprocess timeouts and deterministic tool discovery.
-- Replace store screenshots with sanitized synthetic fixtures after source/device acceptance.
+- Create new sanitized synthetic store screenshots before any future release/store publication; the unsanitized older screenshots are not present on the current development branch.
 - Treat API 36 compile/target migration as a separate reviewed scope.
 - Reconcile the current development line into an appropriate review branch only after the remaining gates are completed or explicitly deferred.
 - Do not merge `main`, create public tags/releases, publish APKs, or submit stores without explicit user signoff.
