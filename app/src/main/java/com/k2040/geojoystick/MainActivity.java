@@ -503,22 +503,81 @@ public final class MainActivity extends Activity {
     private void showChangelogPage(boolean returnToWelcome) {
         currentPage = returnToWelcome && !settings.welcomeAcknowledged()
                 ? "changelog-welcome" : "changelog-about";
-        ScrollView page = pageScroll();
-        LinearLayout root = pageRoot();
-        page.addView(root);
         Runnable backAction = "changelog-welcome".equals(currentPage)
                 ? this::showWelcomePage : this::showAboutPage;
-        root.addView(pageHeader(t("Changelog", "Änderungsprotokoll"), backAction), margin(0, 4));
 
-        LinearLayout changesCard = card();
+        FrameLayout stage = new FrameLayout(this);
+        stage.setBackgroundColor(palette.background);
+        stage.setClickable(true);
+        stage.setFocusable(true);
+
+        ScrollView background = buildHomePage();
+        background.setAlpha(settings.isDark() ? 0.34f : 0.26f);
+        background.setEnabled(false);
+        background.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        background.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+        stage.addView(background, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+
+        View scrim = new View(this);
+        scrim.setBackgroundColor(Color.BLACK);
+        scrim.setAlpha(settings.isDark() ? 0.60f : 0.43f);
+        scrim.setClickable(true);
+        scrim.setFocusable(true);
+        scrim.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        stage.addView(scrim, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+
+        LinearLayout modal = new LinearLayout(this);
+        modal.setOrientation(LinearLayout.VERTICAL);
+        modal.setPadding(dp(16), dp(14), dp(16), dp(14));
+        modal.setBackground(GeoUi.elevated(this, palette));
+        modal.setElevation(dp(18));
+        modal.setClickable(true);
+        modal.setFocusable(true);
+        modal.setFocusableInTouchMode(true);
+
+        TextView title = text(t("Changelog", "Änderungsprotokoll"), 20, palette.text, true);
+        title.setGravity(Gravity.CENTER);
+        title.setPadding(dp(4), dp(2), dp(4), dp(8));
+        modal.addView(title, innerRow());
+
+        ScrollView bodyScroll = new ScrollView(this);
+        bodyScroll.setFillViewport(false);
+        bodyScroll.setFocusable(false);
+        bodyScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
         TextView changes = text(changelogText(), 14, palette.text, false);
         changes.setTextIsSelectable(true);
         changes.setLineSpacing(0, 1.12f);
-        changes.setPadding(dp(4), dp(4), dp(4), dp(4));
-        changesCard.addView(changes, innerRow());
-        root.addView(changesCard, margin(4, 6));
-        setContentView(page);
-        applySystemBarInsets(page);
+        changes.setPadding(dp(6), dp(4), dp(6), dp(4));
+        bodyScroll.addView(changes);
+        modal.addView(bodyScroll, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+
+        Button backButton = welcomeActionButton(t("Back", "Zurück"), false);
+        backButton.setContentDescription(t("Back from changelog", "Zurück vom Änderungsprotokoll"));
+        backButton.setOnClickListener(view -> backAction.run());
+        LinearLayout.LayoutParams backParams = new LinearLayout.LayoutParams(dp(124), dp(48));
+        backParams.gravity = Gravity.CENTER_HORIZONTAL;
+        backParams.topMargin = dp(4);
+        modal.addView(backButton, backParams);
+
+        int width = Math.min(dp(336), getResources().getDisplayMetrics().widthPixels - dp(56));
+        int availableHeight = Math.max(dp(300),
+                getResources().getDisplayMetrics().heightPixels - dp(120));
+        int height = Math.min(dp(400), availableHeight);
+        FrameLayout.LayoutParams modalParams = new FrameLayout.LayoutParams(
+                Math.max(dp(260), width),
+                height,
+                Gravity.CENTER);
+        stage.addView(modal, modalParams);
+
+        setContentView(stage);
+        applySystemBarInsets(stage);
+        modal.requestFocus();
+        bodyScroll.post(() -> bodyScroll.scrollTo(0, 0));
     }
 
     private void showWelcomePage() {
