@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bootstrap Gradle and build the private GeoJoystick APK on Windows."""
+"""Bootstrap Gradle and build GeoJoystick on supported desktop platforms."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ import os
 import platform
 import re
 import shutil
+import stat
 import subprocess
 import sys
 import urllib.request
@@ -40,9 +41,18 @@ def download(url: str, destination: Path) -> None:
         shutil.copyfileobj(response, output)
 
 
+def make_gradle_executable(executable: Path) -> None:
+    if os.name == "nt":
+        return
+    executable.chmod(
+        executable.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+    )
+
+
 def ensure_gradle() -> Path:
     executable = GRADLE_HOME / "bin" / ("gradle.bat" if os.name == "nt" else "gradle")
     if executable.exists():
+        make_gradle_executable(executable)
         return executable
 
     archive = CACHE_ROOT / f"gradle-{GRADLE_VERSION}-bin.zip"
@@ -61,6 +71,7 @@ def ensure_gradle() -> Path:
         package.extractall(CACHE_ROOT)
     if not executable.exists():
         fail(f"Gradle executable was not found after extraction: {executable}")
+    make_gradle_executable(executable)
     return executable
 
 
