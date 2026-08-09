@@ -30,18 +30,38 @@ It uses Android's standard mock-location provider flow, shows a small floating j
 
 GitHub Releases remains the canonical source for release notes and published release assets. The APKPure page is an official store listing for the same app package, `com.k2040.geojoystick`.
 
-## Build on Windows
+## Build locally
 
-The project intentionally uses a small Python bootstrap instead of committing a Gradle wrapper binary.
+The project intentionally uses a small Python bootstrap instead of committing a Gradle wrapper binary. The bootstrap supports Linux, macOS, and Windows.
 
-1. Keep the checkout at `D:\Projects\Android\K2040-GeoJoystick\repo`.
-2. Run `build.bat`.
+Requirements:
 
-The script uses the newest installed stable Build-Tools version 35.0.0 or newer. If Platform 35 or suitable Build-Tools are missing and Android SDK Command-line Tools are installed, it installs the required SDK packages automatically.
+- JDK 17 or newer
+- Android SDK Platform 35
+- Android SDK Build-Tools 35.0.0 or newer
+- Python 3
 
-The script locates Android Studio's JDK and Android SDK, downloads Gradle 8.13 from the official Gradle distribution service, verifies its published SHA-256 checksum, builds the debug APK, and copies it to:
+On Linux or macOS:
 
-`dist\GeoJoystick-debug.apk`
+```sh
+JAVA_HOME=/path/to/jdk17 python3 tools/build.py
+```
+
+On Windows, either run:
+
+```text
+build.bat
+```
+
+or invoke the bootstrap directly with Python.
+
+The bootstrap locates the Android SDK and JDK, downloads Gradle 8.13 from the official Gradle distribution service when needed, verifies the published SHA-256 checksum, selects a compatible installed stable Build-Tools version, builds the debug APK, and copies it to:
+
+```text
+dist/GeoJoystick-debug.apk
+```
+
+A matching SHA-256 is written to `dist/SHA256SUMS.txt`.
 
 ## Basic setup
 
