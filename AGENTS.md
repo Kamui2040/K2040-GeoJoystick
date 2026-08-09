@@ -1,9 +1,35 @@
 # Repository Rules
 
-- Canonical Windows checkout: `D:\Projects\Android\K2040-GeoJoystick\repo` with `.git` directly inside `repo`.
-- This is an open-source Android mock-location utility aimed at emulator/developer testing. Keep the app ad-free, account-free, analytics-free, and subscription-free.
-- Do not use Codex, Copilot, Gemini, Ollama, or other external coding assistants for this repository.
-- Prefer direct Java/Android framework code and deterministic Python scripts. Avoid dependencies unless they remove more complexity than they add.
-- Preserve standard Android mock-location behavior. Do not add concealment, integrity bypasses, anti-detection mechanisms, or game-specific bypass features.
-- Do not commit, push, publish, release, or open a pull request unless explicitly requested.
-- Before reusable output, run syntax/encoding checks, `git diff --check`, and the build when an Android SDK is available.
+## Project scope
+
+GeoJoystick is an open-source Android mock-location utility for emulator and developer testing. Keep the project suitable for public collaboration and independent local builds.
+
+## Product and safety constraints
+
+- Keep the app ad-free, account-free, analytics-free, tracking-free, subscription-free, and free of mandatory proprietary services.
+- Preserve Android's standard mock-location provider flow and manual Developer Options selection.
+- Do not add concealment, integrity or attestation bypasses, anti-detection mechanisms, game/app-specific bypasses, account automation, ban evasion, root/Shizuku requirements, or other non-standard location injection.
+- Treat external links and imported data as untrusted. Validate supported formats, coordinate ranges, schemes, redirects, bounds, and failure paths.
+- Never substitute a real-world fallback coordinate when parsing or validation fails.
+- Preserve OpenStreetMap attribution and keep network-dependent behavior optional and disclosed.
+
+## Data and privacy
+
+- Keep saved coordinates, favorites, settings, and other user state local unless a user explicitly invokes a documented export/import or network action.
+- Never commit credentials, signing material, personal data, real location histories, device identifiers, private QA evidence, machine-specific paths, or other maintainer-only operational information.
+- Use synthetic or deliberately sanitized fixtures and examples.
+
+## Build and validation
+
+- JDK 17 and Android SDK Platform 35 are the current build baseline.
+- Use the repository build/bootstrap tooling; do not require a globally installed Gradle.
+- Keep Linux, macOS, and Windows build instructions contributor-facing and machine-independent.
+- Before a change is considered complete, inspect the changed-file scope and run applicable tests/lint/build checks plus `git diff --check`.
+- Do not claim installation, physical-device behavior, signing, reproducibility, or release readiness without corresponding evidence.
+
+## Contributions and releases
+
+- Keep `main` stable and prefer focused, reviewable changes.
+- Preserve GPL-3.0-only licensing and required third-party attribution/provenance.
+- Do not commit generated APK/AAB files, local build caches, private signing material, or machine-specific configuration.
+- Releases, store submissions, signing decisions, and other official publication actions are maintainer-controlled.
