@@ -9,6 +9,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ServiceInfo;
 import android.graphics.drawable.Icon;
 import android.location.Criteria;
 import android.location.Location;
@@ -19,8 +20,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.provider.Settings;
+import android.widget.Toast;
 
 import java.util.Locale;
 
@@ -30,6 +33,9 @@ public final class MockLocationService extends Service {
     static final String ACTION_SHOW_OVERLAY = "com.k2040.geojoystick.action.SHOW_OVERLAY";
     static final String ACTION_HIDE_OVERLAY = "com.k2040.geojoystick.action.HIDE_OVERLAY";
     static final String ACTION_STOP = "com.k2040.geojoystick.action.STOP";
+    static final String ACTION_STATE_CHANGED = "com.k2040.geojoystick.action.STATE_CHANGED";
+    static final String PERMISSION_INTERNAL_STATE =
+            "com.k2040.geojoystick.permission.INTERNAL_STATE";
     static final String EXTRA_LATITUDE = "latitude";
     static final String EXTRA_LONGITUDE = "longitude";
     static final String EXTRA_ALTITUDE = "altitude";
@@ -45,6 +51,9 @@ public final class MockLocationService extends Service {
     private static final String PREF_SELECTED_SPEED = "overlay_selected_speed";
     private static final String PREF_SELECTED_SPEED_KIND = "overlay_selected_speed_kind";
     private static final String PREF_CUSTOM_SPEED = "overlay_custom_speed";
+    private static final String PREF_LANGUAGE = "app_language";
+    private static final String LANGUAGE_SYSTEM = "system";
+    private static final String LANGUAGE_GERMAN = "de";
     private static final String CHANNEL_ID = "geojoystick_mock_location";
     private static final int NOTIFICATION_ID = 2040;
     private static final long UPDATE_INTERVAL_MS = 200L;
@@ -73,81 +82,120 @@ public final class MockLocationService extends Service {
     private long lastProviderRetryMillis;
     private volatile boolean gpsProviderReady;
     private volatile boolean networkProviderReady;
+    private static volatile boolean simulationActive;
+    private static volatile boolean simulationStarting;
+    private boolean hasPosition;
+    private boolean hasPublishedPosition;
+    private double lastPublishedLatitude;
+    private double lastPublishedLongitude;
+    private double lastPublishedAltitude;
+    private boolean foregroundStarted;
+
+    static boolean isSimulationActive() {
+        return simulationActive;
+    }
+
+    static boolean isSimulationStarting() {
+        return simulationStarting;
+    }
 
     @Override
     public void onCreate() {
         super.onCreate();
         preferences = getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-        latitude = Double.longBitsToDouble(preferences.getLong(PREF_LATITUDE, Double.doubleToLongBits(52.520008)));
-        longitude = Double.longBitsToDouble(preferences.getLong(PREF_LONGITUDE, Double.doubleToLongBits(13.404954)));
-        altitude = Double.longBitsToDouble(preferences.getLong(PREF_ALTITUDE, Double.doubleToLongBits(55.0)));
+        setSimulationState(false, false);
         speedMetersPerSecond = loadSavedSpeed();
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
         createNotificationChannel();
-        startForeground(NOTIFICATION_ID, buildNotification());
-
-        workerThread = new HandlerThread("GeoJoystickLocationWorker");
-        workerThread.start();
-        workerHandler = new Handler(workerThread.getLooper());
-
-        overlay = new JoystickOverlay(this, new JoystickOverlay.Listener() {
-            @Override
-            public void onVectorChanged(double east, double north) {
-                eastFactor = east;
-                northFactor = north;
-            }
-
-            @Override
-            public void onSpeedChanged(double metersPerSecond) {
-                speedMetersPerSecond = normalizeSpeed(metersPerSecond);
-            }
-
-            @Override
-            public void onStopRequested() {
-                stopSelf();
-            }
-        });
-
-        prepareProviders();
-        if (Settings.canDrawOverlays(this)) {
-            overlay.show();
-        }
-        lastTickNanos = SystemClock.elapsedRealtimeNanos();
-        workerHandler.post(locationLoop);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent == null) {
-            return START_STICKY;
+            setSimulationState(false, false);
+            stopSelf(startId);
+            return START_NOT_STICKY;
         }
 
         String action = intent.getAction();
         if (ACTION_STOP.equals(action)) {
-            stopSelf();
+            stopSimulation();
             return START_NOT_STICKY;
         }
-        if (ACTION_SHOW_OVERLAY.equals(action)) {
-            overlay.show();
-            return START_STICKY;
+
+        if (ACTION_START.equals(action)) {
+            if (!setPositionFromIntent(intent)) {
+                reportRuntimeError(
+                        "GeoJoystick did not start because the coordinates were invalid.",
+                        "GeoJoystick wurde nicht gestartet, weil die Koordinaten ungültig waren.");
+                setSimulationState(false, false);
+                stopSelf(startId);
+                return START_NOT_STICKY;
+            }
+            setSimulationState(true, false);
+            startOrRefreshSimulation();
+            return START_NOT_STICKY;
         }
-        if (ACTION_HIDE_OVERLAY.equals(action)) {
-            overlay.hide();
-            eastFactor = 0.0;
-            northFactor = 0.0;
-            return START_STICKY;
-        }
-        if (ACTION_START.equals(action) || ACTION_SET_POSITION.equals(action)) {
-            setPositionFromIntent(intent);
+
+        if (ACTION_SET_POSITION.equals(action)) {
+            if (!simulationActive) {
+                reportRuntimeError(
+                        "GeoJoystick is not active.",
+                        "GeoJoystick ist nicht aktiv.");
+                stopSelf(startId);
+                return START_NOT_STICKY;
+            }
+            if (!setPositionFromIntent(intent)) {
+                reportRuntimeError(
+                        "The new coordinates were rejected.",
+                        "Die neuen Koordinaten wurden abgelehnt.");
+                return START_NOT_STICKY;
+            }
             prepareProviders();
-            overlay.show();
+            if (!publishReadyProviders()) {
+                failSimulation(
+                        "GeoJoystick stopped because no mock-location provider accepted the position.",
+                        "GeoJoystick wurde beendet, weil kein Mock-Standort-Anbieter die Position angenommen hat.");
+                return START_NOT_STICKY;
+            }
+            persistPosition();
+            updateNotification();
+            return START_NOT_STICKY;
         }
-        return START_STICKY;
+
+        if (ACTION_SHOW_OVERLAY.equals(action)) {
+            if (simulationActive) {
+                if (overlay != null) {
+                    overlay.show();
+                }
+            } else {
+                stopSelf(startId);
+            }
+            return START_NOT_STICKY;
+        }
+
+        if (ACTION_HIDE_OVERLAY.equals(action)) {
+            if (simulationActive) {
+                if (overlay != null) {
+                    overlay.hide();
+                }
+                eastFactor = 0.0;
+                northFactor = 0.0;
+            } else {
+                stopSelf(startId);
+            }
+            return START_NOT_STICKY;
+        }
+
+        if (!simulationActive && !simulationStarting) {
+            stopSelf(startId);
+        }
+        return START_NOT_STICKY;
     }
 
     @Override
     public void onDestroy() {
+        setSimulationState(false, false);
         eastFactor = 0.0;
         northFactor = 0.0;
         if (workerHandler != null) {
@@ -159,10 +207,14 @@ public final class MockLocationService extends Service {
         if (overlay != null) {
             overlay.destroy();
         }
-        persistPosition();
+        if (hasPublishedPosition) {
+            persistPosition();
+        }
         removeTestProvider(LocationManager.NETWORK_PROVIDER);
         removeTestProvider(LocationManager.GPS_PROVIDER);
-        stopForeground(STOP_FOREGROUND_REMOVE);
+        if (foregroundStarted) {
+            stopForeground(STOP_FOREGROUND_REMOVE);
+        }
         super.onDestroy();
     }
 
@@ -174,8 +226,14 @@ public final class MockLocationService extends Service {
     private final Runnable locationLoop = new Runnable() {
         @Override
         public void run() {
+            if (!simulationActive || workerHandler == null) {
+                return;
+            }
+
             long nowNanos = SystemClock.elapsedRealtimeNanos();
-            double elapsedSeconds = Math.min(1.0, Math.max(0.0, (nowNanos - lastTickNanos) / 1_000_000_000.0));
+            double elapsedSeconds = Math.min(
+                    1.0,
+                    Math.max(0.0, (nowNanos - lastTickNanos) / 1_000_000_000.0));
             lastTickNanos = nowNanos;
 
             updatePosition(elapsedSeconds);
@@ -185,27 +243,31 @@ public final class MockLocationService extends Service {
                 prepareProviders();
                 lastProviderRetryMillis = nowMillis;
             }
-            if (gpsProviderReady) {
-                gpsProviderReady = publishLocation(LocationManager.GPS_PROVIDER, 3.0f);
-            }
-            if (networkProviderReady) {
-                networkProviderReady = publishLocation(LocationManager.NETWORK_PROVIDER, 12.0f);
-            }
 
+            if (!publishReadyProviders()) {
+                failSimulation(
+                        "GeoJoystick stopped because mock-location publication failed.",
+                        "GeoJoystick wurde beendet, weil die Mock-Standort-Veröffentlichung fehlgeschlagen ist.");
+                return;
+            }
             double lat;
             double lng;
             synchronized (positionLock) {
-                lat = latitude;
-                lng = longitude;
+                lat = lastPublishedLatitude;
+                lng = lastPublishedLongitude;
             }
-            overlay.updatePosition(lat, lng, speedMetersPerSecond);
+            if (overlay != null) {
+                overlay.updatePosition(lat, lng, speedMetersPerSecond);
+            }
 
             if (nowMillis - lastPersistMillis >= 1_000L) {
                 persistPosition();
                 updateNotification();
                 lastPersistMillis = nowMillis;
             }
-            workerHandler.postDelayed(this, UPDATE_INTERVAL_MS);
+            if (simulationActive && workerHandler != null) {
+                workerHandler.postDelayed(this, UPDATE_INTERVAL_MS);
+            }
         }
     };
 
@@ -231,21 +293,194 @@ public final class MockLocationService extends Service {
         }
     }
 
-    private void setPositionFromIntent(Intent intent) {
-        double requestedLatitude = intent.getDoubleExtra(EXTRA_LATITUDE, latitude);
-        double requestedLongitude = intent.getDoubleExtra(EXTRA_LONGITUDE, longitude);
-        double requestedAltitude = intent.getDoubleExtra(EXTRA_ALTITUDE, altitude);
+    private boolean setPositionFromIntent(Intent intent) {
+        if (intent == null
+                || !intent.hasExtra(EXTRA_LATITUDE)
+                || !intent.hasExtra(EXTRA_LONGITUDE)
+                || !intent.hasExtra(EXTRA_ALTITUDE)) {
+            return false;
+        }
+
+        double requestedLatitude = intent.getDoubleExtra(EXTRA_LATITUDE, Double.NaN);
+        double requestedLongitude = intent.getDoubleExtra(EXTRA_LONGITUDE, Double.NaN);
+        double requestedAltitude = intent.getDoubleExtra(EXTRA_ALTITUDE, Double.NaN);
         if (!Double.isFinite(requestedLatitude)
                 || !Double.isFinite(requestedLongitude)
-                || !Double.isFinite(requestedAltitude)) {
-            return;
+                || !Double.isFinite(requestedAltitude)
+                || requestedLatitude < -90.0
+                || requestedLatitude > 90.0
+                || requestedLongitude < -180.0
+                || requestedLongitude > 180.0) {
+            return false;
         }
+
         synchronized (positionLock) {
-            latitude = Math.max(-90.0, Math.min(90.0, requestedLatitude));
-            longitude = normalizeLongitude(requestedLongitude);
+            latitude = requestedLatitude;
+            longitude = requestedLongitude;
             altitude = requestedAltitude;
         }
-        persistPosition();
+        hasPosition = true;
+        return true;
+    }
+
+    private boolean startOrRefreshSimulation() {
+        setSimulationState(true, false);
+        try {
+            if (!foregroundStarted) {
+                startForegroundNotification(false);
+            }
+            ensureRuntimeComponents();
+            prepareProviders();
+            if (!publishReadyProviders()) {
+                return failSimulation(
+                        "GeoJoystick could not publish a mock location. Check Developer Options and select GeoJoystick as the mock-location app.",
+                        "GeoJoystick konnte keinen Mock-Standort veröffentlichen. Prüfe die Entwickleroptionen und wähle GeoJoystick als Mock-Standort-App.");
+            }
+
+            persistPosition();
+            setSimulationState(false, true);
+            if (overlay != null) {
+                synchronized (positionLock) {
+                    overlay.updatePosition(
+                            lastPublishedLatitude,
+                            lastPublishedLongitude,
+                            speedMetersPerSecond);
+                }
+            }
+            if (Settings.canDrawOverlays(this) && overlay != null) {
+                overlay.show();
+            }
+            lastTickNanos = SystemClock.elapsedRealtimeNanos();
+            updateNotification();
+            if (workerHandler != null) {
+                workerHandler.removeCallbacks(locationLoop);
+                workerHandler.post(locationLoop);
+            }
+            return true;
+        } catch (RuntimeException exception) {
+            return failSimulation(
+                    "GeoJoystick could not start its foreground simulation service.",
+                    "GeoJoystick konnte den Vordergrunddienst für die Simulation nicht starten.");
+        }
+    }
+
+    private void ensureRuntimeComponents() {
+        if (workerThread == null) {
+            workerThread = new HandlerThread("GeoJoystickLocationWorker");
+            workerThread.start();
+            workerHandler = new Handler(workerThread.getLooper());
+        }
+
+        if (overlay == null) {
+            overlay = new JoystickOverlay(this, new JoystickOverlay.Listener() {
+                @Override
+                public void onVectorChanged(double east, double north) {
+                    eastFactor = east;
+                    northFactor = north;
+                }
+
+                @Override
+                public void onSpeedChanged(double metersPerSecond) {
+                    speedMetersPerSecond = normalizeSpeed(metersPerSecond);
+                }
+
+                @Override
+                public void onStopRequested() {
+                    stopSimulation();
+                }
+            });
+        }
+    }
+
+    private void startForegroundNotification(boolean active) {
+        Notification notification = buildNotification(active);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(
+                    NOTIFICATION_ID,
+                    notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+        } else {
+            startForeground(NOTIFICATION_ID, notification);
+        }
+        foregroundStarted = true;
+    }
+
+    private boolean publishReadyProviders() {
+        PositionSnapshot snapshot = snapshotCurrentPosition();
+        if (snapshot == null) {
+            return false;
+        }
+
+        boolean attempted = false;
+        boolean published = false;
+
+        if (gpsProviderReady) {
+            attempted = true;
+            gpsProviderReady = publishLocation(
+                    LocationManager.GPS_PROVIDER,
+                    3.0f,
+                    snapshot);
+            published |= gpsProviderReady;
+        }
+        if (networkProviderReady) {
+            attempted = true;
+            networkProviderReady = publishLocation(
+                    LocationManager.NETWORK_PROVIDER,
+                    12.0f,
+                    snapshot);
+            published |= networkProviderReady;
+        }
+        if (attempted && published) {
+            recordPublishedPosition(snapshot);
+            return true;
+        }
+        return false;
+    }
+
+    private PositionSnapshot snapshotCurrentPosition() {
+        synchronized (positionLock) {
+            if (!hasPosition
+                    || !Double.isFinite(latitude)
+                    || !Double.isFinite(longitude)
+                    || !Double.isFinite(altitude)) {
+                return null;
+            }
+            return new PositionSnapshot(latitude, longitude, altitude, bearing);
+        }
+    }
+
+    private void recordPublishedPosition(PositionSnapshot snapshot) {
+        synchronized (positionLock) {
+            lastPublishedLatitude = snapshot.latitude;
+            lastPublishedLongitude = snapshot.longitude;
+            lastPublishedAltitude = snapshot.altitude;
+            hasPublishedPosition = true;
+        }
+    }
+
+    private boolean failSimulation(String english, String germanText) {
+        setSimulationState(false, false);
+        eastFactor = 0.0;
+        northFactor = 0.0;
+        reportRuntimeError(english, germanText);
+        stopSelf();
+        return false;
+    }
+
+    private void stopSimulation() {
+        setSimulationState(false, false);
+        eastFactor = 0.0;
+        northFactor = 0.0;
+        stopSelf();
+    }
+
+    private void reportRuntimeError(String english, String germanText) {
+        String message = t(english, germanText);
+        new Handler(Looper.getMainLooper()).post(() ->
+                Toast.makeText(
+                        getApplicationContext(),
+                        message,
+                        Toast.LENGTH_LONG).show());
     }
 
     private void prepareProviders() {
@@ -314,24 +549,23 @@ public final class MockLocationService extends Service {
         }
     }
 
-    private boolean publishLocation(String provider, float accuracyMeters) {
+    private boolean publishLocation(
+            String provider,
+            float accuracyMeters,
+            PositionSnapshot snapshot) {
         try {
             Location location = new Location(provider);
-            synchronized (positionLock) {
-                location.setLatitude(latitude);
-                location.setLongitude(longitude);
-                location.setAltitude(altitude);
-                location.setBearing(bearing);
-            }
+            location.setLatitude(snapshot.latitude);
+            location.setLongitude(snapshot.longitude);
+            location.setAltitude(snapshot.altitude);
+            location.setBearing(snapshot.bearing);
             location.setAccuracy(accuracyMeters);
             location.setSpeed((float) (Math.hypot(eastFactor, northFactor) * speedMetersPerSecond));
             location.setTime(System.currentTimeMillis());
             location.setElapsedRealtimeNanos(SystemClock.elapsedRealtimeNanos());
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                location.setVerticalAccuracyMeters(5.0f);
-                location.setSpeedAccuracyMetersPerSecond(0.5f);
-                location.setBearingAccuracyDegrees(3.0f);
-            }
+            location.setVerticalAccuracyMeters(5.0f);
+            location.setSpeedAccuracyMetersPerSecond(0.5f);
+            location.setBearingAccuracyDegrees(3.0f);
             Bundle extras = new Bundle();
             extras.putInt("satellites", 12);
             location.setExtras(extras);
@@ -388,13 +622,17 @@ public final class MockLocationService extends Service {
     }
 
     private void persistPosition() {
+        if (!hasPosition || !hasPublishedPosition) {
+            return;
+        }
+
         double lat;
         double lng;
         double alt;
         synchronized (positionLock) {
-            lat = latitude;
-            lng = longitude;
-            alt = altitude;
+            lat = lastPublishedLatitude;
+            lng = lastPublishedLongitude;
+            alt = lastPublishedAltitude;
         }
         SharedPreferences.Editor editor = preferences.edit()
                 .putLong(PREF_LATITUDE, Double.doubleToRawLongBits(lat))
@@ -422,13 +660,15 @@ public final class MockLocationService extends Service {
         }
         NotificationChannel channel = new NotificationChannel(
                 CHANNEL_ID,
-                getString(R.string.notification_channel_name),
+                t("Mock location service", "Mock-Standort-Dienst"),
                 NotificationManager.IMPORTANCE_LOW);
-        channel.setDescription("Keeps the mock-location joystick active.");
+        channel.setDescription(t(
+                "Keeps the visible mock-location simulation active.",
+                "Hält die sichtbare Mock-Standort-Simulation aktiv."));
         manager.createNotificationChannel(channel);
     }
 
-    private Notification buildNotification() {
+    private Notification buildNotification(boolean active) {
         Intent openIntent = new Intent(this, MainActivity.class);
         PendingIntent openPendingIntent = PendingIntent.getActivity(
                 this,
@@ -440,23 +680,64 @@ public final class MockLocationService extends Service {
         PendingIntent hideIntent = serviceAction(ACTION_HIDE_OVERLAY, 3);
         PendingIntent stopIntent = serviceAction(ACTION_STOP, 4);
 
-        double lat;
-        double lng;
-        synchronized (positionLock) {
-            lat = latitude;
-            lng = longitude;
-        }
-        return new Notification.Builder(this, CHANNEL_ID)
+        Notification.Builder builder = new Notification.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_stat_location)
-                .setContentTitle("GeoJoystick is active")
-                .setContentText(String.format(Locale.US, "%.5f, %.5f", lat, lng))
+                .setContentTitle("GeoJoystick")
+                .setContentText(active
+                        ? t("Mock-location simulation active", "Mock-Standort-Simulation aktiv")
+                        : t("Starting mock-location simulation", "Mock-Standort-Simulation wird gestartet"))
                 .setContentIntent(openPendingIntent)
                 .setOngoing(true)
-                .setOnlyAlertOnce(true)
-                .addAction(new Notification.Action.Builder(notificationIcon(), "Show", showIntent).build())
-                .addAction(new Notification.Action.Builder(notificationIcon(), "Hide", hideIntent).build())
-                .addAction(new Notification.Action.Builder(notificationIcon(), "Stop", stopIntent).build())
-                .build();
+                .setOnlyAlertOnce(true);
+
+        if (active) {
+            builder.addAction(new Notification.Action.Builder(
+                    notificationIcon(),
+                    t("Show", "Anzeigen"),
+                    showIntent).build());
+            builder.addAction(new Notification.Action.Builder(
+                    notificationIcon(),
+                    t("Hide", "Ausblenden"),
+                    hideIntent).build());
+        }
+        builder.addAction(new Notification.Action.Builder(
+                notificationIcon(),
+                t("Stop", "Stoppen"),
+                stopIntent).build());
+        return builder.build();
+    }
+
+
+    private void setSimulationState(boolean starting, boolean active) {
+        simulationStarting = starting && !active;
+        simulationActive = active;
+        Intent update = new Intent(ACTION_STATE_CHANGED)
+                .setPackage(getPackageName());
+        sendBroadcast(update, PERMISSION_INTERNAL_STATE);
+    }
+
+    private String t(String english, String germanText) {
+        String language = preferences == null
+                ? LANGUAGE_SYSTEM
+                : preferences.getString(PREF_LANGUAGE, LANGUAGE_SYSTEM);
+        boolean german = LANGUAGE_GERMAN.equals(language)
+                || (LANGUAGE_SYSTEM.equals(language)
+                && Locale.getDefault().getLanguage().equals("de"));
+        return german ? germanText : english;
+    }
+
+    private static final class PositionSnapshot {
+        final double latitude;
+        final double longitude;
+        final double altitude;
+        final float bearing;
+
+        PositionSnapshot(double latitude, double longitude, double altitude, float bearing) {
+            this.latitude = latitude;
+            this.longitude = longitude;
+            this.altitude = altitude;
+            this.bearing = bearing;
+        }
     }
 
     private Icon notificationIcon() {
@@ -473,9 +754,12 @@ public final class MockLocationService extends Service {
     }
 
     private void updateNotification() {
+        if (!foregroundStarted) {
+            return;
+        }
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (manager != null) {
-            manager.notify(NOTIFICATION_ID, buildNotification());
+            manager.notify(NOTIFICATION_ID, buildNotification(simulationActive));
         }
     }
 }

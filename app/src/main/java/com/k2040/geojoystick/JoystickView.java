@@ -12,6 +12,8 @@ final class JoystickView extends View {
     }
 
     private final Paint ringPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint innerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint guidePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint knobPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Listener listener;
     private float centerX;
@@ -26,9 +28,14 @@ final class JoystickView extends View {
     JoystickView(Context context) {
         super(context);
         ringPaint.setStyle(Paint.Style.STROKE);
-        ringPaint.setStrokeWidth(dp(1));
+        innerPaint.setStyle(Paint.Style.FILL);
+        guidePaint.setStyle(Paint.Style.STROKE);
+        guidePaint.setStrokeCap(Paint.Cap.ROUND);
+        knobPaint.setStyle(Paint.Style.FILL);
         updatePaintColors();
         setContentDescription("Movement joystick");
+        setMinimumWidth(dp(88));
+        setMinimumHeight(dp(88));
     }
 
     void setListener(Listener listener) {
@@ -37,36 +44,35 @@ final class JoystickView extends View {
 
     void setHoldEnabled(boolean enabled) {
         holdEnabled = enabled;
-        if (!enabled) {
-            reset();
-        }
+        if (!enabled) reset();
     }
 
     void setHighContrast(boolean enabled) {
-        if (highContrast == enabled) {
-            return;
-        }
+        if (highContrast == enabled) return;
         highContrast = enabled;
-        ringPaint.setStrokeWidth(dp(highContrast ? 2 : 1));
         updatePaintColors();
         invalidate();
     }
 
     void setOverlayOpacity(int opacityPercent) {
         int clamped = Math.max(30, Math.min(100, opacityPercent));
-        if (overlayOpacityPercent == clamped) {
-            return;
-        }
+        if (overlayOpacityPercent == clamped) return;
         overlayOpacityPercent = clamped;
         updatePaintColors();
         invalidate();
     }
 
     private void updatePaintColors() {
-        int ringAlpha = Math.round((highContrast ? 255.0f : 204.0f) * overlayOpacityPercent / 100.0f);
-        int knobAlpha = Math.round((highContrast ? 255.0f : 230.0f) * overlayOpacityPercent / 100.0f);
-        ringPaint.setColor(argb(ringAlpha, highContrast ? 0xEC : 0x90, highContrast ? 0xEF : 0xA4, highContrast ? 0xF1 : 0xAE));
-        knobPaint.setColor(argb(knobAlpha, 0xEC, 0xEF, 0xF1));
+        int ringAlpha = Math.round((highContrast ? 255f : 220f) * overlayOpacityPercent / 100f);
+        int fillAlpha = Math.round((highContrast ? 92f : 58f) * overlayOpacityPercent / 100f);
+        int guideAlpha = Math.round((highContrast ? 255f : 235f) * overlayOpacityPercent / 100f);
+        int knobAlpha = Math.round((highContrast ? 255f : 245f) * overlayOpacityPercent / 100f);
+        ringPaint.setStrokeWidth(dp(highContrast ? 2 : 1));
+        ringPaint.setColor(argb(ringAlpha, highContrast ? 0xF3 : 0x69, highContrast ? 0xF7 : 0x86, highContrast ? 0xFB : 0xA2));
+        innerPaint.setColor(argb(fillAlpha, 0x2F, 0x8C, 0xFF));
+        guidePaint.setStrokeWidth(dp(highContrast ? 3 : 2));
+        guidePaint.setColor(argb(guideAlpha, 0x58, 0xA6, 0xFF));
+        knobPaint.setColor(argb(knobAlpha, 0x2F, 0x8C, 0xFF));
     }
 
     private int argb(int alpha, int red, int green, int blue) {
@@ -85,7 +91,7 @@ final class JoystickView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int preferred = dp(88);
+        int preferred = dp(112);
         int width = resolveSize(preferred, widthMeasureSpec);
         int height = resolveSize(preferred, heightMeasureSpec);
         int size = Math.min(width, height);
@@ -96,7 +102,7 @@ final class JoystickView extends View {
     protected void onSizeChanged(int width, int height, int oldWidth, int oldHeight) {
         centerX = width / 2.0f;
         centerY = height / 2.0f;
-        travelRadius = Math.min(width, height) * 0.34f;
+        travelRadius = Math.min(width, height) * 0.31f;
         if (oldWidth == 0 || oldHeight == 0) {
             knobX = centerX;
             knobY = centerY;
@@ -108,10 +114,37 @@ final class JoystickView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        float outerRadius = Math.min(getWidth(), getHeight()) * 0.46f;
-        float knobRadius = Math.min(getWidth(), getHeight()) * 0.11f;
+        float size = Math.min(getWidth(), getHeight());
+        float outerRadius = size * 0.46f;
+        float innerRadius = size * 0.34f;
+        float knobRadius = size * 0.13f;
         canvas.drawCircle(centerX, centerY, outerRadius, ringPaint);
+        canvas.drawCircle(centerX, centerY, innerRadius, innerPaint);
+        drawDirectionGuides(canvas, outerRadius);
         canvas.drawCircle(knobX, knobY, knobRadius, knobPaint);
+    }
+
+    private void drawDirectionGuides(Canvas canvas, float radius) {
+        float length = Math.max(dp(5), radius * 0.11f);
+        float offset = radius * 0.78f;
+        drawChevron(canvas, centerX, centerY - offset, -90f, length);
+        drawChevron(canvas, centerX + offset, centerY, 0f, length);
+        drawChevron(canvas, centerX, centerY + offset, 90f, length);
+        drawChevron(canvas, centerX - offset, centerY, 180f, length);
+    }
+
+    private void drawChevron(Canvas canvas, float x, float y, float degrees, float length) {
+        double angle = Math.toRadians(degrees);
+        double left = angle + Math.toRadians(135);
+        double right = angle - Math.toRadians(135);
+        canvas.drawLine(x, y,
+                x + (float) Math.cos(left) * length,
+                y + (float) Math.sin(left) * length,
+                guidePaint);
+        canvas.drawLine(x, y,
+                x + (float) Math.cos(right) * length,
+                y + (float) Math.sin(right) * length,
+                guidePaint);
     }
 
     @Override
@@ -123,9 +156,7 @@ final class JoystickView extends View {
                 return true;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                if (!holdEnabled) {
-                    reset();
-                }
+                if (!holdEnabled) reset();
                 performClick();
                 return true;
             default:
@@ -150,7 +181,6 @@ final class JoystickView extends View {
         }
         knobX = centerX + dx;
         knobY = centerY + dy;
-
         double east = dx / travelRadius;
         double north = -dy / travelRadius;
         if (Math.hypot(east, north) < 0.08) {
@@ -162,9 +192,7 @@ final class JoystickView extends View {
     }
 
     private void notifyVector(double east, double north) {
-        if (listener != null) {
-            listener.onVectorChanged(east, north);
-        }
+        if (listener != null) listener.onVectorChanged(east, north);
     }
 
     private int dp(int value) {

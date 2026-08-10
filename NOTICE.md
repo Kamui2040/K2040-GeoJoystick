@@ -11,4 +11,4 @@ The mock-location service and joystick movement design were adapted and substant
 
 ## Project artwork
 
-The bundled K2040 avatar shown in the About / Support section is provided by K2040 for this project and distributed with GeoJoystick under GPL-3.0-only unless a later project notice states otherwise.
+The bundled K2040 avatar shown in the About / Support section is original user-approved K2040 artwork. The repository copy is a 512 × 512 resized derivative of the approved source image and is distributed with GeoJoystick under GPL-3.0-only unless a later project notice states otherwise.

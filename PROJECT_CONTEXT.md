@@ -62,3 +62,23 @@ The official APKPure listing is live at https://apkpure.com/p/com.k2040.geojoyst
 ## Canonical public repository
 
 https://github.com/Kamui2040/K2040-GeoJoystick
+
+## Current accepted development reconciliation
+
+Feedback 5 visual presentation was accepted on 2026-08-10 from sanitized physical-device captures. The accepted Welcome presentation shows the bare current version directly below the GeoJoystick title, the Changelog row, separate neutral Cancel/Continue actions, and no visible clipping or overlap. Changelog opens as a centered dimmed-background card headed by the current version.
+
+The focused development line is `integration/feedback5-accepted-reconciliation-20260810`. It is reconstructed from current `main` plus the accepted runtime/UI source rather than by merging the migration branch wholesale. This keeps the newer public-safe `main` governance and clean-Linux bootstrap fix, imports the accepted runtime/state/input/UI changes, removes the legacy PC GitHub Actions workflow, and removes the obsolete unsanitized phone screenshots from the maintained tree.
+
+Validation performed locally before the reconciliation commit:
+
+- `git diff --check`: PASS
+- dependency-free `LocationLinkParser` self-test: PASS
+- repository bootstrap/debug build with JDK 17: PASS
+- `:app:lintRelease`: PASS
+- unsigned release assembly: PASS
+- `:app:testDebugUnitTest`: NO-SOURCE; accepted because no Java/Kotlin unit-test sources exist
+- debug APK identity: PASS for `com.k2040.geojoystick` 0.1.3 (103)
+
+The rebuilt debug APK is a new artifact boundary and is retained only for the next physical-device QA gate. Historical Feedback 5 APK hashes do not validate this rebuild. Signing, reproducibility, release/F-Droid/store validation, tags, releases, and publication remain separate future gates.
+
+Remaining development gates include physical-device lifecycle/state reconciliation, truthful service/notification/overlay/UI state under permission/provider/process transitions, remaining accessibility/device-scale review, and later API 36 compile/target migration review where applicable.

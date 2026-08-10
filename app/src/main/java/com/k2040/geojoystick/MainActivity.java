@@ -1,19 +1,19 @@
 package com.k2040.geojoystick;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AppOpsManager;
+import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.ColorDrawable;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,8 +23,11 @@ import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowInsets;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -41,68 +44,62 @@ import java.util.Locale;
 
 public final class MainActivity extends Activity {
     private static final int REQUEST_MAP = 1001;
-    private static final String PREFS = "geojoystick";
-    private static final String PREF_LATITUDE = "last_latitude";
-    private static final String PREF_LONGITUDE = "last_longitude";
-    private static final String PREF_ALTITUDE = "last_altitude";
-    private static final String PREF_MANUAL_LATITUDE = "manual_latitude";
-    private static final String PREF_MANUAL_LONGITUDE = "manual_longitude";
-    private static final String PREF_MANUAL_ALTITUDE = "manual_altitude";
-    private static final String PREF_OVERLAY_X = "overlay_x";
-    private static final String PREF_OVERLAY_Y = "overlay_y";
-    private static final String PREF_APPEARANCE = "app_appearance";
-    private static final String PREF_LANGUAGE = "app_language";
-    private static final String PREF_RESTORE_LAST_POSITION = "restore_last_position";
-    private static final String PREF_OVERLAY_OPACITY = "overlay_opacity_percent";
-    private static final String PREF_OVERLAY_HIGH_CONTRAST = "overlay_high_contrast";
-    private static final String PREF_CUSTOM_SPEED = "overlay_custom_speed";
-    private static final String PREF_CUSTOM_SPEED_NAME = "overlay_custom_speed_name";
-    private static final String PREF_LICENSE_ACCEPTED = "license_accepted";
-    private static final String APPEARANCE_SYSTEM = "system";
-    private static final String APPEARANCE_LIGHT = "light";
-    private static final String APPEARANCE_DARK = "dark";
-    private static final String LANGUAGE_SYSTEM = "system";
-    private static final String LANGUAGE_ENGLISH = "en";
-    private static final String LANGUAGE_GERMAN = "de";
-    private static final int FAVORITE_COUNT = 5;
+    private static final int REQUEST_NOTIFICATIONS = 2040;
     private static final String STATE_CURRENT_PAGE = "current_page";
+    private static final String STATE_DRAFT_INITIALIZED = "draft_initialized";
+    private static final String STATE_DRAFT_LATITUDE = "draft_latitude";
+    private static final String STATE_DRAFT_LONGITUDE = "draft_longitude";
+    private static final String STATE_DRAFT_ALTITUDE = "draft_altitude";
+    private static final String STATE_INCOMING_INTENT_CONSUMED = "incoming_intent_consumed";
 
-    private SharedPreferences preferences;
+    private GeoSettings settings;
+    private GeoUi.Palette palette;
+    private boolean german;
     private EditText latitudeInput;
     private EditText longitudeInput;
     private EditText altitudeInput;
-    private TextView statusText;
-    private final Button[] favoriteButtons = new Button[FAVORITE_COUNT];
+    private TextView mockStatus;
+    private TextView overlayStatus;
+    private TextView simulationStatus;
+    private final Button[] favoriteButtons = new Button[GeoSettings.FAVORITE_COUNT];
     private boolean pendingStart;
+    private boolean receiverRegistered;
+    private boolean incomingIntentConsumed;
+    private volatile int importRequestId;
+    private boolean draftInitialized;
+    private double draftLatitude = Double.NaN;
+    private double draftLongitude = Double.NaN;
+    private double draftAltitude = Double.NaN;
     private String currentPage = "main";
-    private boolean darkMode;
-    private boolean german;
-    private int colorBackground;
-    private int colorCard;
-    private int colorInput;
-    private int colorText;
-    private int colorTextDim;
-    private int colorBorder;
-    private int colorAccent;
-    private int colorButton;
-    private int colorButtonText;
+
+    private final BroadcastReceiver simulationStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null
+                    && MockLocationService.ACTION_STATE_CHANGED.equals(intent.getAction())) {
+                updateStatus();
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        preferences = getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        settings = new GeoSettings(this);
         loadUiSettings();
-        buildInterface();
+        restoreDraft(savedInstanceState);
+        incomingIntentConsumed = savedInstanceState != null
+                && savedInstanceState.getBoolean(STATE_INCOMING_INTENT_CONSUMED, false);
+
+        if (!settings.welcomeAcknowledged()) {
+            showWelcomePage();
+            return;
+        }
+
+        showHomePage();
         handleIncomingIntent(getIntent());
-        if (!preferences.getBoolean(PREF_LICENSE_ACCEPTED, false)) {
-            statusText.post(this::showFirstLaunchDialogIfNeeded);
-        } else if (savedInstanceState != null) {
-            String restoredPage = savedInstanceState.getString(STATE_CURRENT_PAGE, "main");
-            if ("settings".equals(restoredPage)) {
-                showSettingsPage();
-            } else if ("about".equals(restoredPage)) {
-                showAboutPage();
-            }
+        if (savedInstanceState != null) {
+            restorePage(savedInstanceState.getString(STATE_CURRENT_PAGE, "main"));
         }
     }
 
@@ -110,12 +107,14 @@ public final class MainActivity extends Activity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
+        incomingIntentConsumed = false;
         handleIncomingIntent(intent);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        registerSimulationStateReceiver();
         updateStatus();
         if (pendingStart && Settings.canDrawOverlays(this) && isSelectedMockLocationApp()) {
             pendingStart = false;
@@ -125,469 +124,779 @@ public final class MainActivity extends Activity {
 
     @Override
     protected void onPause() {
-        saveVisibleCoordinateFields();
+        saveVisibleCoordinates();
+        unregisterSimulationStateReceiver();
         super.onPause();
     }
 
     @Override
+    protected void onDestroy() {
+        importRequestId++;
+        unregisterSimulationStateReceiver();
+        super.onDestroy();
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
+        saveVisibleCoordinates();
         super.onSaveInstanceState(outState);
         outState.putString(STATE_CURRENT_PAGE, currentPage);
+        outState.putBoolean(STATE_DRAFT_INITIALIZED, draftInitialized);
+        outState.putBoolean(STATE_INCOMING_INTENT_CONSUMED, incomingIntentConsumed);
+        if (draftInitialized) {
+            outState.putDouble(STATE_DRAFT_LATITUDE, draftLatitude);
+            outState.putDouble(STATE_DRAFT_LONGITUDE, draftLongitude);
+            outState.putDouble(STATE_DRAFT_ALTITUDE, draftAltitude);
+        }
     }
 
     @Override
     public void onBackPressed() {
-        if (!"main".equals(currentPage)) {
-            buildInterface();
+        if ("license-welcome".equals(currentPage) || "changelog-welcome".equals(currentPage)) {
+            showWelcomePage();
             return;
         }
-        super.onBackPressed();
+        if ("license-about".equals(currentPage) || "changelog-about".equals(currentPage)) {
+            showAboutPage();
+            return;
+        }
+        if ("settings".equals(currentPage) || "about".equals(currentPage)) {
+            showHomePage();
+            return;
+        }
+        if (!"welcome".equals(currentPage)) {
+            super.onBackPressed();
+        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_MAP && resultCode == RESULT_OK && data != null) {
-            double lat = data.getDoubleExtra(MapActivity.EXTRA_LATITUDE, getLatitude());
-            double lng = data.getDoubleExtra(MapActivity.EXTRA_LONGITUDE, getLongitude());
-            setCoordinateInputs(lat, lng, getAltitude());
+        if (requestCode != REQUEST_MAP || resultCode != RESULT_OK || data == null) {
+            return;
+        }
+        if (!data.hasExtra(MapActivity.EXTRA_LATITUDE)
+                || !data.hasExtra(MapActivity.EXTRA_LONGITUDE)) {
+            toast(t("The map returned no valid coordinates",
+                    "Die Karte hat keine gültigen Koordinaten zurückgegeben"), true);
+            return;
+        }
+        double latitude = data.getDoubleExtra(MapActivity.EXTRA_LATITUDE, Double.NaN);
+        double longitude = data.getDoubleExtra(MapActivity.EXTRA_LONGITUDE, Double.NaN);
+        if (!setHorizontalCoordinates(latitude, longitude)) {
+            toast(t("The map returned invalid coordinates",
+                    "Die Karte hat ungültige Koordinaten zurückgegeben"), true);
+            return;
+        }
+        if (!Double.isFinite(safeAltitude())) {
+            toast(t("Location selected. Enter an altitude before starting.",
+                    "Standort ausgewählt. Gib vor dem Start eine Höhe ein."), true);
+        }
+    }
+
+    private void restorePage(String page) {
+        if ("settings".equals(page)) {
+            showSettingsPage();
+        } else if ("about".equals(page)) {
+            showAboutPage();
+        } else if ("changelog".equals(page) || "changelog-about".equals(page)) {
+            showChangelogPage(false);
+        } else if ("license-about".equals(page)) {
+            showLicensePage(false);
         }
     }
 
     private void loadUiSettings() {
-        String language = preferences.getString(PREF_LANGUAGE, LANGUAGE_SYSTEM);
-        german = LANGUAGE_GERMAN.equals(language)
-                || (LANGUAGE_SYSTEM.equals(language) && Locale.getDefault().getLanguage().equals("de"));
-
-        String appearance = preferences.getString(PREF_APPEARANCE, APPEARANCE_SYSTEM);
-        darkMode = APPEARANCE_DARK.equals(appearance)
-                || (APPEARANCE_SYSTEM.equals(appearance) && isSystemDarkMode());
-
-        if (darkMode) {
-            colorBackground = 0xFF10171C;
-            colorCard = 0xFF182229;
-            colorInput = 0xFF202C34;
-            colorText = 0xFFECEFF1;
-            colorTextDim = 0xFFB0BEC5;
-            colorBorder = 0xFF455A64;
-            colorAccent = 0xFF29A8FF;
-            colorButton = 0xFF263238;
-            colorButtonText = 0xFFECEFF1;
-        } else {
-            colorBackground = 0xFFF5F7F8;
-            colorCard = 0xFFECEFF1;
-            colorInput = 0xFFFFFFFF;
-            colorText = 0xFF263238;
-            colorTextDim = 0xFF546E7A;
-            colorBorder = 0xFFB0BEC5;
-            colorAccent = 0xFF1976D2;
-            colorButton = 0xFFFFFFFF;
-            colorButtonText = 0xFF263238;
-        }
+        german = settings.isGerman();
+        palette = new GeoUi.Palette(settings.isDark());
+        getWindow().setStatusBarColor(palette.background);
+        getWindow().setNavigationBarColor(palette.background);
     }
 
-    private boolean isSystemDarkMode() {
-        int nightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        return nightMode == Configuration.UI_MODE_NIGHT_YES;
-    }
-
-    private void buildInterface() {
+    private void showHomePage() {
         currentPage = "main";
-        ScrollView scrollView = new ScrollView(this);
-        scrollView.setBackgroundColor(colorBackground);
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(dp(18), dp(18), dp(18), dp(24));
-        root.setBackgroundColor(colorBackground);
-        scrollView.addView(root);
-
-        LinearLayout titleRow = new LinearLayout(this);
-        titleRow.setGravity(Gravity.CENTER_VERTICAL);
-
-        ImageView avatarButton = new ImageView(this);
-        avatarButton.setImageResource(R.drawable.k2040_avatar);
-        avatarButton.setContentDescription(t("About K2040", "Über K2040"));
-        avatarButton.setAdjustViewBounds(true);
-        avatarButton.setPadding(0, 0, 0, 0);
-        avatarButton.setOnClickListener(view -> showAboutPage());
-        titleRow.addView(avatarButton, new LinearLayout.LayoutParams(dp(46), dp(46)));
-
-        TextView title = sectionText("GeoJoystick", 28, colorText);
-        title.setGravity(Gravity.CENTER);
-        title.setPadding(0, 0, 0, 0);
-        titleRow.addView(title, new LinearLayout.LayoutParams(0, dp(46), 1f));
-
-        Button settingsCog = fullButton("⚙");
-        settingsCog.setTextSize(20);
-        settingsCog.setContentDescription(t("Settings", "Einstellungen"));
-        settingsCog.setOnClickListener(view -> showSettingsPage());
-        titleRow.addView(settingsCog, new LinearLayout.LayoutParams(dp(46), dp(46)));
-        root.addView(titleRow, matchWidth());
-
-        statusText = new TextView(this);
-        statusText.setTextSize(13);
-        statusText.setTextColor(colorText);
-        statusText.setPadding(dp(10), dp(9), dp(10), dp(9));
-        statusText.setBackground(cardBackground());
-        root.addView(statusText, matchWidth());
-
-        double[] initial = loadInitialCoordinates();
-        latitudeInput = coordinateInput(t("Latitude", "Breitengrad"), initial[0]);
-        longitudeInput = coordinateInput(t("Longitude", "Längengrad"), initial[1]);
-        altitudeInput = coordinateInput(t("Altitude (m)", "Höhe (m)"), initial[2]);
-        root.addView(latitudeInput, matchWidth());
-        root.addView(longitudeInput, matchWidth());
-        root.addView(altitudeInput, matchWidth());
-
-        Button saveFavoriteButton = fullButton(t("Save current coordinates as favorite", "Aktuelle Koordinaten als Favorit speichern"));
-        saveFavoriteButton.setOnClickListener(view -> saveCurrentAsFavorite());
-        root.addView(saveFavoriteButton, matchWidth());
-
-        LinearLayout favoritesRow = new LinearLayout(this);
-        favoritesRow.setGravity(Gravity.CENTER);
-        for (int i = 0; i < FAVORITE_COUNT; i++) {
-            final int slot = i;
-            Button favoriteButton = compactFavoriteButton(slot);
-            favoriteButton.setOnClickListener(view -> applyFavorite(slot));
-            favoriteButton.setOnLongClickListener(view -> {
-                editFavorite(slot, true);
-                return true;
-            });
-            favoriteButtons[i] = favoriteButton;
-            favoritesRow.addView(favoriteButton, favoriteWeight());
-        }
-        root.addView(favoritesRow, matchWidth());
-        updateFavoriteButtons();
-
-        LinearLayout mapRow = new LinearLayout(this);
-        mapRow.setGravity(Gravity.CENTER);
-        Button mapButton = fullButton(t("Choose on map", "Auf Karte wählen"));
-        mapButton.setOnClickListener(view -> openMap());
-        Button importButton = fullButton(t("Import map link from clipboard", "Kartenlink aus Zwischenablage importieren"));
-        importButton.setOnClickListener(view -> importFromClipboard());
-        mapRow.addView(mapButton, weighted());
-        mapRow.addView(importButton, weighted());
-        root.addView(mapRow, matchWidth());
-
-        LinearLayout serviceRow = new LinearLayout(this);
-        serviceRow.setGravity(Gravity.CENTER);
-        Button startButton = fullButton(t("Start overlay", "Overlay starten"));
-        startButton.setOnClickListener(view -> startMocking());
-        Button stopButton = fullButton(t("Stop overlay", "Overlay stoppen"));
-        stopButton.setOnClickListener(view -> stopMocking());
-        serviceRow.addView(startButton, weighted());
-        serviceRow.addView(stopButton, weighted());
-        root.addView(serviceRow, matchWidth());
-
-        LinearLayout bottomRow = new LinearLayout(this);
-        bottomRow.setGravity(Gravity.CENTER);
-        Button settingsButton = fullButton(t("Settings", "Einstellungen"));
-        settingsButton.setOnClickListener(view -> showSettingsPage());
-        Button aboutButton = fullButton(t("About", "Info"));
-        aboutButton.setOnClickListener(view -> showAboutPage());
-        bottomRow.addView(settingsButton, weighted());
-        bottomRow.addView(aboutButton, weighted());
-        root.addView(bottomRow, matchWidth());
-
-        Button supportButton = fullButton(t("Support K2040 on Ko-fi", "K2040 auf Ko-fi unterstützen"));
-        supportButton.setOnClickListener(view -> openExternalUrl("https://ko-fi.com/k2040"));
-        root.addView(supportButton, matchWidth());
-
-        TextView bottomDescription = sectionText(aboutDescriptionText(), 13, colorTextDim);
-        bottomDescription.setGravity(Gravity.CENTER);
-        bottomDescription.setPadding(dp(4), dp(8), dp(4), 0);
-        root.addView(bottomDescription, matchWidth());
-
-        setContentView(scrollView);
+        ScrollView page = buildHomePage();
+        setContentView(page);
+        applySystemBarInsets(page);
         updateStatus();
     }
 
-    private void showSettingsPage() {
-        saveVisibleCoordinateFields();
-        currentPage = "settings";
-        ScrollView scrollView = new ScrollView(this);
-        scrollView.setBackgroundColor(colorBackground);
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(dp(18), dp(18), dp(18), dp(24));
-        root.setBackgroundColor(colorBackground);
-        scrollView.addView(root);
+    private ScrollView buildHomePage() {
+        ScrollView page = pageScroll();
+        LinearLayout root = pageRoot();
+        page.addView(root);
+        root.addView(appHeader(), margin(0, 2));
 
-        TextView title = sectionText(t("Settings", "Einstellungen"), 28, colorText);
-        title.setPadding(0, 0, 0, dp(10));
-        root.addView(title);
+        LinearLayout status = card();
+        addCardTitle(status, t("Status", "Status"));
+        mockStatus = addStatusRow(status, t("Mock location", "Mock-Standort"));
+        overlayStatus = addStatusRow(status, t("Overlay permission", "Overlay-Berechtigung"));
+        simulationStatus = addStatusRow(status, t("Simulation", "Simulation"));
+        root.addView(status, margin(2, 4));
 
-        addSetupSection(root);
-        addSettingsSection(root);
+        LinearLayout coordinates = card();
+        addCardTitle(coordinates, t("Coordinates", "Koordinaten"));
+        double[] initial = initialCoordinates();
+        latitudeInput = coordinateInput(t("Latitude", "Breitengrad"), initial[0]);
+        longitudeInput = coordinateInput(t("Longitude", "Längengrad"), initial[1]);
+        altitudeInput = coordinateInput(t("Altitude (m)", "Höhe (m)"), initial[2]);
+        coordinates.addView(latitudeInput, innerRow());
+        coordinates.addView(longitudeInput, innerRow());
+        coordinates.addView(altitudeInput, innerRow());
+        root.addView(coordinates, margin(2, 4));
 
-        Button backButton = fullButton(t("Back", "Zurück"));
-        backButton.setOnClickListener(view -> buildInterface());
-        root.addView(backButton, matchWidth());
+        LinearLayout quick = new LinearLayout(this);
+        quick.setOrientation(LinearLayout.HORIZONTAL);
+        quick.setGravity(Gravity.CENTER);
+        Button map = actionTile("⌖", t("Map", "Karte"));
+        map.setOnClickListener(view -> openMap());
+        Button paste = actionTile("↓", t("Paste link", "Link einfügen"));
+        paste.setOnClickListener(view -> importFromClipboard());
+        Button favorite = actionTile("☆", t("Favorite", "Favorit"));
+        favorite.setOnClickListener(view -> chooseFavoriteSlot());
+        quick.addView(map, tileWeight());
+        quick.addView(paste, tileWeight());
+        quick.addView(favorite, tileWeight());
+        root.addView(quick, margin(1, 3));
 
-        setContentView(scrollView);
+        LinearLayout favoriteCard = card();
+        LinearLayout favoriteHeader = new LinearLayout(this);
+        favoriteHeader.setGravity(Gravity.CENTER_VERTICAL);
+        TextView favoriteTitle = text(t("Favorites", "Favoriten"), 13, palette.text, true);
+        favoriteHeader.addView(favoriteTitle,
+                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        TextView favoriteHint = text(t("Tap · hold to edit",
+                "Tippen · halten zum Bearbeiten"), 9, palette.textDim, false);
+        favoriteHeader.addView(favoriteHint);
+        favoriteCard.addView(favoriteHeader, innerRow());
+
+        HorizontalScrollView scroller = new HorizontalScrollView(this);
+        scroller.setHorizontalScrollBarEnabled(false);
+        LinearLayout favoriteRow = new LinearLayout(this);
+        favoriteRow.setOrientation(LinearLayout.HORIZONTAL);
+        favoriteRow.setPadding(0, dp(2), 0, 0);
+        for (int slot = 0; slot < GeoSettings.FAVORITE_COUNT; slot++) {
+            final int index = slot;
+            Button button = favoriteButton(index);
+            button.setOnClickListener(view -> applyFavorite(index));
+            button.setOnLongClickListener(view -> {
+                editFavorite(index, true);
+                return true;
+            });
+            favoriteButtons[index] = button;
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(100), dp(52));
+            params.rightMargin = dp(6);
+            favoriteRow.addView(button, params);
+        }
+        scroller.addView(favoriteRow);
+        favoriteCard.addView(scroller, innerRow());
+        root.addView(favoriteCard, margin(2, 4));
+        refreshFavoriteButtons();
+
+        Button start = GeoUi.button(this, palette,
+                t("▶  Start simulation", "▶  Simulation starten"), true);
+        start.setOnClickListener(view -> startMocking());
+        root.addView(start, margin(5, 3));
+
+        Button stop = GeoUi.button(this, palette,
+                t("■  Stop simulation", "■  Simulation stoppen"), false);
+        stop.setOnClickListener(view -> stopMocking());
+        root.addView(stop, margin(2, 3));
+
+        TextView footer = text(t("Open source · GPL-3.0-only · Local-first",
+                "Open Source · GPL-3.0-only · Lokal"), 10, palette.textDim, false);
+        footer.setGravity(Gravity.CENTER);
+        footer.setPadding(dp(8), dp(6), dp(8), dp(2));
+        footer.setOnClickListener(view -> showAboutPage());
+        root.addView(footer, margin(1, 2));
+        return page;
     }
 
-    private void showAboutPage() {
-        saveVisibleCoordinateFields();
-        currentPage = "about";
-        ScrollView scrollView = new ScrollView(this);
-        scrollView.setBackgroundColor(colorBackground);
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(dp(18), dp(18), dp(18), dp(24));
-        root.setBackgroundColor(colorBackground);
-        scrollView.addView(root);
-
-        TextView title = sectionText(t("About", "Info"), 28, colorText);
-        title.setPadding(0, 0, 0, dp(10));
-        root.addView(title);
-        root.addView(aboutCardView(false), matchWidth());
-
-        Button licenseButton = fullButton(t("License", "Lizenz"));
-        licenseButton.setOnClickListener(view -> openLicenseDialog());
-        root.addView(licenseButton, matchWidth());
-
-        Button supportButton = fullButton(t("Support K2040 on Ko-fi", "K2040 auf Ko-fi unterstützen"));
-        supportButton.setOnClickListener(view -> openExternalUrl("https://ko-fi.com/k2040"));
-        root.addView(supportButton, matchWidth());
-
-        Button backButton = fullButton(t("Back", "Zurück"));
-        backButton.setOnClickListener(view -> buildInterface());
-        root.addView(backButton, matchWidth());
-
-        setContentView(scrollView);
-    }
-
-    private void addSetupSection(LinearLayout root) {
-        TextView setupTitle = sectionText(t("Setup", "Einrichtung"), 18, colorText);
-        setupTitle.setPadding(0, dp(14), 0, dp(2));
-        root.addView(setupTitle);
-
-        LinearLayout setupRow = new LinearLayout(this);
-        setupRow.setGravity(Gravity.CENTER);
-        Button overlayButton = fullButton(t("Overlay permission", "Overlay-Berechtigung"));
-        overlayButton.setOnClickListener(view -> openOverlaySettings());
-        Button mockButton = fullButton(t("Mock location settings", "Mock-Standort-Einstellungen"));
-        mockButton.setOnClickListener(view -> openDeveloperSettings());
-        setupRow.addView(overlayButton, weighted());
-        setupRow.addView(mockButton, weighted());
-        root.addView(setupRow, matchWidth());
-
-        Button resetOverlayButton = fullButton(t("Reset overlay position", "Overlay-Position zurücksetzen"));
-        resetOverlayButton.setOnClickListener(view -> resetOverlayPosition());
-        root.addView(resetOverlayButton, matchWidth());
-    }
-
-    private void addSettingsSection(LinearLayout root) {
-        LinearLayout appearanceLanguageRow = new LinearLayout(this);
-        appearanceLanguageRow.setGravity(Gravity.CENTER);
-        Button appearanceButton = fullButton(t("Appearance: ", "Darstellung: ") + appearanceLabel());
-        appearanceButton.setOnClickListener(view -> chooseAppearance());
-        Button languageButton = fullButton(t("Language: ", "Sprache: ") + languageLabel());
-        languageButton.setOnClickListener(view -> chooseLanguage());
-        appearanceLanguageRow.addView(appearanceButton, weighted());
-        appearanceLanguageRow.addView(languageButton, weighted());
-        root.addView(appearanceLanguageRow, matchWidth());
-
-        Button restoreButton = fullButton(restoreLastPositionLabel());
-        restoreButton.setOnClickListener(view -> toggleRestoreLastPosition());
-        root.addView(restoreButton, matchWidth());
-
-        TextView overlaySettingsTitle = sectionText(t("Overlay", "Overlay"), 15, colorText);
-        overlaySettingsTitle.setPadding(0, dp(8), 0, 0);
-        root.addView(overlaySettingsTitle);
-
-        TextView opacityLabel = sectionText("", 12, colorTextDim);
-        SeekBar opacitySlider = new SeekBar(this);
-        opacitySlider.setMax(70);
-        int opacity = getOverlayOpacity();
-        opacitySlider.setProgress(opacity - 30);
-        updateOpacityLabel(opacityLabel, opacity);
-        opacitySlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int value = 30 + progress;
-                updateOpacityLabel(opacityLabel, value);
-                if (fromUser) {
-                    preferences.edit().putInt(PREF_OVERLAY_OPACITY, value).apply();
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                // No-op.
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                preferences.edit().putInt(PREF_OVERLAY_OPACITY, 30 + seekBar.getProgress()).apply();
-            }
-        });
-        root.addView(opacityLabel, matchWidth());
-        root.addView(opacitySlider, matchWidth());
-
-        LinearLayout overlayRow = new LinearLayout(this);
-        overlayRow.setGravity(Gravity.CENTER);
-        Button contrastButton = fullButton(highContrastLabel());
-        contrastButton.setOnClickListener(view -> {
-            boolean next = !preferences.getBoolean(PREF_OVERLAY_HIGH_CONTRAST, false);
-            preferences.edit().putBoolean(PREF_OVERLAY_HIGH_CONTRAST, next).apply();
-            contrastButton.setText(highContrastLabel());
-        });
-        Button customSpeedButton = fullButton(customSpeedLabel());
-        customSpeedButton.setOnClickListener(view -> editCustomSpeed(customSpeedButton));
-        overlayRow.addView(contrastButton, weighted());
-        overlayRow.addView(customSpeedButton, weighted());
-        root.addView(overlayRow, matchWidth());
-    }
-
-    private String aboutDescriptionText() {
-        return t(
-                "Created by K2040\nOpen-source, ad-free, account-free mock-location utility.",
-                "Erstellt von K2040\nOpen-Source, werbefrei, ohne Konto und ohne Tracking.");
-    }
-
-    private LinearLayout aboutCardView(boolean firstLaunch) {
-        LinearLayout card = new LinearLayout(this);
-        card.setOrientation(LinearLayout.VERTICAL);
-        card.setPadding(dp(12), dp(10), dp(12), dp(10));
-        card.setBackground(cardBackground());
-
-        LinearLayout aboutRow = new LinearLayout(this);
-        aboutRow.setGravity(Gravity.CENTER_VERTICAL);
+    private LinearLayout appHeader() {
+        LinearLayout header = new LinearLayout(this);
+        header.setGravity(Gravity.CENTER_VERTICAL);
+        header.setPadding(dp(2), dp(2), dp(2), dp(4));
 
         ImageView avatar = new ImageView(this);
         avatar.setImageResource(R.drawable.k2040_avatar);
-        avatar.setContentDescription("K2040 avatar");
-        avatar.setAdjustViewBounds(true);
-        aboutRow.addView(avatar, new LinearLayout.LayoutParams(dp(firstLaunch ? 72 : 64), dp(firstLaunch ? 72 : 64)));
+        avatar.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        avatar.setContentDescription(t("About GeoJoystick", "Über GeoJoystick"));
+        avatar.setOnClickListener(view -> showAboutPage());
+        header.addView(avatar, new LinearLayout.LayoutParams(dp(40), dp(40)));
 
-        TextView aboutText = sectionText(aboutDescriptionText(), 13, colorTextDim);
-        aboutText.setPadding(dp(12), 0, 0, 0);
-        aboutRow.addView(aboutText, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        card.addView(aboutRow);
+        LinearLayout titles = new LinearLayout(this);
+        titles.setOrientation(LinearLayout.VERTICAL);
+        titles.setPadding(dp(10), 0, 0, 0);
+        titles.addView(text("GeoJoystick", 20, palette.text, true));
+        titles.addView(text(t("Transparent mock-location simulation",
+                "Transparente Mock-Standort-Simulation"), 9, palette.textDim, false));
+        header.addView(titles,
+                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        if (firstLaunch) {
-            TextView licenseNote = sectionText(t(
-                    "Please review and accept the GPL-3.0-only license to continue.",
-                    "Bitte prüfe und akzeptiere die GPL-3.0-only-Lizenz, um fortzufahren."), 12, colorTextDim);
-            licenseNote.setPadding(0, dp(10), 0, 0);
-            card.addView(licenseNote);
-        }
-        return card;
+        Button settingsButton = GeoUi.iconButton(this, palette, "⚙",
+                t("Settings", "Einstellungen"));
+        settingsButton.setOnClickListener(view -> showSettingsPage());
+        header.addView(settingsButton, new LinearLayout.LayoutParams(dp(48), dp(48)));
+        return header;
     }
 
-    private AlertDialog.Builder appDialogBuilder() {
-        return new AlertDialog.Builder(this, darkMode ? R.style.AppDialogThemeDark : R.style.AppDialogThemeLight);
-    }
+    private void showSettingsPage() {
+        saveVisibleCoordinates();
+        currentPage = "settings";
+        ScrollView page = pageScroll();
+        LinearLayout root = pageRoot();
+        page.addView(root);
+        root.addView(pageHeader(t("Settings", "Einstellungen"), this::showHomePage), margin(0, 4));
 
-    private void showFirstLaunchDialogIfNeeded() {
-        if (preferences.getBoolean(PREF_LICENSE_ACCEPTED, false) || isFinishing()) {
-            return;
-        }
-        AlertDialog dialog = appDialogBuilder()
-                .setTitle(t("About GeoJoystick", "Über GeoJoystick"))
-                .setView(aboutCardView(true))
-                .setPositiveButton(t("Accept", "Akzeptieren"), null)
-                .setNegativeButton(t("Refuse", "Ablehnen"), null)
-                .setNeutralButton(t("License", "Lizenz"), null)
-                .create();
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.setOnCancelListener(cancel -> finish());
-        dialog.setOnShowListener(window -> {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
-                preferences.edit().putBoolean(PREF_LICENSE_ACCEPTED, true).apply();
-                dialog.dismiss();
-            });
-            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(view -> {
-                dialog.dismiss();
-                finish();
-            });
-            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(view -> openLicenseDialog());
+        root.addView(section(t("Setup", "Einrichtung")), margin(6, 1));
+        LinearLayout setup = card();
+        setup.addView(settingRow(
+                t("Mock location settings", "Mock-Standort-Einstellungen"),
+                t("Select GeoJoystick in Android Developer Options",
+                        "GeoJoystick in den Android-Entwickleroptionen auswählen"),
+                isSelectedMockLocationApp() ? t("Selected", "Ausgewählt") : t("Open", "Öffnen"),
+                this::openDeveloperSettings), innerRow());
+        setup.addView(settingRow(
+                t("Overlay permission", "Overlay-Berechtigung"),
+                t("Manage draw-over-other-apps access", "Berechtigung über anderen Apps verwalten"),
+                Settings.canDrawOverlays(this) ? t("Granted", "Erteilt") : t("Open", "Öffnen"),
+                this::openOverlaySettings), innerRow());
+        setup.addView(settingRow(
+                t("Reset overlay position", "Overlay-Position zurücksetzen"),
+                t("Recenter the floating controls next time they appear",
+                        "Schwebende Steuerung beim nächsten Anzeigen neu positionieren"),
+                "›", this::resetOverlayPosition), innerRow());
+        setup.addView(settingRow(
+                t("Restore last position", "Letzte Position wiederherstellen"),
+                t("Use last successfully published coordinates as the next draft",
+                        "Zuletzt erfolgreich veröffentlichte Koordinaten als nächsten Entwurf verwenden"),
+                settings.restoreLastPosition() ? t("On", "Ein") : t("Off", "Aus"),
+                this::toggleRestoreLastPosition), innerRow());
+        root.addView(setup, margin(1, 4));
+
+        root.addView(section(t("Behavior", "Verhalten")), margin(6, 1));
+        LinearLayout behavior = card();
+        behavior.addView(settingRow(
+                t("Simulation speed", "Simulationsgeschwindigkeit"),
+                t("Edit the custom movement preset", "Eigene Bewegungsvoreinstellung bearbeiten"),
+                String.format(Locale.US, "%.1f m/s", settings.customSpeed()),
+                this::editCustomSpeed), innerRow());
+        behavior.addView(settingRow(
+                t("High contrast overlay", "Overlay mit hohem Kontrast"),
+                t("Increase contrast of the floating controls", "Kontrast der schwebenden Steuerung erhöhen"),
+                settings.highContrastOverlay() ? t("On", "Ein") : t("Off", "Aus"),
+                this::toggleHighContrast), innerRow());
+        root.addView(behavior, margin(1, 4));
+
+        root.addView(section(t("Overlay", "Overlay")), margin(6, 1));
+        LinearLayout overlay = card();
+
+        TextView sizeLabel = text("", 12, palette.text, false);
+        SeekBar size = new SeekBar(this);
+        size.setMax(50);
+        size.setProgress(settings.overlaySize() - 70);
+        updateOverlaySizeLabel(sizeLabel, settings.overlaySize());
+        size.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int value = progress + 70;
+                updateOverlaySizeLabel(sizeLabel, value);
+                if (fromUser) settings.setOverlaySize(value);
+            }
+
+            @Override public void onStartTrackingTouch(SeekBar seekBar) { }
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {
+                settings.setOverlaySize(seekBar.getProgress() + 70);
+            }
         });
-        dialog.show();
+        overlay.addView(sizeLabel, innerRow());
+        overlay.addView(size, innerRow());
+
+        TextView opacityLabel = text("", 12, palette.text, false);
+        SeekBar opacity = new SeekBar(this);
+        opacity.setMax(70);
+        opacity.setProgress(settings.overlayOpacity() - 30);
+        updateOpacityLabel(opacityLabel, settings.overlayOpacity());
+        opacity.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int value = progress + 30;
+                updateOpacityLabel(opacityLabel, value);
+                if (fromUser) {
+                    settings.setOverlayOpacity(value);
+                }
+            }
+
+            @Override public void onStartTrackingTouch(SeekBar seekBar) { }
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {
+                settings.setOverlayOpacity(seekBar.getProgress() + 30);
+            }
+        });
+        overlay.addView(opacityLabel, innerRow());
+        overlay.addView(opacity, innerRow());
+        root.addView(overlay, margin(1, 4));
+
+        root.addView(section(t("Appearance & language", "Darstellung & Sprache")), margin(6, 1));
+        LinearLayout appearance = card();
+        appearance.addView(settingRow(
+                t("Theme", "Darstellung"),
+                t("Follow system or choose light/dark", "System übernehmen oder Hell/Dunkel wählen"),
+                appearanceLabel(), this::chooseAppearance), innerRow());
+        appearance.addView(settingRow(
+                t("Language", "Sprache"),
+                t("System, English or Deutsch", "System, English oder Deutsch"),
+                languageLabel(), this::chooseLanguage), innerRow());
+        root.addView(appearance, margin(1, 4));
+
+        setContentView(page);
+        applySystemBarInsets(page);
     }
 
-    private void openLicenseDialog() {
-        LinearLayout dialogRoot = new LinearLayout(this);
-        dialogRoot.setOrientation(LinearLayout.VERTICAL);
-        dialogRoot.setPadding(dp(14), dp(12), dp(14), dp(10));
-        dialogRoot.setBackgroundColor(colorCard);
+    private void showAboutPage() {
+        saveVisibleCoordinates();
+        currentPage = "about";
+        ScrollView page = pageScroll();
+        LinearLayout root = pageRoot();
+        page.addView(root);
+        root.addView(pageHeader(t("About", "Info"), this::showHomePage), margin(0, 4));
 
-        TextView title = sectionText("GPL-3.0-only", 20, colorText);
-        title.setPadding(dp(2), 0, dp(2), dp(8));
-        dialogRoot.addView(title, matchWidth());
+        LinearLayout identity = card();
+        ImageView avatar = new ImageView(this);
+        avatar.setImageResource(R.drawable.k2040_avatar);
+        avatar.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        avatar.setContentDescription(t("K2040 avatar", "K2040-Avatar"));
+        LinearLayout.LayoutParams avatarParams = new LinearLayout.LayoutParams(dp(108), dp(108));
+        avatarParams.gravity = Gravity.CENTER_HORIZONTAL;
+        avatarParams.bottomMargin = dp(8);
+        identity.addView(avatar, avatarParams);
+        TextView name = text("GeoJoystick", 26, palette.text, true);
+        name.setGravity(Gravity.CENTER);
+        identity.addView(name, innerRow());
+        TextView description = text(
+                t("Transparent mock-location simulation for Android developer and emulator testing.",
+                        "Transparente Mock-Standort-Simulation für Android-Entwicklung und Emulator-Tests."),
+                13, palette.textDim, false);
+        description.setGravity(Gravity.CENTER);
+        description.setPadding(dp(10), 0, dp(10), dp(8));
+        identity.addView(description, innerRow());
+        root.addView(identity, margin(4, 6));
 
-        TextView licenseText = sectionText(readAssetText("LICENSE"), 11, colorText);
-        licenseText.setTextIsSelectable(true);
-        licenseText.setPadding(dp(10), dp(8), dp(10), dp(8));
-        licenseText.setBackgroundColor(colorInput);
+        root.addView(trustPanel(), margin(4, 6));
 
-        ScrollView scroller = new ScrollView(this);
-        scroller.setBackground(cardBackground());
-        scroller.addView(licenseText);
-        int maxHeight = Math.min(dp(560), Math.round(getResources().getDisplayMetrics().heightPixels * 0.70f));
-        LinearLayout.LayoutParams scrollerParams = new LinearLayout.LayoutParams(
+        LinearLayout info = card();
+        info.addView(infoRow("Version 0.1.3", t("What's new", "Neuigkeiten"), () -> showChangelogPage(false)), innerRow());
+        info.addView(infoRow(t("License & usage", "Lizenz & Nutzung"), "GPL-3.0-only", () -> showLicensePage(false)), innerRow());
+        info.addView(infoRow(t("Support on Ko-fi", "Auf Ko-fi unterstützen"),
+                t("Optional · no features unlocked", "Optional · keine Funktionen werden freigeschaltet"),
+                () -> openExternalUrl("https://ko-fi.com/k2040")), innerRow());
+        root.addView(info, margin(4, 4));
+
+        TextView disclosure = text(supportDisclosureText(), 10, palette.textDim, false);
+        disclosure.setGravity(Gravity.CENTER);
+        disclosure.setPadding(dp(12), dp(4), dp(12), dp(8));
+        root.addView(disclosure, margin(0, 4));
+
+        setContentView(page);
+        applySystemBarInsets(page);
+    }
+
+    private void showChangelogPage(boolean returnToWelcome) {
+        currentPage = returnToWelcome && !settings.welcomeAcknowledged()
+                ? "changelog-welcome" : "changelog-about";
+        Runnable backAction = "changelog-welcome".equals(currentPage)
+                ? this::showWelcomePage : this::showAboutPage;
+
+        FrameLayout stage = new FrameLayout(this);
+        stage.setBackgroundColor(palette.background);
+        stage.setClickable(true);
+        stage.setFocusable(true);
+
+        ScrollView background = buildHomePage();
+        background.setAlpha(settings.isDark() ? 0.34f : 0.26f);
+        background.setEnabled(false);
+        background.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        background.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+        stage.addView(background, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                maxHeight);
-        scrollerParams.setMargins(0, 0, 0, dp(8));
-        dialogRoot.addView(scroller, scrollerParams);
+                ViewGroup.LayoutParams.MATCH_PARENT));
 
-        Button closeButton = fullButton(t("Close", "Schließen"));
-        dialogRoot.addView(closeButton, matchWidth());
+        View scrim = new View(this);
+        scrim.setBackgroundColor(Color.BLACK);
+        scrim.setAlpha(settings.isDark() ? 0.60f : 0.43f);
+        scrim.setClickable(true);
+        scrim.setFocusable(true);
+        scrim.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        stage.addView(scrim, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
 
-        AlertDialog dialog = appDialogBuilder()
-                .setView(dialogRoot)
-                .create();
-        closeButton.setOnClickListener(view -> dialog.dismiss());
-        dialog.setOnShowListener(window -> {
-            if (dialog.getWindow() != null) {
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(colorCard));
-            }
+        LinearLayout modal = new LinearLayout(this);
+        modal.setOrientation(LinearLayout.VERTICAL);
+        modal.setPadding(dp(16), dp(14), dp(16), dp(14));
+        modal.setBackground(GeoUi.elevated(this, palette));
+        modal.setElevation(dp(18));
+        modal.setClickable(true);
+        modal.setFocusable(true);
+        modal.setFocusableInTouchMode(true);
+
+        TextView title = text(BuildConfig.VERSION_NAME, 20, palette.text, true);
+        title.setGravity(Gravity.CENTER);
+        title.setPadding(dp(4), dp(2), dp(4), dp(8));
+        modal.addView(title, innerRow());
+
+        ScrollView bodyScroll = new ScrollView(this);
+        bodyScroll.setFillViewport(false);
+        bodyScroll.setFocusable(false);
+        bodyScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        TextView changes = text(changelogText(), 14, palette.text, false);
+        changes.setTextIsSelectable(true);
+        changes.setLineSpacing(0, 1.12f);
+        changes.setPadding(dp(6), dp(4), dp(6), dp(4));
+        bodyScroll.addView(changes);
+        modal.addView(bodyScroll, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+
+        Button backButton = welcomeActionButton(t("Back", "Zurück"), false);
+        backButton.setContentDescription(t("Back from changelog", "Zurück vom Änderungsprotokoll"));
+        backButton.setOnClickListener(view -> backAction.run());
+        LinearLayout.LayoutParams backParams = new LinearLayout.LayoutParams(dp(124), dp(48));
+        backParams.gravity = Gravity.CENTER_HORIZONTAL;
+        backParams.topMargin = dp(4);
+        modal.addView(backButton, backParams);
+
+        int width = Math.min(dp(336), getResources().getDisplayMetrics().widthPixels - dp(56));
+        int availableHeight = Math.max(dp(300),
+                getResources().getDisplayMetrics().heightPixels - dp(120));
+        int height = Math.min(dp(400), availableHeight);
+        FrameLayout.LayoutParams modalParams = new FrameLayout.LayoutParams(
+                Math.max(dp(260), width),
+                height,
+                Gravity.CENTER);
+        stage.addView(modal, modalParams);
+
+        setContentView(stage);
+        applySystemBarInsets(stage);
+        modal.requestFocus();
+        bodyScroll.post(() -> bodyScroll.scrollTo(0, 0));
+    }
+
+    private void showWelcomePage() {
+        currentPage = "welcome";
+        FrameLayout stage = new FrameLayout(this);
+        stage.setBackgroundColor(palette.background);
+        stage.setClickable(true);
+        stage.setFocusable(true);
+
+        ScrollView background = buildHomePage();
+        background.setAlpha(settings.isDark() ? 0.34f : 0.26f);
+        background.setEnabled(false);
+        background.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        background.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+        stage.addView(background, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+
+        View scrim = new View(this);
+        scrim.setBackgroundColor(Color.BLACK);
+        scrim.setAlpha(settings.isDark() ? 0.60f : 0.43f);
+        scrim.setClickable(true);
+        scrim.setFocusable(true);
+        scrim.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        stage.addView(scrim, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+
+        LinearLayout modal = new LinearLayout(this);
+        modal.setOrientation(LinearLayout.VERTICAL);
+        modal.setPadding(dp(16), dp(14), dp(16), dp(14));
+        modal.setBackground(GeoUi.elevated(this, palette));
+        modal.setElevation(dp(18));
+        modal.setClickable(true);
+        modal.setFocusable(true);
+        modal.setFocusableInTouchMode(true);
+
+        ScrollView bodyScroll = new ScrollView(this);
+        bodyScroll.setFillViewport(false);
+        bodyScroll.setFocusable(false);
+        bodyScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        LinearLayout body = new LinearLayout(this);
+        body.setOrientation(LinearLayout.VERTICAL);
+        body.setGravity(Gravity.CENTER_HORIZONTAL);
+        body.setPadding(0, dp(4), 0, dp(2));
+        bodyScroll.addView(body);
+
+        ImageView avatar = new ImageView(this);
+        avatar.setImageResource(R.drawable.k2040_avatar);
+        avatar.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        avatar.setContentDescription(t("K2040 avatar", "K2040-Avatar"));
+        LinearLayout.LayoutParams avatarParams = new LinearLayout.LayoutParams(dp(88), dp(88));
+        avatarParams.gravity = Gravity.CENTER_HORIZONTAL;
+        avatarParams.topMargin = dp(2);
+        avatarParams.bottomMargin = dp(4);
+        body.addView(avatar, avatarParams);
+
+        TextView title = text("GeoJoystick", 25, palette.text, true);
+        title.setGravity(Gravity.CENTER);
+        body.addView(title, innerRow());
+
+        TextView version = text(BuildConfig.VERSION_NAME, 9, palette.textDim, false);
+        version.setGravity(Gravity.CENTER);
+        version.setPadding(dp(4), 0, dp(4), dp(2));
+        body.addView(version, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        body.addView(welcomeExpandableRow(t("About", "Über"), welcomeAboutText()), innerRow());
+        body.addView(welcomeNavigationRow(t("Changelog", "Änderungsprotokoll"),
+                () -> showChangelogPage(true)), innerRow());
+        body.addView(welcomeNavigationRow(t("License & usage", "Lizenz & Nutzung"),
+                () -> showLicensePage(true)), innerRow());
+        body.addView(welcomeNavigationRow(t("Support on Ko-fi", "Auf Ko-fi unterstützen"),
+                () -> openExternalUrl("https://ko-fi.com/k2040")), innerRow());
+        body.addView(welcomeExpandableRow(t("Thanks & credits", "Dank & Mitwirkende"),
+                welcomeThanksText()), innerRow());
+
+        TextView acknowledgement = text(
+                t("Continue only confirms acknowledgement of this notice.",
+                        "Weiter bestätigt nur die Kenntnisnahme dieses Hinweises."),
+                9, palette.textDim, false);
+        acknowledgement.setGravity(Gravity.CENTER);
+        acknowledgement.setPadding(dp(8), dp(3), dp(8), dp(2));
+        body.addView(acknowledgement, innerRow());
+
+        modal.addView(bodyScroll, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+
+        LinearLayout actions = new LinearLayout(this);
+        actions.setOrientation(LinearLayout.HORIZONTAL);
+        actions.setGravity(Gravity.CENTER);
+
+        Button cancelButton = welcomeActionButton(t("Cancel", "Abbrechen"), false);
+        cancelButton.setContentDescription(t(
+                "Cancel and close GeoJoystick",
+                "Abbrechen und GeoJoystick schließen"));
+        cancelButton.setOnClickListener(view -> finishAndRemoveTask());
+
+        Button continueButton = welcomeActionButton(t("Continue", "Weiter"), false);
+        continueButton.setOnClickListener(view -> {
+            settings.acknowledgeWelcome();
+            showHomePage();
+            handleIncomingIntent(getIntent());
         });
-        dialog.show();
+
+        LinearLayout.LayoutParams cancelParams = new LinearLayout.LayoutParams(dp(124), dp(48));
+        cancelParams.rightMargin = dp(2);
+        LinearLayout.LayoutParams continueParams = new LinearLayout.LayoutParams(dp(124), dp(48));
+        continueParams.leftMargin = dp(2);
+        actions.addView(cancelButton, cancelParams);
+        actions.addView(continueButton, continueParams);
+        modal.addView(actions, margin(4, 0));
+
+        int width = Math.min(dp(336), getResources().getDisplayMetrics().widthPixels - dp(56));
+        int availableHeight = Math.max(dp(340),
+                getResources().getDisplayMetrics().heightPixels - dp(64));
+        int height = Math.min(dp(528), availableHeight);
+        FrameLayout.LayoutParams modalParams = new FrameLayout.LayoutParams(
+                Math.max(dp(260), width),
+                height,
+                Gravity.CENTER);
+        stage.addView(modal, modalParams);
+
+        setContentView(stage);
+        applySystemBarInsets(stage);
+        modal.requestFocus();
+        bodyScroll.post(() -> bodyScroll.scrollTo(0, 0));
     }
 
-    private String readAssetText(String name) {
-        StringBuilder builder = new StringBuilder();
-        try (InputStream stream = getAssets().open(name);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                builder.append(line).append('\n');
-            }
-        } catch (IOException exception) {
-            return t("License text is unavailable in this build.", "Der Lizenztext ist in diesem Build nicht verfügbar.");
-        }
-        return builder.toString();
+    private void showLicensePage(boolean returnToWelcome) {
+        currentPage = returnToWelcome && !settings.welcomeAcknowledged()
+                ? "license-welcome" : "license-about";
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(dp(16), dp(12), dp(16), dp(16));
+        root.setBackgroundColor(palette.background);
+        root.addView(pageHeader("GPL-3.0-only",
+                "license-welcome".equals(currentPage) ? this::showWelcomePage : this::showAboutPage),
+                margin(0, 4));
+
+        TextView note = text(t("The bundled English GPL text is the authoritative license text.",
+                "Der enthaltene englische GPL-Text ist der maßgebliche Lizenztext."),
+                10, palette.textDim, false);
+        note.setGravity(Gravity.CENTER);
+        root.addView(note, margin(0, 4));
+
+        TextView license = text(reflowLicenseText(readAssetText("LICENSE")), 11, palette.text, false);
+        license.setTextIsSelectable(true);
+        license.setLineSpacing(0, 1.08f);
+        license.setPadding(dp(16), dp(14), dp(16), dp(14));
+        license.setBackground(GeoUi.surface(this, palette));
+        ScrollView scroller = new ScrollView(this);
+        scroller.addView(license);
+        LinearLayout.LayoutParams scrollerParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
+        scrollerParams.topMargin = dp(6);
+        root.addView(scroller, scrollerParams);
+        setContentView(root);
+        applySystemBarInsets(root);
     }
 
-    private double[] loadInitialCoordinates() {
-        double fallbackLat = Double.longBitsToDouble(preferences.getLong(PREF_LATITUDE, Double.doubleToLongBits(52.520008)));
-        double fallbackLng = Double.longBitsToDouble(preferences.getLong(PREF_LONGITUDE, Double.doubleToLongBits(13.404954)));
-        double fallbackAlt = Double.longBitsToDouble(preferences.getLong(PREF_ALTITUDE, Double.doubleToLongBits(55.0)));
-        return new double[]{
-                Double.longBitsToDouble(preferences.getLong(PREF_MANUAL_LATITUDE, Double.doubleToLongBits(fallbackLat))),
-                Double.longBitsToDouble(preferences.getLong(PREF_MANUAL_LONGITUDE, Double.doubleToLongBits(fallbackLng))),
-                Double.longBitsToDouble(preferences.getLong(PREF_MANUAL_ALTITUDE, Double.doubleToLongBits(fallbackAlt)))
-        };
+    private LinearLayout trustPanel() {
+        LinearLayout trust = new LinearLayout(this);
+        trust.setOrientation(LinearLayout.VERTICAL);
+        trust.setPadding(dp(14), dp(12), dp(14), dp(12));
+        trust.setBackground(GeoUi.rounded(this, palette.accentSoft, 14, palette.accent, 1));
+        TextView headline = text(t("Local · No account · No unnecessary tracking",
+                "Lokal · Kein Konto · Kein unnötiges Tracking"), 12, palette.text, true);
+        trust.addView(headline);
+        TextView detail = text(t("Coordinates and settings stay on your device. No analytics and no account system.",
+                "Koordinaten und Einstellungen bleiben auf deinem Gerät. Keine Analysen und kein Kontosystem."),
+                10, palette.textDim, false);
+        detail.setPadding(0, dp(4), 0, 0);
+        trust.addView(detail);
+        return trust;
+    }
+
+    private LinearLayout welcomeNavigationRow(String title, Runnable action) {
+        LinearLayout row = welcomeRowHeader(title, "›");
+        row.setBackground(GeoUi.surface(this, palette));
+        row.setContentDescription(title + ". " + t("Open", "Öffnen"));
+        row.setOnClickListener(view -> action.run());
+        return row;
+    }
+
+    private LinearLayout welcomeExpandableRow(String title, String detailText) {
+        LinearLayout section = new LinearLayout(this);
+        section.setOrientation(LinearLayout.VERTICAL);
+        section.setBackground(GeoUi.surface(this, palette));
+
+        LinearLayout header = welcomeRowHeader(title, "⌄");
+        TextView chevron = (TextView) header.getChildAt(1);
+        TextView detail = text(detailText, 10, palette.textDim, false);
+        detail.setPadding(dp(16), 0, dp(16), dp(12));
+        detail.setLineSpacing(0, 1.08f);
+        detail.setVisibility(View.GONE);
+        detail.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+        section.addView(header);
+        section.addView(detail, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        header.setContentDescription(title + ". " + t("Collapsed", "Eingeklappt"));
+        header.setOnClickListener(view -> {
+            boolean expand = detail.getVisibility() != View.VISIBLE;
+            detail.setVisibility(expand ? View.VISIBLE : View.GONE);
+            detail.setImportantForAccessibility(expand
+                    ? View.IMPORTANT_FOR_ACCESSIBILITY_YES
+                    : View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+            chevron.setText(expand ? "⌃" : "⌄");
+            header.setContentDescription(title + ". "
+                    + (expand ? t("Expanded", "Ausgeklappt") : t("Collapsed", "Eingeklappt")));
+        });
+        return section;
+    }
+
+    private LinearLayout welcomeRowHeader(String title, String chevronText) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(16), 0, dp(10), 0);
+        row.setMinimumHeight(dp(48));
+        row.setClickable(true);
+        row.setFocusable(true);
+
+        TextView label = text(title, 12, palette.text, false);
+        label.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+        label.setSingleLine(true);
+        row.addView(label, new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
+
+        TextView chevron = text(chevronText, 18, palette.textDim, false);
+        chevron.setGravity(Gravity.CENTER);
+        chevron.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        row.addView(chevron, new LinearLayout.LayoutParams(dp(28), ViewGroup.LayoutParams.MATCH_PARENT));
+        return row;
+    }
+
+    private Button welcomeActionButton(String label, boolean primary) {
+        Button button = new Button(this);
+        button.setText(label);
+        button.setAllCaps(false);
+        button.setTextSize(12);
+        button.setTextColor(primary ? Color.WHITE : palette.text);
+        button.setGravity(Gravity.CENTER);
+        button.setMinWidth(0);
+        button.setMinimumWidth(0);
+        button.setMinHeight(0);
+        button.setMinimumHeight(0);
+        button.setPadding(dp(10), 0, dp(10), 0);
+        button.setBackground(new android.graphics.drawable.InsetDrawable(
+                GeoUi.rounded(this,
+                        primary ? palette.accent : palette.surface,
+                        20,
+                        primary ? palette.accent : palette.border,
+                        1),
+                dp(6), dp(4), dp(6), dp(4)));
+        button.setStateListAnimator(null);
+        return button;
+    }
+
+    private String welcomeAboutText() {
+        return t(
+                "Transparent mock-location joystick for Android developer and emulator testing.\n\n"
+                        + "Local · No account · No unnecessary tracking\n"
+                        + "Coordinates and settings stay on your device. No analytics and no account system.",
+                "Transparenter Mock-Standort-Joystick für Android-Entwicklung und Emulator-Tests.\n\n"
+                        + "Lokal · Kein Konto · Kein unnötiges Tracking\n"
+                        + "Koordinaten und Einstellungen bleiben auf deinem Gerät. Keine Analysen und kein Kontosystem.");
+    }
+
+    private String welcomeThanksText() {
+        return t("Thank you for trying GeoJoystick.",
+                "Danke, dass du GeoJoystick ausprobierst.");
+    }
+
+    private Button infoRow(String title, String subtitle, Runnable action) {
+        Button row = GeoUi.button(this, palette, rowText(title, subtitle, "›"), false);
+        row.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+        row.setTextSize(12);
+        row.setOnClickListener(view -> action.run());
+        return row;
+    }
+
+    private Button settingRow(String title, String subtitle, String value, Runnable action) {
+        Button row = GeoUi.button(this, palette, rowText(title, subtitle, value), false);
+        row.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+        row.setTextSize(12);
+        row.setOnClickListener(view -> action.run());
+        return row;
+    }
+
+    private String rowText(String title, String subtitle, String value) {
+        String suffix = value == null || value.isEmpty() ? "" : "\n" + value;
+        return title + "\n" + subtitle + suffix;
+    }
+
+    private LinearLayout pageHeader(String title, Runnable backAction) {
+        LinearLayout header = new LinearLayout(this);
+        header.setGravity(Gravity.CENTER_VERTICAL);
+        Button back = GeoUi.iconButton(this, palette, "‹", t("Back", "Zurück"));
+        back.setOnClickListener(view -> backAction.run());
+        header.addView(back, new LinearLayout.LayoutParams(dp(48), dp(48)));
+        TextView heading = text(title, 22, palette.text, true);
+        heading.setPadding(dp(10), 0, 0, 0);
+        header.addView(heading,
+                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        return header;
     }
 
     private void chooseAppearance() {
-        String[] labels = new String[]{
-                t("System default", "Systemstandard"),
-                t("Light", "Hell"),
-                t("Dark", "Dunkel")
-        };
-        String[] values = new String[]{APPEARANCE_SYSTEM, APPEARANCE_LIGHT, APPEARANCE_DARK};
-        String current = preferences.getString(PREF_APPEARANCE, APPEARANCE_SYSTEM);
-        int checked = indexOf(values, current);
+        String[] labels = new String[]{t("System default", "Systemstandard"), t("Light", "Hell"), t("Dark", "Dunkel")};
+        String[] values = new String[]{GeoSettings.APPEARANCE_SYSTEM, GeoSettings.APPEARANCE_LIGHT, GeoSettings.APPEARANCE_DARK};
         appDialogBuilder()
                 .setTitle(t("Appearance", "Darstellung"))
-                .setSingleChoiceItems(labels, checked, (dialog, which) -> {
-                    preferences.edit().putString(PREF_APPEARANCE, values[which]).apply();
+                .setSingleChoiceItems(labels, indexOf(values, settings.appearance()), (dialog, which) -> {
+                    settings.setAppearance(values[which]);
                     dialog.dismiss();
-                    refreshCurrentPageAfterUiSettingChange();
+                    refreshUiSettings();
                 })
                 .setNegativeButton(t("Cancel", "Abbrechen"), null)
                 .show();
@@ -595,29 +904,29 @@ public final class MainActivity extends Activity {
 
     private void chooseLanguage() {
         String[] labels = new String[]{"System default", "English", "Deutsch"};
-        String[] values = new String[]{LANGUAGE_SYSTEM, LANGUAGE_ENGLISH, LANGUAGE_GERMAN};
-        String current = preferences.getString(PREF_LANGUAGE, LANGUAGE_SYSTEM);
-        int checked = indexOf(values, current);
+        String[] values = new String[]{GeoSettings.LANGUAGE_SYSTEM, GeoSettings.LANGUAGE_ENGLISH, GeoSettings.LANGUAGE_GERMAN};
         appDialogBuilder()
                 .setTitle(t("Language", "Sprache"))
-                .setSingleChoiceItems(labels, checked, (dialog, which) -> {
-                    preferences.edit().putString(PREF_LANGUAGE, values[which]).apply();
+                .setSingleChoiceItems(labels, indexOf(values, settings.language()), (dialog, which) -> {
+                    settings.setLanguage(values[which]);
                     dialog.dismiss();
-                    refreshCurrentPageAfterUiSettingChange();
+                    refreshUiSettings();
                 })
                 .setNegativeButton(t("Cancel", "Abbrechen"), null)
                 .show();
     }
 
-    private void refreshCurrentPageAfterUiSettingChange() {
+    private void refreshUiSettings() {
         String page = currentPage;
         loadUiSettings();
         if ("settings".equals(page)) {
             showSettingsPage();
         } else if ("about".equals(page)) {
             showAboutPage();
+        } else if ("welcome".equals(page)) {
+            showWelcomePage();
         } else {
-            buildInterface();
+            showHomePage();
         }
     }
 
@@ -630,97 +939,53 @@ public final class MainActivity extends Activity {
         return 0;
     }
 
-    private void toggleRestoreLastPosition() {
-        saveVisibleCoordinateFields();
-        boolean next = !preferences.getBoolean(PREF_RESTORE_LAST_POSITION, true);
-        SharedPreferences.Editor editor = preferences.edit().putBoolean(PREF_RESTORE_LAST_POSITION, next);
-        if (next) {
-            double lat = Double.longBitsToDouble(preferences.getLong(PREF_LATITUDE, Double.doubleToLongBits(52.520008)));
-            double lng = Double.longBitsToDouble(preferences.getLong(PREF_LONGITUDE, Double.doubleToLongBits(13.404954)));
-            double alt = Double.longBitsToDouble(preferences.getLong(PREF_ALTITUDE, Double.doubleToLongBits(55.0)));
-            editor.putLong(PREF_MANUAL_LATITUDE, Double.doubleToRawLongBits(lat))
-                    .putLong(PREF_MANUAL_LONGITUDE, Double.doubleToRawLongBits(lng))
-                    .putLong(PREF_MANUAL_ALTITUDE, Double.doubleToRawLongBits(alt));
-        }
-        editor.apply();
-        recreate();
-    }
-
     private String appearanceLabel() {
-        String value = preferences.getString(PREF_APPEARANCE, APPEARANCE_SYSTEM);
-        if (APPEARANCE_LIGHT.equals(value)) {
-            return t("Light", "Hell");
-        }
-        if (APPEARANCE_DARK.equals(value)) {
-            return t("Dark", "Dunkel");
-        }
+        String value = settings.appearance();
+        if (GeoSettings.APPEARANCE_DARK.equals(value)) return t("Dark", "Dunkel");
+        if (GeoSettings.APPEARANCE_LIGHT.equals(value)) return t("Light", "Hell");
         return t("System", "System");
     }
 
     private String languageLabel() {
-        String value = preferences.getString(PREF_LANGUAGE, LANGUAGE_SYSTEM);
-        if (LANGUAGE_ENGLISH.equals(value)) {
-            return "English";
-        }
-        if (LANGUAGE_GERMAN.equals(value)) {
-            return "Deutsch";
-        }
+        String value = settings.language();
+        if (GeoSettings.LANGUAGE_ENGLISH.equals(value)) return "English";
+        if (GeoSettings.LANGUAGE_GERMAN.equals(value)) return "Deutsch";
         return t("System", "System");
     }
 
-    private String restoreLastPositionLabel() {
-        boolean enabled = preferences.getBoolean(PREF_RESTORE_LAST_POSITION, true);
-        return t("Restore last position: ", "Letzte Position wiederherstellen: ")
-                + (enabled ? t("On", "Ein") : t("Off", "Aus"));
-    }
-
-    private String highContrastLabel() {
-        boolean enabled = preferences.getBoolean(PREF_OVERLAY_HIGH_CONTRAST, false);
-        return t("High contrast overlay: ", "Overlay mit hohem Kontrast: ")
-                + (enabled ? t("On", "Ein") : t("Off", "Aus"));
-    }
-
-    private String customSpeedLabel() {
-        return t("Custom speed: ", "Eigene Geschwindigkeit: ") + customSpeedName()
-                + String.format(Locale.US, " · %.1f m/s", customSpeed());
-    }
-
-    private void updateOpacityLabel(TextView label, int opacity) {
-        label.setText(t("Overlay opacity: ", "Overlay-Deckkraft: ") + opacity + "%");
-    }
-
-    private int getOverlayOpacity() {
-        return Math.max(30, Math.min(100, preferences.getInt(PREF_OVERLAY_OPACITY, 85)));
-    }
-
-    private String customSpeedName() {
-        String name = preferences.getString(PREF_CUSTOM_SPEED_NAME, "Custom");
-        if (name == null || name.trim().isEmpty()) {
-            return "Custom";
+    private void toggleRestoreLastPosition() {
+        saveVisibleCoordinates();
+        boolean next = !settings.restoreLastPosition();
+        settings.setRestoreLastPosition(next);
+        if (next) {
+            double[] last = settings.lastActiveCoordinates();
+            if (last != null) {
+                settings.saveManualCoordinates(last[0], last[1], last[2]);
+                setDraft(last[0], last[1], last[2]);
+            }
         }
-        return name.trim();
+        showSettingsPage();
     }
 
-    private double customSpeed() {
-        return clampSpeed(Double.longBitsToDouble(
-                preferences.getLong(PREF_CUSTOM_SPEED, Double.doubleToLongBits(5.0))));
+    private void resetOverlayPosition() {
+        settings.resetOverlayPosition();
+        toast(t("Overlay position reset for next show",
+                "Overlay-Position für die nächste Anzeige zurückgesetzt"), false);
     }
 
-    private void editCustomSpeed(Button sourceButton) {
+    private void toggleHighContrast() {
+        settings.setHighContrastOverlay(!settings.highContrastOverlay());
+        showSettingsPage();
+    }
+
+    private void editCustomSpeed() {
         LinearLayout form = new LinearLayout(this);
         form.setOrientation(LinearLayout.VERTICAL);
         form.setPadding(dp(8), 0, dp(8), 0);
-
-        EditText nameInput = textInput(t("Name", "Name"), customSpeedName());
-        EditText speedInput = coordinateInput(t("Speed in m/s", "Geschwindigkeit in m/s"), customSpeed());
-        TextView note = sectionText(String.format(
-                Locale.US,
-                t("%.1f m/s = %.1f km/h", "%.1f m/s = %.1f km/h"),
-                customSpeed(),
-                customSpeed() * 3.6), 12, colorTextDim);
-        form.addView(nameInput, matchWidth());
-        form.addView(speedInput, matchWidth());
-        form.addView(note, matchWidth());
+        EditText name = textInput(t("Name", "Name"), settings.customSpeedName());
+        EditText speed = coordinateInput(t("Speed in m/s", "Geschwindigkeit in m/s"), settings.customSpeed());
+        form.addView(name, innerRow());
+        form.addView(speed, innerRow());
 
         AlertDialog dialog = appDialogBuilder()
                 .setTitle(t("Custom speed", "Eigene Geschwindigkeit"))
@@ -728,40 +993,41 @@ public final class MainActivity extends Activity {
                 .setPositiveButton(t("Save", "Speichern"), null)
                 .setNegativeButton(t("Cancel", "Abbrechen"), null)
                 .create();
-        dialog.setOnShowListener(window -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
-            try {
-                double value = clampSpeed(Double.parseDouble(speedInput.getText().toString().trim()));
-                String name = nameInput.getText().toString().trim();
-                if (name.isEmpty()) {
-                    name = "Custom";
-                }
-                SharedPreferences.Editor editor = preferences.edit()
-                        .putString(PREF_CUSTOM_SPEED_NAME, name)
-                        .putLong(PREF_CUSTOM_SPEED, Double.doubleToRawLongBits(value));
-                editor.apply();
-                sourceButton.setText(customSpeedLabel());
-                dialog.dismiss();
-            } catch (NumberFormatException exception) {
-                Toast.makeText(this, t("Enter a valid speed", "Gib eine gültige Geschwindigkeit ein"), Toast.LENGTH_SHORT).show();
-            }
-        }));
+        dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setOnClickListener(view -> {
+                    try {
+                        double value = Double.parseDouble(speed.getText().toString().trim());
+                        if (!Double.isFinite(value) || value < 0.1 || value > 50.0) {
+                            throw new NumberFormatException("speed");
+                        }
+                        String label = name.getText().toString().trim();
+                        if (label.isEmpty()) label = "Custom";
+                        settings.setCustomSpeed(label, value);
+                        dialog.dismiss();
+                        showSettingsPage();
+                    } catch (NumberFormatException exception) {
+                        toast(t("Enter a valid speed", "Gib eine gültige Geschwindigkeit ein"), false);
+                    }
+                }));
         dialog.show();
     }
 
-    private double clampSpeed(double value) {
-        if (!Double.isFinite(value)) {
-            return 5.0;
-        }
-        return Math.max(0.1, Math.min(50.0, value));
+    private void updateOverlaySizeLabel(TextView label, int sizePercent) {
+        label.setText(String.format(Locale.US,
+                t("Overlay size: %d%%", "Overlay-Größe: %d%%"), sizePercent));
     }
 
-    private void saveCurrentAsFavorite() {
-        if (!validCoordinates()) {
-            return;
-        }
-        String[] slots = new String[FAVORITE_COUNT];
-        for (int i = 0; i < FAVORITE_COUNT; i++) {
-            slots[i] = favoriteDisplayName(i);
+    private void updateOpacityLabel(TextView label, int opacity) {
+        label.setText(String.format(Locale.US,
+                t("Overlay opacity: %d%%", "Overlay-Deckkraft: %d%%"), opacity));
+    }
+
+    private void chooseFavoriteSlot() {
+        if (!validCoordinates()) return;
+        String[] slots = new String[GeoSettings.FAVORITE_COUNT];
+        for (int i = 0; i < slots.length; i++) {
+            GeoSettings.Favorite favorite = settings.favorite(i);
+            slots[i] = favorite == null ? t("Favorite ", "Favorit ") + (i + 1) : favorite.name;
         }
         appDialogBuilder()
                 .setTitle(t("Choose favorite slot", "Favoritenplatz wählen"))
@@ -771,43 +1037,34 @@ public final class MainActivity extends Activity {
     }
 
     private void applyFavorite(int slot) {
-        if (!isFavoriteSet(slot)) {
-            if (!validCoordinates()) {
-                return;
-            }
-            editFavorite(slot, false);
+        GeoSettings.Favorite favorite = settings.favorite(slot);
+        if (favorite == null) {
+            if (validCoordinates()) editFavorite(slot, false);
             return;
         }
-        double lat = favoriteDouble(slot, "latitude", getLatitude());
-        double lng = favoriteDouble(slot, "longitude", getLongitude());
-        double alt = favoriteDouble(slot, "altitude", getAltitude());
-        setCoordinateInputs(lat, lng, alt);
-        Toast.makeText(this, t("Favorite loaded into coordinate fields", "Favorit in Koordinatenfelder geladen"), Toast.LENGTH_SHORT).show();
+        setCoordinates(favorite.latitude, favorite.longitude, favorite.altitude);
+        toast(t("Favorite loaded into coordinate fields", "Favorit in Koordinatenfelder geladen"), false);
     }
 
-    private void editFavorite(int slot, boolean useSavedValues) {
-        if (!useSavedValues && !validCoordinates()) {
-            return;
-        }
-        double fallbackLat = safeLatitude();
-        double fallbackLng = safeLongitude();
-        double fallbackAlt = safeAltitude();
-        double lat = useSavedValues && isFavoriteSet(slot) ? favoriteDouble(slot, "latitude", fallbackLat) : fallbackLat;
-        double lng = useSavedValues && isFavoriteSet(slot) ? favoriteDouble(slot, "longitude", fallbackLng) : fallbackLng;
-        double alt = useSavedValues && isFavoriteSet(slot) ? favoriteDouble(slot, "altitude", fallbackAlt) : fallbackAlt;
-        String name = useSavedValues && isFavoriteSet(slot) ? favoriteName(slot) : t("Favorite ", "Favorit ") + (slot + 1);
+    private void editFavorite(int slot, boolean useSaved) {
+        if (!useSaved && !validCoordinates()) return;
+        GeoSettings.Favorite saved = settings.favorite(slot);
+        double latitude = useSaved && saved != null ? saved.latitude : safeLatitude();
+        double longitude = useSaved && saved != null ? saved.longitude : safeLongitude();
+        double altitude = useSaved && saved != null ? saved.altitude : safeAltitude();
+        String initialName = useSaved && saved != null ? saved.name : t("Favorite ", "Favorit ") + (slot + 1);
 
         LinearLayout form = new LinearLayout(this);
         form.setOrientation(LinearLayout.VERTICAL);
         form.setPadding(dp(8), 0, dp(8), 0);
-        EditText nameInput = textInput(t("Favorite name", "Favoritenname"), name);
-        EditText latInput = coordinateInput(t("Latitude", "Breitengrad"), lat);
-        EditText lngInput = coordinateInput(t("Longitude", "Längengrad"), lng);
-        EditText altInput = coordinateInput(t("Altitude (m)", "Höhe (m)"), alt);
-        form.addView(nameInput, matchWidth());
-        form.addView(latInput, matchWidth());
-        form.addView(lngInput, matchWidth());
-        form.addView(altInput, matchWidth());
+        EditText name = textInput(t("Favorite name", "Favoritenname"), initialName);
+        EditText lat = coordinateInput(t("Latitude", "Breitengrad"), latitude);
+        EditText lng = coordinateInput(t("Longitude", "Längengrad"), longitude);
+        EditText alt = coordinateInput(t("Altitude (m)", "Höhe (m)"), altitude);
+        form.addView(name, innerRow());
+        form.addView(lat, innerRow());
+        form.addView(lng, innerRow());
+        form.addView(alt, innerRow());
 
         AlertDialog dialog = appDialogBuilder()
                 .setTitle(t("Favorite ", "Favorit ") + (slot + 1))
@@ -816,100 +1073,359 @@ public final class MainActivity extends Activity {
                 .setNegativeButton(t("Cancel", "Abbrechen"), null)
                 .setNeutralButton(t("Clear", "Leeren"), null)
                 .create();
-        dialog.setOnShowListener(window -> {
+        dialog.setOnShowListener(ignored -> {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
                 try {
-                    double favoriteLat = Double.parseDouble(latInput.getText().toString().trim());
-                    double favoriteLng = Double.parseDouble(lngInput.getText().toString().trim());
-                    double favoriteAlt = Double.parseDouble(altInput.getText().toString().trim());
-                    if (!validCoordinateValues(favoriteLat, favoriteLng, favoriteAlt)) {
-                        throw new NumberFormatException("Favorite coordinate out of range");
+                    double favoriteLat = Double.parseDouble(lat.getText().toString().trim());
+                    double favoriteLng = Double.parseDouble(lng.getText().toString().trim());
+                    double favoriteAlt = Double.parseDouble(alt.getText().toString().trim());
+                    if (!GeoSettings.validCoordinates(favoriteLat, favoriteLng, favoriteAlt)) {
+                        throw new NumberFormatException("coordinates");
                     }
-                    String favoriteName = nameInput.getText().toString().trim();
-                    if (favoriteName.isEmpty()) {
-                        favoriteName = t("Favorite ", "Favorit ") + (slot + 1);
-                    }
-                    preferences.edit()
-                            .putBoolean(favoriteKey(slot, "set"), true)
-                            .putString(favoriteKey(slot, "name"), favoriteName)
-                            .putLong(favoriteKey(slot, "latitude"), Double.doubleToRawLongBits(favoriteLat))
-                            .putLong(favoriteKey(slot, "longitude"), Double.doubleToRawLongBits(favoriteLng))
-                            .putLong(favoriteKey(slot, "altitude"), Double.doubleToRawLongBits(favoriteAlt))
-                            .apply();
-                    updateFavoriteButtons();
+                    String favoriteName = name.getText().toString().trim();
+                    if (favoriteName.isEmpty()) favoriteName = t("Favorite ", "Favorit ") + (slot + 1);
+                    settings.saveFavorite(slot, favoriteName, favoriteLat, favoriteLng, favoriteAlt);
+                    refreshFavoriteButtons();
                     dialog.dismiss();
                 } catch (NumberFormatException exception) {
-                    Toast.makeText(this, t("Enter valid favorite coordinates", "Gib gültige Favoriten-Koordinaten ein"), Toast.LENGTH_SHORT).show();
+                    toast(t("Enter valid favorite coordinates", "Gib gültige Favoriten-Koordinaten ein"), false);
                 }
             });
             dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(view -> {
-                clearFavorite(slot);
-                updateFavoriteButtons();
+                settings.clearFavorite(slot);
+                refreshFavoriteButtons();
                 dialog.dismiss();
             });
         });
         dialog.show();
     }
 
-    private void updateFavoriteButtons() {
-        for (int i = 0; i < FAVORITE_COUNT; i++) {
-            favoriteButtons[i].setText(favoriteDisplayName(i));
-            favoriteButtons[i].setContentDescription(favoriteButtonDescription(i));
+    private void refreshFavoriteButtons() {
+        for (int i = 0; i < favoriteButtons.length; i++) {
+            Button button = favoriteButtons[i];
+            if (button == null) continue;
+            GeoSettings.Favorite favorite = settings.favorite(i);
+            String name = favorite == null ? t("Fav ", "Fav ") + (i + 1) : favorite.name;
+            button.setText(name.length() > 13 ? name.substring(0, 13) : name);
+            button.setContentDescription(favorite == null
+                    ? t("Empty favorite ", "Leerer Favorit ") + (i + 1)
+                    : favorite.name);
         }
     }
 
-    private String favoriteDisplayName(int slot) {
-        if (isFavoriteSet(slot)) {
-            String name = favoriteName(slot);
-            return name.length() > 9 ? name.substring(0, 9) : name;
+    private Button favoriteButton(int slot) {
+        Button button = GeoUi.button(this, palette, t("Fav ", "Fav ") + (slot + 1), false);
+        button.setTextSize(11);
+        button.setSingleLine(true);
+        return button;
+    }
+
+    private void openMap() {
+        Intent intent = new Intent(this, MapActivity.class);
+        double latitude = safeLatitude();
+        double longitude = safeLongitude();
+        if (GeoSettings.validHorizontal(latitude, longitude)) {
+            intent.putExtra(MapActivity.EXTRA_LATITUDE, latitude);
+            intent.putExtra(MapActivity.EXTRA_LONGITUDE, longitude);
         }
-        return t("Fav ", "Fav ") + (slot + 1);
+        startActivityForResult(intent, REQUEST_MAP);
     }
 
-    private String favoriteButtonDescription(int slot) {
-        if (isFavoriteSet(slot)) {
-            return favoriteName(slot);
+    private void importFromClipboard() {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard == null || !clipboard.hasPrimaryClip()) {
+            toast(t("Clipboard is empty", "Zwischenablage ist leer"), false);
+            return;
         }
-        return t("Empty favorite ", "Leerer Favorit ") + (slot + 1);
+        ClipData clip = clipboard.getPrimaryClip();
+        if (clip == null || clip.getItemCount() == 0) {
+            toast(t("Clipboard is empty", "Zwischenablage ist leer"), false);
+            return;
+        }
+        CharSequence text = clip.getItemAt(0).coerceToText(this);
+        importLocationText(text == null ? null : text.toString());
     }
 
-    private boolean isFavoriteSet(int slot) {
-        return preferences.getBoolean(favoriteKey(slot, "set"), false);
+    private void handleIncomingIntent(Intent intent) {
+        if (intent == null || incomingIntentConsumed || !Intent.ACTION_SEND.equals(intent.getAction())) {
+            return;
+        }
+        incomingIntentConsumed = true;
+        CharSequence text = intent.getCharSequenceExtra(Intent.EXTRA_TEXT);
+        intent.setAction(null);
+        intent.removeExtra(Intent.EXTRA_TEXT);
+        if (text != null) importLocationText(text.toString());
     }
 
-    private String favoriteName(int slot) {
-        return preferences.getString(favoriteKey(slot, "name"), t("Favorite ", "Favorit ") + (slot + 1));
+    private void importLocationText(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            toast(t("No location link found", "Kein Standortlink gefunden"), false);
+            return;
+        }
+        int requestId = ++importRequestId;
+        toast(t("Reading location link…", "Standortlink wird gelesen…"), false);
+        new Thread(() -> {
+            double[] coordinates = LocationLinkParser.resolveCoordinates(value);
+            runOnUiThread(() -> {
+                if (requestId != importRequestId || isFinishing() || isDestroyed()) return;
+                if (coordinates == null) {
+                    toast(t("Could not extract coordinates from that link",
+                            "Aus diesem Link konnten keine Koordinaten gelesen werden"), true);
+                    return;
+                }
+                if (!setHorizontalCoordinates(coordinates[0], coordinates[1])) {
+                    toast(t("The imported coordinates were invalid",
+                            "Die importierten Koordinaten waren ungültig"), true);
+                    return;
+                }
+                toast(Double.isFinite(safeAltitude())
+                        ? t("Coordinates imported", "Koordinaten importiert")
+                        : t("Coordinates imported. Enter an altitude before starting.",
+                                "Koordinaten importiert. Gib vor dem Start eine Höhe ein."), true);
+            });
+        }, "MapLinkResolver-" + requestId).start();
     }
 
-    private double favoriteDouble(int slot, String field, double fallback) {
-        return Double.longBitsToDouble(preferences.getLong(favoriteKey(slot, field), Double.doubleToLongBits(fallback)));
+    private void startMocking() {
+        if (!validCoordinates()) return;
+        pendingStart = true;
+        if (!Settings.canDrawOverlays(this)) {
+            openOverlaySettings();
+            return;
+        }
+        if (!isSelectedMockLocationApp()) {
+            appDialogBuilder()
+                    .setTitle(t("Select GeoJoystick", "GeoJoystick auswählen"))
+                    .setMessage(t(
+                            "In Developer options, choose GeoJoystick under Select mock location app, then return here.",
+                            "Wähle in den Entwickleroptionen GeoJoystick unter Mock-Standort-App auswählen und kehre dann hierher zurück."))
+                    .setPositiveButton(t("Open settings", "Einstellungen öffnen"),
+                            (dialog, which) -> openDeveloperSettings())
+                    .setNegativeButton(t("Cancel", "Abbrechen"),
+                            (dialog, which) -> pendingStart = false)
+                    .show();
+            return;
+        }
+        pendingStart = false;
+        startMockingInternal();
     }
 
-    private String favoriteKey(int slot, String field) {
-        return "favorite_" + (slot + 1) + "_" + field;
-    }
-
-    private void clearFavorite(int slot) {
-        preferences.edit()
-                .remove(favoriteKey(slot, "set"))
-                .remove(favoriteKey(slot, "name"))
-                .remove(favoriteKey(slot, "latitude"))
-                .remove(favoriteKey(slot, "longitude"))
-                .remove(favoriteKey(slot, "altitude"))
-                .apply();
-    }
-
-    private void openExternalUrl(String url) {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+    private void startMockingInternal() {
+        double latitude = safeLatitude();
+        double longitude = safeLongitude();
+        double altitude = safeAltitude();
+        if (!GeoSettings.validCoordinates(latitude, longitude, altitude)) {
+            toast(t("Enter valid latitude, longitude, and altitude",
+                    "Gib gültige Werte für Breitengrad, Längengrad und Höhe ein"), true);
+            return;
+        }
+        settings.saveManualCoordinates(latitude, longitude, altitude);
+        requestNotificationPermissionIfNeeded();
+        Intent intent = new Intent(this, MockLocationService.class)
+                .setAction(MockLocationService.ACTION_START)
+                .putExtra(MockLocationService.EXTRA_LATITUDE, latitude)
+                .putExtra(MockLocationService.EXTRA_LONGITUDE, longitude)
+                .putExtra(MockLocationService.EXTRA_ALTITUDE, altitude);
         try {
-            startActivity(intent);
+            startForegroundService(intent);
+            toast(t("GeoJoystick start requested", "GeoJoystick-Start angefordert"), false);
+            scheduleStatusRefresh();
         } catch (RuntimeException exception) {
-            Toast.makeText(this, t("No browser app available", "Keine Browser-App verfügbar"), Toast.LENGTH_SHORT).show();
+            toast(t("GeoJoystick could not be started", "GeoJoystick konnte nicht gestartet werden"), true);
+            updateStatus();
         }
+    }
+
+    private void stopMocking() {
+        Intent intent = new Intent(this, MockLocationService.class).setAction(MockLocationService.ACTION_STOP);
+        try {
+            startService(intent);
+            toast(t("GeoJoystick stop requested", "GeoJoystick-Stopp angefordert"), false);
+            scheduleStatusRefresh();
+        } catch (RuntimeException exception) {
+            toast(t("GeoJoystick could not be stopped", "GeoJoystick konnte nicht gestoppt werden"), true);
+            updateStatus();
+        }
+    }
+
+    private void scheduleStatusRefresh() {
+        if (simulationStatus == null) return;
+        simulationStatus.post(this::updateStatus);
+        simulationStatus.postDelayed(this::updateStatus, 300L);
+        simulationStatus.postDelayed(this::updateStatus, 1000L);
+    }
+
+    private void updateStatus() {
+        if (mockStatus == null || overlayStatus == null || simulationStatus == null) return;
+        boolean mockSelected = isSelectedMockLocationApp();
+        boolean overlayGranted = Settings.canDrawOverlays(this);
+        boolean starting = MockLocationService.isSimulationStarting();
+        boolean active = MockLocationService.isSimulationActive();
+        setStatus(mockStatus, mockSelected ? t("Selected", "Ausgewählt") : t("Not selected", "Nicht ausgewählt"),
+                mockSelected ? palette.success : palette.danger);
+        setStatus(overlayStatus, overlayGranted ? t("Granted", "Erteilt") : t("Not granted", "Nicht erteilt"),
+                overlayGranted ? palette.success : palette.danger);
+        if (active) {
+            setStatus(simulationStatus, t("Active", "Aktiv"), palette.success);
+        } else if (starting) {
+            setStatus(simulationStatus, t("Starting", "Wird gestartet"), palette.warning);
+        } else {
+            setStatus(simulationStatus, t("Inactive", "Inaktiv"), palette.accent);
+        }
+    }
+
+    private void setStatus(TextView view, String value, int color) {
+        view.setText(value);
+        view.setTextColor(color);
+    }
+
+    private boolean isSelectedMockLocationApp() {
+        AppOpsManager appOps = (AppOpsManager) getSystemService(Context.APP_OPS_SERVICE);
+        if (appOps == null) return false;
+        return appOps.checkOpNoThrow(AppOpsManager.OPSTR_MOCK_LOCATION,
+                Process.myUid(), getPackageName()) == AppOpsManager.MODE_ALLOWED;
+    }
+
+    private void openOverlaySettings() {
+        startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:" + getPackageName())));
+    }
+
+    private void openDeveloperSettings() {
+        try {
+            startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS));
+        } catch (RuntimeException exception) {
+            startActivity(new Intent(Settings.ACTION_SETTINGS));
+        }
+    }
+
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
+    private void registerSimulationStateReceiver() {
+        if (receiverRegistered) return;
+        IntentFilter filter = new IntentFilter(MockLocationService.ACTION_STATE_CHANGED);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(simulationStateReceiver, filter,
+                    MockLocationService.PERMISSION_INTERNAL_STATE, null, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(simulationStateReceiver, filter,
+                    MockLocationService.PERMISSION_INTERNAL_STATE, null);
+        }
+        receiverRegistered = true;
+    }
+
+    private void unregisterSimulationStateReceiver() {
+        if (!receiverRegistered) return;
+        try {
+            unregisterReceiver(simulationStateReceiver);
+        } catch (IllegalArgumentException ignored) {
+            // Lifecycle teardown may already have removed it.
+        }
+        receiverRegistered = false;
+    }
+
+    private void requestNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQUEST_NOTIFICATIONS);
+        }
+    }
+
+    private double[] initialCoordinates() {
+        if (draftInitialized) return new double[]{draftLatitude, draftLongitude, draftAltitude};
+        double[] manual = settings.manualCoordinates();
+        if (manual != null) {
+            setDraft(manual[0], manual[1], manual[2]);
+            return manual;
+        }
+        if (settings.restoreLastPosition()) {
+            double[] active = settings.lastActiveCoordinates();
+            if (active != null) {
+                setDraft(active[0], active[1], active[2]);
+                return active;
+            }
+        }
+        setDraft(Double.NaN, Double.NaN, Double.NaN);
+        return new double[]{Double.NaN, Double.NaN, Double.NaN};
+    }
+
+    private boolean validCoordinates() {
+        double latitude = safeLatitude();
+        double longitude = safeLongitude();
+        double altitude = safeAltitude();
+        if (GeoSettings.validCoordinates(latitude, longitude, altitude)) return true;
+        toast(t("Enter valid latitude, longitude, and altitude",
+                "Gib gültige Werte für Breitengrad, Längengrad und Höhe ein"), true);
+        return false;
+    }
+
+    private double safeLatitude() { return safeDouble(latitudeInput); }
+    private double safeLongitude() { return safeDouble(longitudeInput); }
+    private double safeAltitude() { return safeDouble(altitudeInput); }
+
+    private double safeDouble(EditText input) {
+        if (input == null) return Double.NaN;
+        try {
+            double value = Double.parseDouble(input.getText().toString().trim());
+            return Double.isFinite(value) ? value : Double.NaN;
+        } catch (RuntimeException exception) {
+            return Double.NaN;
+        }
+    }
+
+    private void setCoordinates(double latitude, double longitude, double altitude) {
+        if (!GeoSettings.validCoordinates(latitude, longitude, altitude)
+                || latitudeInput == null || longitudeInput == null || altitudeInput == null) return;
+        setDraft(latitude, longitude, altitude);
+        latitudeInput.setText(format(latitude));
+        longitudeInput.setText(format(longitude));
+        altitudeInput.setText(format(altitude));
+        settings.saveManualCoordinates(latitude, longitude, altitude);
+    }
+
+    private boolean setHorizontalCoordinates(double latitude, double longitude) {
+        if (!GeoSettings.validHorizontal(latitude, longitude)
+                || latitudeInput == null || longitudeInput == null) return false;
+        double altitude = safeAltitude();
+        setDraft(latitude, longitude, altitude);
+        latitudeInput.setText(format(latitude));
+        longitudeInput.setText(format(longitude));
+        if (GeoSettings.validCoordinates(latitude, longitude, altitude)) {
+            settings.saveManualCoordinates(latitude, longitude, altitude);
+        }
+        return true;
+    }
+
+    private void saveVisibleCoordinates() {
+        if (latitudeInput == null || longitudeInput == null || altitudeInput == null) return;
+        double latitude = safeLatitude();
+        double longitude = safeLongitude();
+        double altitude = safeAltitude();
+        setDraft(latitude, longitude, altitude);
+        if (GeoSettings.validCoordinates(latitude, longitude, altitude)) {
+            settings.saveManualCoordinates(latitude, longitude, altitude);
+        }
+    }
+
+    private void setDraft(double latitude, double longitude, double altitude) {
+        draftLatitude = latitude;
+        draftLongitude = longitude;
+        draftAltitude = altitude;
+        draftInitialized = true;
+    }
+
+    private void restoreDraft(Bundle state) {
+        if (state == null || !state.getBoolean(STATE_DRAFT_INITIALIZED, false)) return;
+        setDraft(state.getDouble(STATE_DRAFT_LATITUDE, Double.NaN),
+                state.getDouble(STATE_DRAFT_LONGITUDE, Double.NaN),
+                state.getDouble(STATE_DRAFT_ALTITUDE, Double.NaN));
+    }
+
+    private String format(double value) {
+        return Double.isFinite(value) ? String.format(Locale.US, "%.6f", value) : "";
     }
 
     private EditText coordinateInput(String hint, double value) {
-        EditText input = textInput(hint, String.format(Locale.US, "%.6f", value));
+        EditText input = textInput(hint, format(value));
         input.setSelectAllOnFocus(true);
         input.setInputType(InputType.TYPE_CLASS_NUMBER
                 | InputType.TYPE_NUMBER_FLAG_DECIMAL
@@ -923,357 +1439,169 @@ public final class MainActivity extends Activity {
         input.setSingleLine(true);
         input.setText(value);
         input.setTextSize(14);
-        input.setTextColor(colorText);
-        input.setHintTextColor(colorTextDim);
-        input.setPadding(dp(10), dp(10), dp(10), dp(10));
-        input.setBackground(cardBackground());
+        input.setTextColor(palette.text);
+        input.setHintTextColor(palette.textDim);
+        input.setPadding(dp(12), dp(8), dp(12), dp(8));
+        input.setMinHeight(dp(48));
+        input.setBackground(GeoUi.input(this, palette));
         return input;
     }
 
-    private Button fullButton(String text) {
-        Button button = new Button(this);
-        button.setText(text);
-        button.setAllCaps(false);
-        button.setTextSize(13);
-        button.setTextColor(colorButtonText);
-        button.setMinHeight(0);
-        button.setPadding(dp(8), dp(7), dp(8), dp(7));
-        button.setBackground(buttonBackground(false));
+    private ScrollView pageScroll() {
+        ScrollView page = new ScrollView(this);
+        page.setFillViewport(true);
+        page.setClipToPadding(false);
+        page.setBackgroundColor(palette.background);
+        return page;
+    }
+
+    private LinearLayout pageRoot() {
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(dp(16), dp(10), dp(16), dp(18));
+        root.setBackgroundColor(palette.background);
+        return root;
+    }
+
+    private LinearLayout card() {
+        return GeoUi.card(this, palette);
+    }
+
+    private void addCardTitle(LinearLayout card, String value) {
+        TextView title = text(value, 13, palette.text, true);
+        title.setPadding(dp(2), 0, dp(2), dp(4));
+        card.addView(title);
+    }
+
+    private TextView addStatusRow(LinearLayout card, String label) {
+        LinearLayout row = new LinearLayout(this);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        TextView name = text(label, 13, palette.text, false);
+        name.setGravity(Gravity.CENTER_VERTICAL);
+        TextView value = text(t("Checking…", "Wird geprüft…"), 12, palette.textDim, true);
+        value.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
+        row.addView(name, new LinearLayout.LayoutParams(0, dp(42), 1f));
+        row.addView(value, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(42)));
+        card.addView(row);
+        return value;
+    }
+
+    private Button actionTile(String symbol, String label) {
+        Button button = GeoUi.button(this, palette, symbol + "\n" + label, false);
+        button.setTextSize(11);
+        button.setMinHeight(dp(58));
+        button.setMinimumHeight(dp(58));
         return button;
     }
 
-    private Button compactFavoriteButton(int slot) {
-        Button button = fullButton(favoriteDisplayName(slot));
-        button.setTextSize(10);
-        button.setSingleLine(true);
-        button.setPadding(0, dp(5), 0, dp(5));
-        return button;
+    private TextView section(String value) {
+        return GeoUi.sectionLabel(this, palette, value);
     }
 
-    private TextView sectionText(String text, int sizeSp, int color) {
-        TextView view = new TextView(this);
-        view.setText(text);
-        view.setTextSize(sizeSp);
-        view.setTextColor(color);
-        return view;
+    private TextView text(String value, int size, int color, boolean bold) {
+        TextView text = GeoUi.text(this, value, size, color);
+        if (bold) text.setTypeface(Typeface.DEFAULT_BOLD);
+        return text;
     }
 
-    private GradientDrawable cardBackground() {
-        GradientDrawable drawable = new GradientDrawable();
-        drawable.setColor(colorCard);
-        drawable.setCornerRadius(dp(6));
-        drawable.setStroke(dp(1), colorBorder);
-        return drawable;
-    }
-
-    private GradientDrawable buttonBackground(boolean active) {
-        GradientDrawable drawable = new GradientDrawable();
-        drawable.setColor(active ? colorAccent : colorButton);
-        drawable.setCornerRadius(dp(6));
-        drawable.setStroke(dp(1), active ? colorAccent : colorBorder);
-        return drawable;
-    }
-
-    private LinearLayout.LayoutParams matchWidth() {
+    private LinearLayout.LayoutParams innerRow() {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.setMargins(0, dp(5), 0, dp(5));
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.topMargin = dp(2);
+        params.bottomMargin = dp(2);
         return params;
     }
 
-    private LinearLayout.LayoutParams weighted() {
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                0,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                1f);
-        params.setMargins(dp(2), dp(4), dp(2), dp(4));
+    private LinearLayout.LayoutParams margin(int top, int bottom) {
+        return GeoUi.matchWidth(this, top, bottom);
+    }
+
+    private LinearLayout.LayoutParams tileWeight() {
+        LinearLayout.LayoutParams params = GeoUi.weighted(this, 2);
+        params.height = dp(60);
         return params;
     }
 
-    private LinearLayout.LayoutParams favoriteWeight() {
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                0,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                1f);
-        params.setMargins(dp(1), dp(2), dp(1), dp(2));
-        return params;
+    private AlertDialog.Builder appDialogBuilder() {
+        return new AlertDialog.Builder(this,
+                settings.isDark() ? R.style.AppDialogThemeDark : R.style.AppDialogThemeLight);
     }
 
-    private void updateStatus() {
-        if (statusText == null) {
-            return;
-        }
-        boolean overlayGranted = Settings.canDrawOverlays(this);
-        boolean mockSelected = isSelectedMockLocationApp();
-        statusText.setText(String.format(
-                Locale.US,
-                t("Overlay: %s     Mock location app: %s", "Overlay: %s     Mock-Standort-App: %s"),
-                overlayGranted ? t("ready", "bereit") : t("not granted", "nicht erlaubt"),
-                mockSelected ? t("selected", "ausgewählt") : t("not selected", "nicht ausgewählt")));
-        statusText.setTextColor(overlayGranted && mockSelected ? 0xFF2E7D32 : 0xFFC62828);
+    private String changelogText() {
+        return t(
+                "• Dialogs now follow the selected dark theme.\n"
+                        + "• GeoJoystick now uses a dedicated icon in store listings.\n\n"
+                        + "0.1.0\n"
+                        + "• Initial public release with coordinate and altitude entry, map selection and link import, favorites, appearance and language settings, and floating joystick controls.",
+                "• Dialoge folgen nun dem ausgewählten dunklen Design.\n"
+                        + "• GeoJoystick verwendet nun ein eigenes Symbol in Store-Einträgen.\n\n"
+                        + "0.1.0\n"
+                        + "• Erste öffentliche Version mit Koordinaten- und Höheneingabe, Kartenauswahl und Linkimport, Favoriten, Darstellungs- und Spracheinstellungen sowie schwebender Joystick-Steuerung.");
     }
 
-    private void startMocking() {
-        if (!validCoordinates()) {
-            return;
-        }
-        pendingStart = true;
-        if (!Settings.canDrawOverlays(this)) {
-            openOverlaySettings();
-            return;
-        }
-        if (!isSelectedMockLocationApp()) {
-            appDialogBuilder()
-                    .setTitle(t("Select GeoJoystick", "GeoJoystick auswählen"))
-                    .setMessage(t(
-                            "In Developer options, choose GeoJoystick under Select mock location app, then return here.",
-                            "Wähle in den Entwickleroptionen GeoJoystick unter Mock-Standort-App auswählen und kehre dann hierher zurück."))
-                    .setPositiveButton(t("Open settings", "Einstellungen öffnen"), (dialog, which) -> openDeveloperSettings())
-                    .setNegativeButton(t("Cancel", "Abbrechen"), (dialog, which) -> pendingStart = false)
-                    .show();
-            return;
-        }
-        pendingStart = false;
-        startMockingInternal();
+    private String supportDisclosureText() {
+        return t("Donations are entirely optional. They do not unlock features or provide any additional benefits.",
+                "Spenden sind vollständig freiwillig. Sie schalten keine Funktionen frei und bieten keinerlei zusätzliche Vorteile.");
     }
 
-    private void startMockingInternal() {
-        double lat = getLatitude();
-        double lng = getLongitude();
-        double alt = getAltitude();
-        saveCoordinates(lat, lng, alt);
-        requestNotificationPermissionIfNeeded();
-
-        Intent intent = new Intent(this, MockLocationService.class)
-                .setAction(MockLocationService.ACTION_START)
-                .putExtra(MockLocationService.EXTRA_LATITUDE, lat)
-                .putExtra(MockLocationService.EXTRA_LONGITUDE, lng)
-                .putExtra(MockLocationService.EXTRA_ALTITUDE, alt);
-        startForegroundService(intent);
-        Toast.makeText(this, t("GeoJoystick started", "GeoJoystick gestartet"), Toast.LENGTH_SHORT).show();
+    private String readAssetText(String name) {
+        StringBuilder builder = new StringBuilder();
+        try (InputStream stream = getAssets().open(name);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) builder.append(line).append('\n');
+        } catch (IOException exception) {
+            return t("License text is unavailable in this build.",
+                    "Der Lizenztext ist in diesem Build nicht verfügbar.");
+        }
+        return builder.toString();
     }
 
-    private void stopMocking() {
-        Intent intent = new Intent(this, MockLocationService.class)
-                .setAction(MockLocationService.ACTION_STOP);
-        startService(intent);
+    private String reflowLicenseText(String text) {
+        if (text == null || text.isEmpty()) return "";
+        String normalized = text.replace("\r\n", "\n").replace('\r', '\n');
+        String[] paragraphs = normalized.split("\n[ \\t]*\n");
+        StringBuilder output = new StringBuilder();
+        for (String paragraph : paragraphs) {
+            StringBuilder joined = new StringBuilder();
+            for (String line : paragraph.split("\n")) {
+                String trimmed = line.trim();
+                if (trimmed.isEmpty()) continue;
+                if (joined.length() > 0) joined.append(' ');
+                joined.append(trimmed);
+            }
+            if (joined.length() == 0) continue;
+            if (output.length() > 0) output.append("\n\n");
+            output.append(joined);
+        }
+        return output.toString();
     }
 
-    private void resetOverlayPosition() {
-        preferences.edit()
-                .remove(PREF_OVERLAY_X)
-                .remove(PREF_OVERLAY_Y)
-                .apply();
-        Toast.makeText(this, t("Overlay position reset for next show", "Overlay-Position für die nächste Anzeige zurückgesetzt"), Toast.LENGTH_SHORT).show();
-    }
-
-    private void openMap() {
-        if (!validCoordinates()) {
-            return;
-        }
-        Intent intent = new Intent(this, MapActivity.class)
-                .putExtra(MapActivity.EXTRA_LATITUDE, getLatitude())
-                .putExtra(MapActivity.EXTRA_LONGITUDE, getLongitude());
-        startActivityForResult(intent, REQUEST_MAP);
-    }
-
-    private void importFromClipboard() {
-        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        if (clipboard == null || !clipboard.hasPrimaryClip()) {
-            Toast.makeText(this, t("Clipboard is empty", "Zwischenablage ist leer"), Toast.LENGTH_SHORT).show();
-            return;
-        }
-        ClipData clip = clipboard.getPrimaryClip();
-        if (clip == null || clip.getItemCount() == 0) {
-            Toast.makeText(this, t("Clipboard is empty", "Zwischenablage ist leer"), Toast.LENGTH_SHORT).show();
-            return;
-        }
-        CharSequence text = clip.getItemAt(0).coerceToText(this);
-        importLocationText(text == null ? null : text.toString());
-    }
-
-    private void handleIncomingIntent(Intent intent) {
-        if (intent == null || !Intent.ACTION_SEND.equals(intent.getAction())) {
-            return;
-        }
-        CharSequence text = intent.getCharSequenceExtra(Intent.EXTRA_TEXT);
-        if (text != null) {
-            importLocationText(text.toString());
-        }
-    }
-
-    private void importLocationText(String text) {
-        if (text == null || text.trim().isEmpty()) {
-            Toast.makeText(this, t("No location link found", "Kein Standortlink gefunden"), Toast.LENGTH_SHORT).show();
-            return;
-        }
-        Toast.makeText(this, t("Reading location link…", "Standortlink wird gelesen…"), Toast.LENGTH_SHORT).show();
-        new Thread(() -> {
-            double[] coordinates = LocationLinkParser.resolveCoordinates(text);
-            runOnUiThread(() -> {
-                if (coordinates == null) {
-                    Toast.makeText(this, t("Could not extract coordinates from that link", "Aus diesem Link konnten keine Koordinaten gelesen werden"), Toast.LENGTH_LONG).show();
-                } else {
-                    setCoordinateInputs(coordinates[0], coordinates[1], getAltitude());
-                    Toast.makeText(this, t("Coordinates imported", "Koordinaten importiert"), Toast.LENGTH_SHORT).show();
-                }
-            });
-        }, "MapLinkResolver").start();
-    }
-
-    private void openInMaps() {
-        if (!validCoordinates()) {
-            return;
-        }
-        double lat = getLatitude();
-        double lng = getLongitude();
-        Intent intent = new Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse(String.format(Locale.US, "geo:%.8f,%.8f?q=%.8f,%.8f", lat, lng, lat, lng)));
+    private void openExternalUrl(String url) {
         try {
-            startActivity(intent);
-        } catch (RuntimeException noMapApp) {
-            openExternalUrl(String.format(
-                    Locale.US,
-                    "https://www.openstreetmap.org/?mlat=%.8f&mlon=%.8f#map=17/%.8f/%.8f",
-                    lat,
-                    lng,
-                    lat,
-                    lng));
-        }
-    }
-
-    private void openOverlaySettings() {
-        Intent intent = new Intent(
-                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:" + getPackageName()));
-        startActivity(intent);
-    }
-
-    private void openDeveloperSettings() {
-        try {
-            startActivity(new Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS));
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
         } catch (RuntimeException exception) {
-            startActivity(new Intent(Settings.ACTION_SETTINGS));
+            toast(t("No browser app available", "Keine Browser-App verfügbar"), false);
         }
     }
 
-    private boolean isSelectedMockLocationApp() {
-        AppOpsManager appOps = (AppOpsManager) getSystemService(Context.APP_OPS_SERVICE);
-        if (appOps == null) {
-            return false;
-        }
-        int mode = appOps.checkOpNoThrow(
-                AppOpsManager.OPSTR_MOCK_LOCATION,
-                Process.myUid(),
-                getPackageName());
-        return mode == AppOpsManager.MODE_ALLOWED;
+    private void applySystemBarInsets(View view) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) return;
+        int left = view.getPaddingLeft();
+        int top = view.getPaddingTop();
+        int right = view.getPaddingRight();
+        int bottom = view.getPaddingBottom();
+        view.setOnApplyWindowInsetsListener((target, insets) -> {
+            android.graphics.Insets safe = insets.getInsets(
+                    WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
+            target.setPadding(left + safe.left, top + safe.top, right + safe.right, bottom + safe.bottom);
+            return insets;
+        });
+        view.requestApplyInsets();
     }
 
-    private void requestNotificationPermissionIfNeeded() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-                && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 2040);
-        }
-    }
-
-    private boolean validCoordinates() {
-        try {
-            double lat = getLatitude();
-            double lng = getLongitude();
-            double alt = getAltitude();
-            if (!validCoordinateValues(lat, lng, alt)) {
-                throw new NumberFormatException("Coordinate out of range");
-            }
-            return true;
-        } catch (NumberFormatException exception) {
-            Toast.makeText(this, t("Enter valid latitude, longitude, and altitude", "Gib gültige Werte für Breitengrad, Längengrad und Höhe ein"), Toast.LENGTH_LONG).show();
-            return false;
-        }
-    }
-
-    private boolean validCoordinateValues(double lat, double lng, double alt) {
-        return Double.isFinite(lat) && Double.isFinite(lng) && Double.isFinite(alt)
-                && lat >= -90.0 && lat <= 90.0 && lng >= -180.0 && lng <= 180.0;
-    }
-
-    private double getLatitude() {
-        return Double.parseDouble(latitudeInput.getText().toString().trim());
-    }
-
-    private double getLongitude() {
-        return Double.parseDouble(longitudeInput.getText().toString().trim());
-    }
-
-    private double getAltitude() {
-        return Double.parseDouble(altitudeInput.getText().toString().trim());
-    }
-
-    private double safeLatitude() {
-        try {
-            return getLatitude();
-        } catch (NumberFormatException exception) {
-            return 52.520008;
-        }
-    }
-
-    private double safeLongitude() {
-        try {
-            return getLongitude();
-        } catch (NumberFormatException exception) {
-            return 13.404954;
-        }
-    }
-
-    private double safeAltitude() {
-        try {
-            return getAltitude();
-        } catch (NumberFormatException exception) {
-            return 55.0;
-        }
-    }
-
-    private void setCoordinateInputs(double latitude, double longitude, double altitude) {
-        latitudeInput.setText(String.format(Locale.US, "%.6f", latitude));
-        longitudeInput.setText(String.format(Locale.US, "%.6f", longitude));
-        altitudeInput.setText(String.format(Locale.US, "%.6f", altitude));
-        saveManualCoordinates(latitude, longitude, altitude);
-    }
-
-    private void saveVisibleCoordinateFields() {
-        if (latitudeInput == null || longitudeInput == null || altitudeInput == null) {
-            return;
-        }
-        try {
-            double lat = getLatitude();
-            double lng = getLongitude();
-            double alt = getAltitude();
-            if (validCoordinateValues(lat, lng, alt)) {
-                saveManualCoordinates(lat, lng, alt);
-            }
-        } catch (NumberFormatException ignored) {
-            // Keep the last valid saved values while the user is editing invalid text.
-        }
-    }
-
-    private void saveManualCoordinates(double latitude, double longitude, double altitude) {
-        preferences.edit()
-                .putLong(PREF_MANUAL_LATITUDE, Double.doubleToRawLongBits(latitude))
-                .putLong(PREF_MANUAL_LONGITUDE, Double.doubleToRawLongBits(longitude))
-                .putLong(PREF_MANUAL_ALTITUDE, Double.doubleToRawLongBits(altitude))
-                .apply();
-    }
-
-    private void saveCoordinates(double latitude, double longitude, double altitude) {
-        preferences.edit()
-                .putLong(PREF_MANUAL_LATITUDE, Double.doubleToRawLongBits(latitude))
-                .putLong(PREF_MANUAL_LONGITUDE, Double.doubleToRawLongBits(longitude))
-                .putLong(PREF_MANUAL_ALTITUDE, Double.doubleToRawLongBits(altitude))
-                .putLong(PREF_LATITUDE, Double.doubleToRawLongBits(latitude))
-                .putLong(PREF_LONGITUDE, Double.doubleToRawLongBits(longitude))
-                .putLong(PREF_ALTITUDE, Double.doubleToRawLongBits(altitude))
-                .apply();
+    private void toast(String value, boolean longDuration) {
+        Toast.makeText(this, value, longDuration ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT).show();
     }
 
     private String t(String english, String germanText) {
@@ -1281,6 +1609,6 @@ public final class MainActivity extends Activity {
     }
 
     private int dp(int value) {
-        return Math.round(value * getResources().getDisplayMetrics().density);
+        return GeoUi.dp(this, value);
     }
 }
