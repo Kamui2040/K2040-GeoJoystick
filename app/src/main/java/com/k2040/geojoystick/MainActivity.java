@@ -108,6 +108,9 @@ public final class MainActivity extends Activity {
         super.onNewIntent(intent);
         setIntent(intent);
         incomingIntentConsumed = false;
+        if (!settings.welcomeAcknowledged()) {
+            return;
+        }
         handleIncomingIntent(intent);
     }
 
@@ -455,49 +458,119 @@ public final class MainActivity extends Activity {
     private void showAboutPage() {
         saveVisibleCoordinates();
         currentPage = "about";
-        ScrollView page = pageScroll();
-        LinearLayout root = pageRoot();
-        page.addView(root);
-        root.addView(pageHeader(t("About", "Info"), this::showHomePage), margin(0, 4));
 
-        LinearLayout identity = card();
+        FrameLayout stage = new FrameLayout(this);
+        stage.setBackgroundColor(palette.background);
+        stage.setClickable(true);
+        stage.setFocusable(true);
+
+        ScrollView background = buildHomePage();
+        background.setAlpha(settings.isDark() ? 0.34f : 0.26f);
+        background.setEnabled(false);
+        background.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        background.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+        stage.addView(background, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+
+        View scrim = new View(this);
+        scrim.setBackgroundColor(Color.BLACK);
+        scrim.setAlpha(settings.isDark() ? 0.60f : 0.43f);
+        scrim.setClickable(true);
+        scrim.setFocusable(true);
+        scrim.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        stage.addView(scrim, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+
+        LinearLayout modal = new LinearLayout(this);
+        modal.setOrientation(LinearLayout.VERTICAL);
+        modal.setPadding(dp(16), dp(8), dp(16), dp(14));
+        modal.setBackground(GeoUi.elevated(this, palette));
+        modal.setElevation(dp(18));
+        modal.setClickable(true);
+        modal.setFocusable(true);
+        modal.setFocusableInTouchMode(true);
+
+        LinearLayout closeRow = new LinearLayout(this);
+        closeRow.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
+        TextView close = text("×", 24, palette.textDim, false);
+        close.setGravity(Gravity.CENTER);
+        close.setClickable(true);
+        close.setFocusable(true);
+        close.setContentDescription(t("Close About", "Info schließen"));
+        close.setOnClickListener(view -> showHomePage());
+        closeRow.addView(close, new LinearLayout.LayoutParams(dp(48), dp(48)));
+        modal.addView(closeRow, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        ScrollView bodyScroll = new ScrollView(this);
+        bodyScroll.setFillViewport(false);
+        bodyScroll.setFocusable(false);
+        bodyScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        LinearLayout body = new LinearLayout(this);
+        body.setOrientation(LinearLayout.VERTICAL);
+        body.setGravity(Gravity.CENTER_HORIZONTAL);
+        body.setPadding(0, 0, 0, dp(2));
+        bodyScroll.addView(body);
+
         ImageView avatar = new ImageView(this);
         avatar.setImageResource(R.drawable.k2040_avatar);
         avatar.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         avatar.setContentDescription(t("K2040 avatar", "K2040-Avatar"));
-        LinearLayout.LayoutParams avatarParams = new LinearLayout.LayoutParams(dp(108), dp(108));
+        LinearLayout.LayoutParams avatarParams = new LinearLayout.LayoutParams(dp(88), dp(88));
         avatarParams.gravity = Gravity.CENTER_HORIZONTAL;
-        avatarParams.bottomMargin = dp(8);
-        identity.addView(avatar, avatarParams);
-        TextView name = text("GeoJoystick", 26, palette.text, true);
-        name.setGravity(Gravity.CENTER);
-        identity.addView(name, innerRow());
-        TextView description = text(
-                t("Transparent mock-location simulation for Android developer and emulator testing.",
-                        "Transparente Mock-Standort-Simulation für Android-Entwicklung und Emulator-Tests."),
-                13, palette.textDim, false);
-        description.setGravity(Gravity.CENTER);
-        description.setPadding(dp(10), 0, dp(10), dp(8));
-        identity.addView(description, innerRow());
-        root.addView(identity, margin(4, 6));
+        avatarParams.bottomMargin = dp(4);
+        body.addView(avatar, avatarParams);
 
-        root.addView(trustPanel(), margin(4, 6));
+        TextView title = text("GeoJoystick", 25, palette.text, true);
+        title.setGravity(Gravity.CENTER);
+        body.addView(title, innerRow());
 
-        LinearLayout info = card();
-        info.addView(infoRow("Version 0.1.3", t("What's new", "Neuigkeiten"), () -> showChangelogPage(false)), innerRow());
-        info.addView(infoRow(t("License & usage", "Lizenz & Nutzung"), "GPL-3.0-only", () -> showLicensePage(false)), innerRow());
-        info.addView(infoRow(t("Support on Ko-fi", "Auf Ko-fi unterstützen"),
-                t("Optional · no features unlocked", "Optional · keine Funktionen werden freigeschaltet"),
+        TextView version = text(BuildConfig.VERSION_NAME, 9, palette.textDim, false);
+        version.setGravity(Gravity.CENTER);
+        version.setPadding(dp(4), 0, dp(4), dp(4));
+        body.addView(version, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        TextView about = text(welcomeAboutText(), 11, palette.textDim, false);
+        about.setGravity(Gravity.CENTER);
+        about.setLineSpacing(0, 1.08f);
+        about.setPadding(dp(12), dp(4), dp(12), dp(8));
+        body.addView(about, innerRow());
+
+        body.addView(welcomeNavigationRow(t("Changelog", "Änderungsprotokoll"),
+                () -> showChangelogPage(false)), innerRow());
+        body.addView(welcomeNavigationRow(t("License & usage", "Lizenz & Nutzung"),
+                () -> showLicensePage(false)), innerRow());
+        body.addView(welcomeNavigationRow(t("Support on Ko-fi", "Auf Ko-fi unterstützen"),
                 () -> openExternalUrl("https://ko-fi.com/k2040")), innerRow());
-        root.addView(info, margin(4, 4));
+        body.addView(welcomeExpandableRow(t("Thanks & credits", "Dank & Mitwirkende"),
+                welcomeThanksText()), innerRow());
 
-        TextView disclosure = text(supportDisclosureText(), 10, palette.textDim, false);
+        TextView disclosure = text(supportDisclosureText(), 9, palette.textDim, false);
         disclosure.setGravity(Gravity.CENTER);
-        disclosure.setPadding(dp(12), dp(4), dp(12), dp(8));
-        root.addView(disclosure, margin(0, 4));
+        disclosure.setPadding(dp(10), dp(5), dp(10), dp(2));
+        body.addView(disclosure, innerRow());
 
-        setContentView(page);
-        applySystemBarInsets(page);
+        modal.addView(bodyScroll, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+
+        int width = Math.min(dp(336), getResources().getDisplayMetrics().widthPixels - dp(56));
+        int availableHeight = Math.max(dp(340),
+                getResources().getDisplayMetrics().heightPixels - dp(72));
+        int height = Math.min(dp(540), availableHeight);
+        FrameLayout.LayoutParams modalParams = new FrameLayout.LayoutParams(
+                Math.max(dp(260), width),
+                height,
+                Gravity.CENTER);
+        stage.addView(modal, modalParams);
+
+        setContentView(stage);
+        applySystemBarInsets(stage);
+        modal.requestFocus();
+        bodyScroll.post(() -> bodyScroll.scrollTo(0, 0));
     }
 
     private void showChangelogPage(boolean returnToWelcome) {
@@ -582,6 +655,7 @@ public final class MainActivity extends Activity {
 
     private void showWelcomePage() {
         currentPage = "welcome";
+
         FrameLayout stage = new FrameLayout(this);
         stage.setBackgroundColor(palette.background);
         stage.setClickable(true);
@@ -608,104 +682,89 @@ public final class MainActivity extends Activity {
 
         LinearLayout modal = new LinearLayout(this);
         modal.setOrientation(LinearLayout.VERTICAL);
-        modal.setPadding(dp(16), dp(14), dp(16), dp(14));
+        modal.setGravity(Gravity.CENTER_HORIZONTAL);
+        modal.setPadding(dp(18), dp(16), dp(18), dp(14));
         modal.setBackground(GeoUi.elevated(this, palette));
         modal.setElevation(dp(18));
         modal.setClickable(true);
         modal.setFocusable(true);
         modal.setFocusableInTouchMode(true);
 
-        ScrollView bodyScroll = new ScrollView(this);
-        bodyScroll.setFillViewport(false);
-        bodyScroll.setFocusable(false);
-        bodyScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        LinearLayout body = new LinearLayout(this);
-        body.setOrientation(LinearLayout.VERTICAL);
-        body.setGravity(Gravity.CENTER_HORIZONTAL);
-        body.setPadding(0, dp(4), 0, dp(2));
-        bodyScroll.addView(body);
-
         ImageView avatar = new ImageView(this);
         avatar.setImageResource(R.drawable.k2040_avatar);
         avatar.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         avatar.setContentDescription(t("K2040 avatar", "K2040-Avatar"));
-        LinearLayout.LayoutParams avatarParams = new LinearLayout.LayoutParams(dp(88), dp(88));
+        LinearLayout.LayoutParams avatarParams = new LinearLayout.LayoutParams(dp(72), dp(72));
         avatarParams.gravity = Gravity.CENTER_HORIZONTAL;
-        avatarParams.topMargin = dp(2);
         avatarParams.bottomMargin = dp(4);
-        body.addView(avatar, avatarParams);
+        modal.addView(avatar, avatarParams);
 
         TextView title = text("GeoJoystick", 25, palette.text, true);
         title.setGravity(Gravity.CENTER);
-        body.addView(title, innerRow());
+        modal.addView(title, innerRow());
 
-        TextView version = text(BuildConfig.VERSION_NAME, 9, palette.textDim, false);
-        version.setGravity(Gravity.CENTER);
-        version.setPadding(dp(4), 0, dp(4), dp(2));
-        body.addView(version, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
+        TextView summary = text(t(
+                "Transparent mock-location joystick for Android developer and emulator testing. "
+                        + "Local-first, with no account, ads, analytics, or tracking.",
+                "Transparenter Mock-Standort-Joystick für Android-Entwicklung und Emulator-Tests. "
+                        + "Lokal, ohne Konto, Werbung, Analysen oder Tracking."),
+                11, palette.textDim, false);
+        summary.setGravity(Gravity.CENTER);
+        summary.setLineSpacing(0, 1.08f);
+        summary.setPadding(dp(8), dp(4), dp(8), dp(6));
+        modal.addView(summary, innerRow());
 
-        body.addView(welcomeExpandableRow(t("About", "Über"), welcomeAboutText()), innerRow());
-        body.addView(welcomeNavigationRow(t("Changelog", "Änderungsprotokoll"),
-                () -> showChangelogPage(true)), innerRow());
-        body.addView(welcomeNavigationRow(t("License & usage", "Lizenz & Nutzung"),
-                () -> showLicensePage(true)), innerRow());
-        body.addView(welcomeNavigationRow(t("Support on Ko-fi", "Auf Ko-fi unterstützen"),
-                () -> openExternalUrl("https://ko-fi.com/k2040")), innerRow());
-        body.addView(welcomeExpandableRow(t("Thanks & credits", "Dank & Mitwirkende"),
-                welcomeThanksText()), innerRow());
+        TextView appLicense = text(t("App license · GPL-3.0-only",
+                "App-Lizenz · GPL-3.0-only"), 11, palette.accent, true);
+        appLicense.setGravity(Gravity.CENTER);
+        appLicense.setPadding(dp(10), dp(7), dp(10), dp(7));
+        appLicense.setClickable(true);
+        appLicense.setFocusable(true);
+        appLicense.setContentDescription(t(
+                "GPL-3.0-only app license. Open license details",
+                "GPL-3.0-only-App-Lizenz. Lizenzdetails öffnen"));
+        appLicense.setBackground(GeoUi.surface(this, palette));
+        appLicense.setOnClickListener(view -> showLicensePage(true));
+        modal.addView(appLicense, margin(4, 2));
 
-        TextView acknowledgement = text(
-                t("Continue only confirms acknowledgement of this notice.",
-                        "Weiter bestätigt nur die Kenntnisnahme dieses Hinweises."),
-                9, palette.textDim, false);
-        acknowledgement.setGravity(Gravity.CENTER);
-        acknowledgement.setPadding(dp(8), dp(3), dp(8), dp(2));
-        body.addView(acknowledgement, innerRow());
+        TextView mapLicense = text(t(
+                "Map data · © OpenStreetMap contributors · ODbL 1.0",
+                "Kartendaten · © OpenStreetMap-Mitwirkende · ODbL 1.0"),
+                9, palette.accent, false);
+        mapLicense.setGravity(Gravity.CENTER);
+        mapLicense.setPadding(dp(8), dp(5), dp(8), dp(5));
+        mapLicense.setClickable(true);
+        mapLicense.setFocusable(true);
+        mapLicense.setContentDescription(t(
+                "OpenStreetMap data, ODbL 1.0. Open licensing details",
+                "OpenStreetMap-Daten, ODbL 1.0. Lizenzdetails öffnen"));
+        mapLicense.setOnClickListener(view -> openExternalUrl("https://www.openstreetmap.org/copyright"));
+        modal.addView(mapLicense, innerRow());
 
-        modal.addView(bodyScroll, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-
-        LinearLayout actions = new LinearLayout(this);
-        actions.setOrientation(LinearLayout.HORIZONTAL);
-        actions.setGravity(Gravity.CENTER);
-
-        Button cancelButton = welcomeActionButton(t("Cancel", "Abbrechen"), false);
-        cancelButton.setContentDescription(t(
-                "Cancel and close GeoJoystick",
-                "Abbrechen und GeoJoystick schließen"));
-        cancelButton.setOnClickListener(view -> finishAndRemoveTask());
-
-        Button continueButton = welcomeActionButton(t("Continue", "Weiter"), false);
+        Button continueButton = welcomeActionButton(t("Continue", "Weiter"), true);
+        continueButton.setContentDescription(t(
+                "Continue to GeoJoystick",
+                "Weiter zu GeoJoystick"));
         continueButton.setOnClickListener(view -> {
             settings.acknowledgeWelcome();
             showHomePage();
             handleIncomingIntent(getIntent());
         });
+        LinearLayout.LayoutParams continueParams = new LinearLayout.LayoutParams(dp(160), dp(48));
+        continueParams.gravity = Gravity.CENTER_HORIZONTAL;
+        continueParams.topMargin = dp(4);
+        modal.addView(continueButton, continueParams);
 
-        LinearLayout.LayoutParams cancelParams = new LinearLayout.LayoutParams(dp(124), dp(48));
-        cancelParams.rightMargin = dp(2);
-        LinearLayout.LayoutParams continueParams = new LinearLayout.LayoutParams(dp(124), dp(48));
-        continueParams.leftMargin = dp(2);
-        actions.addView(cancelButton, cancelParams);
-        actions.addView(continueButton, continueParams);
-        modal.addView(actions, margin(4, 0));
-
-        int width = Math.min(dp(336), getResources().getDisplayMetrics().widthPixels - dp(56));
-        int availableHeight = Math.max(dp(340),
-                getResources().getDisplayMetrics().heightPixels - dp(64));
-        int height = Math.min(dp(528), availableHeight);
+        int width = Math.min(dp(320), getResources().getDisplayMetrics().widthPixels - dp(64));
         FrameLayout.LayoutParams modalParams = new FrameLayout.LayoutParams(
                 Math.max(dp(260), width),
-                height,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
                 Gravity.CENTER);
         stage.addView(modal, modalParams);
 
         setContentView(stage);
         applySystemBarInsets(stage);
         modal.requestFocus();
-        bodyScroll.post(() -> bodyScroll.scrollTo(0, 0));
     }
 
     private void showLicensePage(boolean returnToWelcome) {
@@ -842,11 +901,11 @@ public final class MainActivity extends Activity {
     private String welcomeAboutText() {
         return t(
                 "Transparent mock-location joystick for Android developer and emulator testing.\n\n"
-                        + "Local · No account · No unnecessary tracking\n"
-                        + "Coordinates and settings stay on your device. No analytics and no account system.",
+                        + "Local-first · No account · No ads · No analytics · No tracking\n"
+                        + "Coordinates and settings stay on your device.",
                 "Transparenter Mock-Standort-Joystick für Android-Entwicklung und Emulator-Tests.\n\n"
-                        + "Lokal · Kein Konto · Kein unnötiges Tracking\n"
-                        + "Koordinaten und Einstellungen bleiben auf deinem Gerät. Keine Analysen und kein Kontosystem.");
+                        + "Lokal · Kein Konto · Keine Werbung · Keine Analysen · Kein Tracking\n"
+                        + "Koordinaten und Einstellungen bleiben auf deinem Gerät.");
     }
 
     private String welcomeThanksText() {
