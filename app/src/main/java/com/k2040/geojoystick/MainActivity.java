@@ -715,30 +715,17 @@ public final class MainActivity extends Activity {
         modal.addView(summary, innerRow());
 
         TextView appLicense = text(t("App license · GPL-3.0-only",
-                "App-Lizenz · GPL-3.0-only"), 11, palette.accent, true);
+                "App-Lizenz · GPL-3.0-only"), 10, palette.textDim, false);
         appLicense.setGravity(Gravity.CENTER);
-        appLicense.setPadding(dp(10), dp(7), dp(10), dp(7));
-        appLicense.setClickable(true);
-        appLicense.setFocusable(true);
-        appLicense.setContentDescription(t(
-                "GPL-3.0-only app license. Open license details",
-                "GPL-3.0-only-App-Lizenz. Lizenzdetails öffnen"));
-        appLicense.setBackground(GeoUi.surface(this, palette));
-        appLicense.setOnClickListener(view -> showLicensePage(true));
-        modal.addView(appLicense, margin(4, 2));
+        appLicense.setPadding(dp(8), dp(3), dp(8), dp(2));
+        modal.addView(appLicense, innerRow());
 
         TextView mapLicense = text(t(
                 "Map data · © OpenStreetMap contributors · ODbL 1.0",
                 "Kartendaten · © OpenStreetMap-Mitwirkende · ODbL 1.0"),
-                9, palette.accent, false);
+                9, palette.textDim, false);
         mapLicense.setGravity(Gravity.CENTER);
-        mapLicense.setPadding(dp(8), dp(5), dp(8), dp(5));
-        mapLicense.setClickable(true);
-        mapLicense.setFocusable(true);
-        mapLicense.setContentDescription(t(
-                "OpenStreetMap data, ODbL 1.0. Open licensing details",
-                "OpenStreetMap-Daten, ODbL 1.0. Lizenzdetails öffnen"));
-        mapLicense.setOnClickListener(view -> openExternalUrl("https://www.openstreetmap.org/copyright"));
+        mapLicense.setPadding(dp(8), dp(1), dp(8), dp(5));
         modal.addView(mapLicense, innerRow());
 
         Button continueButton = welcomeActionButton(t("Continue", "Weiter"), true);
