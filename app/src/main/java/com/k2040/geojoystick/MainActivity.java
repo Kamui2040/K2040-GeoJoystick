@@ -159,6 +159,14 @@ public final class MainActivity extends Activity {
             showLicensePage(false);
             return;
         }
+        if ("license-text-welcome".equals(currentPage) || "license-osm-welcome".equals(currentPage)) {
+            showLicensePage(true);
+            return;
+        }
+        if ("license-welcome".equals(currentPage)) {
+            showWelcomePage();
+            return;
+        }
         if ("license-about".equals(currentPage)
                 || "changelog-about".equals(currentPage)
                 || "sources-about".equals(currentPage)) {
@@ -607,6 +615,13 @@ public final class MainActivity extends Activity {
         legal.setGravity(Gravity.CENTER);
         legal.setLineSpacing(0, 1.08f);
         legal.setPadding(dp(8), dp(5), dp(8), dp(7));
+        legal.setMinimumHeight(dp(48));
+        legal.setClickable(true);
+        legal.setFocusable(true);
+        legal.setContentDescription(t(
+                "Licenses: GPL-3.0-only and OpenStreetMap ODbL 1.0. Open license details",
+                "Lizenzen: GPL-3.0-only und OpenStreetMap ODbL 1.0. Lizenzdetails öffnen"));
+        legal.setOnClickListener(view -> showLicensePage(true));
         modal.addView(legal, innerRow());
 
         Button continueButton = welcomeActionButton(t("Continue", "Weiter"), true);
@@ -627,7 +642,7 @@ public final class MainActivity extends Activity {
     }
 
     private void showLicensePage(boolean returnToWelcome) {
-        currentPage = "license-about";
+        currentPage = returnToWelcome ? "license-welcome" : "license-about";
         FrameLayout stage = modalStage();
         LinearLayout modal = modalCard(dp(16), dp(14));
 
@@ -657,14 +672,20 @@ public final class MainActivity extends Activity {
         modal.addView(infoNavigationRow("GPL-3.0-only",
                 t("GeoJoystick application source and bundled K2040 artwork",
                         "GeoJoystick-Anwendungsquellcode und gebündelte K2040-Grafik"),
-                this::showLicenseTextPage), innerRow());
+                () -> showLicenseTextPage(returnToWelcome)), innerRow());
         modal.addView(infoNavigationRow("OpenStreetMap · ODbL 1.0",
                 t("Map data · © OpenStreetMap contributors",
                         "Kartendaten · © OpenStreetMap-Mitwirkende"),
-                this::showOsmLicensePage), innerRow());
+                () -> showOsmLicensePage(returnToWelcome)), innerRow());
 
         Button close = welcomeActionButton(t("Close", "Schließen"), false);
-        close.setOnClickListener(view -> showAboutPage());
+        close.setOnClickListener(view -> {
+            if (returnToWelcome) {
+                showWelcomePage();
+            } else {
+                showAboutPage();
+            }
+        });
         LinearLayout.LayoutParams closeParams = new LinearLayout.LayoutParams(dp(140), dp(48));
         closeParams.gravity = Gravity.CENTER_HORIZONTAL;
         closeParams.topMargin = dp(6);
@@ -674,7 +695,11 @@ public final class MainActivity extends Activity {
     }
 
     private void showLicenseTextPage() {
-        currentPage = "license-text";
+        showLicenseTextPage(false);
+    }
+
+    private void showLicenseTextPage(boolean returnToWelcome) {
+        currentPage = returnToWelcome ? "license-text-welcome" : "license-text";
         FrameLayout stage = modalStage();
         LinearLayout modal = modalCard(dp(16), dp(14));
 
@@ -700,7 +725,7 @@ public final class MainActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
         Button close = welcomeActionButton(t("Close", "Schließen"), false);
-        close.setOnClickListener(view -> showLicensePage(false));
+        close.setOnClickListener(view -> showLicensePage(returnToWelcome));
         LinearLayout.LayoutParams closeParams = new LinearLayout.LayoutParams(dp(140), dp(48));
         closeParams.gravity = Gravity.CENTER_HORIZONTAL;
         closeParams.topMargin = dp(4);
@@ -711,7 +736,11 @@ public final class MainActivity extends Activity {
     }
 
     private void showOsmLicensePage() {
-        currentPage = "license-osm";
+        showOsmLicensePage(false);
+    }
+
+    private void showOsmLicensePage(boolean returnToWelcome) {
+        currentPage = returnToWelcome ? "license-osm-welcome" : "license-osm";
         FrameLayout stage = modalStage();
         LinearLayout modal = modalCard(dp(16), dp(14));
 
@@ -735,7 +764,7 @@ public final class MainActivity extends Activity {
         modal.addView(official, officialParams);
 
         Button close = welcomeActionButton(t("Close", "Schließen"), false);
-        close.setOnClickListener(view -> showLicensePage(false));
+        close.setOnClickListener(view -> showLicensePage(returnToWelcome));
         LinearLayout.LayoutParams closeParams = new LinearLayout.LayoutParams(dp(140), dp(48));
         closeParams.gravity = Gravity.CENTER_HORIZONTAL;
         closeParams.topMargin = dp(2);
