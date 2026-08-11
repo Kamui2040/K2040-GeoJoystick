@@ -155,11 +155,13 @@ public final class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        if ("license-welcome".equals(currentPage) || "changelog-welcome".equals(currentPage)) {
-            showWelcomePage();
+        if ("license-text".equals(currentPage) || "license-osm".equals(currentPage)) {
+            showLicensePage(false);
             return;
         }
-        if ("license-about".equals(currentPage) || "changelog-about".equals(currentPage)) {
+        if ("license-about".equals(currentPage)
+                || "changelog-about".equals(currentPage)
+                || "sources-about".equals(currentPage)) {
             showAboutPage();
             return;
         }
@@ -206,6 +208,12 @@ public final class MainActivity extends Activity {
             showChangelogPage(false);
         } else if ("license-about".equals(page)) {
             showLicensePage(false);
+        } else if ("license-text".equals(page)) {
+            showLicenseTextPage();
+        } else if ("license-osm".equals(page)) {
+            showOsmLicensePage();
+        } else if ("sources-about".equals(page)) {
+            showSourcesPage();
         }
     }
 
@@ -459,163 +467,83 @@ public final class MainActivity extends Activity {
         saveVisibleCoordinates();
         currentPage = "about";
 
-        FrameLayout stage = new FrameLayout(this);
-        stage.setBackgroundColor(palette.background);
-        stage.setClickable(true);
-        stage.setFocusable(true);
+        FrameLayout stage = modalStage();
+        LinearLayout modal = modalCard(dp(16), dp(14));
 
-        ScrollView background = buildHomePage();
-        background.setAlpha(settings.isDark() ? 0.34f : 0.26f);
-        background.setEnabled(false);
-        background.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-        background.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
-        stage.addView(background, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-
-        View scrim = new View(this);
-        scrim.setBackgroundColor(Color.BLACK);
-        scrim.setAlpha(settings.isDark() ? 0.60f : 0.43f);
-        scrim.setClickable(true);
-        scrim.setFocusable(true);
-        scrim.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-        stage.addView(scrim, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-
-        LinearLayout modal = new LinearLayout(this);
-        modal.setOrientation(LinearLayout.VERTICAL);
-        modal.setPadding(dp(16), dp(8), dp(16), dp(14));
-        modal.setBackground(GeoUi.elevated(this, palette));
-        modal.setElevation(dp(18));
-        modal.setClickable(true);
-        modal.setFocusable(true);
-        modal.setFocusableInTouchMode(true);
-
-        LinearLayout closeRow = new LinearLayout(this);
-        closeRow.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
-        TextView close = text("×", 24, palette.textDim, false);
-        close.setGravity(Gravity.CENTER);
-        close.setClickable(true);
-        close.setFocusable(true);
-        close.setContentDescription(t("Close About", "Info schließen"));
-        close.setOnClickListener(view -> showHomePage());
-        closeRow.addView(close, new LinearLayout.LayoutParams(dp(48), dp(48)));
-        modal.addView(closeRow, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-
-        ScrollView bodyScroll = new ScrollView(this);
-        bodyScroll.setFillViewport(false);
-        bodyScroll.setFocusable(false);
-        bodyScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        LinearLayout body = new LinearLayout(this);
-        body.setOrientation(LinearLayout.VERTICAL);
-        body.setGravity(Gravity.CENTER_HORIZONTAL);
-        body.setPadding(0, 0, 0, dp(2));
-        bodyScroll.addView(body);
+        LinearLayout identity = new LinearLayout(this);
+        identity.setGravity(Gravity.CENTER_VERTICAL);
 
         ImageView avatar = new ImageView(this);
         avatar.setImageResource(R.drawable.k2040_avatar);
         avatar.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         avatar.setContentDescription(t("K2040 avatar", "K2040-Avatar"));
-        LinearLayout.LayoutParams avatarParams = new LinearLayout.LayoutParams(dp(88), dp(88));
-        avatarParams.gravity = Gravity.CENTER_HORIZONTAL;
-        avatarParams.bottomMargin = dp(4);
-        body.addView(avatar, avatarParams);
+        identity.addView(avatar, new LinearLayout.LayoutParams(dp(68), dp(68)));
 
-        TextView title = text("GeoJoystick", 25, palette.text, true);
-        title.setGravity(Gravity.CENTER);
-        body.addView(title, innerRow());
+        LinearLayout titles = new LinearLayout(this);
+        titles.setOrientation(LinearLayout.VERTICAL);
+        titles.setPadding(dp(10), 0, dp(4), 0);
+        titles.addView(text("GeoJoystick", 22, palette.text, true));
+        titles.addView(text(BuildConfig.VERSION_NAME, 10, palette.textDim, false));
+        identity.addView(titles,
+                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        TextView version = text(BuildConfig.VERSION_NAME, 9, palette.textDim, false);
-        version.setGravity(Gravity.CENTER);
-        version.setPadding(dp(4), 0, dp(4), dp(4));
-        body.addView(version, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
+        TextView close = text("×", 24, palette.text, true);
+        close.setGravity(Gravity.CENTER);
+        close.setClickable(true);
+        close.setFocusable(true);
+        close.setContentDescription(t("Close About", "Info schließen"));
+        close.setOnClickListener(view -> showHomePage());
+        identity.addView(close, new LinearLayout.LayoutParams(dp(48), dp(48)));
+        modal.addView(identity, innerRow());
 
-        TextView about = text(welcomeAboutText(), 11, palette.textDim, false);
+        TextView about = text(t(
+                "Transparent mock-location joystick for Android developer and emulator testing.",
+                "Transparenter Mock-Standort-Joystick für Android-Entwicklung und Emulator-Tests."),
+                12, palette.text, false);
         about.setGravity(Gravity.CENTER);
         about.setLineSpacing(0, 1.08f);
-        about.setPadding(dp(12), dp(4), dp(12), dp(8));
-        body.addView(about, innerRow());
+        about.setPadding(dp(10), dp(8), dp(10), dp(4));
+        modal.addView(about, innerRow());
 
-        body.addView(welcomeNavigationRow(t("Changelog", "Änderungsprotokoll"),
+        TextView trust = text(t(
+                "Local · offline-first · no account · no ads · no analytics · no tracking",
+                "Lokal · offline-first · kein Konto · keine Werbung · keine Analysen · kein Tracking"),
+                10, palette.textDim, true);
+        trust.setGravity(Gravity.CENTER);
+        trust.setPadding(dp(8), dp(2), dp(8), dp(6));
+        modal.addView(trust, innerRow());
+
+        modal.addView(welcomeNavigationRow(t("Changelog", "Änderungsverlauf"),
                 () -> showChangelogPage(false)), innerRow());
-        body.addView(welcomeNavigationRow(t("License & usage", "Lizenz & Nutzung"),
+        modal.addView(welcomeNavigationRow(t("License & usage", "Lizenz & Nutzung"),
                 () -> showLicensePage(false)), innerRow());
-        body.addView(welcomeNavigationRow(t("Support on Ko-fi", "Auf Ko-fi unterstützen"),
+        modal.addView(welcomeNavigationRow(t("Sources", "Quellen"),
+                this::showSourcesPage), innerRow());
+        modal.addView(welcomeNavigationRow(t("Support on Ko-fi", "Auf Ko-fi unterstützen"),
                 () -> openExternalUrl("https://ko-fi.com/k2040")), innerRow());
-        body.addView(welcomeExpandableRow(t("Thanks & credits", "Dank & Mitwirkende"),
+        modal.addView(welcomeExpandableRow(t("Thanks & credits", "Dank / Mitwirkende"),
                 welcomeThanksText()), innerRow());
 
         TextView disclosure = text(supportDisclosureText(), 9, palette.textDim, false);
         disclosure.setGravity(Gravity.CENTER);
         disclosure.setPadding(dp(10), dp(5), dp(10), dp(2));
-        body.addView(disclosure, innerRow());
+        modal.addView(disclosure, innerRow());
 
-        modal.addView(bodyScroll, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-
-        int width = Math.min(dp(336), getResources().getDisplayMetrics().widthPixels - dp(56));
-        int availableHeight = Math.max(dp(340),
-                getResources().getDisplayMetrics().heightPixels - dp(72));
-        int height = Math.min(dp(540), availableHeight);
-        FrameLayout.LayoutParams modalParams = new FrameLayout.LayoutParams(
-                Math.max(dp(260), width),
-                height,
-                Gravity.CENTER);
-        stage.addView(modal, modalParams);
-
-        setContentView(stage);
-        applySystemBarInsets(stage);
-        modal.requestFocus();
-        bodyScroll.post(() -> bodyScroll.scrollTo(0, 0));
+        showModal(stage, modal, 336, 540, false);
     }
 
     private void showChangelogPage(boolean returnToWelcome) {
-        currentPage = returnToWelcome && !settings.welcomeAcknowledged()
-                ? "changelog-welcome" : "changelog-about";
-        Runnable backAction = "changelog-welcome".equals(currentPage)
-                ? this::showWelcomePage : this::showAboutPage;
+        currentPage = "changelog-about";
+        FrameLayout stage = modalStage();
+        LinearLayout modal = modalCard(dp(16), dp(14));
 
-        FrameLayout stage = new FrameLayout(this);
-        stage.setBackgroundColor(palette.background);
-        stage.setClickable(true);
-        stage.setFocusable(true);
+        TextView heading = text(t("Changelog", "Änderungsverlauf"), 24, palette.text, true);
+        heading.setPadding(dp(4), dp(2), dp(4), dp(4));
+        modal.addView(heading, innerRow());
 
-        ScrollView background = buildHomePage();
-        background.setAlpha(settings.isDark() ? 0.34f : 0.26f);
-        background.setEnabled(false);
-        background.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-        background.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
-        stage.addView(background, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-
-        View scrim = new View(this);
-        scrim.setBackgroundColor(Color.BLACK);
-        scrim.setAlpha(settings.isDark() ? 0.60f : 0.43f);
-        scrim.setClickable(true);
-        scrim.setFocusable(true);
-        scrim.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-        stage.addView(scrim, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-
-        LinearLayout modal = new LinearLayout(this);
-        modal.setOrientation(LinearLayout.VERTICAL);
-        modal.setPadding(dp(16), dp(14), dp(16), dp(14));
-        modal.setBackground(GeoUi.elevated(this, palette));
-        modal.setElevation(dp(18));
-        modal.setClickable(true);
-        modal.setFocusable(true);
-        modal.setFocusableInTouchMode(true);
-
-        TextView title = text(BuildConfig.VERSION_NAME, 20, palette.text, true);
-        title.setGravity(Gravity.CENTER);
-        title.setPadding(dp(4), dp(2), dp(4), dp(8));
-        modal.addView(title, innerRow());
+        TextView version = text(BuildConfig.VERSION_NAME, 11, palette.textDim, true);
+        version.setPadding(dp(4), 0, dp(4), dp(6));
+        modal.addView(version, innerRow());
 
         ScrollView bodyScroll = new ScrollView(this);
         bodyScroll.setFillViewport(false);
@@ -624,71 +552,29 @@ public final class MainActivity extends Activity {
         TextView changes = text(changelogText(), 14, palette.text, false);
         changes.setTextIsSelectable(true);
         changes.setLineSpacing(0, 1.12f);
-        changes.setPadding(dp(6), dp(4), dp(6), dp(4));
+        changes.setPadding(dp(4), dp(2), dp(4), dp(4));
         bodyScroll.addView(changes);
         modal.addView(bodyScroll, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
-        Button backButton = welcomeActionButton(t("Back", "Zurück"), false);
-        backButton.setContentDescription(t("Back from changelog", "Zurück vom Änderungsprotokoll"));
-        backButton.setOnClickListener(view -> backAction.run());
-        LinearLayout.LayoutParams backParams = new LinearLayout.LayoutParams(dp(124), dp(48));
-        backParams.gravity = Gravity.CENTER_HORIZONTAL;
-        backParams.topMargin = dp(4);
-        modal.addView(backButton, backParams);
+        Button close = welcomeActionButton(t("Close", "Schließen"), false);
+        close.setContentDescription(t("Close changelog", "Änderungsverlauf schließen"));
+        close.setOnClickListener(view -> showAboutPage());
+        LinearLayout.LayoutParams closeParams = new LinearLayout.LayoutParams(dp(140), dp(48));
+        closeParams.gravity = Gravity.CENTER_HORIZONTAL;
+        closeParams.topMargin = dp(4);
+        modal.addView(close, closeParams);
 
-        int width = Math.min(dp(336), getResources().getDisplayMetrics().widthPixels - dp(56));
-        int availableHeight = Math.max(dp(300),
-                getResources().getDisplayMetrics().heightPixels - dp(120));
-        int height = Math.min(dp(400), availableHeight);
-        FrameLayout.LayoutParams modalParams = new FrameLayout.LayoutParams(
-                Math.max(dp(260), width),
-                height,
-                Gravity.CENTER);
-        stage.addView(modal, modalParams);
-
-        setContentView(stage);
-        applySystemBarInsets(stage);
-        modal.requestFocus();
+        showModal(stage, modal, 336, 430, false);
         bodyScroll.post(() -> bodyScroll.scrollTo(0, 0));
     }
 
     private void showWelcomePage() {
         currentPage = "welcome";
 
-        FrameLayout stage = new FrameLayout(this);
-        stage.setBackgroundColor(palette.background);
-        stage.setClickable(true);
-        stage.setFocusable(true);
-
-        ScrollView background = buildHomePage();
-        background.setAlpha(settings.isDark() ? 0.34f : 0.26f);
-        background.setEnabled(false);
-        background.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
-        background.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
-        stage.addView(background, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-
-        View scrim = new View(this);
-        scrim.setBackgroundColor(Color.BLACK);
-        scrim.setAlpha(settings.isDark() ? 0.60f : 0.43f);
-        scrim.setClickable(true);
-        scrim.setFocusable(true);
-        scrim.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-        stage.addView(scrim, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-
-        LinearLayout modal = new LinearLayout(this);
-        modal.setOrientation(LinearLayout.VERTICAL);
+        FrameLayout stage = modalStage();
+        LinearLayout modal = modalCard(dp(18), dp(14));
         modal.setGravity(Gravity.CENTER_HORIZONTAL);
-        modal.setPadding(dp(18), dp(16), dp(18), dp(14));
-        modal.setBackground(GeoUi.elevated(this, palette));
-        modal.setElevation(dp(18));
-        modal.setClickable(true);
-        modal.setFocusable(true);
-        modal.setFocusableInTouchMode(true);
 
         ImageView avatar = new ImageView(this);
         avatar.setImageResource(R.drawable.k2040_avatar);
@@ -714,19 +600,14 @@ public final class MainActivity extends Activity {
         summary.setPadding(dp(8), dp(4), dp(8), dp(6));
         modal.addView(summary, innerRow());
 
-        TextView appLicense = text(t("App license · GPL-3.0-only",
-                "App-Lizenz · GPL-3.0-only"), 10, palette.textDim, false);
-        appLicense.setGravity(Gravity.CENTER);
-        appLicense.setPadding(dp(8), dp(3), dp(8), dp(2));
-        modal.addView(appLicense, innerRow());
-
-        TextView mapLicense = text(t(
-                "Map data · © OpenStreetMap contributors · ODbL 1.0",
-                "Kartendaten · © OpenStreetMap-Mitwirkende · ODbL 1.0"),
-                9, palette.textDim, false);
-        mapLicense.setGravity(Gravity.CENTER);
-        mapLicense.setPadding(dp(8), dp(1), dp(8), dp(5));
-        modal.addView(mapLicense, innerRow());
+        TextView legal = text(t(
+                "App: GPL-3.0-only\nMap data: © OpenStreetMap contributors · ODbL 1.0",
+                "App: GPL-3.0-only\nKartendaten: © OpenStreetMap-Mitwirkende · ODbL 1.0"),
+                10, palette.textDim, true);
+        legal.setGravity(Gravity.CENTER);
+        legal.setLineSpacing(0, 1.08f);
+        legal.setPadding(dp(8), dp(5), dp(8), dp(7));
+        modal.addView(legal, innerRow());
 
         Button continueButton = welcomeActionButton(t("Continue", "Weiter"), true);
         continueButton.setContentDescription(t(
@@ -737,53 +618,267 @@ public final class MainActivity extends Activity {
             showHomePage();
             handleIncomingIntent(getIntent());
         });
-        LinearLayout.LayoutParams continueParams = new LinearLayout.LayoutParams(dp(160), dp(48));
+        LinearLayout.LayoutParams continueParams = new LinearLayout.LayoutParams(dp(180), dp(48));
         continueParams.gravity = Gravity.CENTER_HORIZONTAL;
-        continueParams.topMargin = dp(4);
+        continueParams.topMargin = dp(6);
         modal.addView(continueButton, continueParams);
 
-        int width = Math.min(dp(320), getResources().getDisplayMetrics().widthPixels - dp(64));
-        FrameLayout.LayoutParams modalParams = new FrameLayout.LayoutParams(
-                Math.max(dp(260), width),
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                Gravity.CENTER);
-        stage.addView(modal, modalParams);
+        showModal(stage, modal, 320, 0, true);
+    }
 
+    private void showLicensePage(boolean returnToWelcome) {
+        currentPage = "license-about";
+        FrameLayout stage = modalStage();
+        LinearLayout modal = modalCard(dp(16), dp(14));
+
+        TextView heading = text(t("License & usage", "Lizenz & Nutzung"), 24, palette.text, true);
+        heading.setPadding(dp(4), dp(2), dp(4), dp(8));
+        modal.addView(heading, innerRow());
+
+        TextView localHeading = text(t("LOCAL DATA", "LOKALE DATEN"), 11, palette.textDim, false);
+        modal.addView(localHeading, innerRow());
+        TextView localBody = text(t(
+                "Coordinates and settings stay on this device. The map fetches OpenStreetMap tiles only when you open it; supported link resolution may use bounded HTTPS requests. No account, analytics, or hidden uploads.",
+                "Koordinaten und Einstellungen bleiben auf diesem Gerät. Die Karte lädt OpenStreetMap-Kacheln nur, wenn du sie öffnest; unterstützte Linkauflösung kann begrenzte HTTPS-Anfragen verwenden. Kein Konto, keine Analysen und keine versteckten Uploads."),
+                11, palette.text, false);
+        localBody.setLineSpacing(0, 1.08f);
+        localBody.setPadding(0, dp(2), 0, dp(8));
+        modal.addView(localBody, innerRow());
+
+        TextView licenseHeading = text(t("LICENSES", "LIZENZEN"), 11, palette.textDim, false);
+        modal.addView(licenseHeading, innerRow());
+        TextView licenseHint = text(t(
+                "Tap an entry for the maintained license details.",
+                "Tippe auf einen Eintrag für die gepflegten Lizenzdetails."),
+                10, palette.textDim, false);
+        licenseHint.setPadding(0, dp(1), 0, dp(5));
+        modal.addView(licenseHint, innerRow());
+
+        modal.addView(infoNavigationRow("GPL-3.0-only",
+                t("GeoJoystick application source and bundled K2040 artwork",
+                        "GeoJoystick-Anwendungsquellcode und gebündelte K2040-Grafik"),
+                this::showLicenseTextPage), innerRow());
+        modal.addView(infoNavigationRow("OpenStreetMap · ODbL 1.0",
+                t("Map data · © OpenStreetMap contributors",
+                        "Kartendaten · © OpenStreetMap-Mitwirkende"),
+                this::showOsmLicensePage), innerRow());
+
+        Button close = welcomeActionButton(t("Close", "Schließen"), false);
+        close.setOnClickListener(view -> showAboutPage());
+        LinearLayout.LayoutParams closeParams = new LinearLayout.LayoutParams(dp(140), dp(48));
+        closeParams.gravity = Gravity.CENTER_HORIZONTAL;
+        closeParams.topMargin = dp(6);
+        modal.addView(close, closeParams);
+
+        showModal(stage, modal, 336, 500, true);
+    }
+
+    private void showLicenseTextPage() {
+        currentPage = "license-text";
+        FrameLayout stage = modalStage();
+        LinearLayout modal = modalCard(dp(16), dp(14));
+
+        TextView heading = text("GPL-3.0-only", 24, palette.text, true);
+        heading.setPadding(dp(4), dp(2), dp(4), dp(6));
+        modal.addView(heading, innerRow());
+
+        TextView note = text(t(
+                "The bundled English GPL text is the authoritative license text.",
+                "Der enthaltene englische GPL-Text ist der maßgebliche Lizenztext."),
+                10, palette.textDim, false);
+        note.setPadding(dp(4), 0, dp(4), dp(6));
+        modal.addView(note, innerRow());
+
+        ScrollView scroller = new ScrollView(this);
+        scroller.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        TextView license = text(reflowLicenseText(readAssetText("LICENSE")), 11, palette.text, false);
+        license.setTextIsSelectable(true);
+        license.setLineSpacing(0, 1.08f);
+        license.setPadding(dp(4), dp(2), dp(4), dp(4));
+        scroller.addView(license);
+        modal.addView(scroller, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+
+        Button close = welcomeActionButton(t("Close", "Schließen"), false);
+        close.setOnClickListener(view -> showLicensePage(false));
+        LinearLayout.LayoutParams closeParams = new LinearLayout.LayoutParams(dp(140), dp(48));
+        closeParams.gravity = Gravity.CENTER_HORIZONTAL;
+        closeParams.topMargin = dp(4);
+        modal.addView(close, closeParams);
+
+        showModal(stage, modal, 336, 560, false);
+        scroller.post(() -> scroller.scrollTo(0, 0));
+    }
+
+    private void showOsmLicensePage() {
+        currentPage = "license-osm";
+        FrameLayout stage = modalStage();
+        LinearLayout modal = modalCard(dp(16), dp(14));
+
+        TextView heading = text("OpenStreetMap", 24, palette.text, true);
+        heading.setPadding(dp(4), dp(2), dp(4), dp(6));
+        modal.addView(heading, innerRow());
+
+        TextView body = text(t(
+                "GeoJoystick's built-in map loads tiles from OpenStreetMap only when the map is used. Map data is © OpenStreetMap contributors and is made available under the Open Data Commons Open Database License (ODbL) 1.0.\n\nThe map keeps visible contributor attribution. The official OpenStreetMap copyright and licensing page contains the maintained details and any additional notices that apply to the tile service.",
+                "Die integrierte GeoJoystick-Karte lädt Kacheln von OpenStreetMap nur, wenn die Karte verwendet wird. Kartendaten sind © OpenStreetMap-Mitwirkende und werden unter der Open Data Commons Open Database License (ODbL) 1.0 bereitgestellt.\n\nDie Karte behält die sichtbare Mitwirkenden-Nennung bei. Die offizielle OpenStreetMap-Seite zu Urheberrecht und Lizenzierung enthält die gepflegten Details und zusätzliche Hinweise, die für den Kacheldienst gelten."),
+                12, palette.text, false);
+        body.setLineSpacing(0, 1.1f);
+        body.setPadding(dp(4), dp(2), dp(4), dp(8));
+        modal.addView(body, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+
+        Button official = welcomeActionButton(t("Open official details", "Offizielle Details öffnen"), false);
+        official.setOnClickListener(view -> openExternalUrl("https://www.openstreetmap.org/copyright"));
+        LinearLayout.LayoutParams officialParams = new LinearLayout.LayoutParams(dp(210), dp(48));
+        officialParams.gravity = Gravity.CENTER_HORIZONTAL;
+        modal.addView(official, officialParams);
+
+        Button close = welcomeActionButton(t("Close", "Schließen"), false);
+        close.setOnClickListener(view -> showLicensePage(false));
+        LinearLayout.LayoutParams closeParams = new LinearLayout.LayoutParams(dp(140), dp(48));
+        closeParams.gravity = Gravity.CENTER_HORIZONTAL;
+        closeParams.topMargin = dp(2);
+        modal.addView(close, closeParams);
+
+        showModal(stage, modal, 336, 470, false);
+    }
+
+    private void showSourcesPage() {
+        currentPage = "sources-about";
+        FrameLayout stage = modalStage();
+        LinearLayout modal = modalCard(dp(16), dp(14));
+
+        TextView heading = text(t("Sources", "Quellen"), 24, palette.text, true);
+        heading.setPadding(dp(4), dp(2), dp(4), dp(8));
+        modal.addView(heading, innerRow());
+
+        TextView intro = text(t(
+                "External projects and material GeoJoystick builds on or uses directly.",
+                "Externe Projekte und Materialien, auf denen GeoJoystick aufbaut oder die direkt verwendet werden."),
+                11, palette.text, false);
+        intro.setLineSpacing(0, 1.08f);
+        intro.setPadding(dp(4), 0, dp(4), dp(8));
+        modal.addView(intro, innerRow());
+
+        modal.addView(infoNavigationRow("GoGoGo / 影梭",
+                t("Original upstream project · ZCShou and contributors",
+                        "Ursprüngliches Upstream-Projekt · ZCShou und Mitwirkende"),
+                () -> openExternalUrl("https://github.com/ZCShou/GoGoGo")), innerRow());
+        modal.addView(infoNavigationRow("OpenStreetMap",
+                t("Map tiles and data · © OpenStreetMap contributors",
+                        "Kartenkacheln und -daten · © OpenStreetMap-Mitwirkende"),
+                () -> openExternalUrl("https://www.openstreetmap.org/copyright")), innerRow());
+
+        TextView provenance = text(t(
+                "GeoJoystick is a GPL-3.0-only derivative informed by GoGoGo. Its mock-location service and joystick movement design were adapted and substantially simplified; proprietary Baidu SDK components and advertising are not included.",
+                "GeoJoystick ist ein GPL-3.0-only-Derivat, das auf GoGoGo aufbaut. Mock-Standort-Dienst und Joystick-Bewegungsdesign wurden angepasst und deutlich vereinfacht; proprietäre Baidu-SDK-Komponenten und Werbung sind nicht enthalten."),
+                10, palette.textDim, false);
+        provenance.setLineSpacing(0, 1.08f);
+        provenance.setPadding(dp(4), dp(8), dp(4), dp(4));
+        modal.addView(provenance, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+
+        Button close = welcomeActionButton(t("Close", "Schließen"), false);
+        close.setOnClickListener(view -> showAboutPage());
+        LinearLayout.LayoutParams closeParams = new LinearLayout.LayoutParams(dp(140), dp(48));
+        closeParams.gravity = Gravity.CENTER_HORIZONTAL;
+        closeParams.topMargin = dp(4);
+        modal.addView(close, closeParams);
+
+        showModal(stage, modal, 336, 500, false);
+    }
+
+    private FrameLayout modalStage() {
+        FrameLayout stage = new FrameLayout(this);
+        stage.setBackgroundColor(palette.background);
+        stage.setClickable(true);
+        stage.setFocusable(true);
+
+        ScrollView background = buildHomePage();
+        background.setAlpha(settings.isDark() ? 0.34f : 0.26f);
+        background.setEnabled(false);
+        background.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        background.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+        stage.addView(background, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+
+        View scrim = new View(this);
+        scrim.setBackgroundColor(Color.BLACK);
+        scrim.setAlpha(settings.isDark() ? 0.60f : 0.43f);
+        scrim.setClickable(true);
+        scrim.setFocusable(true);
+        scrim.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        stage.addView(scrim, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        return stage;
+    }
+
+    private LinearLayout modalCard(int horizontalPadding, int verticalPadding) {
+        LinearLayout modal = new LinearLayout(this);
+        modal.setOrientation(LinearLayout.VERTICAL);
+        modal.setPadding(dp(horizontalPadding), dp(verticalPadding),
+                dp(horizontalPadding), dp(verticalPadding));
+        modal.setBackground(GeoUi.elevated(this, palette));
+        modal.setElevation(dp(18));
+        modal.setClickable(true);
+        modal.setFocusable(true);
+        modal.setFocusableInTouchMode(true);
+        return modal;
+    }
+
+    private void showModal(FrameLayout stage, LinearLayout modal,
+                           int widthDp, int heightDp, boolean wrapHeight) {
+        int width = Math.min(dp(widthDp), getResources().getDisplayMetrics().widthPixels - dp(56));
+        FrameLayout.LayoutParams params;
+        if (wrapHeight) {
+            params = new FrameLayout.LayoutParams(
+                    Math.max(dp(260), width),
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    Gravity.CENTER);
+        } else {
+            int availableHeight = Math.max(dp(300),
+                    getResources().getDisplayMetrics().heightPixels - dp(72));
+            int height = Math.min(dp(heightDp), availableHeight);
+            params = new FrameLayout.LayoutParams(
+                    Math.max(dp(260), width),
+                    height,
+                    Gravity.CENTER);
+        }
+        stage.addView(modal, params);
         setContentView(stage);
         applySystemBarInsets(stage);
         modal.requestFocus();
     }
 
-    private void showLicensePage(boolean returnToWelcome) {
-        currentPage = returnToWelcome && !settings.welcomeAcknowledged()
-                ? "license-welcome" : "license-about";
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(dp(16), dp(12), dp(16), dp(16));
-        root.setBackgroundColor(palette.background);
-        root.addView(pageHeader("GPL-3.0-only",
-                "license-welcome".equals(currentPage) ? this::showWelcomePage : this::showAboutPage),
-                margin(0, 4));
+    private LinearLayout infoNavigationRow(String title, String subtitle, Runnable action) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(12), dp(8), dp(8), dp(8));
+        row.setMinimumHeight(dp(56));
+        row.setBackground(GeoUi.surface(this, palette));
+        row.setClickable(true);
+        row.setFocusable(true);
+        row.setContentDescription(title + ". " + subtitle + ". " + t("Open", "Öffnen"));
+        row.setOnClickListener(view -> action.run());
 
-        TextView note = text(t("The bundled English GPL text is the authoritative license text.",
-                "Der enthaltene englische GPL-Text ist der maßgebliche Lizenztext."),
-                10, palette.textDim, false);
-        note.setGravity(Gravity.CENTER);
-        root.addView(note, margin(0, 4));
+        LinearLayout labels = new LinearLayout(this);
+        labels.setOrientation(LinearLayout.VERTICAL);
+        TextView primary = text(title, 12, palette.text, true);
+        TextView secondary = text(subtitle, 10, palette.textDim, false);
+        labels.addView(primary);
+        labels.addView(secondary);
+        row.addView(labels, new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        TextView license = text(reflowLicenseText(readAssetText("LICENSE")), 11, palette.text, false);
-        license.setTextIsSelectable(true);
-        license.setLineSpacing(0, 1.08f);
-        license.setPadding(dp(16), dp(14), dp(16), dp(14));
-        license.setBackground(GeoUi.surface(this, palette));
-        ScrollView scroller = new ScrollView(this);
-        scroller.addView(license);
-        LinearLayout.LayoutParams scrollerParams = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
-        scrollerParams.topMargin = dp(6);
-        root.addView(scroller, scrollerParams);
-        setContentView(root);
-        applySystemBarInsets(root);
+        TextView chevron = text("›", 20, palette.textDim, true);
+        chevron.setGravity(Gravity.CENTER);
+        chevron.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        row.addView(chevron, new LinearLayout.LayoutParams(dp(28), dp(40)));
+        return row;
     }
 
     private LinearLayout trustPanel() {
@@ -896,8 +991,9 @@ public final class MainActivity extends Activity {
     }
 
     private String welcomeThanksText() {
-        return t("Thank you for trying GeoJoystick.",
-                "Danke, dass du GeoJoystick ausprobierst.");
+        return t(
+                "Thank you for trying GeoJoystick.\n\nK2040 avatar artwork is original project artwork. Upstream and external material are listed under Sources.",
+                "Danke, dass du GeoJoystick ausprobierst.\n\nDie K2040-Avatar-Grafik ist originale Projektgrafik. Upstream- und externe Materialien sind unter Quellen aufgeführt.");
     }
 
     private Button infoRow(String title, String subtitle, Runnable action) {
@@ -971,6 +1067,16 @@ public final class MainActivity extends Activity {
             showAboutPage();
         } else if ("welcome".equals(page)) {
             showWelcomePage();
+        } else if ("changelog-about".equals(page)) {
+            showChangelogPage(false);
+        } else if ("license-about".equals(page)) {
+            showLicensePage(false);
+        } else if ("license-text".equals(page)) {
+            showLicenseTextPage();
+        } else if ("license-osm".equals(page)) {
+            showOsmLicensePage();
+        } else if ("sources-about".equals(page)) {
+            showSourcesPage();
         } else {
             showHomePage();
         }
