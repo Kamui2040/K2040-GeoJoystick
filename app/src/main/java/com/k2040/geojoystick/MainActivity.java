@@ -1005,7 +1005,7 @@ public final class MainActivity extends Activity {
     }
 
     private Button settingRow(String title, String subtitle, String value, Runnable action) {
-        Button row = GeoUi.button(this, palette, rowText(title, subtitle, value, "›"), false);
+        Button row = GeoUi.button(this, palette, rowText(title, subtitle, value), false);
         row.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         row.setTextSize(12);
         row.setOnClickListener(view -> action.run());
