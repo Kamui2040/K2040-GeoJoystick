@@ -819,8 +819,8 @@ public final class MainActivity extends Activity {
     private LinearLayout modalCard(int horizontalPadding, int verticalPadding) {
         LinearLayout modal = new LinearLayout(this);
         modal.setOrientation(LinearLayout.VERTICAL);
-        modal.setPadding(dp(horizontalPadding), dp(verticalPadding),
-                dp(horizontalPadding), dp(verticalPadding));
+        modal.setPadding(horizontalPadding, verticalPadding,
+                horizontalPadding, verticalPadding);
         modal.setBackground(GeoUi.elevated(this, palette));
         modal.setElevation(dp(18));
         modal.setClickable(true);
@@ -1005,7 +1005,7 @@ public final class MainActivity extends Activity {
     }
 
     private Button settingRow(String title, String subtitle, String value, Runnable action) {
-        Button row = GeoUi.button(this, palette, rowText(title, subtitle, value), false);
+        Button row = GeoUi.button(this, palette, rowText(title, subtitle, value, "›"), false);
         row.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         row.setTextSize(12);
         row.setOnClickListener(view -> action.run());
