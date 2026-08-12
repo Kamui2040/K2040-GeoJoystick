@@ -1,3 +1,10 @@
+/*
+ * SPDX-License-Identifier: GPL-3.0-only
+ * K2040-authored portions: Copyright (c) 2026 K2040.
+ * K2040-authored material in this file is also subject to the GPLv3 section 7(b)
+ * attribution-preservation term in LICENSES/GPL-3.0-Section-7b-K2040.txt.
+ * Upstream and third-party material retains its own notices; see NOTICE.md.
+ */
 package com.k2040.geojoystick;
 
 import android.Manifest;
@@ -155,11 +162,15 @@ public final class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        if ("license-text".equals(currentPage) || "license-osm".equals(currentPage)) {
+        if ("license-text".equals(currentPage)
+                || "license-osm".equals(currentPage)
+                || "license-artwork".equals(currentPage)) {
             showLicensePage(false);
             return;
         }
-        if ("license-text-welcome".equals(currentPage) || "license-osm-welcome".equals(currentPage)) {
+        if ("license-text-welcome".equals(currentPage)
+                || "license-osm-welcome".equals(currentPage)
+                || "license-artwork-welcome".equals(currentPage)) {
             showLicensePage(true);
             return;
         }
@@ -220,6 +231,8 @@ public final class MainActivity extends Activity {
             showLicenseTextPage();
         } else if ("license-osm".equals(page)) {
             showOsmLicensePage();
+        } else if ("license-artwork".equals(page)) {
+            showArtworkLicensePage(false);
         } else if ("sources-about".equals(page)) {
             showSourcesPage();
         }
@@ -529,15 +542,13 @@ public final class MainActivity extends Activity {
                 this::showSourcesPage), innerRow());
         modal.addView(welcomeNavigationRow(t("Support on Ko-fi", "Auf Ko-fi unterstützen"),
                 () -> openExternalUrl("https://ko-fi.com/k2040")), innerRow());
-        modal.addView(welcomeExpandableRow(t("Thanks & credits", "Dank / Mitwirkende"),
-                welcomeThanksText()), innerRow());
 
         TextView disclosure = text(supportDisclosureText(), 9, palette.textDim, false);
         disclosure.setGravity(Gravity.CENTER);
         disclosure.setPadding(dp(10), dp(5), dp(10), dp(2));
         modal.addView(disclosure, innerRow());
 
-        showModal(stage, modal, 336, 540, false);
+        showModal(stage, modal, 336, 500, false);
     }
 
     private void showChangelogPage(boolean returnToWelcome) {
@@ -609,8 +620,8 @@ public final class MainActivity extends Activity {
         modal.addView(summary, innerRow());
 
         TextView legal = text(t(
-                "App: GPL-3.0-only\nMap data: © OpenStreetMap contributors · ODbL 1.0",
-                "App: GPL-3.0-only\nKartendaten: © OpenStreetMap-Mitwirkende · ODbL 1.0"),
+                "App code: GPL-3.0-only\nK2040 artwork: CC BY 4.0\nMap data: © OpenStreetMap contributors · ODbL 1.0",
+                "App-Code: GPL-3.0-only\nK2040-Grafik: CC BY 4.0\nKartendaten: © OpenStreetMap-Mitwirkende · ODbL 1.0"),
                 10, palette.textDim, true);
         legal.setGravity(Gravity.CENTER);
         legal.setLineSpacing(0, 1.08f);
@@ -619,8 +630,8 @@ public final class MainActivity extends Activity {
         legal.setClickable(true);
         legal.setFocusable(true);
         legal.setContentDescription(t(
-                "Licenses: GPL-3.0-only and OpenStreetMap ODbL 1.0. Open license details",
-                "Lizenzen: GPL-3.0-only und OpenStreetMap ODbL 1.0. Lizenzdetails öffnen"));
+                "Licenses: app code GPL-3.0-only, K2040 artwork CC BY 4.0, and OpenStreetMap ODbL 1.0. Open license details",
+                "Lizenzen: App-Code GPL-3.0-only, K2040-Grafik CC BY 4.0 und OpenStreetMap ODbL 1.0. Lizenzdetails öffnen"));
         legal.setOnClickListener(view -> showLicensePage(true));
         modal.addView(legal, innerRow());
 
@@ -669,10 +680,22 @@ public final class MainActivity extends Activity {
         licenseHint.setPadding(0, dp(1), 0, dp(5));
         modal.addView(licenseHint, innerRow());
 
+        TextView scope = text(t(
+                "Application code is GPL-3.0-only. K2040-authored GPL code also carries a separate section 7(b) attribution term. Original K2040 artwork is CC BY 4.0. Third-party material retains its own terms.",
+                "Der Anwendungscode ist GPL-3.0-only. Von K2040 verfasster GPL-Code trägt zusätzlich eine separate §7(b)-Namensnennungsklausel. Originale K2040-Grafik ist CC BY 4.0. Drittmaterial behält seine eigenen Bedingungen."),
+                10, palette.textDim, false);
+        scope.setLineSpacing(0, 1.08f);
+        scope.setPadding(0, 0, 0, dp(5));
+        modal.addView(scope, innerRow());
+
         modal.addView(infoNavigationRow("GPL-3.0-only",
-                t("GeoJoystick application source and bundled K2040 artwork",
-                        "GeoJoystick-Anwendungsquellcode und gebündelte K2040-Grafik"),
+                t("Application code · K2040-authored portions also carry §7(b) attribution",
+                        "Anwendungscode · K2040-verfasste Teile zusätzlich mit §7(b)-Namensnennung"),
                 () -> showLicenseTextPage(returnToWelcome)), innerRow());
+        modal.addView(infoNavigationRow("K2040 artwork · CC BY 4.0",
+                t("Original K2040 artwork and UI artwork · attribution required",
+                        "Originale K2040-Grafik und UI-Grafik · Namensnennung erforderlich"),
+                () -> showArtworkLicensePage(returnToWelcome)), innerRow());
         modal.addView(infoNavigationRow("OpenStreetMap · ODbL 1.0",
                 t("Map data · © OpenStreetMap contributors",
                         "Kartendaten · © OpenStreetMap-Mitwirkende"),
@@ -708,8 +731,8 @@ public final class MainActivity extends Activity {
         modal.addView(heading, innerRow());
 
         TextView note = text(t(
-                "The bundled English GPL text is the authoritative license text.",
-                "Der enthaltene englische GPL-Text ist der maßgebliche Lizenztext."),
+                "The bundled English GPL text is the authoritative GPL text. Original K2040-authored GPL code also carries the separate section 7(b) attribution-preservation term requiring 'Copyright (c) 2026 K2040.' GoGoGo-derived and other third-party material retain their own notices.",
+                "Der enthaltene englische GPL-Text ist der maßgebliche GPL-Text. Originaler, von K2040 verfasster GPL-Code trägt zusätzlich die separate §7(b)-Namensnennungsklausel mit dem Hinweis 'Copyright (c) 2026 K2040.' Von GoGoGo abgeleitetes und sonstiges Drittmaterial behält seine eigenen Hinweise."),
                 10, palette.textDim, false);
         note.setPadding(dp(4), 0, dp(4), dp(6));
         modal.addView(note, innerRow());
@@ -733,6 +756,40 @@ public final class MainActivity extends Activity {
 
         showModal(stage, modal, 336, 560, false);
         scroller.post(() -> scroller.scrollTo(0, 0));
+    }
+
+    private void showArtworkLicensePage(boolean returnToWelcome) {
+        currentPage = returnToWelcome ? "license-artwork-welcome" : "license-artwork";
+        FrameLayout stage = modalStage();
+        LinearLayout modal = modalCard(dp(16), dp(14));
+
+        TextView heading = text("K2040 artwork · CC BY 4.0", 22, palette.text, true);
+        heading.setPadding(dp(4), dp(2), dp(4), dp(8));
+        modal.addView(heading, innerRow());
+
+        TextView body = text(t(
+                "Original artwork and UI artwork authored by K2040 and identified by project provenance is licensed under Creative Commons Attribution 4.0 International (CC BY 4.0).\n\nWhen sharing covered artwork, credit K2040, identify CC BY 4.0, link to the licence where reasonably practicable, and indicate modifications. Third-party and upstream assets are excluded and retain their own terms.",
+                "Originale Grafiken und UI-Grafiken, die von K2040 erstellt und durch die Projekt-Provenienz ausgewiesen sind, stehen unter Creative Commons Attribution 4.0 International (CC BY 4.0).\n\nBei Weitergabe der erfassten Grafiken ist K2040 zu nennen, CC BY 4.0 anzugeben, soweit praktikabel auf die Lizenz zu verlinken und auf Änderungen hinzuweisen. Dritt- und Upstream-Assets sind ausgenommen und behalten ihre eigenen Bedingungen."),
+                12, palette.text, false);
+        body.setLineSpacing(0, 1.1f);
+        body.setPadding(dp(4), dp(2), dp(4), dp(8));
+        modal.addView(body, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+
+        Button official = welcomeActionButton(t("Open official license", "Offizielle Lizenz öffnen"), false);
+        official.setOnClickListener(view -> openExternalUrl("https://creativecommons.org/licenses/by/4.0/legalcode"));
+        LinearLayout.LayoutParams officialParams = new LinearLayout.LayoutParams(dp(210), dp(48));
+        officialParams.gravity = Gravity.CENTER_HORIZONTAL;
+        modal.addView(official, officialParams);
+
+        Button close = welcomeActionButton(t("Close", "Schließen"), false);
+        close.setOnClickListener(view -> showLicensePage(returnToWelcome));
+        LinearLayout.LayoutParams closeParams = new LinearLayout.LayoutParams(dp(140), dp(48));
+        closeParams.gravity = Gravity.CENTER_HORIZONTAL;
+        closeParams.topMargin = dp(2);
+        modal.addView(close, closeParams);
+
+        showModal(stage, modal, 336, 470, false);
     }
 
     private void showOsmLicensePage() {
@@ -800,8 +857,8 @@ public final class MainActivity extends Activity {
                 () -> openExternalUrl("https://www.openstreetmap.org/copyright")), innerRow());
 
         TextView provenance = text(t(
-                "GeoJoystick is a GPL-3.0-only derivative informed by GoGoGo. Its mock-location service and joystick movement design were adapted and substantially simplified; proprietary Baidu SDK components and advertising are not included.",
-                "GeoJoystick ist ein GPL-3.0-only-Derivat, das auf GoGoGo aufbaut. Mock-Standort-Dienst und Joystick-Bewegungsdesign wurden angepasst und deutlich vereinfacht; proprietäre Baidu-SDK-Komponenten und Werbung sind nicht enthalten."),
+                "GeoJoystick is a GPL-3.0-only derivative informed by GoGoGo. Its mock-location service and joystick movement design were adapted and substantially simplified. GoGoGo-derived material keeps its upstream GPLv3 attribution; the K2040 §7(b) term applies only to K2040-authored GPL material. Proprietary Baidu SDK components and advertising are not included.",
+                "GeoJoystick ist ein GPL-3.0-only-Derivat, das auf GoGoGo aufbaut. Mock-Standort-Dienst und Joystick-Bewegungsdesign wurden angepasst und deutlich vereinfacht. Von GoGoGo abgeleitetes Material behält seine GPLv3-Upstream-Namensnennung; die K2040-§7(b)-Klausel gilt nur für von K2040 verfasstes GPL-Material. Proprietäre Baidu-SDK-Komponenten und Werbung sind nicht enthalten."),
                 10, palette.textDim, false);
         provenance.setLineSpacing(0, 1.08f);
         provenance.setPadding(dp(4), dp(8), dp(4), dp(4));
@@ -934,36 +991,6 @@ public final class MainActivity extends Activity {
         return row;
     }
 
-    private LinearLayout welcomeExpandableRow(String title, String detailText) {
-        LinearLayout section = new LinearLayout(this);
-        section.setOrientation(LinearLayout.VERTICAL);
-        section.setBackground(GeoUi.surface(this, palette));
-
-        LinearLayout header = welcomeRowHeader(title, "⌄");
-        TextView chevron = (TextView) header.getChildAt(1);
-        TextView detail = text(detailText, 10, palette.textDim, false);
-        detail.setPadding(dp(16), 0, dp(16), dp(12));
-        detail.setLineSpacing(0, 1.08f);
-        detail.setVisibility(View.GONE);
-        detail.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
-        section.addView(header);
-        section.addView(detail, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-
-        header.setContentDescription(title + ". " + t("Collapsed", "Eingeklappt"));
-        header.setOnClickListener(view -> {
-            boolean expand = detail.getVisibility() != View.VISIBLE;
-            detail.setVisibility(expand ? View.VISIBLE : View.GONE);
-            detail.setImportantForAccessibility(expand
-                    ? View.IMPORTANT_FOR_ACCESSIBILITY_YES
-                    : View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
-            chevron.setText(expand ? "⌃" : "⌄");
-            header.setContentDescription(title + ". "
-                    + (expand ? t("Expanded", "Ausgeklappt") : t("Collapsed", "Eingeklappt")));
-        });
-        return section;
-    }
-
     private LinearLayout welcomeRowHeader(String title, String chevronText) {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
@@ -1017,12 +1044,6 @@ public final class MainActivity extends Activity {
                 "Transparenter Mock-Standort-Joystick für Android-Entwicklung und Emulator-Tests.\n\n"
                         + "Lokal · Kein Konto · Keine Werbung · Keine Analysen · Kein Tracking\n"
                         + "Koordinaten und Einstellungen bleiben auf deinem Gerät.");
-    }
-
-    private String welcomeThanksText() {
-        return t(
-                "Thank you for trying GeoJoystick.\n\nK2040 avatar artwork is original project artwork. Upstream and external material are listed under Sources.",
-                "Danke, dass du GeoJoystick ausprobierst.\n\nDie K2040-Avatar-Grafik ist originale Projektgrafik. Upstream- und externe Materialien sind unter Quellen aufgeführt.");
     }
 
     private Button infoRow(String title, String subtitle, Runnable action) {
@@ -1104,6 +1125,8 @@ public final class MainActivity extends Activity {
             showLicenseTextPage();
         } else if ("license-osm".equals(page)) {
             showOsmLicensePage();
+        } else if ("license-artwork".equals(page)) {
+            showArtworkLicensePage(false);
         } else if ("sources-about".equals(page)) {
             showSourcesPage();
         } else {
@@ -1113,9 +1136,7 @@ public final class MainActivity extends Activity {
 
     private int indexOf(String[] values, String current) {
         for (int i = 0; i < values.length; i++) {
-            if (values[i].equals(current)) {
-                return i;
-            }
+            if (values[i].equals(current)) return i;
         }
         return 0;
     }

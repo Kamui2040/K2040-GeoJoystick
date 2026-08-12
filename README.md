@@ -94,7 +94,12 @@ The Ko-fi link is optional and the app has no paid features, subscriptions, ads,
 
 ## Licence
 
-GPL-3.0-only. See `LICENSE` and `NOTICE.md`.
+- Application code: `GPL-3.0-only`; see `LICENSE`.
+- K2040-authored code explicitly marked in its source file: `GPL-3.0-only` plus the narrowly scoped GPLv3 section 7(b) attribution-preservation term in `LICENSES/GPL-3.0-Section-7b-K2040.txt`.
+- Original artwork and UI artwork authored by K2040 and identified by project provenance: `CC-BY-4.0`; see `LICENSES/CC-BY-4.0.txt` and `NOTICE.md`.
+- Third-party code, assets, dependencies, and data retain their own controlling licences, notices, and attribution.
+
+See `NOTICE.md` for the current marked §7(b) scope, GoGoGo provenance, K2040 artwork attribution, and OpenStreetMap licensing information.
 
 ## Links
 

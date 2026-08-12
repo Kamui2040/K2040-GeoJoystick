@@ -1,0 +1,11 @@
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+SPDX-License-Identifier: CC-BY-4.0
+
+Canonical licence information:
+- https://creativecommons.org/licenses/by/4.0/
+- https://creativecommons.org/licenses/by/4.0/legalcode
+
+This reference identifies the standard Creative Commons Attribution 4.0 International licence used for K2040-authored original artwork and UI artwork explicitly identified in `NOTICE.md`.
+
+This file does not modify or replace the standard CC BY 4.0 terms. The canonical Creative Commons legal code controls.

@@ -1,3 +1,9 @@
+/*
+ * SPDX-License-Identifier: GPL-3.0-only
+ * Copyright (c) 2026 K2040.
+ * K2040-authored material in this file is also subject to the GPLv3 section 7(b)
+ * attribution-preservation term in LICENSES/GPL-3.0-Section-7b-K2040.txt.
+ */
 package com.k2040.geojoystick;
 
 import android.content.Context;
