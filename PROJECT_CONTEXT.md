@@ -82,3 +82,19 @@ Validation performed locally before the reconciliation commit:
 The rebuilt debug APK is a new artifact boundary and is retained only for the next physical-device QA gate. Historical Feedback 5 APK hashes do not validate this rebuild. Signing, reproducibility, release/F-Droid/store validation, tags, releases, and publication remain separate future gates.
 
 Remaining development gates include physical-device lifecycle/state reconciliation, truthful service/notification/overlay/UI state under permission/provider/process transitions, remaining accessibility/device-scale review, and later API 36 compile/target migration review where applicable.
+
+## Current Issue #13 development
+
+The focused branch is `feat/onboarding-about-card-13`.
+
+The current Issue #13 source revision separates licence scope by authorship/provenance:
+
+- application code remains `GPL-3.0-only`;
+- K2040-authored GPL code carries the separate GPLv3 section 7(b) attribution-preservation term only where the source file explicitly marks that term as applicable;
+- original K2040 artwork/UI artwork established by project provenance is `CC-BY-4.0`, including the bundled K2040 avatar;
+- GoGoGo-derived and other third-party code/assets/data retain their own controlling licences, notices, and attribution; and
+- OpenStreetMap data remains © OpenStreetMap contributors under ODbL 1.0.
+
+The Issue #13 About card no longer contains the placeholder Thanks/credits section. Onboarding and License & usage now present GPL application code, K2040 artwork under CC BY 4.0, and OpenStreetMap/ODbL as distinct maintained scopes. The GPL detail explains the narrow K2040 section 7(b) boundary instead of applying it to upstream material.
+
+Earlier Issue #13 device QA remains useful regression evidence for unchanged behavior, but legal/onboarding/About screenshots and the previous debug APK are superseded by this source revision. A fresh JDK 17 local build, package/signer validation, signer-safe installation, and focused physical-device QA are required before Issue #13 can be accepted or merged. No release, F-Droid/store publication, production signing, or other publication action is authorized by this development state.
