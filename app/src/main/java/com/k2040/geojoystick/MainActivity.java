@@ -692,7 +692,7 @@ public final class MainActivity extends Activity {
                 t("Application code · K2040-authored portions also carry §7(b) attribution",
                         "Anwendungscode · K2040-verfasste Teile zusätzlich mit §7(b)-Namensnennung"),
                 () -> showLicenseTextPage(returnToWelcome)), innerRow());
-        modal.addView(infoNavigationRow("K2040 artwork · CC BY 4.0",
+        modal.addView(infoNavigationRow(t("K2040 artwork · CC BY 4.0", "K2040-Grafik · CC BY 4.0"),
                 t("Original K2040 artwork and UI artwork · attribution required",
                         "Originale K2040-Grafik und UI-Grafik · Namensnennung erforderlich"),
                 () -> showArtworkLicensePage(returnToWelcome)), innerRow());
@@ -763,7 +763,7 @@ public final class MainActivity extends Activity {
         FrameLayout stage = modalStage();
         LinearLayout modal = modalCard(dp(16), dp(14));
 
-        TextView heading = text("K2040 artwork · CC BY 4.0", 22, palette.text, true);
+        TextView heading = text(t("K2040 artwork · CC BY 4.0", "K2040-Grafik · CC BY 4.0"), 22, palette.text, true);
         heading.setPadding(dp(4), dp(2), dp(4), dp(8));
         modal.addView(heading, innerRow());
 
