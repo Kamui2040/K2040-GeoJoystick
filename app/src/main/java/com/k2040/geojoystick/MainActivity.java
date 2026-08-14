@@ -1598,7 +1598,13 @@ public final class MainActivity extends Activity {
     }
 
     private void saveVisibleCoordinates() {
-        if (latitudeInput == null || longitudeInput == null || altitudeInput == null) return;
+        // Only the home page owns live coordinate editors; other pages retain detached references.
+        if (!"main".equals(currentPage)
+                || latitudeInput == null
+                || longitudeInput == null
+                || altitudeInput == null) {
+            return;
+        }
         double latitude = safeLatitude();
         double longitude = safeLongitude();
         double altitude = safeAltitude();
