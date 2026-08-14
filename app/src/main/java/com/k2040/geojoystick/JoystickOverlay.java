@@ -605,8 +605,7 @@ final class JoystickOverlay {
                 iconResId = resId;
             }
             if (iconDrawable == null) return;
-            int inset = iconInset();
-            int side = Math.max(1, Math.min(getWidth(), getHeight()) - inset * 2);
+            int side = Math.min(dp(iconSizeDp()), Math.min(getWidth(), getHeight()));
             int left = (getWidth() - side) / 2;
             int top = (getHeight() - side) / 2;
             iconDrawable.setBounds(left, top, left + side, top + side);
@@ -628,10 +627,10 @@ final class JoystickOverlay {
             }
         }
 
-        private int iconInset() {
-            if (iconType == ICON_STOP) return dp(12);
-            if (iconType == ICON_BIKE || iconType == ICON_GAUGE) return dp(8);
-            return dp(9);
+        private int iconSizeDp() {
+            if (iconType == ICON_STOP) return 20;
+            if (iconType == ICON_BIKE || iconType == ICON_GAUGE) return 24;
+            return 22;
         }
     }
 }

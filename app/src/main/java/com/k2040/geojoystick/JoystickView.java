@@ -125,7 +125,7 @@ final class JoystickView extends View {
     }
 
     private void drawDirectionGuides(Canvas canvas, float radius) {
-        float length = Math.max(dp(5), radius * 0.11f);
+        float length = Math.max(dp(4), radius * 0.085f);
         float offset = radius * 0.78f;
         drawChevron(canvas, centerX, centerY - offset, -90f, length);
         drawChevron(canvas, centerX + offset, centerY, 0f, length);
