@@ -67,7 +67,7 @@ https://github.com/Kamui2040/K2040-GeoJoystick
 
 Feedback 5 visual presentation was accepted on 2026-08-10 from sanitized physical-device captures. The accepted Welcome presentation shows the bare current version directly below the GeoJoystick title, the Changelog row, separate neutral Cancel/Continue actions, and no visible clipping or overlap. Changelog opens as a centered dimmed-background card headed by the current version.
 
-The focused development line is `integration/feedback5-accepted-reconciliation-20260810`. It is reconstructed from current `main` plus the accepted runtime/UI source rather than by merging the migration branch wholesale. This keeps the newer public-safe `main` governance and clean-Linux bootstrap fix, imports the accepted runtime/state/input/UI changes, removes the legacy PC GitHub Actions workflow, and removes the obsolete unsanitized phone screenshots from the maintained tree.
+The focused development line was reconstructed from current `main` plus the accepted runtime/UI source rather than by merging the migration branch wholesale. The maintained integration now lives on `feat/onboarding-about-card-13`, tracked by draft PR #14. This keeps the newer public-safe `main` governance and clean-Linux bootstrap fix, imports the accepted runtime/state/input/UI changes, removes the legacy PC GitHub Actions workflow, and removes the obsolete unsanitized phone screenshots from the maintained tree.
 
 Validation performed locally before the reconciliation commit:
 
@@ -76,12 +76,12 @@ Validation performed locally before the reconciliation commit:
 - repository bootstrap/debug build with JDK 17: PASS
 - `:app:lintRelease`: PASS
 - unsigned release assembly: PASS
-- `:app:testDebugUnitTest`: NO-SOURCE; accepted because no Java/Kotlin unit-test sources exist
+- `:app:testDebugUnitTest`: NO-SOURCE; accepted because no Java/Kotlin unit-test sources exist at that validation boundary
 - debug APK identity: PASS for `com.k2040.geojoystick` 0.1.3 (103)
 
-The rebuilt debug APK is a new artifact boundary and is retained only for the next physical-device QA gate. Historical Feedback 5 APK hashes do not validate this rebuild. Signing, reproducibility, release/F-Droid/store validation, tags, releases, and publication remain separate future gates.
+Issue #9 physical-device lifecycle/state reconciliation is accepted as of 2026-08-14. Accepted coverage includes fresh/unset and invalid-input behavior, successful-publication gating and last-active persistence, mock-location app-op/manual deselection reconciliation, provider/publication failure cleanup, process-death and reboot stale-state behavior, restore-last-position behavior, all three user-visible stop paths, and a final inactive state. The accepted final stop-path run verified the main-screen Stop, overlay Stop/X, and notification Stop paths independently; each ended with mock providers, overlay, service, and foreground notification inactive. Android mock-location-app selection remained manual/user-controlled throughout.
 
-Remaining development gates include physical-device lifecycle/state reconciliation, truthful service/notification/overlay/UI state under permission/provider/process transitions, remaining accessibility/device-scale review, and later API 36 compile/target migration review where applicable.
+The remaining integration blocker is Issue #15 physical-device visual acceptance for overlay symbol sizing. Signing, reproducibility, release/F-Droid/store validation, tags, releases, and publication remain separate future gates.
 
 ## Current Issue #13 development
 
@@ -99,6 +99,16 @@ The Issue #13 About card no longer contains the placeholder Thanks/credits secti
 
 Fresh JDK 17 source/build validation and focused physical-device QA completed successfully for the Issue #13 runtime source through `419ebbca90fe6bc5ec2c9a2dbb7bdc8cfdeff993`. The validated debug artifact was installed through the verified signing boundary; fresh English and German onboarding, License & usage and nested licence details, About, Sources, and Changelog were accepted without clipping at the designated QA scale. Continue remained the only onboarding acknowledgement path, acknowledgement persisted, and a synthetic plain-coordinate `ACTION_SEND` remained deferred until Continue and was processed only afterward. The app language was restored to System default through GeoJoystick's own settings UI, simulation remained inactive, and the QA flow did not change Android's mock-location selection.
 
-Issue #13 implementation and device QA are accepted. This branch also contains the accepted development reconciliation runtime, whose remaining lifecycle/state integration QA is tracked by Issue #9. Because Issue #9 explicitly gates integration of that runtime into `main`, the combined branch must remain unmerged until Issue #9 is accepted. A draft PR may track the combined integration and make that dependency explicit.
+Issue #13 implementation and device QA are accepted. Draft PR #14 carries Issue #13 together with the accepted development reconciliation and remains unmerged pending Issue #15 visual acceptance.
 
-Release signing, reproducibility, tags, releases, F-Droid/store publication, and other publication actions remain separate gates and are not authorized by this development acceptance.
+## Issue #16 restore-last-position follow-up
+
+Issue #16 was found during Issue #9 physical-device QA: detached home-page coordinate fields could overwrite a restored draft while Settings was active. PR #17 added a focused guard so `saveVisibleCoordinates()` writes only while the home page owns the live coordinate editors.
+
+Local validation passed with JDK 17, Android SDK Platform 35 and compatible Build-Tools 36.0.0, including debug build, lint, unit-test task behavior, and unsigned release assembly. Signer-safe in-place device installation preserved app data. Physical-device regression confirmed that normal home-to-Settings manual-draft persistence still works, enabling Restore last position replaces the draft with the previously successful last-active coordinates, `last_*` remains unchanged, and no simulation/service starts as a side effect. PR #17 is merged into `feat/onboarding-about-card-13` and Issue #16 is closed as completed.
+
+## Current Issue #15 visual QA
+
+Issue #15 tracks the remaining overlay visual regression: control/speed glyphs are oversized relative to their 48dp interaction targets. The intended fix keeps the existing touch targets while reducing rendered glyph size and preserving selected/inactive states, opacity, high-contrast behavior, overlay scaling, accessibility labels, compact/expanded behavior, and joystick-direction legibility. Physical-device visual acceptance is required before draft PR #14 can be considered ready to merge.
+
+Release signing, reproducibility, tags, releases, F-Droid/store publication, deployments, announcements, and other publication actions remain separate approval gates and are not authorized by development acceptance.
