@@ -266,6 +266,7 @@ public final class MainActivity extends Activity {
         root.addView(appHeader(), margin(0, 2));
 
         LinearLayout status = card();
+        status.setPadding(dp(12), 0, dp(12), 0);
 
         LinearLayout statusHeader = new LinearLayout(this);
         statusHeader.setGravity(Gravity.CENTER_VERTICAL);
@@ -275,18 +276,22 @@ public final class MainActivity extends Activity {
         statusHeader.setFocusable(true);
 
         TextView statusTitle = text(t("Status", "Status"), 13, palette.text, true);
+        statusTitle.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+        statusTitle.setIncludeFontPadding(false);
         statusTitle.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         statusHeader.addView(statusTitle,
                 new LinearLayout.LayoutParams(0, dp(48), 1f));
 
         TextView statusIndicator = text("⌄", 18, palette.textDim, false);
         statusIndicator.setGravity(Gravity.CENTER);
+        statusIndicator.setIncludeFontPadding(false);
         statusIndicator.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         statusHeader.addView(statusIndicator,
-                new LinearLayout.LayoutParams(dp(48), dp(48)));
+                new LinearLayout.LayoutParams(dp(32), dp(48)));
 
         LinearLayout statusDetails = new LinearLayout(this);
         statusDetails.setOrientation(LinearLayout.VERTICAL);
+        statusDetails.setPadding(0, 0, 0, dp(4));
         statusDetails.setVisibility(View.GONE);
         mockStatus = addStatusRow(statusDetails, t("Mock location", "Mock-Standort"));
         overlayStatus = addStatusRow(statusDetails, t("Overlay permission", "Overlay-Berechtigung"));
@@ -371,15 +376,18 @@ public final class MainActivity extends Activity {
         refreshFavoriteButtons();
 
         LinearLayout simulationCard = card();
+        simulationCard.setPadding(dp(12), dp(4), dp(12), dp(4));
+
+        LinearLayout simulationRow = new LinearLayout(this);
+        simulationRow.setGravity(Gravity.CENTER);
 
         TextView simulationTitle = text(t("Simulation", "Simulation"),
                 13, palette.text, true);
-        simulationTitle.setGravity(Gravity.CENTER);
-        simulationTitle.setPadding(dp(2), 0, dp(2), dp(4));
-        simulationCard.addView(simulationTitle, innerRow());
-
-        LinearLayout simulationControls = new LinearLayout(this);
-        simulationControls.setGravity(Gravity.CENTER);
+        simulationTitle.setGravity(Gravity.CENTER_VERTICAL);
+        simulationTitle.setIncludeFontPadding(false);
+        simulationTitle.setPadding(0, 0, dp(8), 0);
+        simulationRow.addView(simulationTitle, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, dp(48)));
 
         simulationStartButton = GeoUi.button(this, palette, "▶", true);
         simulationStartButton.setTextSize(18);
@@ -399,18 +407,19 @@ public final class MainActivity extends Activity {
         simulationStopButton.setOnClickListener(view -> stopMocking());
 
         LinearLayout.LayoutParams simulationButtonParams =
-                new LinearLayout.LayoutParams(dp(56), dp(48));
-        simulationButtonParams.leftMargin = dp(6);
-        simulationButtonParams.rightMargin = dp(6);
-        simulationControls.addView(simulationStartButton, simulationButtonParams);
+                new LinearLayout.LayoutParams(dp(48), dp(48));
+        simulationButtonParams.leftMargin = dp(2);
+        simulationButtonParams.rightMargin = dp(2);
+        simulationRow.addView(simulationStartButton, simulationButtonParams);
 
         LinearLayout.LayoutParams stopButtonParams =
-                new LinearLayout.LayoutParams(dp(56), dp(48));
-        stopButtonParams.leftMargin = dp(6);
-        stopButtonParams.rightMargin = dp(6);
-        simulationControls.addView(simulationStopButton, stopButtonParams);
+                new LinearLayout.LayoutParams(dp(48), dp(48));
+        stopButtonParams.leftMargin = dp(2);
+        stopButtonParams.rightMargin = dp(2);
+        simulationRow.addView(simulationStopButton, stopButtonParams);
 
-        simulationCard.addView(simulationControls, innerRow());
+        simulationCard.addView(simulationRow, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(48)));
         root.addView(simulationCard, margin(5, 3));
 
         TextView footer = text(t("Open source · GPL-3.0-only · Local-first",
@@ -755,7 +764,7 @@ public final class MainActivity extends Activity {
         modal.addView(localHeading, innerRow());
         TextView localBody = text(t(
                 "Coordinates and settings stay on this device. The map fetches OpenStreetMap tiles only when you open it; supported link resolution may use bounded HTTPS requests. No account, analytics, or hidden uploads.",
-                "Koordinaten und Einstellungen bleiben auf diesem Gerät. Die Karte lädt OpenStreetMap-Kacheln nur, wenn du sie öffnest; unterstützte Linkauflösung kann begrenzte HTTPS-Anfragen verwenden. Kein Konto, keine Analysen und keine versteckten Uploads."),
+                "Koordinaten und Einstellungen bleiben auf deinem Gerät. Die Karte lädt OpenStreetMap-Kacheln nur, wenn du sie öffnest; unterstützte Linkauflösung kann begrenzte HTTPS-Anfragen verwenden. Kein Konto, keine Analysen und keine versteckten Uploads."),
                 11, palette.text, false);
         localBody.setLineSpacing(0, 1.08f);
         localBody.setPadding(0, dp(2), 0, dp(8));

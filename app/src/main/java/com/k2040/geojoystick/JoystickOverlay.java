@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.InsetDrawable;
 import android.provider.Settings;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -510,12 +511,12 @@ final class JoystickOverlay {
         return drawable;
     }
 
-    private GradientDrawable buttonBackground(boolean active) {
+    private Drawable buttonBackground(boolean active) {
         GradientDrawable drawable = new GradientDrawable();
         drawable.setColor(active ? colorButtonActive : colorButton);
-        drawable.setCornerRadius(dp(11));
+        drawable.setCornerRadius(dp(8));
         drawable.setStroke(dp(active || highContrast ? 2 : 1), active ? colorAccent : colorBorder);
-        return drawable;
+        return new InsetDrawable(drawable, dp(8));
     }
 
     private int scaledDp(int baseDp) {
