@@ -38,7 +38,7 @@ The bundled K2040 avatar at `app/src/main/res/drawable-nodpi/k2040_avatar.png` i
 
 The GeoJoystick mascot at `app/src/main/res/drawable-nodpi/geojoystick_mascot.png` is the Issue #22 user-approved waving gecko-and-joystick project artwork. The repository copy is an optimized Android PNG derivative of the approved artwork and is covered by the K2040 CC BY 4.0 artwork licence described above.
 
-The launcher artwork at `app/src/main/res/drawable-nodpi/ic_launcher_artwork.png` is the Issue #22 user-approved simplified gecko-and-joystick map-pin emblem. The repository copy is an optimized Android PNG derivative of the approved artwork and is covered by the K2040 CC BY 4.0 artwork licence described above.
+The launcher artwork at `app/src/main/res/drawable-nodpi/ic_launcher_artwork.webp` is the Issue #22 user-approved simplified gecko-and-joystick map-pin emblem. The repository copy is a lossless Android WebP derivative of the approved artwork and is covered by the K2040 CC BY 4.0 artwork licence described above.
 
 Other visual assets are covered by this K2040 artwork licence only where their K2040 authorship or rights clearance is established by repository provenance. Do not infer CC BY 4.0 for upstream or third-party assets.
 
