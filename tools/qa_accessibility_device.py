@@ -2,21 +2,20 @@
 """Safe entrypoint for the GeoJoystick Issue #10 device-QA harness.
 
 ADB's shell command transport reparses command text on the device. Feed run-as
-shell fragments over stdin so redirections and other shell syntax execute only
-after run-as has switched to the app uid and package data directory.
+shell fragments over stdin so shell syntax executes only after run-as has switched
+to the app uid and package data directory.
 
 For the automated matrix, configure GeoJoystick's own language/appearance
 preferences directly while the app is force-stopped. The complete preference
-file is already backed up and restored by the implementation. This avoids
-platform-specific AlertDialog accessibility trees while still exercising the
-real app rendering for each requested UI configuration.
+file is already backed up and restored by the implementation. Preference XML is
+parsed and rewritten on the host, then written through `run-as <package> tee`
+with the XML bytes on stdin. This avoids Android-shell heredoc/temp-file behavior.
 """
 
 from __future__ import annotations
 
 import subprocess
 import sys
-import time
 import xml.etree.ElementTree as ET
 
 import _qa_accessibility_device_impl as impl
@@ -26,7 +25,6 @@ PREF_LANGUAGE = "app_language"
 PREF_APPEARANCE = "app_appearance"
 PREF_WELCOME = "welcome_acknowledged"
 PREF_LEGACY_WELCOME = "license_accepted"
-PREFS_EOF = "__GEOJOYSTICK_ISSUE10_PREFS_EOF__"
 
 
 class SafeAdb(impl.Adb):
@@ -63,6 +61,21 @@ class SafeAdb(impl.Adb):
             check=False,
         )
         return result.returncode == 0
+
+    def write_app_file(self, path: str, payload: bytes) -> None:
+        if not path or path.startswith("/") or ".." in path.split("/"):
+            raise impl.QAError(f"unsafe app-relative write path: {path!r}")
+        result = self.call(
+            "shell",
+            "run-as",
+            self.package,
+            "tee",
+            path,
+            input_data=payload,
+            check=True,
+        )
+        if result.stdout != payload:
+            raise impl.QAError("app-sandbox preference write verification stream differed")
 
 
 def _named(root: ET.Element, name: str) -> list[ET.Element]:
@@ -113,11 +126,7 @@ def rewrite_ui_preferences(xml_text: str, language: str, theme: str) -> str:
     appearance_node.text = theme
     root.append(appearance_node)
 
-    return ET.tostring(
-        root,
-        encoding="unicode",
-        short_empty_elements=True,
-    )
+    return ET.tostring(root, encoding="unicode", short_empty_elements=True)
 
 
 def read_ui_preferences(xml_text: str) -> tuple[str | None, str | None]:
@@ -147,16 +156,8 @@ class SafeHarness(impl.Harness):
 
         before = self.adb.run_as(f"cat {impl.PREFS_PATH}")
         rewritten = rewrite_ui_preferences(before, language, theme)
-
-        if PREFS_EOF in rewritten:
-            raise impl.QAError("unexpected QA heredoc marker collision")
-
-        script = (
-            f"cat > {impl.PREFS_PATH} <<'{PREFS_EOF}'\n"
-            f"{rewritten}\n"
-            f"{PREFS_EOF}\n"
-        )
-        self.adb.run_as(script)
+        payload = (rewritten + "\n").encode("utf-8")
+        self.adb.write_app_file(impl.PREFS_PATH, payload)
 
         after = self.adb.run_as(f"cat {impl.PREFS_PATH}")
         actual_language, actual_theme = read_ui_preferences(after)
@@ -230,7 +231,8 @@ def adapter_self_test() -> None:
             input_data: bytes | None = None,
         ) -> subprocess.CompletedProcess:
             captured.append((args, input_data, check))
-            return subprocess.CompletedProcess(args, 0, b"ok\r\n", b"")
+            stdout = input_data if args[-2:-1] == ("tee",) else b"ok\r\n"
+            return subprocess.CompletedProcess(args, 0, stdout or b"", b"")
 
     probe = ProbeAdb("adb", "synthetic-serial", "com.example.synthetic")
     output = probe.run_as("printf '%s' test > cache/state.txt")
@@ -245,6 +247,20 @@ def adapter_self_test() -> None:
         ("shell", "run-as", "com.example.synthetic", "sh"),
         b"test -e cache/state.txt\n",
         False,
+    )
+
+    xml_payload = b"<map><boolean name=\"welcome_acknowledged\" value=\"true\" /></map>\n"
+    probe.write_app_file("shared_prefs/geojoystick.xml", xml_payload)
+    assert captured[-1] == (
+        (
+            "shell",
+            "run-as",
+            "com.example.synthetic",
+            "tee",
+            "shared_prefs/geojoystick.xml",
+        ),
+        xml_payload,
+        True,
     )
 
     sample = (
