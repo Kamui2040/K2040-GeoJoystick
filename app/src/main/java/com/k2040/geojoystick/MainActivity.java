@@ -80,6 +80,8 @@ public final class MainActivity extends Activity {
     private double draftLongitude = Double.NaN;
     private double draftAltitude = Double.NaN;
     private String currentPage = "main";
+    private Object backInvokedCallback;
+    private boolean backInvokedCallbackRegistered;
 
     private final BroadcastReceiver simulationStateReceiver = new BroadcastReceiver() {
         @Override
@@ -149,6 +151,7 @@ public final class MainActivity extends Activity {
     protected void onDestroy() {
         importRequestId++;
         unregisterSimulationStateReceiver();
+        updateBackCallbackRegistration(false);
         super.onDestroy();
     }
 
@@ -166,8 +169,17 @@ public final class MainActivity extends Activity {
         }
     }
 
+    @SuppressLint("GestureBackNavigation")
     @Override
     public void onBackPressed() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            super.onBackPressed();
+            return;
+        }
+        handleBackNavigation();
+    }
+
+    private void handleBackNavigation() {
         if ("license-text".equals(currentPage)
                 || "license-osm".equals(currentPage)
                 || "license-artwork".equals(currentPage)) {
@@ -196,6 +208,42 @@ public final class MainActivity extends Activity {
         }
         if (!"welcome".equals(currentPage)) {
             super.onBackPressed();
+        }
+    }
+
+    private void updateBackCallbackRegistration(boolean shouldRegister) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return;
+
+        if (backInvokedCallback == null) {
+            backInvokedCallback = Api33BackNavigation.create(this::handleBackNavigation);
+        }
+
+        if (shouldRegister && !backInvokedCallbackRegistered) {
+            Api33BackNavigation.register(this, backInvokedCallback);
+            backInvokedCallbackRegistered = true;
+        } else if (!shouldRegister && backInvokedCallbackRegistered) {
+            Api33BackNavigation.unregister(this, backInvokedCallback);
+            backInvokedCallbackRegistered = false;
+        }
+    }
+
+    @android.annotation.TargetApi(Build.VERSION_CODES.TIRAMISU)
+    private static final class Api33BackNavigation {
+        private Api33BackNavigation() { }
+
+        static Object create(Runnable action) {
+            return (android.window.OnBackInvokedCallback) action::run;
+        }
+
+        static void register(Activity activity, Object callback) {
+            activity.getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+                    android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+                    (android.window.OnBackInvokedCallback) callback);
+        }
+
+        static void unregister(Activity activity, Object callback) {
+            activity.getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback(
+                    (android.window.OnBackInvokedCallback) callback);
         }
     }
 
@@ -255,6 +303,7 @@ public final class MainActivity extends Activity {
         currentPage = "main";
         ScrollView page = buildHomePage();
         setContentView(page);
+        updateBackCallbackRegistration(false);
         applySystemBarInsets(page);
         updateStatus();
     }
@@ -581,6 +630,7 @@ public final class MainActivity extends Activity {
         root.addView(appearance, margin(1, 4));
 
         setContentView(page);
+        updateBackCallbackRegistration(true);
         applySystemBarInsets(page);
     }
 
@@ -1046,6 +1096,7 @@ public final class MainActivity extends Activity {
         }
         stage.addView(modal, params);
         setContentView(stage);
+        updateBackCallbackRegistration(true);
         applySystemBarInsets(stage);
         modal.requestFocus();
     }
