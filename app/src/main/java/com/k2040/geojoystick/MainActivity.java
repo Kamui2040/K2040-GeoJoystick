@@ -437,7 +437,7 @@ public final class MainActivity extends Activity {
         header.setPadding(dp(2), dp(2), dp(2), dp(4));
 
         ImageView avatar = new ImageView(this);
-        avatar.setImageResource(R.drawable.k2040_avatar);
+        avatar.setImageResource(R.drawable.geojoystick_mascot);
         avatar.setScaleType(ImageView.ScaleType.CENTER_CROP);
         avatar.setPadding(dp(4), dp(4), dp(4), dp(4));
         avatar.setContentDescription(t("About GeoJoystick", "Über GeoJoystick"));
