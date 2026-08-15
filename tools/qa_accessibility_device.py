@@ -5,9 +5,11 @@ ADB's shell command transport reparses command text on the device. Feed run-as
 shell fragments over stdin so redirections and other shell syntax execute only
 after run-as has switched to the app uid and package data directory.
 
-Android framework dialogs can expose their choice rows under a framework package
-instead of the app package. Keep normal navigation package-scoped, but match
-language/theme single-choice rows by exact known label and dialog-row shape.
+For the automated matrix, configure GeoJoystick's own language/appearance
+preferences directly while the app is force-stopped. The complete preference
+file is already backed up and restored by the implementation. This avoids
+platform-specific AlertDialog accessibility trees while still exercising the
+real app rendering for each requested UI configuration.
 """
 
 from __future__ import annotations
@@ -15,9 +17,16 @@ from __future__ import annotations
 import subprocess
 import sys
 import time
-from typing import Sequence
+import xml.etree.ElementTree as ET
 
 import _qa_accessibility_device_impl as impl
+
+
+PREF_LANGUAGE = "app_language"
+PREF_APPEARANCE = "app_appearance"
+PREF_WELCOME = "welcome_acknowledged"
+PREF_LEGACY_WELCOME = "license_accepted"
+PREFS_EOF = "__GEOJOYSTICK_ISSUE10_PREFS_EOF__"
 
 
 class SafeAdb(impl.Adb):
@@ -56,75 +65,157 @@ class SafeAdb(impl.Adb):
         return result.returncode == 0
 
 
-class SafeHarness(impl.Harness):
-    DIALOG_CHOICE_CLASSES = (
-        "android.widget.CheckedTextView",
-        "android.widget.RadioButton",
-    )
+def _named(root: ET.Element, name: str) -> list[ET.Element]:
+    return [child for child in root if child.attrib.get("name") == name]
 
-    @classmethod
-    def _dialog_choice(
-        cls,
-        nodes: Sequence[impl.UiNode],
-        values: Sequence[str],
-        app_package: str,
-    ) -> impl.UiNode | None:
-        matches = [
-            node for node in nodes
-            if node.enabled
-            and node.bounds.area > 0
-            and node.text in values
-            and (
-                node.class_name in cls.DIALOG_CHOICE_CLASSES
-                or (
-                    node.package != app_package
-                    and node.class_name == "android.widget.TextView"
-                )
-            )
-        ]
-        if not matches:
-            return None
-        return min(
-            matches,
-            key=lambda node: (
-                0 if node.class_name in cls.DIALOG_CHOICE_CLASSES else 1,
-                node.bounds.top,
-                node.bounds.left,
-            ),
+
+def _boolean_value(root: ET.Element, name: str) -> bool:
+    for child in _named(root, name):
+        return (
+            child.tag == "boolean"
+            and child.attrib.get("value", "").lower() == "true"
+        )
+    return False
+
+
+def rewrite_ui_preferences(xml_text: str, language: str, theme: str) -> str:
+    if language not in {"en", "de", "system"}:
+        raise impl.QAError(f"invalid QA language: {language}")
+    if theme not in {"system", "light", "dark"}:
+        raise impl.QAError(f"invalid QA theme: {theme}")
+
+    try:
+        root = ET.fromstring(xml_text)
+    except ET.ParseError as exc:
+        raise impl.QAError(f"could not parse GeoJoystick preferences: {exc}") from exc
+
+    if root.tag != "map":
+        raise impl.QAError("unexpected GeoJoystick preferences root")
+
+    if not (
+        _boolean_value(root, PREF_WELCOME)
+        or _boolean_value(root, PREF_LEGACY_WELCOME)
+    ):
+        raise impl.QAError(
+            "first-run onboarding is unacknowledged; refusing to acknowledge it automatically"
         )
 
-    def tap_dialog_choice(self, values: Sequence[str]) -> impl.UiNode:
-        for _ in range(8):
-            node = self._dialog_choice(
-                self.snapshot().nodes,
-                values,
-                self.package,
+    for key in (PREF_LANGUAGE, PREF_APPEARANCE):
+        for child in list(root):
+            if child.attrib.get("name") == key:
+                root.remove(child)
+
+    language_node = ET.Element("string", {"name": PREF_LANGUAGE})
+    language_node.text = language
+    root.append(language_node)
+
+    appearance_node = ET.Element("string", {"name": PREF_APPEARANCE})
+    appearance_node.text = theme
+    root.append(appearance_node)
+
+    return ET.tostring(
+        root,
+        encoding="unicode",
+        short_empty_elements=True,
+    )
+
+
+def read_ui_preferences(xml_text: str) -> tuple[str | None, str | None]:
+    try:
+        root = ET.fromstring(xml_text)
+    except ET.ParseError as exc:
+        raise impl.QAError(f"could not parse GeoJoystick preferences: {exc}") from exc
+
+    def value(name: str) -> str | None:
+        matches = [
+            child for child in root
+            if child.tag == "string" and child.attrib.get("name") == name
+        ]
+        if len(matches) != 1:
+            return None
+        return matches[0].text or ""
+
+    return value(PREF_LANGUAGE), value(PREF_APPEARANCE)
+
+
+class SafeHarness(impl.Harness):
+    def _write_ui_preferences(self, language: str, theme: str) -> None:
+        self.adb.force_stop()
+
+        if not self.adb.run_as_probe(f"test -f {impl.PREFS_PATH}"):
+            raise impl.QAError("GeoJoystick preference file is unavailable")
+
+        before = self.adb.run_as(f"cat {impl.PREFS_PATH}")
+        rewritten = rewrite_ui_preferences(before, language, theme)
+
+        if PREFS_EOF in rewritten:
+            raise impl.QAError("unexpected QA heredoc marker collision")
+
+        script = (
+            f"cat > {impl.PREFS_PATH} <<'{PREFS_EOF}'\n"
+            f"{rewritten}\n"
+            f"{PREFS_EOF}\n"
+        )
+        self.adb.run_as(script)
+
+        after = self.adb.run_as(f"cat {impl.PREFS_PATH}")
+        actual_language, actual_theme = read_ui_preferences(after)
+        if actual_language != language or actual_theme != theme:
+            raise impl.QAError(
+                "GeoJoystick UI preferences did not persist requested QA values"
             )
-            if node is not None:
-                self.adb.tap(node.bounds)
-                return node
-            time.sleep(0.20)
-        raise impl.QAError(f"could not find dialog option: {tuple(values)}")
 
-    def set_language(self, language: str) -> None:
-        self.tap_desc_any(("Language.", "Sprache."), starts=True, scroll="up")
-        options = {
-            "en": ("English",),
-            "de": ("Deutsch",),
-            "system": ("System default", "Systemstandard"),
-        }[language]
-        self.tap_dialog_choice(options)
-        time.sleep(0.25)
+    def _verify_rendered_ui_configuration(self, language: str, theme: str) -> None:
+        settings_desc = "Einstellungen" if language == "de" else "Settings"
+        settings = self.find_node(
+            lambda node: node.desc == settings_desc,
+            attempts=5,
+        )
+        if settings is None:
+            raise impl.QAError(
+                f"app did not render requested language {language!r} on the home screen"
+            )
+        self.adb.tap(settings.bounds)
 
-    def set_theme(self, theme: str) -> None:
-        self.tap_desc_any(("Theme.", "Darstellung."), starts=True, scroll="up")
-        options = {
-            "system": ("System default", "Systemstandard"),
-            "light": ("Light", "Hell"),
-            "dark": ("Dark", "Dunkel"),
-        }[theme]
-        self.tap_dialog_choice(options)
-        time.sleep(0.25)
+        expected_language = (
+            "Sprache. Deutsch" if language == "de" else "Language. English"
+        )
+        language_row = self.find_node(
+            lambda node: node.desc == expected_language,
+            scroll="up",
+            attempts=8,
+        )
+        if language_row is None:
+            raise impl.QAError(
+                f"settings did not expose requested language state: {expected_language!r}"
+            )
+
+        theme_value = {
+            ("en", "system"): "System",
+            ("en", "light"): "Light",
+            ("en", "dark"): "Dark",
+            ("de", "system"): "System",
+            ("de", "light"): "Hell",
+            ("de", "dark"): "Dunkel",
+        }[(language, theme)]
+        theme_title = "Darstellung" if language == "de" else "Theme"
+        expected_theme = f"{theme_title}. {theme_value}"
+        theme_row = self.find_node(
+            lambda node: node.desc == expected_theme,
+            scroll="up",
+            attempts=8,
+        )
+        if theme_row is None:
+            raise impl.QAError(
+                f"settings did not expose requested theme state: {expected_theme!r}"
+            )
+
+    def configure_app(self, language: str, theme: str) -> None:
+        self._write_ui_preferences(language, theme)
+        self.adb.launch()
+        self._verify_rendered_ui_configuration(language, theme)
+        self.adb.force_stop()
+        self.adb.launch()
 
 
 def adapter_self_test() -> None:
@@ -156,54 +247,35 @@ def adapter_self_test() -> None:
         False,
     )
 
-    background = impl.UiNode(
-        path=(0,),
-        text="English",
-        desc="",
-        class_name="android.widget.TextView",
-        package="com.example.synthetic",
-        clickable=False,
-        enabled=True,
-        bounds=impl.Bounds(0, 0, 120, 48),
-        child_count=0,
+    sample = (
+        '<map>'
+        '<boolean name="welcome_acknowledged" value="true" />'
+        '<string name="app_language">de</string>'
+        '<string name="app_appearance">light</string>'
+        '<int name="overlay_size_percent" value="80" />'
+        '</map>'
     )
-    framework_text = impl.UiNode(
-        path=(1,),
-        text="English",
-        desc="",
-        class_name="android.widget.TextView",
-        package="android",
-        clickable=False,
-        enabled=True,
-        bounds=impl.Bounds(20, 80, 260, 140),
-        child_count=0,
+    rewritten = rewrite_ui_preferences(sample, "en", "dark")
+    language, theme = read_ui_preferences(rewritten)
+    assert language == "en"
+    assert theme == "dark"
+    rewritten_root = ET.fromstring(rewritten)
+    assert len(_named(rewritten_root, PREF_LANGUAGE)) == 1
+    assert len(_named(rewritten_root, PREF_APPEARANCE)) == 1
+    assert any(
+        child.tag == "int"
+        and child.attrib.get("name") == "overlay_size_percent"
+        and child.attrib.get("value") == "80"
+        for child in rewritten_root
     )
-    checked = impl.UiNode(
-        path=(2,),
-        text="English",
-        desc="",
-        class_name="android.widget.CheckedTextView",
-        package="android",
-        clickable=False,
-        enabled=True,
-        bounds=impl.Bounds(20, 100, 260, 160),
-        child_count=0,
-    )
-    assert SafeHarness._dialog_choice(
-        (background, framework_text, checked),
-        ("English",),
-        "com.example.synthetic",
-    ) == checked
-    assert SafeHarness._dialog_choice(
-        (background, framework_text),
-        ("English",),
-        "com.example.synthetic",
-    ) == framework_text
-    assert SafeHarness._dialog_choice(
-        (background,),
-        ("English",),
-        "com.example.synthetic",
-    ) is None
+
+    unacknowledged = '<map><string name="app_language">en</string></map>'
+    try:
+        rewrite_ui_preferences(unacknowledged, "de", "dark")
+    except impl.QAError:
+        pass
+    else:
+        raise AssertionError("unacknowledged onboarding must be rejected")
 
     print("GeoJoystick Issue #10 safe-adapter self-test: PASS")
 
