@@ -137,7 +137,7 @@ final class JoystickOverlay {
         dragHandle.setOnTouchListener(new DragListener());
         titleRow.addView(dragHandle, new LinearLayout.LayoutParams(0, dp(48), 1f));
 
-        toggleModeButton = controlButton("−", 20);
+        toggleModeButton = controlButton("−", 10);
         toggleModeButton.setContentDescription(t("Switch to compact overlay", "Zum kompakten Overlay wechseln"));
         toggleModeButton.setOnClickListener(view -> toggleOverlayMode());
         toggleModeButton.setOnTouchListener(new DragListener());
@@ -493,8 +493,8 @@ final class JoystickOverlay {
     }
 
     private void styleToggleButton() {
-        toggleModeButton.setTextColor(colorTextDim);
-        toggleModeButton.setBackground(buttonBackground(false));
+        toggleModeButton.setTextColor(highContrast ? colorText : colorTextDim);
+        toggleModeButton.setBackground(null);
     }
 
     private void styleIconButton(IconButton button, boolean active) {
@@ -605,8 +605,7 @@ final class JoystickOverlay {
                 iconResId = resId;
             }
             if (iconDrawable == null) return;
-            int inset = iconInset();
-            int side = Math.max(1, Math.min(getWidth(), getHeight()) - inset * 2);
+            int side = Math.min(dp(iconSizeDp()), Math.min(getWidth(), getHeight()));
             int left = (getWidth() - side) / 2;
             int top = (getHeight() - side) / 2;
             iconDrawable.setBounds(left, top, left + side, top + side);
@@ -628,10 +627,10 @@ final class JoystickOverlay {
             }
         }
 
-        private int iconInset() {
-            if (iconType == ICON_STOP) return dp(12);
-            if (iconType == ICON_BIKE || iconType == ICON_GAUGE) return dp(8);
-            return dp(9);
+        private int iconSizeDp() {
+            if (iconType == ICON_STOP) return 10;
+            if (iconType == ICON_BIKE || iconType == ICON_GAUGE) return 12;
+            return 11;
         }
     }
 }
