@@ -42,7 +42,7 @@ The accepted reconciliation, Issue #13 onboarding/About/licensing work, Issue #1
 - final physically accepted pre-integration runtime candidate: `9c83e7bd8e35362d65c51db8310550a06923def5`
 - accepted/final-validation debug APK SHA-256: `01966f8d426452750acec9b9819859a72218442899be1553f711d9c0d707f455`
 
-Issues #9, #13, #15, #16, #20, and #21 are closed as completed.
+Issues #9, #10, #13, #15, #16, #20, and #21 are closed as completed.
 
 ### Lifecycle/state behavior
 
@@ -64,6 +64,19 @@ Focused English/German physical-device QA passed. A synthetic plain-coordinate `
 
 Physical-device visual QA accepted the complete redesign on 2026-08-15. Signer-safe installation preserved app data and the user-controlled Android mock-location selection.
 
+### Accessibility and device-scale behavior
+
+Issue #10 is accepted and closed. Reusable deterministic device-scale/accessibility automation was added through squash-merged PR #24.
+
+- PR #24 QA-tooling merge commit: `baf1eb79c4f60be5858850d6d6deb54931f426fb`
+- PR #25 accessibility runtime-fix merge commit: `167937578c1d3410bb67a74d20feb69d168b9f14`
+- validated PR #25 head before squash: `6afeef4504dddca68111c85827f56ddf9d5b07ec`
+- accepted PR #25 debug APK SHA-256: `88260a65f4d5488c2845a280ebf094efb3c471d7d4c4230616137a4717523038`
+
+The maintained harness covers an 18-scenario matrix across English/German, System/Light/Dark appearance, representative font scales through 2.0x, and baseline/stress display density. It preserves and restores app preferences, font scale, density, and inactive simulation state; uses synthetic coordinates for the overlay phase; and keeps private QA device identity out of Git.
+
+The complete refined run separated UIAutomator viewport/hierarchy artifacts from two genuine defects. PR #25 enlarged the clickable Home About/avatar target to 48dp while preserving its approximately 40dp visual footprint, and made the About body vertically scrollable while retaining the fixed identity/close row. Focused device QA confirmed a 48.0x48.0dp About target and English/German About navigation reachability at 2.0x font scale. Signer-safe replacement preserved app data, mock-location selection, overlay permission, and inactive simulation state. Human visual QA accepted normal-scale presentation, About scrolling/fixed close behavior, Theme/Language dialogs, and large-font About usability.
+
 ## Final integration validation
 
 The complete PR #14 tree was validated locally before merge as one unit rather than relying only on component validation:
@@ -82,6 +95,8 @@ The complete PR #14 tree was validated locally before merge as one unit rather t
 - temporary validation worktrees cleaned
 - device not modified by the final integration build pass
 - no GitHub Actions jobs were dispatched or used as integration-validation evidence
+
+Issue #10's later runtime fix was separately validated on its exact source head with `git diff --check`, parser regression, JDK 17 / SDK 35 / Build Tools 36.0.0 debug build, `testDebugUnitTest`, `lintRelease`, `assembleRelease`, signer-safe physical installation, focused structural QA, state restoration, and human visual acceptance. GitHub Actions were not queried or used for that workflow.
 
 No additional Android build is required for this documentation-only post-merge context update.
 
