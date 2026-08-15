@@ -2,174 +2,91 @@
 
 ## Purpose
 
-GeoJoystick is an open-source Android mock-location joystick intended for emulator and developer testing. It provides a floating joystick, speed presets, manual coordinates, an internal map picker, map-link coordinate import, and a persistent foreground service.
+GeoJoystick is an open-source Android mock-location joystick intended for emulator and developer testing. It provides a floating joystick, speed presets, manual coordinates, an internal map picker, map-link coordinate import, and a persistent foreground service through Android's standard mock-location provider flow.
 
-## Current milestone
-
-Version 0.1.3 public release
-
-- Public release: v0.1.3
-- Version code: 103
-- F-Droid submission MR !42238 has been merged into fdroid/fdroiddata master
-- F-Droid currently publishes v0.1.2 until the v0.1.3 metadata/build update is processed
-- Official APKPure listing is live: https://apkpure.com/p/com.k2040.geojoystick
-- Standard Android Developer Options mock-location provider
-- Foreground service publishing GPS and network test-provider locations
-- Movable overlay joystick with expanded and compact modes
-- Walk, run, bike-style, and user-defined custom speed presets
-- Hold, pause, hide, stop, saved overlay mode, saved speed, overlay opacity, high contrast, and reset overlay position
-- App settings for System/Light/Dark appearance and System/English/German language
-- Optional restore-last-position behavior and five named favorite-location slots
-- OpenStreetMap tile-based picker with no API key and no external JavaScript dependency
-- Coordinate extraction from full or shortened map links
-- In-app About / Support section with K2040 avatar and Ko-fi link
-- No ads, billing, accounts, analytics, subscriptions, or updater
-
-## Upstream relationship
-
-The project reuses and simplifies the architecture and movement approach of `ZCShou/GoGoGo`, baseline commit `de0d596190c57b8ca71481f60ce6b9e50af5107f`, under GPL-3.0-only. The Baidu SDK, embedded signing configuration, updater, logging stack, history database, and legacy permissions are intentionally not carried over.
-
-## Release positioning
-
-Public descriptions should present GeoJoystick as a mock-location utility for emulator and developer testing. Do not market it as game tooling, cheating software, anti-detection tooling, or a bypass utility.
-
-## F-Droid / FLOSS status
-
-The app is GPL-3.0-only, has no ads, no analytics, no accounts, and uses direct Android framework code. Upstream Fastlane-style metadata exists under `fastlane/metadata/android/en-US/`.
-
-The F-Droid submission has been merged and the first store listing is live. The final F-Droid metadata includes `AntiFeatures: TetheredNet` because the map picker uses OpenStreetMap services.
-
-## Other distribution
-
-The official APKPure listing is live at https://apkpure.com/p/com.k2040.geojoystick. GitHub Releases remains the canonical source for release notes and published release assets. No APKPure installation smoke test is recorded in this repository yet.
-
-## Validation status
-
-- F-Droid MR build/test/rewritemeta pipeline passed after the TetheredNet metadata update
-- Reproducible-build issue was fixed by signing the F-Droid CI-built unsigned APK with the release key using v2 signing and preserved alignment
-- Physical-phone smoke test confirmed the public release installs and standard mock location works
-- Dark-dialog fix was validated on a physical phone
-- GitHub Actions successfully built both debug and unsigned release APKs for v0.1.3
-- Dedicated GeoJoystick store icon included for v0.1.3
-
-## Current build
+## Current public release
 
 - Version: 0.1.3
 - Version code: 103
-- Baseline: public / F-Droid release line
-- Release changes: dark-theme dialog fix and dedicated store-listing icon
+- Canonical repository: https://github.com/Kamui2040/K2040-GeoJoystick
+- F-Droid submission MR !42238 is merged into `fdroid/fdroiddata` master; the store may still show v0.1.2 until the v0.1.3 metadata/build update is processed.
+- Official APKPure listing is live at https://apkpure.com/p/com.k2040.geojoystick.
+- GitHub Releases remains the canonical source for release notes and published release assets.
+- No APKPure installation smoke test is recorded in this repository yet.
 
-## Canonical public repository
+GeoJoystick remains ad-free, account-free, analytics-free, tracking-free, subscription-free, and free of mandatory proprietary services. Saved coordinates, favorites, and settings remain local unless the user explicitly performs a documented external action. The map uses OpenStreetMap only when opened, with required attribution preserved.
 
-https://github.com/Kamui2040/K2040-GeoJoystick
+## Upstream relationship
 
-## Current accepted development reconciliation
+The project reuses and simplifies architecture and movement concepts from `ZCShou/GoGoGo`, baseline commit `de0d596190c57b8ca71481f60ce6b9e50af5107f`, under GPL-3.0-only. The Baidu SDK, embedded signing configuration, updater, logging stack, history database, and legacy permissions are intentionally not carried over.
 
-Feedback 5 visual presentation was accepted on 2026-08-10 from sanitized physical-device captures. The accepted Welcome presentation shows the bare current version directly below the GeoJoystick title, the Changelog row, separate neutral Cancel/Continue actions, and no visible clipping or overlap. Changelog opens as a centered dimmed-background card headed by the current version.
+Public descriptions should present GeoJoystick as a mock-location utility for emulator and developer testing, not as game tooling, cheating software, anti-detection tooling, or a bypass utility.
 
-The focused development line was reconstructed from current `main` plus the accepted runtime/UI source rather than by merging the migration branch wholesale. The maintained integration now lives on `feat/onboarding-about-card-13`, tracked by draft PR #14. This keeps the newer public-safe `main` governance and clean-Linux bootstrap fix, imports the accepted runtime/state/input/UI changes, removes the legacy PC GitHub Actions workflow, and removes the obsolete unsanitized phone screenshots from the maintained tree.
+## Licensing and provenance
 
-Validation performed locally before the reconciliation commit:
-
-- `git diff --check`: PASS
-- dependency-free `LocationLinkParser` self-test: PASS
-- repository bootstrap/debug build with JDK 17: PASS
-- `:app:lintRelease`: PASS
-- unsigned release assembly: PASS
-- `:app:testDebugUnitTest`: NO-SOURCE; accepted because no Java/Kotlin unit-test sources exist at that validation boundary
-- debug APK identity: PASS for `com.k2040.geojoystick` 0.1.3 (103)
-
-Issue #9 physical-device lifecycle/state reconciliation is accepted and closed as completed as of 2026-08-14. Accepted coverage includes fresh/unset and invalid-input behavior, successful-publication gating and last-active persistence, mock-location app-op/manual deselection reconciliation, provider/publication failure cleanup, process-death and reboot stale-state behavior, restore-last-position behavior, all three user-visible stop paths, and a final inactive state. The accepted final stop-path run verified the main-screen Stop, overlay Stop/X, and notification Stop paths independently; each ended with mock providers, overlay, service, and foreground notification inactive. Android mock-location-app selection remained manual/user-controlled throughout.
-
-The remaining integration blockers are Issues #15, #20, and #21, all of which require focused physical-device UI acceptance of the current redesign before draft PR #14 can progress toward merge. Issue #22 tracks the new GeoJoystick gecko mascot/identity work separately and does not authorize an app-icon replacement. Signing, reproducibility, release/F-Droid/store validation, tags, releases, and publication remain separate future gates.
-
-## Current Issue #13 development
-
-The focused branch is `feat/onboarding-about-card-13`.
-
-The current Issue #13 source revision separates licence scope by authorship/provenance:
-
-- application code remains `GPL-3.0-only`;
-- K2040-authored GPL code carries the separate GPLv3 section 7(b) attribution-preservation term only where the source file explicitly marks that term as applicable;
-- original K2040 artwork/UI artwork established by project provenance is `CC-BY-4.0`, including the bundled K2040 avatar;
-- GoGoGo-derived and other third-party code/assets/data retain their own controlling licences, notices, and attribution; and
+- Application code remains `GPL-3.0-only`.
+- K2040-authored GPL code carries the separate GPLv3 section 7(b) attribution-preservation term only where the source file explicitly marks that term as applicable.
+- Original K2040 artwork and UI artwork with established project provenance is `CC-BY-4.0`, including the bundled K2040 avatar.
+- GoGoGo-derived and other third-party code/assets/data retain their own controlling licences, notices, and attribution.
 - OpenStreetMap data remains © OpenStreetMap contributors under ODbL 1.0.
+- F-Droid metadata includes `AntiFeatures: TetheredNet` because the optional map picker uses OpenStreetMap services.
 
-The Issue #13 About card no longer contains the placeholder Thanks/credits section. Onboarding and License & usage now present GPL application code, K2040 artwork under CC BY 4.0, and OpenStreetMap/ODbL as distinct maintained scopes. The GPL detail explains the narrow K2040 section 7(b) boundary instead of applying it to upstream material.
+## Accepted development integration
 
-Fresh JDK 17 source/build validation and focused physical-device QA completed successfully for the Issue #13 runtime source through `419ebbca90fe6bc5ec2c9a2dbb7bdc8cfdeff993`. The validated debug artifact was installed through the verified signing boundary; fresh English and German onboarding, License & usage and nested licence details, About, Sources, and Changelog were accepted without clipping at the designated QA scale. Continue remained the only onboarding acknowledgement path, acknowledgement persisted, and a synthetic plain-coordinate `ACTION_SEND` remained deferred until Continue and was processed only afterward. The app language was restored to System default through GeoJoystick's own settings UI, simulation remained inactive, and the QA flow did not change Android's mock-location selection.
+The maintained development line is `feat/onboarding-about-card-13`, tracked by draft PR #14 against `main`.
 
-Issue #13 implementation and device QA are accepted. Draft PR #14 carries Issue #13 together with the accepted development reconciliation and remains unmerged pending the current #15/#20/#21 UI redesign acceptance.
+The branch contains the accepted reconciliation reconstructed from current public-safe `main` plus the maintained runtime/UI/state/input work. It retains the clean Linux bootstrap fix and current repository governance, removes the obsolete PC GitHub Actions workflow and obsolete unsanitized phone screenshots, and includes the maintained parser regression harness.
 
-## Issue #16 restore-last-position follow-up
+### Accepted lifecycle/state work
 
-Issue #16 was found during Issue #9 physical-device QA: detached home-page coordinate fields could overwrite a restored draft while Settings was active. PR #17 added a focused guard so `saveVisibleCoordinates()` writes only while the home page owns the live coordinate editors.
+Issue #9 physical-device lifecycle/state reconciliation is accepted and closed. Accepted coverage includes fresh/unset and invalid-input behavior, successful-publication gating and last-active persistence, mock-location app-op/manual deselection reconciliation, provider/publication failure cleanup, process-death and reboot stale-state behavior, restore-last-position behavior, all three user-visible stop paths, and a final inactive state. Android mock-location-app selection remained manual and user-controlled throughout.
 
-Local validation passed with JDK 17, Android SDK Platform 35 and compatible Build-Tools 36.0.0, including debug build, lint, unit-test task behavior, and unsigned release assembly. Signer-safe in-place device installation preserved app data. Physical-device regression confirmed that normal home-to-Settings manual-draft persistence still works, enabling Restore last position replaces the draft with the previously successful last-active coordinates, `last_*` remains unchanged, and no simulation/service starts as a side effect. PR #17 is merged into `feat/onboarding-about-card-13` and Issue #16 is closed as completed.
+Issue #16 fixed the restore-last-position detached-coordinate overwrite found during Issue #9 QA. PR #17 is merged into `feat/onboarding-about-card-13`; local validation and physical-device regression passed, including normal home-to-Settings draft persistence and restore-last-position behavior without unintended service startup.
 
-## Current UI redesign: Issues #15, #20, and #21
+### Accepted Issue #13 onboarding/About/licensing work
 
-The rejected first Issue #15 sizing attempt is preserved in closed, unmerged PR #19. Physical-device review found its 20/22/24dp overlay glyphs still too large.
+Issue #13 implementation and physical-device QA are accepted. The maintained onboarding uses Continue as the only acknowledgement path and defers incoming shared intents until acknowledgement. About, Changelog, License & usage, Sources, GPL, CC BY 4.0 artwork, and OpenStreetMap/ODbL information are presented as maintained in-app surfaces with the authorship/provenance boundaries above.
 
-The current redesign is implemented on `feat/ui-redesign-15-20-21` and tracked by draft PR #23 against `feat/onboarding-about-card-13`.
+Fresh JDK 17 source/build validation and focused English/German physical-device QA passed for the accepted Issue #13 runtime. Incoming synthetic plain-coordinate `ACTION_SEND` was confirmed deferred until Continue and processed only afterward. The app language was restored to System default, simulation remained inactive, and Android's mock-location selection was unchanged.
 
-Initial runtime commit `326d242773af946c22503b79fb9312d05426de3b` changed `MainActivity.java`, `JoystickOverlay.java`, and `JoystickView.java`:
+### Accepted Issues #15, #20, and #21 UI redesign
 
-- Issue #15: overlay glyph targets were reduced to 10/11/12dp; compact `+`/`−` visuals were reduced to 10sp and made borderless; existing 48dp interaction bounds were retained; direction guides were visually reduced while joystick interaction geometry stayed unchanged.
-- Issue #20: Status became collapsed by default; separate full-width Start and Stop fields were replaced by a centered Simulation title with symbol controls beneath it.
-- Issue #21: Settings description/subtext lines were removed; Mock location, Overlay permission, Restore last position, and High contrast overlay gained explicit state text using success/danger colors; Settings refreshes when returning from Android settings.
+The first Issue #15 sizing attempt in PR #19 was rejected and remains closed/unmerged. The final redesign was implemented in PR #23 and physically accepted on 2026-08-15.
 
-Local validation for that initial runtime revision passed with JDK 17, Android SDK Platform 35, and Build Tools 36.0.0:
+Accepted final UI behavior:
 
-- exact runtime changed-file scope: three Java files
+- Issue #15: overlay glyphs use the accepted 10/11/12dp visual sizes while existing 48dp interaction targets remain; expanded speed/action frames are visually inset; compact `+`/`−` remain small and borderless; direction guides are lighter; compact mode removes the outer panel/frame entirely so only the joystick and `+` remain visible; expanding restores the full panel.
+- Issue #20: Status is collapsed by default with reduced vertical padding; the Status label and chevron remain vertically centered in a fixed header position while details expand below; `Simulation`, Start, and Stop share one centered horizontal row with preserved interaction targets and existing provider/lifecycle methods.
+- Issue #21: Settings secondary descriptions are removed; Mock location, Overlay permission, Restore last position, and Overlay high contrast show explicit state text with green/red state styling while remaining understandable without color alone; Settings refreshes after returning from Android settings.
+
+Final accepted runtime candidate before integration:
+
+- commit: `9c83e7bd8e35362d65c51db8310550a06923def5`
+- debug APK SHA-256: `01966f8d426452750acec9b9819859a72218442899be1553f711d9c0d707f455`
+- JDK 17 / Android SDK Platform 35 / Build Tools 36.0.0 debug build: PASS
 - `git diff --check`: PASS
-- repository debug build: PASS
-- `:app:testDebugUnitTest`: PASS
+- static UI invariants: PASS
+- `:app:testDebugUnitTest`: NO-SOURCE at this boundary
 - `:app:lintRelease`: PASS
 - `:app:assembleRelease`: PASS
-- validated debug APK SHA-256: `28d43b6ca1d8743528e754423062707b5e01d0980ecbcd7f3213c6184212d418`
-- primary checkout remained untouched
+- signer-safe installation preserved app data and the user-controlled Android mock-location selection
+- physical-device visual QA: PASS
 - GitHub Actions were not queried or used
 
-That exact APK was installed signer-safely on the canonical QA device. Package/version and artifact identity matched, app data was preserved, the user-controlled Android mock-location selection stayed unchanged, GeoJoystick foregrounded successfully, automatic hierarchy checks confirmed the default-collapsed Status and Start/Stop controls, and simulation remained inactive after the structure check.
+PR #23 was squash-merged into `feat/onboarding-about-card-13` as `454624a65562fe8c52dd482426144ea71135b0c4`. Issues #15, #20, and #21 are closed as completed.
 
-The subsequent 2026-08-15 physical visual review rejected the main-screen Status/Simulation presentation and the overlay control frames. The reduced overlay glyph sizes themselves were accepted and must not be enlarged again. Specific feedback was:
+## Current PR #14 gate
 
-- collapsed Status had too much vertical padding;
-- the Status chevron needed to be vertically centered relative to the label and remain in the same header position when details expand below it;
-- Simulation label, Start, and Stop should share one horizontal row with controls centered relative to the label;
-- overlay speed/action symbols were small enough, but their visible frames were too large relative to the glyphs;
-- Settings received no additional change request in that feedback round, but complete UI acceptance remains pending the next physical pass.
+PR #14 remains open, draft, and unmerged. The former #15/#20/#21 blockers are cleared.
 
-The current visual-feedback candidate is runtime commit `65c41dba22696fa4135e619f3940144d4a7dede9`. Relative to the last documented runtime head `fa089e1fe8315848d2b65df7303675bdee6c9083`, the net revision changes exactly two runtime files: `MainActivity.java` and `JoystickOverlay.java`.
+The remaining development gate is a fresh local validation of the complete integrated PR #14 head after the PR #23 squash merge and this documentation update. That validation must treat the whole current integration tree as the unit under test rather than relying only on the individually validated component revisions.
 
-- Status keeps a 48dp tappable header but removes the card's extra collapsed vertical padding, explicitly centers the label and chevron, and expands details below the unchanged header.
-- Simulation uses one centered horizontal row containing the label plus 48dp Start and Stop controls.
-- Overlay glyph sizes remain 10/11/12dp and compact `+`/`−` remain small/borderless; only the visible speed/action-control background is inset within the unchanged 48dp clickable view to reduce frame weight.
-- No mock-provider, coordinate, permission, service, lifecycle, or settings behavior is intentionally changed by this visual-feedback revision.
+Do not merge PR #14 into `main` until that final integration validation passes. GitHub Actions must not be queried or used for this PC/Linux validation unless explicitly approved.
 
-A bounded provider-side correction restored the pre-existing German wording and final newlines after source assembly. Fresh local validation of the resulting candidate completed successfully on 2026-08-15 using JDK 17, Android SDK Platform 35, and Build Tools 36.0.0:
+## Current mascot work
 
-- exact remote branch and runtime candidate SHAs were verified before worktree creation;
-- isolated detached validation worktree created from branch head `2da01580940994caf7f6a58957146b273a8b3e3b`;
-- runtime revision scope verified as exactly `MainActivity.java` and `JoystickOverlay.java`;
-- commits after the runtime candidate verified documentation-only;
-- `git diff --check`: PASS;
-- static visual invariants for Status geometry, one-row Simulation controls, accepted overlay glyph sizes, and inset overlay frames: PASS;
-- repository debug build: PASS;
-- `:app:testDebugUnitTest`: NO-SOURCE; accepted because no Java/Kotlin unit-test sources exist at this boundary;
-- `:app:lintRelease`: PASS;
-- `:app:assembleRelease`: PASS;
-- debug APK SHA-256: `6b58e262bb60f86459339bdeafac477798857068ea9dd4b6fc731adab90284e1`;
-- validation worktree tracked source remained unchanged after build;
-- primary checkout remained untouched;
-- canonical QA device was not modified;
-- GitHub Actions were not queried or used.
+Issue #22 separately tracks a dedicated GeoJoystick mascot: a gecko interacting with an arcade-style joystick, optionally incorporating the existing GeoJoystick symbol. The intended style follows the soft, rounded, hand-drawn/pastel K2040 mascot family. Artwork must be project-owned/original or otherwise explicitly redistributable, provenance/licensing must remain auditable, and final visual approval is required before integration. Issue #22 does not itself authorize replacing the app icon and is not a blocker for PR #14 unless explicitly coupled later.
 
-The validated worktree and exact debug APK are retained only for signer-safe physical QA. PR #23 remains draft and mergeable. Issues #15, #20, and #21 now require only the planned signer-safe physical-device visual pass before this redesign can be accepted for integration.
+## Publication boundary
 
-## Current mascot work: Issue #22
-
-Issue #22 tracks a dedicated GeoJoystick mascot: a gecko using an arcade-style joystick, with the existing app symbol available as a secondary motif. The intended style follows the soft, rounded, hand-drawn/pastel K2040 mascot philosophy. Artwork must be project-owned/original or otherwise explicitly redistributable, provenance/licensing must remain auditable, and final visual approval is required before integration. The issue does not by itself authorize replacing the existing app icon.
-
-Release signing, reproducibility, tags, releases, F-Droid/store publication, deployments, announcements, and other publication actions remain separate approval gates and are not authorized by development acceptance.
+Production signing, reproducibility claims, tags/releases, F-Droid/store publication, deployments, announcements, repository-visibility changes, and comparable public actions remain separate approval gates and are not authorized by development acceptance.
