@@ -1,15 +1,21 @@
 #!/usr/bin/env python3
 """Safe entrypoint for the GeoJoystick Issue #10 device-QA harness.
 
-ADB's shell command transport reparses command text on the device. Feed run-as
-shell fragments over stdin so shell syntax executes only after run-as has switched
-to the app uid and package data directory.
+The matrix keeps private device identity out of Git, preserves/restores the
+complete app preference file plus font/display settings, and configures only
+GeoJoystick's documented language/appearance keys while the app is stopped.
 
-For the automated matrix, configure GeoJoystick's own language/appearance
-preferences directly while the app is force-stopped. The complete preference
-file is already backed up and restored by the implementation. Preference XML is
-parsed and rewritten on the host, then written through `run-as <package> tee`
-with the XML bytes on stdin. This avoids Android-shell heredoc/temp-file behavior.
+ADB shell fragments that require shell syntax are fed over stdin after run-as.
+Preference XML is rewritten on the host and streamed directly through
+`run-as <package> tee`, avoiding remote-shell redirection/temp-file behavior.
+
+UIAutomator reports clipped nodes and modal/background trees in ways that are
+not suitable for unrestricted geometric assertions. The adapter therefore:
+- keeps 48dp checks to concrete Button/ImageView controls;
+- finds disabled Simulation controls when checking reachability;
+- limits overlap checks to labeled sibling controls;
+- scopes About analysis to the active modal subtree; and
+- excludes WebView subtrees from native map-chrome geometry checks.
 """
 
 from __future__ import annotations
@@ -17,6 +23,8 @@ from __future__ import annotations
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
+from collections import defaultdict
+from types import SimpleNamespace
 
 import _qa_accessibility_device_impl as impl
 
@@ -75,7 +83,9 @@ class SafeAdb(impl.Adb):
             check=True,
         )
         if result.stdout != payload:
-            raise impl.QAError("app-sandbox preference write verification stream differed")
+            raise impl.QAError(
+                "app-sandbox preference write verification stream differed"
+            )
 
 
 def _named(root: ET.Element, name: str) -> list[ET.Element]:
@@ -100,7 +110,9 @@ def rewrite_ui_preferences(xml_text: str, language: str, theme: str) -> str:
     try:
         root = ET.fromstring(xml_text)
     except ET.ParseError as exc:
-        raise impl.QAError(f"could not parse GeoJoystick preferences: {exc}") from exc
+        raise impl.QAError(
+            f"could not parse GeoJoystick preferences: {exc}"
+        ) from exc
 
     if root.tag != "map":
         raise impl.QAError("unexpected GeoJoystick preferences root")
@@ -110,7 +122,8 @@ def rewrite_ui_preferences(xml_text: str, language: str, theme: str) -> str:
         or _boolean_value(root, PREF_LEGACY_WELCOME)
     ):
         raise impl.QAError(
-            "first-run onboarding is unacknowledged; refusing to acknowledge it automatically"
+            "first-run onboarding is unacknowledged; "
+            "refusing to acknowledge it automatically"
         )
 
     for key in (PREF_LANGUAGE, PREF_APPEARANCE):
@@ -133,11 +146,14 @@ def read_ui_preferences(xml_text: str) -> tuple[str | None, str | None]:
     try:
         root = ET.fromstring(xml_text)
     except ET.ParseError as exc:
-        raise impl.QAError(f"could not parse GeoJoystick preferences: {exc}") from exc
+        raise impl.QAError(
+            f"could not parse GeoJoystick preferences: {exc}"
+        ) from exc
 
     def value(name: str) -> str | None:
         matches = [
-            child for child in root
+            child
+            for child in root
             if child.tag == "string" and child.attrib.get("name") == name
         ]
         if len(matches) != 1:
@@ -166,7 +182,9 @@ class SafeHarness(impl.Harness):
                 "GeoJoystick UI preferences did not persist requested QA values"
             )
 
-    def _verify_rendered_ui_configuration(self, language: str, theme: str) -> None:
+    def _verify_rendered_ui_configuration(
+        self, language: str, theme: str
+    ) -> None:
         settings_desc = "Einstellungen" if language == "de" else "Settings"
         settings = self.find_node(
             lambda node: node.desc == settings_desc,
@@ -174,7 +192,8 @@ class SafeHarness(impl.Harness):
         )
         if settings is None:
             raise impl.QAError(
-                f"app did not render requested language {language!r} on the home screen"
+                f"app did not render requested language {language!r} "
+                "on the home screen"
             )
         self.adb.tap(settings.bounds)
 
@@ -188,7 +207,8 @@ class SafeHarness(impl.Harness):
         )
         if language_row is None:
             raise impl.QAError(
-                f"settings did not expose requested language state: {expected_language!r}"
+                "settings did not expose requested language state: "
+                f"{expected_language!r}"
             )
 
         theme_value = {
@@ -208,7 +228,8 @@ class SafeHarness(impl.Harness):
         )
         if theme_row is None:
             raise impl.QAError(
-                f"settings did not expose requested theme state: {expected_theme!r}"
+                "settings did not expose requested theme state: "
+                f"{expected_theme!r}"
             )
 
     def configure_app(self, language: str, theme: str) -> None:
@@ -217,6 +238,294 @@ class SafeHarness(impl.Harness):
         self._verify_rendered_ui_configuration(language, theme)
         self.adb.force_stop()
         self.adb.launch()
+
+    def find_node_any_state(
+        self,
+        predicate,
+        *,
+        scroll: str | None = None,
+        attempts: int = 7,
+    ) -> impl.UiNode | None:
+        for _ in range(attempts):
+            snap = self.snapshot()
+            matches = [
+                node
+                for node in snap.nodes
+                if node.package == self.package and predicate(node)
+            ]
+            if matches:
+                return min(
+                    matches,
+                    key=lambda node: (node.bounds.top, node.bounds.left),
+                )
+            if scroll == "up":
+                self.adb.swipe_up(snap.width, snap.height)
+            elif scroll == "down":
+                self.adb.swipe_down(snap.width, snap.height)
+            else:
+                break
+        return None
+
+    @staticmethod
+    def _subtree(
+        nodes: list[impl.UiNode],
+        root: impl.UiNode,
+    ) -> list[impl.UiNode]:
+        return [
+            node
+            for node in nodes
+            if node.path == root.path or impl.is_ancestor(root.path, node.path)
+        ]
+
+    def _active_nodes(
+        self,
+        snap: impl.Snapshot,
+        screen: str,
+    ) -> list[impl.UiNode]:
+        app_nodes = [
+            node
+            for node in snap.nodes
+            if node.package == self.package and node.bounds.area > 0
+        ]
+
+        if screen == "about":
+            close = next(
+                (
+                    node
+                    for node in app_nodes
+                    if node.desc in ("Close About", "Info schließen")
+                ),
+                None,
+            )
+            if close is not None:
+                ancestors = [
+                    node
+                    for node in app_nodes
+                    if node.clickable and impl.is_ancestor(node.path, close.path)
+                ]
+                if ancestors:
+                    modal = max(ancestors, key=lambda node: len(node.path))
+                    return self._subtree(app_nodes, modal)
+
+        if screen == "map":
+            web_roots = [
+                node
+                for node in app_nodes
+                if node.class_name == "android.webkit.WebView"
+            ]
+            if web_roots:
+                return [
+                    node
+                    for node in app_nodes
+                    if not any(
+                        node.path == web.path
+                        or impl.is_ancestor(web.path, node.path)
+                        for web in web_roots
+                    )
+                ]
+
+        return app_nodes
+
+    @staticmethod
+    def _touch_target_candidate(node: impl.UiNode) -> bool:
+        return (
+            node.class_name.endswith("Button")
+            or node.class_name.endswith("ImageView")
+        )
+
+    def analyze(
+        self,
+        snap: impl.Snapshot,
+        scenario: impl.Scenario,
+        screen: str,
+    ) -> None:
+        app_nodes = self._active_nodes(snap, screen)
+        density_scale = snap.density / 160.0
+
+        for node in app_nodes:
+            bounds = node.bounds
+            if (
+                bounds.left < 0
+                or bounds.top < 0
+                or bounds.right > snap.width
+                or bounds.bottom > snap.height
+            ):
+                self.findings.append(
+                    impl.Finding(
+                        scenario.key,
+                        screen,
+                        "bounds",
+                        (
+                            f"{node.class_name} "
+                            f"{node.text or node.desc!r} outside screen: {bounds}"
+                        ),
+                    )
+                )
+
+            if (
+                node.clickable
+                and (
+                    node.class_name.endswith("ImageView")
+                    or impl.symbol_only(node.text)
+                )
+                and not node.desc
+            ):
+                self.findings.append(
+                    impl.Finding(
+                        scenario.key,
+                        screen,
+                        "a11y-label",
+                        (
+                            f"clickable {node.class_name} {node.text!r} "
+                            "has no content description"
+                        ),
+                    )
+                )
+
+            if self._touch_target_candidate(node):
+                width_dp = bounds.width / density_scale
+                height_dp = bounds.height / density_scale
+                if width_dp < 47.0 or height_dp < 47.0:
+                    self.findings.append(
+                        impl.Finding(
+                            scenario.key,
+                            screen,
+                            "touch-target",
+                            (
+                                f"{node.class_name} "
+                                f"{node.text or node.desc!r} is "
+                                f"{width_dp:.1f}×{height_dp:.1f}dp"
+                            ),
+                        )
+                    )
+
+        controls = [
+            node
+            for node in app_nodes
+            if node.clickable
+            and node.bounds.area > 0
+            and bool(node.text or node.desc)
+            and node.class_name != "android.webkit.WebView"
+        ]
+        for index, first in enumerate(controls):
+            for second in controls[index + 1 :]:
+                if first.path[:-1] != second.path[:-1]:
+                    continue
+                if (
+                    impl.is_ancestor(first.path, second.path)
+                    or impl.is_ancestor(second.path, first.path)
+                ):
+                    continue
+                ratio = impl.overlap_ratio(first.bounds, second.bounds)
+                if ratio >= 0.20:
+                    self.findings.append(
+                        impl.Finding(
+                            scenario.key,
+                            screen,
+                            "overlap",
+                            (
+                                f"{first.text or first.desc!r} overlaps "
+                                f"{second.text or second.desc!r} ({ratio:.0%})"
+                            ),
+                        )
+                    )
+
+    def home_top(self, scenario: impl.Scenario) -> None:
+        self.adb.force_stop()
+        self.adb.launch()
+        snap = self.snapshot()
+        self.record_expected(snap, scenario, "main-top", ("GeoJoystick",))
+        self.record_expected(
+            snap,
+            scenario,
+            "main-top",
+            (
+                "Status collapsed. Tap to expand",
+                "Status eingeklappt. Zum Öffnen tippen",
+            ),
+        )
+        self.analyze(snap, scenario, "main-top")
+
+        self.tap_desc_any(
+            (
+                "Status collapsed. Tap to expand",
+                "Status eingeklappt. Zum Öffnen tippen",
+            )
+        )
+        snap = self.snapshot()
+        for candidates in (
+            ("Mock location", "Mock-Standort"),
+            ("Overlay permission", "Overlay-Berechtigung"),
+            ("Simulation",),
+        ):
+            self.record_expected(
+                snap, scenario, "main-status", candidates
+            )
+        self.analyze(snap, scenario, "main-status")
+
+        start = self.find_node_any_state(
+            lambda item: item.desc
+            in ("Start simulation", "Simulation starten"),
+            scroll="up",
+        )
+        stop = self.find_node_any_state(
+            lambda item: item.desc
+            in ("Stop simulation", "Simulation stoppen"),
+            scroll="up",
+        )
+        if start is None or stop is None:
+            self.findings.append(
+                impl.Finding(
+                    scenario.key,
+                    "main-simulation",
+                    "missing",
+                    "Simulation Start/Stop controls not both reachable",
+                )
+            )
+        else:
+            self.analyze(
+                self.snapshot(),
+                scenario,
+                "main-simulation",
+            )
+
+    def print_findings(self) -> None:
+        if not self.findings:
+            return
+
+        grouped: dict[
+            tuple[str, str, str], list[str]
+        ] = defaultdict(list)
+        for finding in self.findings:
+            grouped[
+                (finding.screen, finding.code, finding.detail)
+            ].append(finding.scenario)
+
+        print("\n=== Structural findings (grouped) ===")
+        ordered = sorted(
+            grouped.items(),
+            key=lambda item: (
+                item[0][0],
+                item[0][1],
+                item[0][2],
+            ),
+        )
+        for (screen, code, detail), scenarios in ordered[:120]:
+            unique_scenarios = list(dict.fromkeys(scenarios))
+            sample = unique_scenarios[0]
+            print(
+                f"FAIL: [{len(unique_scenarios)} scenario(s); sample {sample}] "
+                f"{screen} {code}: {detail}"
+            )
+        if len(ordered) > 120:
+            print(
+                f"... {len(ordered) - 120} additional unique "
+                "finding signature(s) omitted"
+            )
+        print(
+            f"UNIQUE SIGNATURES: {len(ordered)}; "
+            f"RAW FINDINGS: {len(self.findings)}"
+        )
 
 
 def adapter_self_test() -> None:
@@ -249,7 +558,10 @@ def adapter_self_test() -> None:
         False,
     )
 
-    xml_payload = b"<map><boolean name=\"welcome_acknowledged\" value=\"true\" /></map>\n"
+    xml_payload = (
+        b'<map><boolean name="welcome_acknowledged" '
+        b'value="true" /></map>\n'
+    )
     probe.write_app_file("shared_prefs/geojoystick.xml", xml_payload)
     assert captured[-1] == (
         (
@@ -264,12 +576,12 @@ def adapter_self_test() -> None:
     )
 
     sample = (
-        '<map>'
+        "<map>"
         '<boolean name="welcome_acknowledged" value="true" />'
         '<string name="app_language">de</string>'
         '<string name="app_appearance">light</string>'
         '<int name="overlay_size_percent" value="80" />'
-        '</map>'
+        "</map>"
     )
     rewritten = rewrite_ui_preferences(sample, "en", "dark")
     language, theme = read_ui_preferences(rewritten)
@@ -292,6 +604,91 @@ def adapter_self_test() -> None:
         pass
     else:
         raise AssertionError("unacknowledged onboarding must be rejected")
+
+    args = SimpleNamespace(
+        adb="adb",
+        serial="synthetic-serial",
+        package="com.example.synthetic",
+    )
+    harness = SafeHarness(args)
+    scenario = impl.Scenario("en", "light", 1.0, 480)
+    about = impl.UiNode(
+        path=(0, 0),
+        text="",
+        desc="About GeoJoystick",
+        class_name="android.widget.ImageView",
+        package=args.package,
+        clickable=True,
+        enabled=True,
+        bounds=impl.Bounds(0, 0, 120, 120),
+        child_count=0,
+    )
+    disabled_stop = impl.UiNode(
+        path=(0, 1),
+        text="■",
+        desc="Stop simulation",
+        class_name="android.widget.Button",
+        package=args.package,
+        clickable=False,
+        enabled=False,
+        bounds=impl.Bounds(150, 0, 294, 144),
+        child_count=0,
+    )
+    harness.analyze(
+        impl.Snapshot(1080, 2400, 480, [about, disabled_stop]),
+        scenario,
+        "main-top",
+    )
+    assert any(
+        finding.code == "touch-target"
+        and "About GeoJoystick" in finding.detail
+        for finding in harness.findings
+    )
+    assert not any(
+        finding.code == "touch-target"
+        and "Stop simulation" in finding.detail
+        for finding in harness.findings
+    )
+
+    background = impl.UiNode(
+        path=(0,),
+        text="Background",
+        desc="",
+        class_name="android.widget.Button",
+        package=args.package,
+        clickable=True,
+        enabled=True,
+        bounds=impl.Bounds(0, 0, 1080, 2400),
+        child_count=0,
+    )
+    modal = impl.UiNode(
+        path=(1,),
+        text="",
+        desc="",
+        class_name="android.widget.LinearLayout",
+        package=args.package,
+        clickable=True,
+        enabled=True,
+        bounds=impl.Bounds(120, 300, 960, 1800),
+        child_count=1,
+    )
+    close = impl.UiNode(
+        path=(1, 0),
+        text="×",
+        desc="Close About",
+        class_name="android.widget.TextView",
+        package=args.package,
+        clickable=True,
+        enabled=True,
+        bounds=impl.Bounds(800, 320, 944, 464),
+        child_count=0,
+    )
+    scoped = harness._active_nodes(
+        impl.Snapshot(1080, 2400, 480, [background, modal, close]),
+        "about",
+    )
+    assert background not in scoped
+    assert modal in scoped and close in scoped
 
     print("GeoJoystick Issue #10 safe-adapter self-test: PASS")
 
