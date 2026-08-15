@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!--
+      Android 16/API 36 permits an activity-scoped temporary predictive-back
+      opt-out through android:enableOnBackInvokedCallback="false". The
+      GestureBackNavigation lint check does not inspect that manifest setting,
+      so keep the exception limited to MainActivity while Issue #27 tracks the
+      supported predictive-back callback migration.
+    -->
+    <issue id="GestureBackNavigation">
+        <ignore path="app/src/main/java/com/k2040/geojoystick/MainActivity.java" />
+    </issue>
+</lint>
