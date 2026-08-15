@@ -14,14 +14,17 @@ not suitable for unrestricted geometric assertions. The adapter therefore:
 - keeps 48dp checks to concrete Button/ImageView controls;
 - finds disabled Simulation controls when checking reachability;
 - limits overlap checks to labeled sibling controls;
-- scopes About analysis to the active modal subtree; and
-- excludes WebView subtrees from native map-chrome geometry checks.
+- scopes About analysis to the active modal subtree;
+- excludes WebView subtrees from native map-chrome geometry checks; and
+- treats a non-zero `uiautomator dump` status as recoverable when a non-empty,
+  parseable dump file was actually produced, with bounded retries otherwise.
 """
 
 from __future__ import annotations
 
 import subprocess
 import sys
+import time
 import xml.etree.ElementTree as ET
 from collections import defaultdict
 from types import SimpleNamespace
@@ -164,6 +167,75 @@ def read_ui_preferences(xml_text: str) -> tuple[str | None, str | None]:
 
 
 class SafeHarness(impl.Harness):
+    def snapshot(self) -> impl.Snapshot:
+        last_detail = "uiautomator produced no usable dump"
+        xml_text: str | None = None
+
+        try:
+            for attempt in range(1, 4):
+                self.adb.shell("rm", "-f", impl.UI_DUMP_PATH, check=False)
+                result = self.adb.call(
+                    "shell",
+                    "uiautomator",
+                    "dump",
+                    impl.UI_DUMP_PATH,
+                    timeout=25.0,
+                    check=False,
+                )
+
+                exists = self.adb.call(
+                    "shell",
+                    "test",
+                    "-s",
+                    impl.UI_DUMP_PATH,
+                    timeout=10.0,
+                    check=False,
+                ).returncode == 0
+
+                if exists:
+                    candidate = self.adb.shell(
+                        "cat",
+                        impl.UI_DUMP_PATH,
+                        timeout=10.0,
+                    )
+                    try:
+                        impl.parse_xml(candidate)
+                    except ET.ParseError as exc:
+                        last_detail = (
+                            f"attempt {attempt}: dump XML was not parseable: {exc}"
+                        )
+                    else:
+                        xml_text = candidate
+                        break
+                else:
+                    stdout = result.stdout.decode(
+                        "utf-8", errors="replace"
+                    ).replace("\r", "").strip()
+                    stderr = result.stderr.decode(
+                        "utf-8", errors="replace"
+                    ).replace("\r", "").strip()
+                    detail = stderr or stdout or f"exit {result.returncode}"
+                    last_detail = (
+                        f"attempt {attempt}: no non-empty dump file ({detail})"
+                    )
+
+                if attempt < 3:
+                    time.sleep(0.25)
+        finally:
+            self.adb.shell("rm", "-f", impl.UI_DUMP_PATH, check=False)
+
+        if xml_text is None:
+            raise impl.QAError(
+                "uiautomator dump failed after 3 attempts: " + last_detail
+            )
+
+        nodes = impl.parse_xml(xml_text)
+        current_density = impl.parse_density(
+            self.adb.shell("wm", "density")
+        )
+        density = current_density[1] or current_density[0]
+        return impl.Snapshot(self.width, self.height, density, nodes)
+
     def _write_ui_preferences(self, language: str, theme: str) -> None:
         self.adb.force_stop()
 
@@ -689,6 +761,64 @@ def adapter_self_test() -> None:
     )
     assert background not in scoped
     assert modal in scoped and close in scoped
+
+    sample_xml = (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>'
+        '<hierarchy rotation="0">'
+        '<node index="0" text="GeoJoystick" '
+        'class="android.widget.TextView" '
+        'package="com.example.synthetic" enabled="true" '
+        'clickable="false" bounds="[0,0][240,80]" />'
+        '</hierarchy>'
+    )
+
+    class DumpProbeAdb:
+        package = "com.example.synthetic"
+
+        def __init__(self) -> None:
+            self.removed = False
+
+        def call(
+            self,
+            *args: str,
+            timeout: float = 20.0,
+            check: bool = True,
+            input_data: bytes | None = None,
+        ) -> subprocess.CompletedProcess:
+            if args[:2] == ("shell", "uiautomator"):
+                return subprocess.CompletedProcess(
+                    args,
+                    1,
+                    b"UI hierchary dumped to: /data/local/tmp/test.xml\n",
+                    b"",
+                )
+            if args[:3] == ("shell", "test", "-s"):
+                return subprocess.CompletedProcess(args, 0, b"", b"")
+            return subprocess.CompletedProcess(args, 0, b"", b"")
+
+        def shell(
+            self,
+            *args: str,
+            timeout: float = 20.0,
+            check: bool = True,
+        ) -> str:
+            if args and args[0] == "cat":
+                return sample_xml
+            if args[:2] == ("wm", "density"):
+                return "Physical density: 480"
+            if args[:2] == ("rm", "-f"):
+                self.removed = True
+                return ""
+            raise AssertionError(f"unexpected shell call: {args}")
+
+    dump_harness = SafeHarness(args)
+    dump_harness.adb = DumpProbeAdb()
+    dump_harness.width = 1080
+    dump_harness.height = 2400
+    dump_snapshot = dump_harness.snapshot()
+    assert dump_snapshot.density == 480
+    assert any(node.text == "GeoJoystick" for node in dump_snapshot.nodes)
+    assert dump_harness.adb.removed
 
     print("GeoJoystick Issue #10 safe-adapter self-test: PASS")
 
