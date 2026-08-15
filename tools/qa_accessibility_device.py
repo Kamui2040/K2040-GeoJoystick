@@ -7,7 +7,7 @@ after run-as has switched to the app uid and package data directory.
 
 Android framework dialogs can expose their choice rows under a framework package
 instead of the app package. Keep normal navigation package-scoped, but match
-language/theme single-choice rows by exact known label and dialog-row class.
+language/theme single-choice rows by exact known label and dialog-row shape.
 """
 
 from __future__ import annotations
@@ -67,25 +67,43 @@ class SafeHarness(impl.Harness):
         cls,
         nodes: Sequence[impl.UiNode],
         values: Sequence[str],
+        app_package: str,
     ) -> impl.UiNode | None:
         matches = [
             node for node in nodes
             if node.enabled
             and node.bounds.area > 0
             and node.text in values
-            and node.class_name in cls.DIALOG_CHOICE_CLASSES
+            and (
+                node.class_name in cls.DIALOG_CHOICE_CLASSES
+                or (
+                    node.package != app_package
+                    and node.class_name == "android.widget.TextView"
+                )
+            )
         ]
         if not matches:
             return None
-        return min(matches, key=lambda node: (node.bounds.top, node.bounds.left))
+        return min(
+            matches,
+            key=lambda node: (
+                0 if node.class_name in cls.DIALOG_CHOICE_CLASSES else 1,
+                node.bounds.top,
+                node.bounds.left,
+            ),
+        )
 
     def tap_dialog_choice(self, values: Sequence[str]) -> impl.UiNode:
-        for _ in range(4):
-            node = self._dialog_choice(self.snapshot().nodes, values)
+        for _ in range(8):
+            node = self._dialog_choice(
+                self.snapshot().nodes,
+                values,
+                self.package,
+            )
             if node is not None:
                 self.adb.tap(node.bounds)
                 return node
-            time.sleep(0.15)
+            time.sleep(0.20)
         raise impl.QAError(f"could not find dialog option: {tuple(values)}")
 
     def set_language(self, language: str) -> None:
@@ -149,8 +167,19 @@ def adapter_self_test() -> None:
         bounds=impl.Bounds(0, 0, 120, 48),
         child_count=0,
     )
-    dialog = impl.UiNode(
+    framework_text = impl.UiNode(
         path=(1,),
+        text="English",
+        desc="",
+        class_name="android.widget.TextView",
+        package="android",
+        clickable=False,
+        enabled=True,
+        bounds=impl.Bounds(20, 80, 260, 140),
+        child_count=0,
+    )
+    checked = impl.UiNode(
+        path=(2,),
         text="English",
         desc="",
         class_name="android.widget.CheckedTextView",
@@ -160,8 +189,21 @@ def adapter_self_test() -> None:
         bounds=impl.Bounds(20, 100, 260, 160),
         child_count=0,
     )
-    assert SafeHarness._dialog_choice((background, dialog), ("English",)) == dialog
-    assert SafeHarness._dialog_choice((background,), ("English",)) is None
+    assert SafeHarness._dialog_choice(
+        (background, framework_text, checked),
+        ("English",),
+        "com.example.synthetic",
+    ) == checked
+    assert SafeHarness._dialog_choice(
+        (background, framework_text),
+        ("English",),
+        "com.example.synthetic",
+    ) == framework_text
+    assert SafeHarness._dialog_choice(
+        (background,),
+        ("English",),
+        "com.example.synthetic",
+    ) is None
 
     print("GeoJoystick Issue #10 safe-adapter self-test: PASS")
 
