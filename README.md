@@ -7,8 +7,8 @@ It uses Android's standard mock-location provider flow, shows a small floating j
 ## Included
 
 - Manual latitude, longitude, and altitude entry
-- Built-in OpenStreetMap tile-based picker with no external JavaScript dependency
-- Import of coordinates from copied/shared map links
+- Built-in OpenStreetMap tile-based picker using bundled HTML/CSS/JavaScript, with no remote JavaScript or API key
+- Import of coordinates from copied/shared supported map links
 - Floating joystick over other apps
 - Expanded and compact overlay modes
 - Walk, run, bike-style, and user-defined custom speed presets
@@ -16,11 +16,11 @@ It uses Android's standard mock-location provider flow, shows a small floating j
 - Saved overlay mode and speed preset between starts
 - App appearance setting: System, Light, or Dark
 - App language setting: System, English, or German
-- Optional restore of the last active position
+- Optional restore of the last successfully published position
 - Five compact named favorite-location slots
 - Overlay opacity and high-contrast settings
 - Reset overlay position from the main screen
-- Persistent foreground notification
+- Foreground notification while the simulation service is running
 - No ads, subscriptions, accounts, analytics, billing, or updater
 
 ## Downloads
@@ -28,7 +28,7 @@ It uses Android's standard mock-location provider flow, shows a small floating j
 - GitHub Releases: https://github.com/Kamui2040/K2040-GeoJoystick/releases
 - APKPure: https://apkpure.com/p/com.k2040.geojoystick
 
-GitHub Releases remains the canonical source for release notes and published release assets. The APKPure page is an official store listing for the same app package, `com.k2040.geojoystick`.
+GitHub Releases remains the canonical source for release notes and published release assets. The APKPure page is an official store listing for the same app package, `com.k2040.geojoystick`. Development branches may contain changes that are not part of the latest published release.
 
 ## Build locally
 
@@ -36,9 +36,9 @@ The project intentionally uses a small Python bootstrap instead of committing a 
 
 Requirements:
 
-- JDK 17 or newer
+- JDK 17 (current build baseline)
 - Android SDK Platform 35
-- Android SDK Build-Tools 35.0.0 or newer
+- Android SDK Build-Tools 35.0.0 or newer compatible stable version
 - Python 3
 
 On Linux or macOS:
@@ -68,15 +68,17 @@ A matching SHA-256 is written to `dist/SHA256SUMS.txt`.
 1. Install the APK.
 2. Open GeoJoystick and grant **Display over other apps**.
 3. In Android Developer options, select **GeoJoystick** as the mock-location app.
-4. Choose a location or import a map link.
-5. Press **Start overlay**, then use the floating overlay.
+4. Enter coordinates, choose a location on the map, or import a supported map link.
+5. Press **Start simulation**, then use the floating overlay.
 6. Use **Settings** for app appearance, language, setup actions, overlay opacity, high contrast, restore-last-position, reset overlay position, favorites, and custom speed.
 
 The app uses ordinary Android mock locations and does not attempt to conceal that status.
 
-## Map note
+## Network and map note
 
-The built-in picker uses OpenStreetMap tiles and Leaflet. It does not require an API key. Map links can be shared or copied into the app for coordinate extraction.
+The built-in picker loads OpenStreetMap map tiles only when the map is used. Its HTML, CSS, and JavaScript are bundled with the app; it does not load remote JavaScript and does not require an API key. OpenStreetMap attribution is preserved in the picker.
+
+Coordinate import accepts supported HTTPS links from Google Maps, Apple Maps, and OpenStreetMap. Coordinates embedded directly in a supported link are parsed locally. When a supported link needs resolution, the app performs a bounded HTTPS request with redirect, size, timeout, host, and public-address checks; unsupported or invalid input is rejected rather than replaced with a fallback location.
 
 For F-Droid submission prep, see `FDROID_NOTES.md`.
 
@@ -92,7 +94,12 @@ The Ko-fi link is optional and the app has no paid features, subscriptions, ads,
 
 ## Licence
 
-GPL-3.0-only. See `LICENSE` and `NOTICE.md`.
+- Application code: `GPL-3.0-only`; see `LICENSE`.
+- K2040-authored code explicitly marked in its source file: `GPL-3.0-only` plus the narrowly scoped GPLv3 section 7(b) attribution-preservation term in `LICENSES/GPL-3.0-Section-7b-K2040.txt`.
+- Original artwork and UI artwork authored by K2040 and identified by project provenance: `CC-BY-4.0`; see `LICENSES/CC-BY-4.0.txt` and `NOTICE.md`.
+- Third-party code, assets, dependencies, and data retain their own controlling licences, notices, and attribution.
+
+See `NOTICE.md` for the current marked §7(b) scope, GoGoGo provenance, K2040 artwork attribution, and OpenStreetMap licensing information.
 
 ## Links
 

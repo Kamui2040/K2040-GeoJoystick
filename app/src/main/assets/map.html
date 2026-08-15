@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src https://tile.openstreetmap.org data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'" />
     <title>Choose location</title>
     <style>
         html, body, #map {
@@ -27,6 +28,7 @@
             -webkit-user-drag: none;
         }
         #marker {
+            display: none;
             position: absolute;
             width: 28px;
             height: 28px;
@@ -119,9 +121,19 @@
     const minZoom = 2;
     const maxZoom = 19;
     const params = new URLSearchParams(location.search);
-    let markerLat = Number(params.get("lat") || 52.520008);
-    let markerLng = Number(params.get("lng") || 13.404954);
-    let zoom = 15;
+    const initialLat = Number(params.get("lat"));
+    const initialLng = Number(params.get("lng"));
+    let hasMarker = params.has("lat")
+            && params.has("lng")
+            && Number.isFinite(initialLat)
+            && Number.isFinite(initialLng)
+            && initialLat >= -90
+            && initialLat <= 90
+            && initialLng >= -180
+            && initialLng <= 180;
+    let markerLat = hasMarker ? clamp(initialLat, -85.05112878, 85.05112878) : Number.NaN;
+    let markerLng = hasMarker ? initialLng : Number.NaN;
+    let zoom = hasMarker ? 15 : minZoom;
 
     const map = document.getElementById("map");
     const marker = document.getElementById("marker");
@@ -129,7 +141,9 @@
 
     let width = 0;
     let height = 0;
-    let center = latLngToWorld(markerLat, markerLng, zoom);
+    let center = hasMarker
+        ? latLngToWorld(markerLat, markerLng, zoom)
+        : {x: scaleFor(zoom) / 2, y: scaleFor(zoom) / 2};
     let dragging = false;
     let dragStartX = 0;
     let dragStartY = 0;
@@ -170,10 +184,17 @@
     }
 
     function setMarker(lat, lng, shouldSend) {
-        markerLat = clamp(Number(lat), -85.05112878, 85.05112878);
-        markerLng = Number(lng);
+        const numericLat = Number(lat);
+        const numericLng = Number(lng);
+        if (!Number.isFinite(numericLat) || !Number.isFinite(numericLng)) {
+            return;
+        }
+        markerLat = clamp(numericLat, -85.05112878, 85.05112878);
+        markerLng = numericLng;
         while (markerLng < -180) markerLng += 360;
         while (markerLng > 180) markerLng -= 360;
+        hasMarker = true;
+        marker.style.display = "block";
         updateMarkerPosition();
         if (shouldSend && window.AndroidBridge && AndroidBridge.onLocationSelected) {
             AndroidBridge.onLocationSelected(markerLat, markerLng);
@@ -181,6 +202,10 @@
     }
 
     function updateMarkerPosition() {
+        if (!hasMarker) {
+            marker.style.display = "none";
+            return;
+        }
         const point = latLngToWorld(markerLat, markerLng, zoom);
         marker.style.left = Math.round(point.x - center.x + width / 2) + "px";
         marker.style.top = Math.round(point.y - center.y + height / 2) + "px";
@@ -215,7 +240,6 @@
                     img.className = "tile";
                     img.alt = "";
                     img.decoding = "async";
-                    img.referrerPolicy = "no-referrer";
                     img.src = "https://tile.openstreetmap.org/" + zoom + "/" + wrappedX + "/" + y + ".png";
                     map.insertBefore(img, marker);
                     tileNodes.set(key, img);
@@ -248,7 +272,11 @@
         if (zoom === old) {
             return;
         }
-        center = latLngToWorld(markerLat, markerLng, zoom);
+        const scaleChange = Math.pow(2, zoom - old);
+        center = {
+            x: center.x * scaleChange,
+            y: center.y * scaleChange
+        };
         tileNodes.forEach(node => node.remove());
         tileNodes.clear();
         render();
@@ -300,6 +328,9 @@
     });
 
     window.addEventListener("resize", resize);
+    document.getElementById("zoom").addEventListener("pointerdown", function (event) {
+        event.stopPropagation();
+    });
 
     window.GeoMap = {
         setLocation: function (newLat, newLng, newZoom) {
@@ -307,6 +338,9 @@
                 zoom = clamp(Math.round(Number(newZoom)), minZoom, maxZoom);
             }
             setMarker(Number(newLat), Number(newLng), true);
+            if (!hasMarker) {
+                return;
+            }
             center = latLngToWorld(markerLat, markerLng, zoom);
             tileNodes.forEach(node => node.remove());
             tileNodes.clear();

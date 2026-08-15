@@ -1,0 +1,13 @@
+# GeoJoystick GPLv3 Section 7(b) Additional Term
+
+Copyright (c) 2026 K2040.
+
+For K2040-authored code in GeoJoystick source files that expressly reference this additional term, the following term applies under section 7(b) of GNU GPLv3 in addition to `GPL-3.0-only`:
+
+When conveying that marked K2040-authored material, you must preserve the following specified reasonable legal notice and author attribution in that material or in the Appropriate Legal Notices displayed by works containing it:
+
+`Copyright (c) 2026 K2040.`
+
+This additional term applies only to K2040-authored material that is explicitly marked as subject to it and for which K2040 has or can give appropriate copyright permission. It does not modify the standard GNU GPLv3 licence text. The unmodified GNU GPLv3 text in the repository `LICENSE` remains controlling together with this applicable additional term.
+
+This term does not apply merely because material is distributed in the GeoJoystick repository. GoGoGo-derived and other third-party material, separately licensed project artwork, OpenStreetMap data, and any other third-party content retain their own controlling licences and notices.
