@@ -31,62 +31,64 @@ Public descriptions should present GeoJoystick as a mock-location utility for em
 - OpenStreetMap data remains © OpenStreetMap contributors under ODbL 1.0.
 - F-Droid metadata includes `AntiFeatures: TetheredNet` because the optional map picker uses OpenStreetMap services.
 
-## Accepted development integration
+## Accepted development integration on main
 
-The maintained development line is `feat/onboarding-about-card-13`, tracked by draft PR #14 against `main`.
+The accepted reconciliation, Issue #13 onboarding/About/licensing work, Issue #16 restore-last-position follow-up, and Issues #15/#20/#21 UI redesign are integrated into `main` through squash-merged PR #14.
 
-The branch contains the accepted reconciliation reconstructed from current public-safe `main` plus the maintained runtime/UI/state/input work. It retains the clean Linux bootstrap fix and current repository governance, removes the obsolete PC GitHub Actions workflow and obsolete unsanitized phone screenshots, and includes the maintained parser regression harness.
+- PR #14 merge commit: `2864c7711b256214493362c03915a60c53fa589e`
+- validated PR #14 head before squash: `adb804e14543654ad5d638dd89e2b80dc0df300c`
+- validated base `main`: `0dcd335fd4ebb6810a0dc2ea82dc7854ed3ed4b4`
+- PR #23 UI redesign squash on the integration branch: `454624a65562fe8c52dd482426144ea71135b0c4`
+- final physically accepted pre-integration runtime candidate: `9c83e7bd8e35362d65c51db8310550a06923def5`
+- accepted/final-validation debug APK SHA-256: `01966f8d426452750acec9b9819859a72218442899be1553f711d9c0d707f455`
 
-### Accepted lifecycle/state work
+Issues #9, #13, #15, #16, #20, and #21 are closed as completed.
 
-Issue #9 physical-device lifecycle/state reconciliation is accepted and closed. Accepted coverage includes fresh/unset and invalid-input behavior, successful-publication gating and last-active persistence, mock-location app-op/manual deselection reconciliation, provider/publication failure cleanup, process-death and reboot stale-state behavior, restore-last-position behavior, all three user-visible stop paths, and a final inactive state. Android mock-location-app selection remained manual and user-controlled throughout.
+### Lifecycle/state behavior
 
-Issue #16 fixed the restore-last-position detached-coordinate overwrite found during Issue #9 QA. PR #17 is merged into `feat/onboarding-about-card-13`; local validation and physical-device regression passed, including normal home-to-Settings draft persistence and restore-last-position behavior without unintended service startup.
+Issue #9 physical-device lifecycle/state reconciliation is accepted. Accepted coverage includes fresh/unset and invalid-input behavior, successful-publication gating and last-active persistence, mock-location app-op/manual deselection reconciliation, provider/publication failure cleanup, process-death and reboot stale-state behavior, restore-last-position behavior, all three user-visible stop paths, and a final inactive state. Android mock-location-app selection remained manual and user-controlled throughout.
 
-### Accepted Issue #13 onboarding/About/licensing work
+Issue #16 prevents detached Settings-page coordinate fields from overwriting a restored draft. Local validation and physical-device regression confirmed normal home-to-Settings draft persistence and restore-last-position behavior without unintended service startup.
 
-Issue #13 implementation and physical-device QA are accepted. The maintained onboarding uses Continue as the only acknowledgement path and defers incoming shared intents until acknowledgement. About, Changelog, License & usage, Sources, GPL, CC BY 4.0 artwork, and OpenStreetMap/ODbL information are presented as maintained in-app surfaces with the authorship/provenance boundaries above.
+### Onboarding, About, licensing, and provenance presentation
 
-Fresh JDK 17 source/build validation and focused English/German physical-device QA passed for the accepted Issue #13 runtime. Incoming synthetic plain-coordinate `ACTION_SEND` was confirmed deferred until Continue and processed only afterward. The app language was restored to System default, simulation remained inactive, and Android's mock-location selection was unchanged.
+Issue #13 is accepted and integrated. Continue remains the only onboarding acknowledgement path, incoming shared intents remain deferred until acknowledgement, and About/Changelog/License & usage/Sources/GPL/CC BY 4.0 artwork/OpenStreetMap-ODbL information remain maintained in-app surfaces with the authorship/provenance boundaries above.
 
-### Accepted Issues #15, #20, and #21 UI redesign
+Focused English/German physical-device QA passed. A synthetic plain-coordinate `ACTION_SEND` remained deferred until Continue and was processed only afterward. Simulation remained inactive and Android's mock-location selection was unchanged during that accepted QA.
 
-The first Issue #15 sizing attempt in PR #19 was rejected and remains closed/unmerged. The final redesign was implemented in PR #23 and physically accepted on 2026-08-15.
-
-Accepted final UI behavior:
+### Accepted UI redesign
 
 - Issue #15: overlay glyphs use the accepted 10/11/12dp visual sizes while existing 48dp interaction targets remain; expanded speed/action frames are visually inset; compact `+`/`−` remain small and borderless; direction guides are lighter; compact mode removes the outer panel/frame entirely so only the joystick and `+` remain visible; expanding restores the full panel.
 - Issue #20: Status is collapsed by default with reduced vertical padding; the Status label and chevron remain vertically centered in a fixed header position while details expand below; `Simulation`, Start, and Stop share one centered horizontal row with preserved interaction targets and existing provider/lifecycle methods.
 - Issue #21: Settings secondary descriptions are removed; Mock location, Overlay permission, Restore last position, and Overlay high contrast show explicit state text with green/red state styling while remaining understandable without color alone; Settings refreshes after returning from Android settings.
 
-Final accepted runtime candidate before integration:
+Physical-device visual QA accepted the complete redesign on 2026-08-15. Signer-safe installation preserved app data and the user-controlled Android mock-location selection.
 
-- commit: `9c83e7bd8e35362d65c51db8310550a06923def5`
-- debug APK SHA-256: `01966f8d426452750acec9b9819859a72218442899be1553f711d9c0d707f455`
+## Final integration validation
+
+The complete PR #14 tree was validated locally before merge as one unit rather than relying only on component validation:
+
+- exact PR head/base pair verified before validation
+- full PR `git diff --check`: PASS
+- accepted PR #23 UI tree unchanged by squash/integration: PASS
+- obsolete GitHub Actions workflow absent from the maintained tree
+- dependency-free `LocationLinkParser` regression: PASS
 - JDK 17 / Android SDK Platform 35 / Build Tools 36.0.0 debug build: PASS
-- `git diff --check`: PASS
-- static UI invariants: PASS
+- package identity `com.k2040.geojoystick` 0.1.3 (103): PASS
 - `:app:testDebugUnitTest`: NO-SOURCE at this boundary
 - `:app:lintRelease`: PASS
 - `:app:assembleRelease`: PASS
-- signer-safe installation preserved app data and the user-controlled Android mock-location selection
-- physical-device visual QA: PASS
-- GitHub Actions were not queried or used
+- tracked source and primary checkout preserved
+- temporary validation worktrees cleaned
+- device not modified by the final integration build pass
+- no GitHub Actions jobs were dispatched or used as integration-validation evidence
 
-PR #23 was squash-merged into `feat/onboarding-about-card-13` as `454624a65562fe8c52dd482426144ea71135b0c4`. Issues #15, #20, and #21 are closed as completed.
-
-## Current PR #14 gate
-
-PR #14 remains open, draft, and unmerged. The former #15/#20/#21 blockers are cleared.
-
-The remaining development gate is a fresh local validation of the complete integrated PR #14 head after the PR #23 squash merge and this documentation update. That validation must treat the whole current integration tree as the unit under test rather than relying only on the individually validated component revisions.
-
-Do not merge PR #14 into `main` until that final integration validation passes. GitHub Actions must not be queried or used for this PC/Linux validation unless explicitly approved.
+No additional Android build is required for this documentation-only post-merge context update.
 
 ## Current mascot work
 
-Issue #22 separately tracks a dedicated GeoJoystick mascot: a gecko interacting with an arcade-style joystick, optionally incorporating the existing GeoJoystick symbol. The intended style follows the soft, rounded, hand-drawn/pastel K2040 mascot family. Artwork must be project-owned/original or otherwise explicitly redistributable, provenance/licensing must remain auditable, and final visual approval is required before integration. Issue #22 does not itself authorize replacing the app icon and is not a blocker for PR #14 unless explicitly coupled later.
+Issue #22 separately tracks a dedicated GeoJoystick mascot: a gecko interacting with an arcade-style joystick, optionally incorporating the existing GeoJoystick symbol. The intended style follows the soft, rounded, hand-drawn/pastel K2040 mascot family. Artwork must be project-owned/original or otherwise explicitly redistributable, provenance/licensing must remain auditable, and final visual approval is required before integration. Issue #22 does not itself authorize replacing the app icon.
 
 ## Publication boundary
 
-Production signing, reproducibility claims, tags/releases, F-Droid/store publication, deployments, announcements, repository-visibility changes, and comparable public actions remain separate approval gates and are not authorized by development acceptance.
+The accepted development integration is now on `main`, but it is not a production release action. Production signing, reproducibility claims, tags/releases, F-Droid/store publication, deployments, announcements, repository-visibility changes, and comparable public actions remain separate explicit approval gates.
