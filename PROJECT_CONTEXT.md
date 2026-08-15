@@ -111,13 +111,15 @@ Local validation passed with JDK 17, Android SDK Platform 35 and compatible Buil
 
 The rejected first Issue #15 sizing attempt is preserved in closed, unmerged PR #19. Physical-device review found its 20/22/24dp overlay glyphs still too large.
 
-The current redesign is implemented on `feat/ui-redesign-15-20-21` and tracked by draft PR #23 against `feat/onboarding-about-card-13`. Runtime source commit `326d242773af946c22503b79fb9312d05426de3b` changes only `MainActivity.java`, `JoystickOverlay.java`, and `JoystickView.java`:
+The current redesign is implemented on `feat/ui-redesign-15-20-21` and tracked by draft PR #23 against `feat/onboarding-about-card-13`.
 
-- Issue #15: overlay glyph targets are reduced to 10/11/12dp; compact `+`/`−` visuals are reduced to 10sp and borderless; existing 48dp interaction bounds are retained; direction guides are visually reduced while joystick interaction geometry is unchanged.
-- Issue #20: Status is collapsed by default and expands/collapses from its header; the previous separate full-width Start and Stop fields are replaced by one centered Simulation title with Start/Stop symbol controls beneath it, using the existing lifecycle/provider methods.
-- Issue #21: Settings description/subtext lines are removed; Mock location, Overlay permission, Restore last position, and High contrast overlay show explicit state text using success/danger colors; Settings refreshes when returning from Android settings.
+Initial runtime commit `326d242773af946c22503b79fb9312d05426de3b` changed `MainActivity.java`, `JoystickOverlay.java`, and `JoystickView.java`:
 
-Local validation before the runtime commit passed with JDK 17, Android SDK Platform 35, and Build Tools 36.0.0:
+- Issue #15: overlay glyph targets were reduced to 10/11/12dp; compact `+`/`−` visuals were reduced to 10sp and made borderless; existing 48dp interaction bounds were retained; direction guides were visually reduced while joystick interaction geometry stayed unchanged.
+- Issue #20: Status became collapsed by default; separate full-width Start and Stop fields were replaced by a centered Simulation title with symbol controls beneath it.
+- Issue #21: Settings description/subtext lines were removed; Mock location, Overlay permission, Restore last position, and High contrast overlay gained explicit state text using success/danger colors; Settings refreshes when returning from Android settings.
+
+Local validation for that initial runtime revision passed with JDK 17, Android SDK Platform 35, and Build Tools 36.0.0:
 
 - exact runtime changed-file scope: three Java files
 - `git diff --check`: PASS
@@ -129,7 +131,26 @@ Local validation before the runtime commit passed with JDK 17, Android SDK Platf
 - primary checkout remained untouched
 - GitHub Actions were not queried or used
 
-PR #23 is draft and mergeable. Physical-device UI QA on the canonical QA device remains required before Issues #15, #20, and #21 can be accepted or PR #23 merged into the integration feature branch.
+That exact APK was installed signer-safely on the canonical QA device. Package/version and artifact identity matched, app data was preserved, the user-controlled Android mock-location selection stayed unchanged, GeoJoystick foregrounded successfully, automatic hierarchy checks confirmed the default-collapsed Status and Start/Stop controls, and simulation remained inactive after the structure check.
+
+The subsequent 2026-08-15 physical visual review rejected the main-screen Status/Simulation presentation and the overlay control frames. The reduced overlay glyph sizes themselves were accepted and must not be enlarged again. Specific feedback was:
+
+- collapsed Status had too much vertical padding;
+- the Status chevron needed to be vertically centered relative to the label and remain in the same header position when details expand below it;
+- Simulation label, Start, and Stop should share one horizontal row with controls centered relative to the label;
+- overlay speed/action symbols were small enough, but their visible frames were too large relative to the glyphs;
+- Settings received no additional change request in that feedback round, but complete UI acceptance remains pending the next physical pass.
+
+The current visual-feedback candidate is branch runtime head `65c41dba22696fa4135e619f3940144d4a7dede9`. Relative to the last documented head `fa089e1fe8315848d2b65df7303675bdee6c9083`, the net revision changes exactly two runtime files: `MainActivity.java` and `JoystickOverlay.java`.
+
+- Status keeps a 48dp tappable header but removes the card's extra collapsed vertical padding, explicitly centers the label and chevron, and expands details below the unchanged header.
+- Simulation uses one centered horizontal row containing the label plus 48dp Start and Stop controls.
+- Overlay glyph sizes remain 10/11/12dp and compact `+`/`−` remain small/borderless; only the visible speed/action-control background is inset within the unchanged 48dp clickable view to reduce frame weight.
+- No mock-provider, coordinate, permission, service, lifecycle, or settings behavior is intentionally changed by this visual-feedback revision.
+
+A bounded provider-side correction restored the pre-existing German wording and final newlines after source assembly. The resulting net source range contains only the two intended runtime files. The current head still requires fresh local `git diff --check`, debug build, unit-test task, lint, release assembly, and another physical-device UI pass. The previously validated APK must not be treated as validation of this current candidate. GitHub Actions have not been queried or used for this redesign work.
+
+PR #23 remains draft and mergeable. Issues #15, #20, and #21 remain unresolved until the current candidate passes local validation and physical-device visual acceptance.
 
 ## Current mascot work: Issue #22
 
