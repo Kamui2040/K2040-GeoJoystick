@@ -19,7 +19,7 @@ from typing import NoReturn
 GRADLE_VERSION = "8.13"
 GRADLE_URL = f"https://services.gradle.org/distributions/gradle-{GRADLE_VERSION}-bin.zip"
 GRADLE_SHA_URL = GRADLE_URL + ".sha256"
-COMPILE_SDK = 35
+COMPILE_SDK = 36
 PREFERRED_BUILD_TOOLS = "35.0.0"
 MINIMUM_COMPATIBLE_BUILD_TOOLS = (35, 0, 0)
 
