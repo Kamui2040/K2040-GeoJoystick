@@ -141,16 +141,32 @@ The subsequent 2026-08-15 physical visual review rejected the main-screen Status
 - overlay speed/action symbols were small enough, but their visible frames were too large relative to the glyphs;
 - Settings received no additional change request in that feedback round, but complete UI acceptance remains pending the next physical pass.
 
-The current visual-feedback candidate is branch runtime head `65c41dba22696fa4135e619f3940144d4a7dede9`. Relative to the last documented head `fa089e1fe8315848d2b65df7303675bdee6c9083`, the net revision changes exactly two runtime files: `MainActivity.java` and `JoystickOverlay.java`.
+The current visual-feedback candidate is runtime commit `65c41dba22696fa4135e619f3940144d4a7dede9`. Relative to the last documented runtime head `fa089e1fe8315848d2b65df7303675bdee6c9083`, the net revision changes exactly two runtime files: `MainActivity.java` and `JoystickOverlay.java`.
 
 - Status keeps a 48dp tappable header but removes the card's extra collapsed vertical padding, explicitly centers the label and chevron, and expands details below the unchanged header.
 - Simulation uses one centered horizontal row containing the label plus 48dp Start and Stop controls.
 - Overlay glyph sizes remain 10/11/12dp and compact `+`/`−` remain small/borderless; only the visible speed/action-control background is inset within the unchanged 48dp clickable view to reduce frame weight.
 - No mock-provider, coordinate, permission, service, lifecycle, or settings behavior is intentionally changed by this visual-feedback revision.
 
-A bounded provider-side correction restored the pre-existing German wording and final newlines after source assembly. The resulting net source range contains only the two intended runtime files. The current head still requires fresh local `git diff --check`, debug build, unit-test task, lint, release assembly, and another physical-device UI pass. The previously validated APK must not be treated as validation of this current candidate. GitHub Actions have not been queried or used for this redesign work.
+A bounded provider-side correction restored the pre-existing German wording and final newlines after source assembly. Fresh local validation of the resulting candidate completed successfully on 2026-08-15 using JDK 17, Android SDK Platform 35, and Build Tools 36.0.0:
 
-PR #23 remains draft and mergeable. Issues #15, #20, and #21 remain unresolved until the current candidate passes local validation and physical-device visual acceptance.
+- exact remote branch and runtime candidate SHAs were verified before worktree creation;
+- isolated detached validation worktree created from branch head `2da01580940994caf7f6a58957146b273a8b3e3b`;
+- runtime revision scope verified as exactly `MainActivity.java` and `JoystickOverlay.java`;
+- commits after the runtime candidate verified documentation-only;
+- `git diff --check`: PASS;
+- static visual invariants for Status geometry, one-row Simulation controls, accepted overlay glyph sizes, and inset overlay frames: PASS;
+- repository debug build: PASS;
+- `:app:testDebugUnitTest`: NO-SOURCE; accepted because no Java/Kotlin unit-test sources exist at this boundary;
+- `:app:lintRelease`: PASS;
+- `:app:assembleRelease`: PASS;
+- debug APK SHA-256: `6b58e262bb60f86459339bdeafac477798857068ea9dd4b6fc731adab90284e1`;
+- validation worktree tracked source remained unchanged after build;
+- primary checkout remained untouched;
+- canonical QA device was not modified;
+- GitHub Actions were not queried or used.
+
+The validated worktree and exact debug APK are retained only for signer-safe physical QA. PR #23 remains draft and mergeable. Issues #15, #20, and #21 now require only the planned signer-safe physical-device visual pass before this redesign can be accepted for integration.
 
 ## Current mascot work: Issue #22
 
