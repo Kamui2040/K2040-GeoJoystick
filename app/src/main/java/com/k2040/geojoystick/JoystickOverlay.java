@@ -328,8 +328,15 @@ final class JoystickOverlay {
         coordinateParams.height = dp(28);
         coordinateText.setLayoutParams(coordinateParams);
 
-        root.setPadding(dp(6), compactMode ? dp(3) : dp(6), dp(6), compactMode ? dp(5) : dp(8));
-        root.setBackground(panelBackground());
+        if (compactMode) {
+            root.setPadding(0, 0, 0, 0);
+            root.setBackground(null);
+            root.setElevation(0);
+        } else {
+            root.setPadding(dp(6), dp(6), dp(6), dp(8));
+            root.setBackground(panelBackground());
+            root.setElevation(dp(10));
+        }
         root.requestLayout();
     }
 
