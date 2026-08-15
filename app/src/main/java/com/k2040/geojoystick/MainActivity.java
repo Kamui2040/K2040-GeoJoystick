@@ -439,9 +439,10 @@ public final class MainActivity extends Activity {
         ImageView avatar = new ImageView(this);
         avatar.setImageResource(R.drawable.k2040_avatar);
         avatar.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        avatar.setPadding(dp(4), dp(4), dp(4), dp(4));
         avatar.setContentDescription(t("About GeoJoystick", "Über GeoJoystick"));
         avatar.setOnClickListener(view -> showAboutPage());
-        header.addView(avatar, new LinearLayout.LayoutParams(dp(40), dp(40)));
+        header.addView(avatar, new LinearLayout.LayoutParams(dp(48), dp(48)));
 
         LinearLayout titles = new LinearLayout(this);
         titles.setOrientation(LinearLayout.VERTICAL);
@@ -616,6 +617,15 @@ public final class MainActivity extends Activity {
         identity.addView(close, new LinearLayout.LayoutParams(dp(48), dp(48)));
         modal.addView(identity, innerRow());
 
+        ScrollView bodyScroll = new ScrollView(this);
+        bodyScroll.setFillViewport(false);
+        bodyScroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        LinearLayout body = new LinearLayout(this);
+        body.setOrientation(LinearLayout.VERTICAL);
+        bodyScroll.addView(body, new ScrollView.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+
         TextView about = text(t(
                 "Transparent mock-location joystick for Android developer and emulator testing.",
                 "Transparenter Mock-Standort-Joystick für Android-Entwicklung und Emulator-Tests."),
@@ -623,7 +633,7 @@ public final class MainActivity extends Activity {
         about.setGravity(Gravity.CENTER);
         about.setLineSpacing(0, 1.08f);
         about.setPadding(dp(10), dp(8), dp(10), dp(4));
-        modal.addView(about, innerRow());
+        body.addView(about, innerRow());
 
         TextView trust = text(t(
                 "Local · offline-first · no account · no ads · no analytics · no tracking",
@@ -631,23 +641,26 @@ public final class MainActivity extends Activity {
                 10, palette.textDim, true);
         trust.setGravity(Gravity.CENTER);
         trust.setPadding(dp(8), dp(2), dp(8), dp(6));
-        modal.addView(trust, innerRow());
+        body.addView(trust, innerRow());
 
-        modal.addView(welcomeNavigationRow(t("Changelog", "Änderungsverlauf"),
+        body.addView(welcomeNavigationRow(t("Changelog", "Änderungsverlauf"),
                 () -> showChangelogPage(false)), innerRow());
-        modal.addView(welcomeNavigationRow(t("License & usage", "Lizenz & Nutzung"),
+        body.addView(welcomeNavigationRow(t("License & usage", "Lizenz & Nutzung"),
                 () -> showLicensePage(false)), innerRow());
-        modal.addView(welcomeNavigationRow(t("Sources", "Quellen"),
+        body.addView(welcomeNavigationRow(t("Sources", "Quellen"),
                 this::showSourcesPage), innerRow());
-        modal.addView(welcomeNavigationRow(t("Support on Ko-fi", "Auf Ko-fi unterstützen"),
+        body.addView(welcomeNavigationRow(t("Support on Ko-fi", "Auf Ko-fi unterstützen"),
                 () -> openExternalUrl("https://ko-fi.com/k2040")), innerRow());
 
         TextView disclosure = text(supportDisclosureText(), 9, palette.textDim, false);
         disclosure.setGravity(Gravity.CENTER);
         disclosure.setPadding(dp(10), dp(5), dp(10), dp(2));
-        modal.addView(disclosure, innerRow());
+        body.addView(disclosure, innerRow());
 
+        modal.addView(bodyScroll, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
         showModal(stage, modal, 336, 500, false);
+        bodyScroll.post(() -> bodyScroll.scrollTo(0, 0));
     }
 
     private void showChangelogPage(boolean returnToWelcome) {
@@ -759,7 +772,6 @@ public final class MainActivity extends Activity {
         TextView heading = text(t("License & usage", "Lizenz & Nutzung"), 24, palette.text, true);
         heading.setPadding(dp(4), dp(2), dp(4), dp(8));
         modal.addView(heading, innerRow());
-
         TextView localHeading = text(t("LOCAL DATA", "LOKALE DATEN"), 11, palette.textDim, false);
         modal.addView(localHeading, innerRow());
         TextView localBody = text(t(
