@@ -26,7 +26,7 @@ Public descriptions should present GeoJoystick as a mock-location utility for em
 
 - Application code remains `GPL-3.0-only`.
 - K2040-authored GPL code carries the separate GPLv3 section 7(b) attribution-preservation term only where the source file explicitly marks that term as applicable.
-- Original K2040 artwork and UI artwork with established project provenance is `CC-BY-4.0`, including the bundled K2040 avatar.
+- Original K2040 artwork and UI artwork with established project provenance is `CC-BY-4.0`, including the bundled K2040 avatar, the GeoJoystick waving gecko mascot, and the simplified full-color launcher emblem.
 - GoGoGo-derived and other third-party code/assets/data retain their own controlling licences, notices, and attribution.
 - OpenStreetMap data remains © OpenStreetMap contributors under ODbL 1.0.
 - F-Droid metadata includes `AntiFeatures: TetheredNet` because the optional map picker uses OpenStreetMap services.
@@ -42,7 +42,7 @@ The accepted reconciliation, Issue #13 onboarding/About/licensing work, Issue #1
 - final physically accepted pre-integration runtime candidate: `9c83e7bd8e35362d65c51db8310550a06923def5`
 - accepted/final-validation debug APK SHA-256: `01966f8d426452750acec9b9819859a72218442899be1553f711d9c0d707f455`
 
-Issues #9, #10, #13, #15, #16, #20, and #21 are closed as completed.
+Issues #9, #10, #13, #15, #16, #20, #21, and #22 are closed as completed.
 
 ### Lifecycle/state behavior
 
@@ -77,6 +77,20 @@ The maintained harness covers an 18-scenario matrix across English/German, Syste
 
 The complete refined run separated UIAutomator viewport/hierarchy artifacts from two genuine defects. PR #25 enlarged the clickable Home About/avatar target to 48dp while preserving its approximately 40dp visual footprint, and made the About body vertically scrollable while retaining the fixed identity/close row. Focused device QA confirmed a 48.0x48.0dp About target and English/German About navigation reachability at 2.0x font scale. Signer-safe replacement preserved app data, mock-location selection, overlay permission, and inactive simulation state. Human visual QA accepted normal-scale presentation, About scrolling/fixed close behavior, Theme/Language dialogs, and large-font About usability.
 
+### Mascot and launcher identity
+
+Issue #22 is accepted and integrated through squash-merged PR #26.
+
+- PR #26 mascot/icon merge commit: `cfb5d7162d75c60573dcf24cc7b3730a1b887868`
+- validated PR #26 head before squash: `61894232c7831dbf9f81bc71fac680fd85067a23`
+- accepted PR #26 debug APK SHA-256: `470a67059c1723f5a0e9654cce83ad3687cd7fc2a5a502a4b111b469d99e44cc`
+
+The home-header About entry now uses the user-approved waving gecko interacting with an arcade joystick. Tapping it continues to open the existing About card, which retains the K2040 avatar; Welcome also retains the K2040 avatar. The full-color launcher/app-drawer artwork uses the separately reviewed and approved simplified gecko + joystick map-pin emblem. The existing adaptive-icon wiring and themed monochrome artwork remain unchanged.
+
+The accepted launcher artwork is stored as a lossless WebP resource after the original indexed PNG exposed an AAPT2 release-resource compilation incompatibility. The replacement preserves the approved 384×384 artwork pixel-for-pixel while using an Android-compatible resource container. `NOTICE.md` records both accepted GeoJoystick assets under the existing K2040 CC BY 4.0 provenance framework.
+
+Local and physical validation on the exact PR #26 head passed `git diff --check`, the `LocationLinkParser` regression harness, `tools/build.py`, `testDebugUnitTest`, `lintRelease`, `assembleRelease` including release AAPT2 resource processing, and signer-safe replacement installation. Installation preserved app data, the user-controlled mock-location app-op state, overlay permission, and inactive simulation state. Human visual QA accepted the in-app mascot, About tap-through/K2040 avatar, and centered/unclipped app-drawer symbol. The primary local checkout remained untouched and temporary QA artifacts were cleaned.
+
 ## Final integration validation
 
 The complete PR #14 tree was validated locally before merge as one unit rather than relying only on component validation:
@@ -98,11 +112,9 @@ The complete PR #14 tree was validated locally before merge as one unit rather t
 
 Issue #10's later runtime fix was separately validated on its exact source head with `git diff --check`, parser regression, JDK 17 / SDK 35 / Build Tools 36.0.0 debug build, `testDebugUnitTest`, `lintRelease`, `assembleRelease`, signer-safe physical installation, focused structural QA, state restoration, and human visual acceptance. GitHub Actions were not queried or used for that workflow.
 
+Issue #22's mascot/icon integration was separately validated on its exact source head with provider-side scope checks, `git diff --check`, parser regression, JDK 17 / SDK 35 / Build Tools 36.0.0 debug build, `testDebugUnitTest`, `lintRelease`, `assembleRelease`, successful release AAPT2 processing of the lossless launcher resource, signer-safe physical installation, state preservation, and human visual acceptance. GitHub Actions were not queried or used for that workflow.
+
 No additional Android build is required for this documentation-only post-merge context update.
-
-## Current mascot work
-
-Issue #22 separately tracks a dedicated GeoJoystick mascot: a gecko interacting with an arcade-style joystick, optionally incorporating the existing GeoJoystick symbol. The intended style follows the soft, rounded, hand-drawn/pastel K2040 mascot family. Artwork must be project-owned/original or otherwise explicitly redistributable, provenance/licensing must remain auditable, and final visual approval is required before integration. Issue #22 does not itself authorize replacing the app icon.
 
 ## Publication boundary
 
