@@ -4,12 +4,18 @@
 ADB's shell command transport reparses command text on the device. Feed run-as
 shell fragments over stdin so redirections and other shell syntax execute only
 after run-as has switched to the app uid and package data directory.
+
+Android framework dialogs can expose their choice rows under a framework package
+instead of the app package. Keep normal navigation package-scoped, but match
+language/theme single-choice rows by exact known label and dialog-row class.
 """
 
 from __future__ import annotations
 
 import subprocess
 import sys
+import time
+from typing import Sequence
 
 import _qa_accessibility_device_impl as impl
 
@@ -50,7 +56,60 @@ class SafeAdb(impl.Adb):
         return result.returncode == 0
 
 
-def transport_self_test() -> None:
+class SafeHarness(impl.Harness):
+    DIALOG_CHOICE_CLASSES = (
+        "android.widget.CheckedTextView",
+        "android.widget.RadioButton",
+    )
+
+    @classmethod
+    def _dialog_choice(
+        cls,
+        nodes: Sequence[impl.UiNode],
+        values: Sequence[str],
+    ) -> impl.UiNode | None:
+        matches = [
+            node for node in nodes
+            if node.enabled
+            and node.bounds.area > 0
+            and node.text in values
+            and node.class_name in cls.DIALOG_CHOICE_CLASSES
+        ]
+        if not matches:
+            return None
+        return min(matches, key=lambda node: (node.bounds.top, node.bounds.left))
+
+    def tap_dialog_choice(self, values: Sequence[str]) -> impl.UiNode:
+        for _ in range(4):
+            node = self._dialog_choice(self.snapshot().nodes, values)
+            if node is not None:
+                self.adb.tap(node.bounds)
+                return node
+            time.sleep(0.15)
+        raise impl.QAError(f"could not find dialog option: {tuple(values)}")
+
+    def set_language(self, language: str) -> None:
+        self.tap_desc_any(("Language.", "Sprache."), starts=True, scroll="up")
+        options = {
+            "en": ("English",),
+            "de": ("Deutsch",),
+            "system": ("System default", "Systemstandard"),
+        }[language]
+        self.tap_dialog_choice(options)
+        time.sleep(0.25)
+
+    def set_theme(self, theme: str) -> None:
+        self.tap_desc_any(("Theme.", "Darstellung."), starts=True, scroll="up")
+        options = {
+            "system": ("System default", "Systemstandard"),
+            "light": ("Light", "Hell"),
+            "dark": ("Dark", "Dunkel"),
+        }[theme]
+        self.tap_dialog_choice(options)
+        time.sleep(0.25)
+
+
+def adapter_self_test() -> None:
     captured: list[tuple[tuple[str, ...], bytes | None, bool]] = []
 
     class ProbeAdb(SafeAdb):
@@ -78,13 +137,40 @@ def transport_self_test() -> None:
         b"test -e cache/state.txt\n",
         False,
     )
-    print("GeoJoystick Issue #10 run-as transport self-test: PASS")
+
+    background = impl.UiNode(
+        path=(0,),
+        text="English",
+        desc="",
+        class_name="android.widget.TextView",
+        package="com.example.synthetic",
+        clickable=False,
+        enabled=True,
+        bounds=impl.Bounds(0, 0, 120, 48),
+        child_count=0,
+    )
+    dialog = impl.UiNode(
+        path=(1,),
+        text="English",
+        desc="",
+        class_name="android.widget.CheckedTextView",
+        package="android",
+        clickable=False,
+        enabled=True,
+        bounds=impl.Bounds(20, 100, 260, 160),
+        child_count=0,
+    )
+    assert SafeHarness._dialog_choice((background, dialog), ("English",)) == dialog
+    assert SafeHarness._dialog_choice((background,), ("English",)) is None
+
+    print("GeoJoystick Issue #10 safe-adapter self-test: PASS")
 
 
 impl.Adb = SafeAdb
+impl.Harness = SafeHarness
 
 
 if __name__ == "__main__":
     if "--self-test" in sys.argv:
-        transport_self_test()
+        adapter_self_test()
     raise SystemExit(impl.main())
