@@ -21,7 +21,7 @@ GeoJoystick is an open-source Android mock-location utility for emulator and dev
 
 ## Build and validation
 
-- JDK 17 and Android SDK Platform 35 are the current build baseline.
+- JDK 17 and Android SDK Platform 36 are the current build baseline.
 - Use the repository build/bootstrap tooling; do not require a globally installed Gradle.
 - Keep Linux, macOS, and Windows build instructions contributor-facing and machine-independent.
 - Before a change is considered complete, inspect the changed-file scope and run applicable tests/lint/build checks plus `git diff --check`.

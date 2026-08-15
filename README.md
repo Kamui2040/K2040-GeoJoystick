@@ -37,7 +37,7 @@ The project intentionally uses a small Python bootstrap instead of committing a 
 Requirements:
 
 - JDK 17 (current build baseline)
-- Android SDK Platform 35
+- Android SDK Platform 36
 - Android SDK Build-Tools 35.0.0 or newer compatible stable version
 - Python 3
 

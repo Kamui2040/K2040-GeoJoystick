@@ -13,6 +13,7 @@ GeoJoystick is an open-source Android mock-location joystick intended for emulat
 - Official APKPure listing is live at https://apkpure.com/p/com.k2040.geojoystick.
 - GitHub Releases remains the canonical source for release notes and published release assets.
 - No APKPure installation smoke test is recorded in this repository yet.
+- Current `main` now builds with compileSdk/targetSdk 36 after Issue #11; this development baseline does not itself publish or replace any existing release artifact.
 
 GeoJoystick remains ad-free, account-free, analytics-free, tracking-free, subscription-free, and free of mandatory proprietary services. Saved coordinates, favorites, and settings remain local unless the user explicitly performs a documented external action. The map uses OpenStreetMap only when opened, with required attribution preserved.
 
@@ -42,7 +43,7 @@ The accepted reconciliation, Issue #13 onboarding/About/licensing work, Issue #1
 - final physically accepted pre-integration runtime candidate: `9c83e7bd8e35362d65c51db8310550a06923def5`
 - accepted/final-validation debug APK SHA-256: `01966f8d426452750acec9b9819859a72218442899be1553f711d9c0d707f455`
 
-Issues #9, #10, #13, #15, #16, #20, #21, and #22 are closed as completed.
+Issues #9, #10, #11, #13, #15, #16, #20, #21, and #22 are closed as completed.
 
 ### Lifecycle/state behavior
 
@@ -91,6 +92,22 @@ The accepted launcher artwork is stored as a lossless WebP resource after the or
 
 Local and physical validation on the exact PR #26 head passed `git diff --check`, the `LocationLinkParser` regression harness, `tools/build.py`, `testDebugUnitTest`, `lintRelease`, `assembleRelease` including release AAPT2 resource processing, and signer-safe replacement installation. Installation preserved app data, the user-controlled mock-location app-op state, overlay permission, and inactive simulation state. Human visual QA accepted the in-app mascot, About tap-through/K2040 avatar, and centered/unclipped app-drawer symbol. The primary local checkout remained untouched and temporary QA artifacts were cleaned.
 
+### Android 16 / API 36 development baseline
+
+Issue #11 is accepted and integrated through squash-merged PR #28.
+
+- PR #28 API 36 merge commit: `ded38f66d6fd04f9a1c390c974f3d696f0eb73df`
+- validated PR #28 head before squash: `47d776484b65becb45a4c1b3b5fecf1cf9747614`
+- accepted PR #28 debug APK SHA-256: `942a2dd644ed196850d0b194e9916ab66b0a1cc0abd3a100a4ad6fc3e6385136`
+
+The maintained development build baseline is now JDK 17, Android SDK Platform 36, `compileSdk 36`, `targetSdk 36`, `minSdk 27`, AGP 8.12.3, and Gradle 8.13. Build Tools 35.0.0 or a newer compatible stable version remain accepted; the validated migration used Build Tools 36.0.0. `tools/build.py` now checks/installs Platform 36 rather than Platform 35.
+
+The Android 16 review found no required change to GeoJoystick's standard Android mock-location test-provider flow, `specialUse` foreground-service declaration, notification permission handling, overlay permission model, backup/data-extraction exclusions, exported-component boundaries, or optional OpenStreetMap/link-resolution network behavior. The migration added no proprietary dependency, API key, root/Shizuku requirement, concealment mechanism, or non-standard location injection.
+
+MainActivity currently uses Android's activity-scoped temporary `android:enableOnBackInvokedCallback="false"` compatibility setting because its custom nested About/license/settings navigation still relies on legacy `onBackPressed()`. `lint.xml` ignores only `GestureBackNavigation` for `MainActivity.java`, because that lint check does not inspect the activity-scoped manifest opt-out. Issue #27 remains open to replace this temporary compatibility path with supported predictive-back handling. `MapActivity` remains on normal Android back behavior.
+
+Final exact-head API 36 validation passed `git diff --check`, the `LocationLinkParser` regression harness, Platform 36 debug build, `testDebugUnitTest`, `lintRelease`, and unsigned `assembleRelease`. Signer-safe replacement installation preserved app data, mock-location app-op state, and overlay permission. Physical Android 16/API 36 regression confirmed Settings -> Home, About -> Home, and nested License -> About -> Home Back behavior; synthetic-coordinate foreground simulation start/publication and a user-visible stop path; invalid-input start remaining inactive; byte-for-byte preference restoration; and a final inactive simulation state. The primary local checkout remained untouched and temporary QA artifacts were cleaned.
+
 ## Final integration validation
 
 The complete PR #14 tree was validated locally before merge as one unit rather than relying only on component validation:
@@ -110,9 +127,11 @@ The complete PR #14 tree was validated locally before merge as one unit rather t
 - device not modified by the final integration build pass
 - no GitHub Actions jobs were dispatched or used as integration-validation evidence
 
-Issue #10's later runtime fix was separately validated on its exact source head with `git diff --check`, parser regression, JDK 17 / SDK 35 / Build Tools 36.0.0 debug build, `testDebugUnitTest`, `lintRelease`, `assembleRelease`, signer-safe physical installation, focused structural QA, state restoration, and human visual acceptance. GitHub Actions were not queried or used for that workflow.
+Issue #10's later runtime fix was separately validated on its exact source head with `git diff --check`, parser regression, JDK 17 / SDK 35 / Build Tools 36.0.0 debug build, `testDebugUnitTest`, `lintRelease`, `assembleRelease`, signer-safe physical installation, focused structural QA, state restoration, and human visual acceptance. GitHub Actions were not used as validation evidence for that workflow.
 
-Issue #22's mascot/icon integration was separately validated on its exact source head with provider-side scope checks, `git diff --check`, parser regression, JDK 17 / SDK 35 / Build Tools 36.0.0 debug build, `testDebugUnitTest`, `lintRelease`, `assembleRelease`, successful release AAPT2 processing of the lossless launcher resource, signer-safe physical installation, state preservation, and human visual acceptance. GitHub Actions were not queried or used for that workflow.
+Issue #22's mascot/icon integration was separately validated on its exact source head with provider-side scope checks, `git diff --check`, parser regression, JDK 17 / SDK 35 / Build Tools 36.0.0 debug build, `testDebugUnitTest`, `lintRelease`, `assembleRelease`, successful release AAPT2 processing of the lossless launcher resource, signer-safe physical installation, state preservation, and human visual acceptance. GitHub Actions were not used as validation evidence for that workflow.
+
+Issue #11's API 36 migration was separately validated on its exact source head with Platform 36, Build Tools 36.0.0, parser regression, debug/release builds, lint, signer-safe installation, target-36 Back compatibility, synthetic start/publication/stop, invalid-input reconciliation, and complete state restoration. No GitHub Actions jobs were dispatched or used as validation evidence.
 
 No additional Android build is required for this documentation-only post-merge context update.
 
