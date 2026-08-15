@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace 'com.k2040.geojoystick'
-    compileSdk 35
+    compileSdk 36
 
     if (project.hasProperty('geoBuildToolsVersion')) {
         buildToolsVersion project.property('geoBuildToolsVersion')
@@ -13,7 +13,7 @@ android {
     defaultConfig {
         applicationId 'com.k2040.geojoystick'
         minSdk 27
-        targetSdk 35
+        targetSdk 36
         versionCode 103
         versionName '0.1.3'
     }
