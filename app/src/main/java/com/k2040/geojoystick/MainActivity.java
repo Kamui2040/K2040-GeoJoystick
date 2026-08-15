@@ -764,7 +764,7 @@ public final class MainActivity extends Activity {
         modal.addView(localHeading, innerRow());
         TextView localBody = text(t(
                 "Coordinates and settings stay on this device. The map fetches OpenStreetMap tiles only when you open it; supported link resolution may use bounded HTTPS requests. No account, analytics, or hidden uploads.",
-                "Koordinaten und Einstellungen bleiben auf deinem Gerät. Die Karte lädt OpenStreetMap-Kacheln nur, wenn du sie öffnest; unterstützte Linkauflösung kann begrenzte HTTPS-Anfragen verwenden. Kein Konto, keine Analysen und keine versteckten Uploads."),
+                "Koordinaten und Einstellungen bleiben auf diesem Gerät. Die Karte lädt OpenStreetMap-Kacheln nur, wenn du sie öffnest; unterstützte Linkauflösung kann begrenzte HTTPS-Anfragen verwenden. Kein Konto, keine Analysen und keine versteckten Uploads."),
                 11, palette.text, false);
         localBody.setLineSpacing(0, 1.08f);
         localBody.setPadding(0, dp(2), 0, dp(8));
