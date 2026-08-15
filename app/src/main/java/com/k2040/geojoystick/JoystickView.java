@@ -70,7 +70,7 @@ final class JoystickView extends View {
         ringPaint.setStrokeWidth(dp(highContrast ? 2 : 1));
         ringPaint.setColor(argb(ringAlpha, highContrast ? 0xF3 : 0x69, highContrast ? 0xF7 : 0x86, highContrast ? 0xFB : 0xA2));
         innerPaint.setColor(argb(fillAlpha, 0x2F, 0x8C, 0xFF));
-        guidePaint.setStrokeWidth(dp(highContrast ? 3 : 2));
+        guidePaint.setStrokeWidth(dp(highContrast ? 2 : 1));
         guidePaint.setColor(argb(guideAlpha, 0x58, 0xA6, 0xFF));
         knobPaint.setColor(argb(knobAlpha, 0x2F, 0x8C, 0xFF));
     }
@@ -125,7 +125,7 @@ final class JoystickView extends View {
     }
 
     private void drawDirectionGuides(Canvas canvas, float radius) {
-        float length = Math.max(dp(5), radius * 0.11f);
+        float length = Math.max(dp(2), radius * 0.045f);
         float offset = radius * 0.78f;
         drawChevron(canvas, centerX, centerY - offset, -90f, length);
         drawChevron(canvas, centerX + offset, centerY, 0f, length);

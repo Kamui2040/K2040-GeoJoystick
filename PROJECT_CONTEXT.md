@@ -81,7 +81,7 @@ Validation performed locally before the reconciliation commit:
 
 Issue #9 physical-device lifecycle/state reconciliation is accepted and closed as completed as of 2026-08-14. Accepted coverage includes fresh/unset and invalid-input behavior, successful-publication gating and last-active persistence, mock-location app-op/manual deselection reconciliation, provider/publication failure cleanup, process-death and reboot stale-state behavior, restore-last-position behavior, all three user-visible stop paths, and a final inactive state. The accepted final stop-path run verified the main-screen Stop, overlay Stop/X, and notification Stop paths independently; each ended with mock providers, overlay, service, and foreground notification inactive. Android mock-location-app selection remained manual/user-controlled throughout.
 
-The remaining integration blocker is Issue #15 physical-device visual acceptance for overlay symbol sizing. Signing, reproducibility, release/F-Droid/store validation, tags, releases, and publication remain separate future gates.
+The remaining integration blockers are Issues #15, #20, and #21, all of which require focused physical-device UI acceptance of the current redesign before draft PR #14 can progress toward merge. Issue #22 tracks the new GeoJoystick gecko mascot/identity work separately and does not authorize an app-icon replacement. Signing, reproducibility, release/F-Droid/store validation, tags, releases, and publication remain separate future gates.
 
 ## Current Issue #13 development
 
@@ -99,7 +99,7 @@ The Issue #13 About card no longer contains the placeholder Thanks/credits secti
 
 Fresh JDK 17 source/build validation and focused physical-device QA completed successfully for the Issue #13 runtime source through `419ebbca90fe6bc5ec2c9a2dbb7bdc8cfdeff993`. The validated debug artifact was installed through the verified signing boundary; fresh English and German onboarding, License & usage and nested licence details, About, Sources, and Changelog were accepted without clipping at the designated QA scale. Continue remained the only onboarding acknowledgement path, acknowledgement persisted, and a synthetic plain-coordinate `ACTION_SEND` remained deferred until Continue and was processed only afterward. The app language was restored to System default through GeoJoystick's own settings UI, simulation remained inactive, and the QA flow did not change Android's mock-location selection.
 
-Issue #13 implementation and device QA are accepted. Draft PR #14 carries Issue #13 together with the accepted development reconciliation and remains unmerged pending Issue #15 visual acceptance.
+Issue #13 implementation and device QA are accepted. Draft PR #14 carries Issue #13 together with the accepted development reconciliation and remains unmerged pending the current #15/#20/#21 UI redesign acceptance.
 
 ## Issue #16 restore-last-position follow-up
 
@@ -107,8 +107,69 @@ Issue #16 was found during Issue #9 physical-device QA: detached home-page coord
 
 Local validation passed with JDK 17, Android SDK Platform 35 and compatible Build-Tools 36.0.0, including debug build, lint, unit-test task behavior, and unsigned release assembly. Signer-safe in-place device installation preserved app data. Physical-device regression confirmed that normal home-to-Settings manual-draft persistence still works, enabling Restore last position replaces the draft with the previously successful last-active coordinates, `last_*` remains unchanged, and no simulation/service starts as a side effect. PR #17 is merged into `feat/onboarding-about-card-13` and Issue #16 is closed as completed.
 
-## Current Issue #15 visual QA
+## Current UI redesign: Issues #15, #20, and #21
 
-Issue #15 tracks the remaining overlay visual regression: control/speed glyphs are oversized relative to their 48dp interaction targets. The intended fix keeps the existing touch targets while reducing rendered glyph size and preserving selected/inactive states, opacity, high-contrast behavior, overlay scaling, accessibility labels, compact/expanded behavior, and joystick-direction legibility. Physical-device visual acceptance is required before draft PR #14 can be considered ready to merge.
+The rejected first Issue #15 sizing attempt is preserved in closed, unmerged PR #19. Physical-device review found its 20/22/24dp overlay glyphs still too large.
+
+The current redesign is implemented on `feat/ui-redesign-15-20-21` and tracked by draft PR #23 against `feat/onboarding-about-card-13`.
+
+Initial runtime commit `326d242773af946c22503b79fb9312d05426de3b` changed `MainActivity.java`, `JoystickOverlay.java`, and `JoystickView.java`:
+
+- Issue #15: overlay glyph targets were reduced to 10/11/12dp; compact `+`/`−` visuals were reduced to 10sp and made borderless; existing 48dp interaction bounds were retained; direction guides were visually reduced while joystick interaction geometry stayed unchanged.
+- Issue #20: Status became collapsed by default; separate full-width Start and Stop fields were replaced by a centered Simulation title with symbol controls beneath it.
+- Issue #21: Settings description/subtext lines were removed; Mock location, Overlay permission, Restore last position, and High contrast overlay gained explicit state text using success/danger colors; Settings refreshes when returning from Android settings.
+
+Local validation for that initial runtime revision passed with JDK 17, Android SDK Platform 35, and Build Tools 36.0.0:
+
+- exact runtime changed-file scope: three Java files
+- `git diff --check`: PASS
+- repository debug build: PASS
+- `:app:testDebugUnitTest`: PASS
+- `:app:lintRelease`: PASS
+- `:app:assembleRelease`: PASS
+- validated debug APK SHA-256: `28d43b6ca1d8743528e754423062707b5e01d0980ecbcd7f3213c6184212d418`
+- primary checkout remained untouched
+- GitHub Actions were not queried or used
+
+That exact APK was installed signer-safely on the canonical QA device. Package/version and artifact identity matched, app data was preserved, the user-controlled Android mock-location selection stayed unchanged, GeoJoystick foregrounded successfully, automatic hierarchy checks confirmed the default-collapsed Status and Start/Stop controls, and simulation remained inactive after the structure check.
+
+The subsequent 2026-08-15 physical visual review rejected the main-screen Status/Simulation presentation and the overlay control frames. The reduced overlay glyph sizes themselves were accepted and must not be enlarged again. Specific feedback was:
+
+- collapsed Status had too much vertical padding;
+- the Status chevron needed to be vertically centered relative to the label and remain in the same header position when details expand below it;
+- Simulation label, Start, and Stop should share one horizontal row with controls centered relative to the label;
+- overlay speed/action symbols were small enough, but their visible frames were too large relative to the glyphs;
+- Settings received no additional change request in that feedback round, but complete UI acceptance remains pending the next physical pass.
+
+The current visual-feedback candidate is runtime commit `65c41dba22696fa4135e619f3940144d4a7dede9`. Relative to the last documented runtime head `fa089e1fe8315848d2b65df7303675bdee6c9083`, the net revision changes exactly two runtime files: `MainActivity.java` and `JoystickOverlay.java`.
+
+- Status keeps a 48dp tappable header but removes the card's extra collapsed vertical padding, explicitly centers the label and chevron, and expands details below the unchanged header.
+- Simulation uses one centered horizontal row containing the label plus 48dp Start and Stop controls.
+- Overlay glyph sizes remain 10/11/12dp and compact `+`/`−` remain small/borderless; only the visible speed/action-control background is inset within the unchanged 48dp clickable view to reduce frame weight.
+- No mock-provider, coordinate, permission, service, lifecycle, or settings behavior is intentionally changed by this visual-feedback revision.
+
+A bounded provider-side correction restored the pre-existing German wording and final newlines after source assembly. Fresh local validation of the resulting candidate completed successfully on 2026-08-15 using JDK 17, Android SDK Platform 35, and Build Tools 36.0.0:
+
+- exact remote branch and runtime candidate SHAs were verified before worktree creation;
+- isolated detached validation worktree created from branch head `2da01580940994caf7f6a58957146b273a8b3e3b`;
+- runtime revision scope verified as exactly `MainActivity.java` and `JoystickOverlay.java`;
+- commits after the runtime candidate verified documentation-only;
+- `git diff --check`: PASS;
+- static visual invariants for Status geometry, one-row Simulation controls, accepted overlay glyph sizes, and inset overlay frames: PASS;
+- repository debug build: PASS;
+- `:app:testDebugUnitTest`: NO-SOURCE; accepted because no Java/Kotlin unit-test sources exist at this boundary;
+- `:app:lintRelease`: PASS;
+- `:app:assembleRelease`: PASS;
+- debug APK SHA-256: `6b58e262bb60f86459339bdeafac477798857068ea9dd4b6fc731adab90284e1`;
+- validation worktree tracked source remained unchanged after build;
+- primary checkout remained untouched;
+- canonical QA device was not modified;
+- GitHub Actions were not queried or used.
+
+The validated worktree and exact debug APK are retained only for signer-safe physical QA. PR #23 remains draft and mergeable. Issues #15, #20, and #21 now require only the planned signer-safe physical-device visual pass before this redesign can be accepted for integration.
+
+## Current mascot work: Issue #22
+
+Issue #22 tracks a dedicated GeoJoystick mascot: a gecko using an arcade-style joystick, with the existing app symbol available as a secondary motif. The intended style follows the soft, rounded, hand-drawn/pastel K2040 mascot philosophy. Artwork must be project-owned/original or otherwise explicitly redistributable, provenance/licensing must remain auditable, and final visual approval is required before integration. The issue does not by itself authorize replacing the existing app icon.
 
 Release signing, reproducibility, tags, releases, F-Droid/store publication, deployments, announcements, and other publication actions remain separate approval gates and are not authorized by development acceptance.

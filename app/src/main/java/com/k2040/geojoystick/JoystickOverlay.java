@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.InsetDrawable;
 import android.provider.Settings;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -137,7 +138,7 @@ final class JoystickOverlay {
         dragHandle.setOnTouchListener(new DragListener());
         titleRow.addView(dragHandle, new LinearLayout.LayoutParams(0, dp(48), 1f));
 
-        toggleModeButton = controlButton("−", 20);
+        toggleModeButton = controlButton("−", 10);
         toggleModeButton.setContentDescription(t("Switch to compact overlay", "Zum kompakten Overlay wechseln"));
         toggleModeButton.setOnClickListener(view -> toggleOverlayMode());
         toggleModeButton.setOnTouchListener(new DragListener());
@@ -327,8 +328,15 @@ final class JoystickOverlay {
         coordinateParams.height = dp(28);
         coordinateText.setLayoutParams(coordinateParams);
 
-        root.setPadding(dp(6), compactMode ? dp(3) : dp(6), dp(6), compactMode ? dp(5) : dp(8));
-        root.setBackground(panelBackground());
+        if (compactMode) {
+            root.setPadding(0, 0, 0, 0);
+            root.setBackground(null);
+            root.setElevation(0);
+        } else {
+            root.setPadding(dp(6), dp(6), dp(6), dp(8));
+            root.setBackground(panelBackground());
+            root.setElevation(dp(10));
+        }
         root.requestLayout();
     }
 
@@ -493,8 +501,8 @@ final class JoystickOverlay {
     }
 
     private void styleToggleButton() {
-        toggleModeButton.setTextColor(colorTextDim);
-        toggleModeButton.setBackground(buttonBackground(false));
+        toggleModeButton.setTextColor(highContrast ? colorText : colorTextDim);
+        toggleModeButton.setBackground(null);
     }
 
     private void styleIconButton(IconButton button, boolean active) {
@@ -510,12 +518,12 @@ final class JoystickOverlay {
         return drawable;
     }
 
-    private GradientDrawable buttonBackground(boolean active) {
+    private Drawable buttonBackground(boolean active) {
         GradientDrawable drawable = new GradientDrawable();
         drawable.setColor(active ? colorButtonActive : colorButton);
-        drawable.setCornerRadius(dp(11));
+        drawable.setCornerRadius(dp(8));
         drawable.setStroke(dp(active || highContrast ? 2 : 1), active ? colorAccent : colorBorder);
-        return drawable;
+        return new InsetDrawable(drawable, dp(8));
     }
 
     private int scaledDp(int baseDp) {
@@ -605,8 +613,7 @@ final class JoystickOverlay {
                 iconResId = resId;
             }
             if (iconDrawable == null) return;
-            int inset = iconInset();
-            int side = Math.max(1, Math.min(getWidth(), getHeight()) - inset * 2);
+            int side = Math.min(dp(iconSizeDp()), Math.min(getWidth(), getHeight()));
             int left = (getWidth() - side) / 2;
             int top = (getHeight() - side) / 2;
             iconDrawable.setBounds(left, top, left + side, top + side);
@@ -628,10 +635,10 @@ final class JoystickOverlay {
             }
         }
 
-        private int iconInset() {
-            if (iconType == ICON_STOP) return dp(12);
-            if (iconType == ICON_BIKE || iconType == ICON_GAUGE) return dp(8);
-            return dp(9);
+        private int iconSizeDp() {
+            if (iconType == ICON_STOP) return 10;
+            if (iconType == ICON_BIKE || iconType == ICON_GAUGE) return 12;
+            return 11;
         }
     }
 }

@@ -68,6 +68,8 @@ public final class MainActivity extends Activity {
     private TextView mockStatus;
     private TextView overlayStatus;
     private TextView simulationStatus;
+    private Button simulationStartButton;
+    private Button simulationStopButton;
     private final Button[] favoriteButtons = new Button[GeoSettings.FAVORITE_COUNT];
     private boolean pendingStart;
     private boolean receiverRegistered;
@@ -125,7 +127,11 @@ public final class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         registerSimulationStateReceiver();
-        updateStatus();
+        if ("settings".equals(currentPage)) {
+            showSettingsPage();
+        } else {
+            updateStatus();
+        }
         if (pendingStart && Settings.canDrawOverlays(this) && isSelectedMockLocationApp()) {
             pendingStart = false;
             startMockingInternal();
@@ -260,10 +266,54 @@ public final class MainActivity extends Activity {
         root.addView(appHeader(), margin(0, 2));
 
         LinearLayout status = card();
-        addCardTitle(status, t("Status", "Status"));
-        mockStatus = addStatusRow(status, t("Mock location", "Mock-Standort"));
-        overlayStatus = addStatusRow(status, t("Overlay permission", "Overlay-Berechtigung"));
-        simulationStatus = addStatusRow(status, t("Simulation", "Simulation"));
+        status.setPadding(dp(12), 0, dp(12), 0);
+
+        LinearLayout statusHeader = new LinearLayout(this);
+        statusHeader.setGravity(Gravity.CENTER_VERTICAL);
+        statusHeader.setMinimumHeight(dp(48));
+        statusHeader.setPadding(dp(2), 0, dp(2), 0);
+        statusHeader.setClickable(true);
+        statusHeader.setFocusable(true);
+
+        TextView statusTitle = text(t("Status", "Status"), 13, palette.text, true);
+        statusTitle.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+        statusTitle.setIncludeFontPadding(false);
+        statusTitle.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        statusHeader.addView(statusTitle,
+                new LinearLayout.LayoutParams(0, dp(48), 1f));
+
+        TextView statusIndicator = text("⌄", 18, palette.textDim, false);
+        statusIndicator.setGravity(Gravity.CENTER);
+        statusIndicator.setIncludeFontPadding(false);
+        statusIndicator.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        statusHeader.addView(statusIndicator,
+                new LinearLayout.LayoutParams(dp(32), dp(48)));
+
+        LinearLayout statusDetails = new LinearLayout(this);
+        statusDetails.setOrientation(LinearLayout.VERTICAL);
+        statusDetails.setPadding(0, 0, 0, dp(4));
+        statusDetails.setVisibility(View.GONE);
+        mockStatus = addStatusRow(statusDetails, t("Mock location", "Mock-Standort"));
+        overlayStatus = addStatusRow(statusDetails, t("Overlay permission", "Overlay-Berechtigung"));
+        simulationStatus = addStatusRow(statusDetails, t("Simulation", "Simulation"));
+
+        String collapsedStatusDescription = t(
+                "Status collapsed. Tap to expand",
+                "Status eingeklappt. Zum Öffnen tippen");
+        String expandedStatusDescription = t(
+                "Status expanded. Tap to collapse",
+                "Status ausgeklappt. Zum Schließen tippen");
+        statusHeader.setContentDescription(collapsedStatusDescription);
+        statusHeader.setOnClickListener(view -> {
+            boolean expand = statusDetails.getVisibility() != View.VISIBLE;
+            statusDetails.setVisibility(expand ? View.VISIBLE : View.GONE);
+            statusIndicator.setText(expand ? "⌃" : "⌄");
+            statusHeader.setContentDescription(
+                    expand ? expandedStatusDescription : collapsedStatusDescription);
+        });
+
+        status.addView(statusHeader);
+        status.addView(statusDetails);
         root.addView(status, margin(2, 4));
 
         LinearLayout coordinates = card();
@@ -325,15 +375,52 @@ public final class MainActivity extends Activity {
         root.addView(favoriteCard, margin(2, 4));
         refreshFavoriteButtons();
 
-        Button start = GeoUi.button(this, palette,
-                t("▶  Start simulation", "▶  Simulation starten"), true);
-        start.setOnClickListener(view -> startMocking());
-        root.addView(start, margin(5, 3));
+        LinearLayout simulationCard = card();
+        simulationCard.setPadding(dp(12), dp(4), dp(12), dp(4));
 
-        Button stop = GeoUi.button(this, palette,
-                t("■  Stop simulation", "■  Simulation stoppen"), false);
-        stop.setOnClickListener(view -> stopMocking());
-        root.addView(stop, margin(2, 3));
+        LinearLayout simulationRow = new LinearLayout(this);
+        simulationRow.setGravity(Gravity.CENTER);
+
+        TextView simulationTitle = text(t("Simulation", "Simulation"),
+                13, palette.text, true);
+        simulationTitle.setGravity(Gravity.CENTER_VERTICAL);
+        simulationTitle.setIncludeFontPadding(false);
+        simulationTitle.setPadding(0, 0, dp(8), 0);
+        simulationRow.addView(simulationTitle, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, dp(48)));
+
+        simulationStartButton = GeoUi.button(this, palette, "▶", true);
+        simulationStartButton.setTextSize(18);
+        simulationStartButton.setMinWidth(0);
+        simulationStartButton.setMinimumWidth(0);
+        simulationStartButton.setContentDescription(
+                t("Start simulation", "Simulation starten"));
+        simulationStartButton.setOnClickListener(view -> startMocking());
+
+        simulationStopButton = GeoUi.button(this, palette, "■", false);
+        simulationStopButton.setTextSize(18);
+        simulationStopButton.setTextColor(palette.danger);
+        simulationStopButton.setMinWidth(0);
+        simulationStopButton.setMinimumWidth(0);
+        simulationStopButton.setContentDescription(
+                t("Stop simulation", "Simulation stoppen"));
+        simulationStopButton.setOnClickListener(view -> stopMocking());
+
+        LinearLayout.LayoutParams simulationButtonParams =
+                new LinearLayout.LayoutParams(dp(48), dp(48));
+        simulationButtonParams.leftMargin = dp(2);
+        simulationButtonParams.rightMargin = dp(2);
+        simulationRow.addView(simulationStartButton, simulationButtonParams);
+
+        LinearLayout.LayoutParams stopButtonParams =
+                new LinearLayout.LayoutParams(dp(48), dp(48));
+        stopButtonParams.leftMargin = dp(2);
+        stopButtonParams.rightMargin = dp(2);
+        simulationRow.addView(simulationStopButton, stopButtonParams);
+
+        simulationCard.addView(simulationRow, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(48)));
+        root.addView(simulationCard, margin(5, 3));
 
         TextView footer = text(t("Open source · GPL-3.0-only · Local-first",
                 "Open Source · GPL-3.0-only · Lokal"), 10, palette.textDim, false);
@@ -382,42 +469,54 @@ public final class MainActivity extends Activity {
 
         root.addView(section(t("Setup", "Einrichtung")), margin(6, 1));
         LinearLayout setup = card();
-        setup.addView(settingRow(
-                t("Mock location settings", "Mock-Standort-Einstellungen"),
-                t("Select GeoJoystick in Android Developer Options",
-                        "GeoJoystick in den Android-Entwickleroptionen auswählen"),
-                isSelectedMockLocationApp() ? t("Selected", "Ausgewählt") : t("Open", "Öffnen"),
+
+        boolean mockSelected = isSelectedMockLocationApp();
+        setup.addView(stateSettingRow(
+                t("Mock location", "Mock-Standort"),
+                mockSelected
+                        ? t("Selected", "Ausgewählt")
+                        : t("Not selected", "Nicht ausgewählt"),
+                mockSelected,
                 this::openDeveloperSettings), innerRow());
-        setup.addView(settingRow(
+
+        boolean overlayGranted = Settings.canDrawOverlays(this);
+        setup.addView(stateSettingRow(
                 t("Overlay permission", "Overlay-Berechtigung"),
-                t("Manage draw-over-other-apps access", "Berechtigung über anderen Apps verwalten"),
-                Settings.canDrawOverlays(this) ? t("Granted", "Erteilt") : t("Open", "Öffnen"),
+                overlayGranted
+                        ? t("Granted", "Erteilt")
+                        : t("Not granted", "Nicht erteilt"),
+                overlayGranted,
                 this::openOverlaySettings), innerRow());
+
         setup.addView(settingRow(
                 t("Reset overlay position", "Overlay-Position zurücksetzen"),
-                t("Recenter the floating controls next time they appear",
-                        "Schwebende Steuerung beim nächsten Anzeigen neu positionieren"),
-                "›", this::resetOverlayPosition), innerRow());
-        setup.addView(settingRow(
+                "›",
+                this::resetOverlayPosition), innerRow());
+
+        boolean restoreEnabled = settings.restoreLastPosition();
+        setup.addView(stateSettingRow(
                 t("Restore last position", "Letzte Position wiederherstellen"),
-                t("Use last successfully published coordinates as the next draft",
-                        "Zuletzt erfolgreich veröffentlichte Koordinaten als nächsten Entwurf verwenden"),
-                settings.restoreLastPosition() ? t("On", "Ein") : t("Off", "Aus"),
+                restoreEnabled ? t("On", "Ein") : t("Off", "Aus"),
+                restoreEnabled,
                 this::toggleRestoreLastPosition), innerRow());
+
         root.addView(setup, margin(1, 4));
 
         root.addView(section(t("Behavior", "Verhalten")), margin(6, 1));
         LinearLayout behavior = card();
+
         behavior.addView(settingRow(
                 t("Simulation speed", "Simulationsgeschwindigkeit"),
-                t("Edit the custom movement preset", "Eigene Bewegungsvoreinstellung bearbeiten"),
                 String.format(Locale.US, "%.1f m/s", settings.customSpeed()),
                 this::editCustomSpeed), innerRow());
-        behavior.addView(settingRow(
+
+        boolean highContrastEnabled = settings.highContrastOverlay();
+        behavior.addView(stateSettingRow(
                 t("High contrast overlay", "Overlay mit hohem Kontrast"),
-                t("Increase contrast of the floating controls", "Kontrast der schwebenden Steuerung erhöhen"),
-                settings.highContrastOverlay() ? t("On", "Ein") : t("Off", "Aus"),
+                highContrastEnabled ? t("On", "Ein") : t("Off", "Aus"),
+                highContrastEnabled,
                 this::toggleHighContrast), innerRow());
+
         root.addView(behavior, margin(1, 4));
 
         root.addView(section(t("Overlay", "Overlay")), margin(6, 1));
@@ -472,12 +571,12 @@ public final class MainActivity extends Activity {
         LinearLayout appearance = card();
         appearance.addView(settingRow(
                 t("Theme", "Darstellung"),
-                t("Follow system or choose light/dark", "System übernehmen oder Hell/Dunkel wählen"),
-                appearanceLabel(), this::chooseAppearance), innerRow());
+                appearanceLabel(),
+                this::chooseAppearance), innerRow());
         appearance.addView(settingRow(
                 t("Language", "Sprache"),
-                t("System, English or Deutsch", "System, English oder Deutsch"),
-                languageLabel(), this::chooseLanguage), innerRow());
+                languageLabel(),
+                this::chooseLanguage), innerRow());
         root.addView(appearance, margin(1, 4));
 
         setContentView(page);
@@ -1054,11 +1153,49 @@ public final class MainActivity extends Activity {
         return row;
     }
 
-    private Button settingRow(String title, String subtitle, String value, Runnable action) {
-        Button row = GeoUi.button(this, palette, rowText(title, subtitle, value), false);
-        row.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-        row.setTextSize(12);
+    private LinearLayout settingRow(String title, String value, Runnable action) {
+        return settingRow(title, value, palette.textDim, action);
+    }
+
+    private LinearLayout stateSettingRow(
+            String title,
+            String value,
+            boolean active,
+            Runnable action) {
+        return settingRow(
+                title,
+                value,
+                active ? palette.success : palette.danger,
+                action);
+    }
+
+    private LinearLayout settingRow(
+            String title,
+            String value,
+            int valueColor,
+            Runnable action) {
+        LinearLayout row = new LinearLayout(this);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setMinimumHeight(dp(48));
+        row.setPadding(dp(12), 0, dp(12), 0);
+        row.setBackground(GeoUi.surface(this, palette));
+        row.setClickable(true);
+        row.setFocusable(true);
+        row.setContentDescription(title + ". " + value);
         row.setOnClickListener(view -> action.run());
+
+        TextView label = text(title, 13, palette.text, false);
+        label.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+        label.setSingleLine(true);
+        row.addView(label, new LinearLayout.LayoutParams(
+                0, dp(48), 1f));
+
+        TextView state = text(value, 12, valueColor, true);
+        state.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
+        state.setSingleLine(true);
+        row.addView(state, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, dp(48)));
+
         return row;
     }
 
@@ -1473,6 +1610,17 @@ public final class MainActivity extends Activity {
             setStatus(simulationStatus, t("Starting", "Wird gestartet"), palette.warning);
         } else {
             setStatus(simulationStatus, t("Inactive", "Inaktiv"), palette.accent);
+        }
+
+        if (simulationStartButton != null) {
+            boolean startEnabled = !active && !starting;
+            simulationStartButton.setEnabled(startEnabled);
+            simulationStartButton.setAlpha(startEnabled ? 1.0f : 0.45f);
+        }
+        if (simulationStopButton != null) {
+            boolean stopEnabled = active || starting;
+            simulationStopButton.setEnabled(stopEnabled);
+            simulationStopButton.setAlpha(stopEnabled ? 1.0f : 0.45f);
         }
     }
 
