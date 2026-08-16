@@ -54,6 +54,7 @@ LOCALES = {
         "settings": "Settings",
         "map_label": "Map",
         "map_title": "Choose location",
+        "map_message": "Tap the map to place the marker. Drag to pan.",
         "about_close": "Close About",
         "home_status": "Status collapsed. Tap to expand",
     },
@@ -63,6 +64,7 @@ LOCALES = {
         "settings": "Einstellungen",
         "map_label": "Karte",
         "map_title": "Standort wählen",
+        "map_message": "Tippe auf die Karte, um die Markierung zu setzen. Ziehe zum Verschieben.",
         "about_close": "Info schließen",
         "home_status": "Status eingeklappt. Zum Öffnen tippen",
     },
@@ -432,14 +434,14 @@ def open_map(adb: SafeAdb, labels: dict[str, str]) -> None:
         nodes = dump_nodes(adb)
         texts = {node.text for node in nodes if node.package == adb.package}
         attribution_found = "© OpenStreetMap contributors" in texts
-        message_found = any("Tap the map" in text or "Drag to pan" in text for text in texts)
+        message_found = labels["map_message"] in texts
         if attribution_found and message_found:
             break
         time.sleep(0.5)
     if not attribution_found:
         raise CaptureError("OpenStreetMap attribution is not exposed in the rendered map hierarchy")
     if not message_found:
-        raise CaptureError("bundled map content did not become ready")
+        raise CaptureError("localized bundled map content did not become ready")
     time.sleep(1.5)
 
 
@@ -715,6 +717,8 @@ def validate_command(args: argparse.Namespace) -> int:
 def self_test_command(_args: argparse.Namespace) -> int:
     private_fixture = b'''<?xml version="1.0" encoding="utf-8"?>\n<map>\n<string name="favorite_1_name">PRIVATE FAVORITE</string>\n<long name="last_latitude" value="123" />\n<string name="app_language">system</string>\n</map>\n'''
     for locale, labels in LOCALES.items():
+        if not labels.get("map_message"):
+            raise CaptureError(f"localized map message missing for {locale}")
         for theme in ("light", "dark"):
             payload = sanitized_preferences(labels["language"], theme)
             assert_sanitized_preferences(payload, labels["language"], theme)
