@@ -4,11 +4,12 @@
 This companion runs after capture_store_screenshots.py has produced the normal
 localized store set. It starts GeoJoystick only with that harness's fixed
 synthetic coordinates, captures the expanded system overlay over a blank
-GeoJoystick debug-only activity, stops the service through the overlay's own
+debug-only GeoJoystick activity, stops simulation through MainActivity's visible
 Stop control, and restores the complete app preference file byte-for-byte.
 
-The neutral activity exists only in app/src/debug and is therefore excluded from
-release/F-Droid artifacts.
+The overlay window itself is intentionally not discovered through UIAutomator:
+TYPE_APPLICATION_OVERLAY accessibility exposure is device/OEM dependent. The
+neutral activity exists only in app/src/debug and is excluded from release builds.
 """
 
 from __future__ import annotations
@@ -37,11 +38,11 @@ NEUTRAL_BACKGROUND = "#ECEFF1"
 OVERLAY_LABELS = {
     "en-US": {
         "start": "Start simulation",
-        "stop": "Stop GeoJoystick service and close overlay",
+        "main_stop": "Stop simulation",
     },
     "de-DE": {
         "start": "Simulation starten",
-        "stop": "GeoJoystick-Dienst stoppen und Overlay schließen",
+        "main_stop": "Simulation stoppen",
     },
 }
 
@@ -62,11 +63,60 @@ def wait_simulation(adb: core.SafeAdb, expected: bool, timeout: float = 8.0) -> 
     )
 
 
-def stop_simulation_safely(adb: core.SafeAdb) -> None:
+def current_locale(adb: core.SafeAdb) -> str:
+    try:
+        root = ET.fromstring(core.read_app_file(adb, PREFS_PATH))
+    except ET.ParseError:
+        return "en-US"
+    for node in root:
+        if node.tag == "string" and node.attrib.get("name") == "app_language":
+            return "de-DE" if (node.text or "") == "de" else "en-US"
+    return "en-US"
+
+
+def stop_via_main(
+    adb: core.SafeAdb,
+    locale: str,
+    *,
+    allow_force_stop: bool,
+) -> None:
     if not core.simulation_active(adb):
         return
-    adb.stop_simulation()
-    wait_simulation(adb, False)
+
+    labels = core.LOCALES[locale]
+    stop_label = OVERLAY_LABELS[locale]["main_stop"]
+    ui_error: BaseException | None = None
+
+    try:
+        adb.launch()
+        core.home_ready(adb, labels)
+        stop = core.require_node(
+            adb,
+            lambda item: item.clickable and item.desc == stop_label,
+            stop_label,
+            scroll=True,
+            attempts=10,
+        )
+        adb.tap(stop.bounds)
+        wait_simulation(adb, False)
+        return
+    except BaseException as exc:
+        ui_error = exc
+
+    if allow_force_stop:
+        adb.force_stop()
+        try:
+            wait_simulation(adb, False, timeout=3.0)
+            return
+        except BaseException as force_error:
+            raise OverlayCaptureError(
+                f"MainActivity stop failed: {ui_error}; "
+                f"force-stop recovery also failed: {force_error}"
+            ) from ui_error
+
+    raise OverlayCaptureError(
+        f"MainActivity stop failed: {ui_error}"
+    ) from ui_error
 
 
 def base_manifest(output: Path, source_revision: str) -> dict[str, object]:
@@ -80,9 +130,8 @@ def base_manifest(output: Path, source_revision: str) -> dict[str, object]:
         raise OverlayCaptureError("base screenshot provenance revision mismatch")
     if data.get("package") != PACKAGE:
         raise OverlayCaptureError("base screenshot provenance package mismatch")
-    locales = data.get("locales")
-    if locales != ["en-US", "de-DE"]:
-        raise OverlayCaptureError(f"unexpected base locales: {locales!r}")
+    if data.get("locales") != ["en-US", "de-DE"]:
+        raise OverlayCaptureError(f"unexpected base locales: {data.get('locales')!r}")
     if data.get("theme") not in {"light", "dark"}:
         raise OverlayCaptureError("base screenshot theme is invalid")
     screenshots = data.get("screenshots")
@@ -107,7 +156,7 @@ def capture_one(
     staging: Path,
 ) -> dict[str, object]:
     labels = core.LOCALES[locale]
-    overlay_labels = OVERLAY_LABELS[locale]
+    start_label = OVERLAY_LABELS[locale]["start"]
 
     core.write_sanitized_state(adb, labels["language"], theme)
     adb.launch()
@@ -115,20 +164,13 @@ def capture_one(
 
     start = core.require_node(
         adb,
-        lambda item: item.clickable and item.desc == overlay_labels["start"],
-        overlay_labels["start"],
+        lambda item: item.clickable and item.desc == start_label,
+        start_label,
         scroll=True,
         attempts=10,
     )
     adb.tap(start.bounds)
     wait_simulation(adb, True)
-
-    core.require_node(
-        adb,
-        lambda item: item.desc == overlay_labels["stop"],
-        overlay_labels["stop"],
-        attempts=8,
-    )
 
     adb.shell(
         "am",
@@ -140,14 +182,9 @@ def capture_one(
     )
     core.wait_activity(adb, NEUTRAL_ACTIVITY)
 
-    stop = core.require_node(
-        adb,
-        lambda item: item.desc == overlay_labels["stop"],
-        overlay_labels["stop"],
-        attempts=8,
-    )
-
-    time.sleep(0.6)
+    # The overlay is composed by WindowManager and is expected in screencap even
+    # when UIAutomator does not expose its accessibility nodes.
+    time.sleep(0.8)
     destination = staging / locale / "images" / "phoneScreenshots" / OVERLAY_FILENAME
     metadata = core.capture_png(adb, destination)
     metadata.update(
@@ -158,8 +195,7 @@ def capture_one(
         }
     )
 
-    adb.tap(stop.bounds)
-    wait_simulation(adb, False)
+    stop_via_main(adb, locale, allow_force_stop=False)
     return metadata
 
 
@@ -176,13 +212,11 @@ def validate_overlay_tree(root: Path) -> dict[str, object]:
     if data.get("capture_kind") != "real Android system overlay over debug-only neutral background":
         raise OverlayCaptureError("overlay capture kind mismatch")
 
-    neutral = data.get("neutral_background")
-    expected_neutral = {
+    if data.get("neutral_background") != {
         "kind": "GeoJoystick debug-only blank activity",
         "color": NEUTRAL_BACKGROUND,
         "included_in_release": False,
-    }
-    if neutral != expected_neutral:
+    }:
         raise OverlayCaptureError("neutral-background provenance mismatch")
 
     screenshots = data.get("screenshots")
@@ -229,6 +263,35 @@ def validate_overlay_tree(root: Path) -> dict[str, object]:
     }
 
 
+def recover_command(args: argparse.Namespace) -> int:
+    adb = core.SafeAdb(args.adb, args.serial, PACKAGE)
+    core.verify_identity(adb, args)
+    locale = current_locale(adb)
+
+    if core.simulation_active(adb):
+        stop_via_main(adb, locale, allow_force_stop=True)
+
+    if adb.run_as_probe(f"test -f {BACKUP_PATH}"):
+        adb.force_stop()
+        adb.run_as(f"cp {BACKUP_PATH} {PREFS_PATH}")
+        restored = core.read_app_file(adb, PREFS_PATH)
+        backup = core.read_app_file(adb, BACKUP_PATH)
+        if restored != backup:
+            raise OverlayCaptureError("recovered preferences differ from overlay backup")
+        adb.run_as(f"rm -f {BACKUP_PATH}")
+
+    if core.simulation_active(adb):
+        raise OverlayCaptureError("simulation remains active after recovery")
+    if adb.run_as_probe(f"test -e {BACKUP_PATH}"):
+        raise OverlayCaptureError("overlay backup remains after recovery")
+
+    adb.launch()
+    print("PASS: overlay capture recovery complete")
+    print("PASS: simulation inactive")
+    print("PASS: stale overlay preference backup absent")
+    return 0
+
+
 def capture_command(args: argparse.Namespace) -> int:
     repo = Path(__file__).resolve().parents[1]
     if core.git_tracked_status(repo):
@@ -250,7 +313,7 @@ def capture_command(args: argparse.Namespace) -> int:
     core.verify_identity(adb, args)
     if core.simulation_active(adb):
         raise OverlayCaptureError(
-            "GeoJoystick simulation is active; stop it manually before overlay capture"
+            "GeoJoystick simulation is active; run overlay recover before capture"
         )
     if not adb.run_as_probe(f"test -f {PREFS_PATH}"):
         raise OverlayCaptureError("GeoJoystick preference file is unavailable")
@@ -272,17 +335,20 @@ def capture_command(args: argparse.Namespace) -> int:
     primary_error: BaseException | None = None
     recovery_error: BaseException | None = None
     screenshots: list[dict[str, object]] = []
+    active_locale = locales[0]
 
     try:
         adb.shell("settings", "put", "system", "font_scale", "1.0")
         time.sleep(0.3)
         for locale in locales:
+            active_locale = locale
             screenshots.append(capture_one(adb, locale, theme, staging))
     except BaseException as exc:
         primary_error = exc
     finally:
         try:
-            stop_simulation_safely(adb)
+            if core.simulation_active(adb):
+                stop_via_main(adb, active_locale, allow_force_stop=True)
             adb.force_stop()
             if adb.run_as_probe(f"test -f {BACKUP_PATH}"):
                 adb.run_as(f"cp {BACKUP_PATH} {PREFS_PATH}")
@@ -377,14 +443,26 @@ def validate_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def add_identity_args(command: argparse.ArgumentParser) -> None:
+    command.add_argument("--serial", required=True)
+    command.add_argument("--expected-model", required=True)
+    command.add_argument("--expected-product", required=True)
+    command.add_argument("--expected-device", required=True)
+    command.add_argument("--expected-android", required=True)
+    command.add_argument("--expected-api", required=True)
+    command.add_argument(
+        "--adb",
+        default=os.path.expanduser("~/Android/Sdk/platform-tools/adb"),
+    )
+
+
 def self_test_command(_args: argparse.Namespace) -> int:
     if set(OVERLAY_LABELS) != set(core.LOCALES):
         raise OverlayCaptureError("overlay/base locale sets differ")
     if NEUTRAL_BACKGROUND != "#ECEFF1":
         raise OverlayCaptureError("unexpected neutral background constant")
-    for locale in OVERLAY_LABELS:
-        labels = OVERLAY_LABELS[locale]
-        if not labels["start"] or not labels["stop"]:
+    for locale, labels in OVERLAY_LABELS.items():
+        if not labels["start"] or not labels["main_stop"]:
             raise OverlayCaptureError(f"overlay labels incomplete for {locale}")
     print("Store overlay screenshot harness self-test: PASS")
     return 0
@@ -392,23 +470,21 @@ def self_test_command(_args: argparse.Namespace) -> int:
 
 def parser() -> argparse.ArgumentParser:
     result = argparse.ArgumentParser(
-        description="Capture or validate neutral-background GeoJoystick overlay screenshots"
+        description="Capture, recover, or validate neutral-background GeoJoystick overlay screenshots"
     )
     subparsers = result.add_subparsers(dest="command", required=True)
 
     capture = subparsers.add_parser("capture", help="capture localized overlay screenshots")
-    capture.add_argument("--serial", required=True)
-    capture.add_argument("--expected-model", required=True)
-    capture.add_argument("--expected-product", required=True)
-    capture.add_argument("--expected-device", required=True)
-    capture.add_argument("--expected-android", required=True)
-    capture.add_argument("--expected-api", required=True)
+    add_identity_args(capture)
     capture.add_argument("--output-dir", required=True)
-    capture.add_argument(
-        "--adb",
-        default=os.path.expanduser("~/Android/Sdk/platform-tools/adb"),
-    )
     capture.set_defaults(func=capture_command)
+
+    recover = subparsers.add_parser(
+        "recover",
+        help="stop a stale capture simulation and restore any retained overlay preference backup",
+    )
+    add_identity_args(recover)
+    recover.set_defaults(func=recover_command)
 
     validate = subparsers.add_parser("validate", help="validate overlay screenshots")
     validate.add_argument("--input-dir", required=True)
