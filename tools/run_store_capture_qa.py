@@ -36,9 +36,7 @@ class StoreCaptureQaError(RuntimeError):
 def run(command: list[str], *, cwd: Path | None = None, env: dict[str, str] | None = None, capture: bool = False, timeout: float | None = None) -> subprocess.CompletedProcess[str]:
     result = subprocess.run(command, cwd=cwd, env=env, text=True, stdout=subprocess.PIPE if capture else None, stderr=subprocess.PIPE if capture else None, check=False, timeout=timeout)
     if result.returncode != 0:
-        detail = ""
-        if capture:
-            detail = (result.stderr or result.stdout or "").strip()
+        detail = (result.stderr or result.stdout or "").strip() if capture else ""
         raise StoreCaptureQaError(f"command failed ({result.returncode}): {' '.join(command)}" + (f"; {detail}" if detail else ""))
     return result
 
