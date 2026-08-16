@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Capture the complete sanitized GeoJoystick store screenshot bundle.
 
-This is the maintainer-facing orchestration entrypoint for Issue #12. It runs the
-normal localized app capture and the real expanded-overlay capture into a private
-temporary staging directory, validates both provenance manifests and all ten PNGs,
-and publishes the requested output directory only after the complete bundle passes.
-Partial capture output is never promoted.
+This is the maintainer-facing orchestration entrypoint for Issue #12. It first
+recovers any interrupted overlay-capture state, then runs the normal localized
+app capture and the real expanded-overlay capture into a private temporary
+staging directory. Both provenance manifests and all ten PNGs are validated
+before the requested output directory is published. Partial capture output is
+never promoted.
 """
 
 from __future__ import annotations
@@ -108,6 +109,12 @@ def capture_command(args: argparse.Namespace) -> int:
             f"output path already exists; refusing overwrite: {output}"
         )
 
+    # Keep recovery inside the maintained entrypoint. It is idempotent and
+    # ensures interrupted overlay attempts cannot require a separate shell step.
+    base.wait_activity = _wait_activity_robust
+    recovery_args = _common_namespace(args, output)
+    overlay.recover_command(recovery_args)
+
     output.parent.mkdir(parents=True, exist_ok=True)
     staging_root = Path(
         tempfile.mkdtemp(prefix=".geojoystick-store-bundle.", dir=output.parent)
@@ -117,11 +124,6 @@ def capture_command(args: argparse.Namespace) -> int:
     try:
         common = _common_namespace(args, staged_output)
         base.capture_command(common)
-
-        # The overlay harness imports the same capture_store_screenshots module as
-        # this bundle. Replace only its foreground waiter after the base capture,
-        # avoiding Android/OEM-specific dumpsys parsing in the generic base path.
-        base.wait_activity = _wait_activity_robust
         overlay.capture_command(common)
 
         base_result = base.validate_capture_tree(staged_output)
@@ -230,7 +232,7 @@ def parser() -> argparse.ArgumentParser:
     subparsers = result.add_subparsers(dest="command", required=True)
 
     capture = subparsers.add_parser(
-        "capture", help="capture and atomically publish all 10 screenshots"
+        "capture", help="recover state, then atomically capture all 10 screenshots"
     )
     capture.add_argument("--serial", required=True)
     capture.add_argument("--expected-model", required=True)
