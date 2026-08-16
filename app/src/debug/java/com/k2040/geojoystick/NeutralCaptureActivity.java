@@ -29,25 +29,26 @@ public final class NeutralCaptureActivity extends Activity {
             return;
         }
 
+        FrameLayout background = new FrameLayout(this);
+        background.setBackgroundColor(BACKGROUND);
+        background.setContentDescription(null);
+        setContentView(background);
+
         getWindow().setStatusBarColor(BACKGROUND);
         getWindow().setNavigationBarColor(BACKGROUND);
 
+        View decorView = getWindow().getDecorView();
+        int legacyFlags = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+        decorView.setSystemUiVisibility(legacyFlags);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            WindowInsetsController controller = getWindow().getInsetsController();
+            WindowInsetsController controller = decorView.getWindowInsetsController();
             if (controller != null) {
                 int flags = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
                         | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
                 controller.setSystemBarsAppearance(flags, flags);
             }
-        } else {
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-                            | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
         }
-
-        FrameLayout background = new FrameLayout(this);
-        background.setBackgroundColor(BACKGROUND);
-        background.setContentDescription(null);
-        setContentView(background);
     }
 }
