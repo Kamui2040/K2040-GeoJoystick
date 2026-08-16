@@ -1948,11 +1948,25 @@ public final class MainActivity extends Activity {
 
     private String changelogText() {
         return t(
-                "• Dialogs now follow the selected dark theme.\n"
+                "• Redesigned Home, Settings, and overlay controls with clearer status and compact mode.\n"
+                        + "• Improved simulation recovery, restore-last-position, and invalid-input handling.\n"
+                        + "• Added onboarding plus About, Changelog, License & usage, and Sources screens.\n"
+                        + "• Expanded map-link parsing and map picker reliability.\n"
+                        + "• Improved accessibility, large-font behavior, and touch targets.\n"
+                        + "• Added the new GeoJoystick mascot/launcher identity and Android 16/API 36 back-navigation support.\n\n"
+                        + "0.1.3\n"
+                        + "• Dialogs now follow the selected dark theme.\n"
                         + "• GeoJoystick now uses a dedicated icon in store listings.\n\n"
                         + "0.1.0\n"
                         + "• Initial public release with coordinate and altitude entry, map selection and link import, favorites, appearance and language settings, and floating joystick controls.",
-                "• Dialoge folgen nun dem ausgewählten dunklen Design.\n"
+                "• Startseite, Einstellungen und Overlay-Steuerung wurden mit klarerem Status und besserem Kompaktmodus überarbeitet.\n"
+                        + "• Simulations-Wiederherstellung, letzte Position und Fehlerbehandlung wurden verbessert.\n"
+                        + "• Onboarding sowie Info-, Änderungsverlauf-, Lizenz- und Quellenansichten wurden ergänzt.\n"
+                        + "• Kartenlink-Import und Kartenwahl wurden robuster.\n"
+                        + "• Barrierefreiheit, große Schrift und Touch-Ziele wurden verbessert.\n"
+                        + "• Neues GeoJoystick-Maskottchen/App-Symbol und Android-16/API-36-Zurücknavigation.\n\n"
+                        + "0.1.3\n"
+                        + "• Dialoge folgen nun dem ausgewählten dunklen Design.\n"
                         + "• GeoJoystick verwendet nun ein eigenes Symbol in Store-Einträgen.\n\n"
                         + "0.1.0\n"
                         + "• Erste öffentliche Version mit Koordinaten- und Höheneingabe, Kartenauswahl und Linkimport, Favoriten, Darstellungs- und Spracheinstellungen sowie schwebender Joystick-Steuerung.");
