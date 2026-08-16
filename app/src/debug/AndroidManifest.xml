@@ -5,7 +5,8 @@
             android:name=".NeutralCaptureActivity"
             android:excludeFromRecents="true"
             android:exported="true"
-            android:finishOnTaskLaunch="true"
+            android:launchMode="singleTop"
+            android:taskAffinity="com.k2040.geojoystick.capture"
             android:theme="@android:style/Theme.Material.Light.NoActionBar" />
     </application>
 </manifest>
