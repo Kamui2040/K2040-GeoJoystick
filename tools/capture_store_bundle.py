@@ -15,6 +15,7 @@ import os
 from pathlib import Path
 import shutil
 import tempfile
+import time
 
 import capture_store_overlay as overlay
 import capture_store_screenshots as base
@@ -39,6 +40,67 @@ def _common_namespace(args: argparse.Namespace, output_dir: Path) -> argparse.Na
     )
 
 
+def _activity_report_has_component(report: str, package: str, suffix: str) -> bool:
+    """Return true when a resumed/focused activity line names the component.
+
+    Android/OEM dumpsys output varies between short component notation
+    (package/.Activity) and fully-qualified notation
+    (package/package.Activity). Restrict matching to resumed/focused markers so
+    a stale task-history record is not accepted as foreground evidence.
+    """
+    class_name = suffix.lstrip(".")
+    markers = (
+        "mResumedActivity",
+        "topResumedActivity",
+        "mCurrentFocus",
+        "mFocusedApp",
+    )
+    for line in report.splitlines():
+        if not any(marker in line for marker in markers):
+            continue
+        if package not in line or class_name not in line:
+            continue
+        return True
+    return False
+
+
+def _wait_activity_robust(adb: base.SafeAdb, suffix: str, timeout: float = 6.0) -> None:
+    deadline = time.monotonic() + timeout
+    last_reports: list[str] = []
+    while time.monotonic() < deadline:
+        reports = [
+            adb.shell("dumpsys", "activity", "activities", check=False),
+            adb.shell("dumpsys", "window", "windows", check=False),
+            adb.shell("dumpsys", "window", check=False),
+        ]
+        last_reports = reports
+        if any(
+            _activity_report_has_component(report, adb.package, suffix)
+            for report in reports
+        ):
+            return
+        time.sleep(0.2)
+
+    expected = f"{adb.package}/{suffix}"
+    summaries: list[str] = []
+    for report in last_reports:
+        for line in report.splitlines():
+            if any(
+                marker in line
+                for marker in (
+                    "mResumedActivity",
+                    "topResumedActivity",
+                    "mCurrentFocus",
+                    "mFocusedApp",
+                )
+            ):
+                summaries.append(line.strip())
+    detail = " | ".join(summaries[-6:]) if summaries else "no focus markers reported"
+    raise BundleCaptureError(
+        f"activity did not become foreground: {expected}; observed: {detail}"
+    )
+
+
 def capture_command(args: argparse.Namespace) -> int:
     output = Path(args.output_dir).expanduser().resolve()
     if output.exists():
@@ -55,6 +117,11 @@ def capture_command(args: argparse.Namespace) -> int:
     try:
         common = _common_namespace(args, staged_output)
         base.capture_command(common)
+
+        # The overlay harness imports the same capture_store_screenshots module as
+        # this bundle. Replace only its foreground waiter after the base capture,
+        # avoiding Android/OEM-specific dumpsys parsing in the generic base path.
+        base.wait_activity = _wait_activity_robust
         overlay.capture_command(common)
 
         base_result = base.validate_capture_tree(staged_output)
@@ -131,6 +198,27 @@ def self_test_command(_args: argparse.Namespace) -> int:
         raise BundleCaptureError("overlay screenshot filename changed unexpectedly")
     if set(base.LOCALES) != set(overlay.OVERLAY_LABELS):
         raise BundleCaptureError("base/overlay locale sets differ")
+
+    package = "com.k2040.geojoystick"
+    suffix = ".NeutralCaptureActivity"
+    accepted_reports = (
+        "mResumedActivity: ActivityRecord{abcd u0 com.k2040.geojoystick/.NeutralCaptureActivity t42}",
+        "topResumedActivity=ActivityRecord{abcd u0 com.k2040.geojoystick/com.k2040.geojoystick.NeutralCaptureActivity t42}",
+        "mCurrentFocus=Window{abcd u0 com.k2040.geojoystick/com.k2040.geojoystick.NeutralCaptureActivity}",
+        "mFocusedApp=ActivityRecord{abcd u0 com.k2040.geojoystick/.NeutralCaptureActivity t42}",
+    )
+    for report in accepted_reports:
+        if not _activity_report_has_component(report, package, suffix):
+            raise BundleCaptureError(
+                f"foreground parser rejected supported report: {report}"
+            )
+    stale_report = (
+        "Hist #0: ActivityRecord{abcd u0 "
+        "com.k2040.geojoystick/.NeutralCaptureActivity t42}"
+    )
+    if _activity_report_has_component(stale_report, package, suffix):
+        raise BundleCaptureError("foreground parser accepted stale task history")
+
     print("Store screenshot bundle self-test: PASS")
     return 0
 
