@@ -22,10 +22,7 @@ public final class NeutralCaptureActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getIntent() != null
-                && getIntent().getBooleanExtra(EXTRA_STOP_SIMULATION, false)) {
-            stopService(new Intent(this, MockLocationService.class));
-            finish();
+        if (handleStopIntent(getIntent())) {
             return;
         }
 
@@ -50,5 +47,21 @@ public final class NeutralCaptureActivity extends Activity {
                 controller.setSystemBarsAppearance(flags, flags);
             }
         }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleStopIntent(intent);
+    }
+
+    private boolean handleStopIntent(Intent intent) {
+        if (intent == null || !intent.getBooleanExtra(EXTRA_STOP_SIMULATION, false)) {
+            return false;
+        }
+        stopService(new Intent(this, MockLocationService.class));
+        finish();
+        return true;
     }
 }
