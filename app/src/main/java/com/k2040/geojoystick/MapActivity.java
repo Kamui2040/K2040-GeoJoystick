@@ -196,11 +196,12 @@ public final class MapActivity extends Activity {
     private void loadBundledMap() {
         try {
             String html = readAsset("map.html");
-            String baseUrl = "https://" + INTERNAL_HOST + "/map.html";
+            String baseUrl = "https://" + INTERNAL_HOST + "/map.html?lang="
+                    + (german ? "de" : "en");
             if (hasSelection) {
                 baseUrl = String.format(
                         Locale.US,
-                        "%s?lat=%.8f&lng=%.8f",
+                        "%s&lat=%.8f&lng=%.8f",
                         baseUrl,
                         selectedLatitude,
                         selectedLongitude);
