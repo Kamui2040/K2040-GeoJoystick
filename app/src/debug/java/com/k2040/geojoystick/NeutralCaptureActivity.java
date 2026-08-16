@@ -5,6 +5,7 @@
 package com.k2040.geojoystick;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,10 +16,18 @@ import android.widget.FrameLayout;
 /** Debug-only blank surface used behind real overlay store captures. */
 public final class NeutralCaptureActivity extends Activity {
     private static final int BACKGROUND = Color.rgb(236, 239, 241);
+    static final String EXTRA_STOP_SIMULATION = "geojoystick_debug_stop_simulation";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (getIntent() != null
+                && getIntent().getBooleanExtra(EXTRA_STOP_SIMULATION, false)) {
+            stopService(new Intent(this, MockLocationService.class));
+            finish();
+            return;
+        }
 
         getWindow().setStatusBarColor(BACKGROUND);
         getWindow().setNavigationBarColor(BACKGROUND);
