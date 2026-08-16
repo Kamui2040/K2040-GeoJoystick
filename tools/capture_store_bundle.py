@@ -21,6 +21,9 @@ import capture_store_overlay as overlay
 import capture_store_screenshots as base
 
 
+DEBUG_STOP_EXTRA = "geojoystick_debug_stop_simulation"
+
+
 class BundleCaptureError(RuntimeError):
     pass
 
@@ -101,34 +104,34 @@ def _wait_activity_robust(adb: base.SafeAdb, suffix: str, timeout: float = 6.0) 
     )
 
 
-def _stop_via_main_robust(
+def _stop_via_debug_capture(
     adb: base.SafeAdb,
     locale: str,
     *,
     allow_force_stop: bool,
 ) -> None:
-    """Stop simulation through MainActivity without assuming status-card state."""
+    """Stop simulation through the debug-only neutral capture activity."""
+    del locale
     if not base.simulation_active(adb):
         return
 
-    stop_label = overlay.OVERLAY_LABELS[locale]["main_stop"]
-    ui_error: BaseException | None = None
-
+    stop_error: BaseException | None = None
     try:
-        adb.launch()
-        _wait_activity_robust(adb, base.MAIN_ACTIVITY)
-        stop = base.require_node(
-            adb,
-            lambda item: item.clickable and item.desc == stop_label,
-            stop_label,
-            scroll=True,
-            attempts=10,
+        adb.shell(
+            "am",
+            "start",
+            "-W",
+            "-n",
+            f"{adb.package}/{overlay.NEUTRAL_ACTIVITY}",
+            "--ez",
+            DEBUG_STOP_EXTRA,
+            "true",
+            timeout=30.0,
         )
-        adb.tap(stop.bounds)
         overlay.wait_simulation(adb, False)
         return
     except BaseException as exc:
-        ui_error = exc
+        stop_error = exc
 
     if allow_force_stop:
         adb.force_stop()
@@ -137,11 +140,11 @@ def _stop_via_main_robust(
             return
         except BaseException as force_error:
             raise BundleCaptureError(
-                f"MainActivity stop failed: {ui_error}; "
+                f"debug capture stop failed: {stop_error}; "
                 f"force-stop recovery also failed: {force_error}"
-            ) from ui_error
+            ) from stop_error
 
-    raise BundleCaptureError(f"MainActivity stop failed: {ui_error}") from ui_error
+    raise BundleCaptureError(f"debug capture stop failed: {stop_error}") from stop_error
 
 
 def capture_command(args: argparse.Namespace) -> int:
@@ -152,6 +155,11 @@ def capture_command(args: argparse.Namespace) -> int:
         )
 
     common = _common_namespace(args, output)
+
+    # Install the device/OEM-safe capture helpers before recovery so a retained
+    # synthetic simulation can be stopped without accessibility discovery.
+    base.wait_activity = _wait_activity_robust
+    overlay.stop_via_main = _stop_via_debug_capture
 
     # Recovery is deliberately part of the same maintained operation so the
     # maintainer handoff contains one device-facing Python invocation only.
@@ -168,10 +176,10 @@ def capture_command(args: argparse.Namespace) -> int:
         base.capture_command(common)
 
         # The overlay harness imports the same capture_store_screenshots module as
-        # this bundle. Replace only its device/OEM-sensitive helpers after the base
-        # capture so the generic base path remains unchanged.
+        # this bundle, so the hardened foreground waiter and debug-only stop hook
+        # remain active for the overlay phase.
         base.wait_activity = _wait_activity_robust
-        overlay.stop_via_main = _stop_via_main_robust
+        overlay.stop_via_main = _stop_via_debug_capture
         overlay.capture_command(common)
 
         base_result = base.validate_capture_tree(staged_output)
@@ -248,9 +256,8 @@ def self_test_command(_args: argparse.Namespace) -> int:
         raise BundleCaptureError("overlay screenshot filename changed unexpectedly")
     if set(base.LOCALES) != set(overlay.OVERLAY_LABELS):
         raise BundleCaptureError("base/overlay locale sets differ")
-    for locale, labels in overlay.OVERLAY_LABELS.items():
-        if not labels.get("main_stop"):
-            raise BundleCaptureError(f"missing MainActivity stop label for {locale}")
+    if DEBUG_STOP_EXTRA != "geojoystick_debug_stop_simulation":
+        raise BundleCaptureError("debug stop extra changed unexpectedly")
 
     package = "com.k2040.geojoystick"
     suffix = ".NeutralCaptureActivity"
