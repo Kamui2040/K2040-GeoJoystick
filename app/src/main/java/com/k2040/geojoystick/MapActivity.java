@@ -196,12 +196,11 @@ public final class MapActivity extends Activity {
     private void loadBundledMap() {
         try {
             String html = readAsset("map.html");
-            String baseUrl = "https://" + INTERNAL_HOST + "/map.html?lang="
-                    + (german ? "de" : "en");
+            String baseUrl = "https://" + INTERNAL_HOST + "/map.html";
             if (hasSelection) {
                 baseUrl = String.format(
                         Locale.US,
-                        "%s&lat=%.8f&lng=%.8f",
+                        "%s?lat=%.8f&lng=%.8f",
                         baseUrl,
                         selectedLatitude,
                         selectedLongitude);
@@ -216,6 +215,27 @@ public final class MapActivity extends Activity {
             coordinateText.setText(t("Map unavailable", "Karte nicht verfügbar"));
             setUseButtonEnabled(false);
         }
+    }
+
+    private void localizeBundledMap(WebView view) {
+        String language = german ? "de" : "en";
+        String title = german ? "Standort wählen" : "Choose location";
+        String message = german
+                ? "Tippe auf die Karte, um die Markierung zu setzen. Ziehe zum Verschieben."
+                : "Tap the map to place the marker. Drag to pan.";
+        String zoomIn = german ? "Vergrößern" : "Zoom in";
+        String zoomOut = german ? "Verkleinern" : "Zoom out";
+        String script = "(function(){"
+                + "document.documentElement.lang='" + language + "';"
+                + "document.title='" + title + "';"
+                + "var message=document.getElementById('message');"
+                + "if(message){message.textContent='" + message + "';}"
+                + "var zoomIn=document.getElementById('zoomIn');"
+                + "if(zoomIn){zoomIn.setAttribute('aria-label','" + zoomIn + "');}"
+                + "var zoomOut=document.getElementById('zoomOut');"
+                + "if(zoomOut){zoomOut.setAttribute('aria-label','" + zoomOut + "');}"
+                + "})();";
+        view.evaluateJavascript(script, null);
     }
 
     private String readAsset(String name) throws IOException {
@@ -399,6 +419,14 @@ public final class MapActivity extends Activity {
         @Override
         public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
             return isAllowedResource(Uri.parse(url)) ? null : blockedResponse();
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            super.onPageFinished(view, url);
+            if (isAllowedInternalPage(Uri.parse(url))) {
+                localizeBundledMap(view);
+            }
         }
     }
 
