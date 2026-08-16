@@ -43,7 +43,7 @@ The accepted reconciliation, Issue #13 onboarding/About/licensing work, Issue #1
 - final physically accepted pre-integration runtime candidate: `9c83e7bd8e35362d65c51db8310550a06923def5`
 - accepted/final-validation debug APK SHA-256: `01966f8d426452750acec9b9819859a72218442899be1553f711d9c0d707f455`
 
-Issues #9, #10, #11, #13, #15, #16, #20, #21, and #22 are closed as completed.
+Issues #9, #10, #11, #13, #15, #16, #20, #21, #22, and #27 are closed as completed.
 
 ### Lifecycle/state behavior
 
@@ -94,19 +94,24 @@ Local and physical validation on the exact PR #26 head passed `git diff --check`
 
 ### Android 16 / API 36 development baseline
 
-Issue #11 is accepted and integrated through squash-merged PR #28.
+Issue #11 is accepted and integrated through squash-merged PR #28, and its predictive-back follow-up Issue #27 is accepted and integrated through squash-merged PR #29.
 
 - PR #28 API 36 merge commit: `ded38f66d6fd04f9a1c390c974f3d696f0eb73df`
 - validated PR #28 head before squash: `47d776484b65becb45a4c1b3b5fecf1cf9747614`
 - accepted PR #28 debug APK SHA-256: `942a2dd644ed196850d0b194e9916ab66b0a1cc0abd3a100a4ad6fc3e6385136`
+- PR #29 predictive-back merge commit: `7bc1e32d0d802418791d9afc1c1f9617503c3cb4`
+- validated PR #29 head before squash: `cb436eed4481f48ce9e645a56032fcb8b7f75347`
+- accepted PR #29 debug APK SHA-256: `b790093b95f21240e6f2d2ec9dca9c1bd37eb43fd21028631b3f76c5b5eff7ff`
 
 The maintained development build baseline is now JDK 17, Android SDK Platform 36, `compileSdk 36`, `targetSdk 36`, `minSdk 27`, AGP 8.12.3, and Gradle 8.13. Build Tools 35.0.0 or a newer compatible stable version remain accepted; the validated migration used Build Tools 36.0.0. `tools/build.py` now checks/installs Platform 36 rather than Platform 35.
 
 The Android 16 review found no required change to GeoJoystick's standard Android mock-location test-provider flow, `specialUse` foreground-service declaration, notification permission handling, overlay permission model, backup/data-extraction exclusions, exported-component boundaries, or optional OpenStreetMap/link-resolution network behavior. The migration added no proprietary dependency, API key, root/Shizuku requirement, concealment mechanism, or non-standard location injection.
 
-MainActivity currently uses Android's activity-scoped temporary `android:enableOnBackInvokedCallback="false"` compatibility setting because its custom nested About/license/settings navigation still relies on legacy `onBackPressed()`. `lint.xml` ignores only `GestureBackNavigation` for `MainActivity.java`, because that lint check does not inspect the activity-scoped manifest opt-out. Issue #27 remains open to replace this temporary compatibility path with supported predictive-back handling. `MapActivity` remains on normal Android back behavior.
+MainActivity now uses the platform `OnBackInvokedDispatcher` on Android 13/API 33+ only while GeoJoystick is displaying custom nested UI that needs to intercept Back. Home/main leaves the custom callback unregistered so Android retains normal system back-to-home/task behavior. Android 8.1–12L retains the legacy `onBackPressed()` fallback for the maintained minSdk 27 range with a method-scoped lint suppression. The temporary MainActivity `android:enableOnBackInvokedCallback="false"` manifest opt-out and root `lint.xml` workaround introduced during the API 36 transition are removed. `MapActivity` remains on normal Android back behavior.
 
 Final exact-head API 36 validation passed `git diff --check`, the `LocationLinkParser` regression harness, Platform 36 debug build, `testDebugUnitTest`, `lintRelease`, and unsigned `assembleRelease`. Signer-safe replacement installation preserved app data, mock-location app-op state, and overlay permission. Physical Android 16/API 36 regression confirmed Settings -> Home, About -> Home, and nested License -> About -> Home Back behavior; synthetic-coordinate foreground simulation start/publication and a user-visible stop path; invalid-input start remaining inactive; byte-for-byte preference restoration; and a final inactive simulation state. The primary local checkout remained untouched and temporary QA artifacts were cleaned.
+
+Issue #27 exact-head validation additionally passed Platform 36 debug/release builds and `lintRelease` with the temporary root lint workaround absent. Deterministic Android 16 navigation checks passed Settings -> Home, About -> Home, Changelog -> About -> Home, Sources -> About, GPL -> License -> About -> Home, the Welcome Back guard, and normal Home system Back. Preferences were restored byte-for-byte, mock-location and overlay app-op state were preserved, and simulation remained inactive. One injected touch-edge swipe on Sources was inconclusive, but the unchanged candidate passed the same Sources -> About route through deterministic Back dispatch. The canonical QA device is configured for 3-button navigation (`navigation_mode=0`, three-button SystemUI overlay active, gestural overlay inactive), so a human predictive edge-gesture animation check was not applicable without changing the user's system navigation configuration; that configuration was intentionally left unchanged for QA.
 
 ## Final integration validation
 
@@ -132,6 +137,8 @@ Issue #10's later runtime fix was separately validated on its exact source head 
 Issue #22's mascot/icon integration was separately validated on its exact source head with provider-side scope checks, `git diff --check`, parser regression, JDK 17 / SDK 35 / Build Tools 36.0.0 debug build, `testDebugUnitTest`, `lintRelease`, `assembleRelease`, successful release AAPT2 processing of the lossless launcher resource, signer-safe physical installation, state preservation, and human visual acceptance. GitHub Actions were not used as validation evidence for that workflow.
 
 Issue #11's API 36 migration was separately validated on its exact source head with Platform 36, Build Tools 36.0.0, parser regression, debug/release builds, lint, signer-safe installation, target-36 Back compatibility, synthetic start/publication/stop, invalid-input reconciliation, and complete state restoration. No GitHub Actions jobs were dispatched or used as validation evidence.
+
+Issue #27's predictive-back integration was separately validated on its exact source head with Platform 36, parser regression, debug/release builds, lint without the temporary root exception, signer-safe installation, deterministic nested-page Back routing, Welcome guarding, Home system-Back behavior, complete preference restoration, preserved app-ops, and inactive simulation. The canonical QA device's current 3-button navigation mode made visual predictive edge-gesture animation QA not applicable without changing system navigation settings, so that configuration was preserved. No GitHub Actions jobs were dispatched or used as validation evidence.
 
 No additional Android build is required for this documentation-only post-merge context update.
 
