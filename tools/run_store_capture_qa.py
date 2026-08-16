@@ -17,8 +17,11 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 
+import _qa_accessibility_device_impl as impl
 import capture_store_bundle as bundle
+import capture_store_overlay as overlay
 import capture_store_screenshots as base
 
 
@@ -193,6 +196,25 @@ def release_validation(
     return release_apk
 
 
+def ensure_preinstall_inactive(adb: base.SafeAdb) -> None:
+    if not base.simulation_active(adb):
+        print("PASS: simulation inactive")
+        return
+
+    # A previous failed overlay capture may have retained a synthetic service.
+    # Stop only this package here; the post-install bundle recovery is responsible
+    # for restoring any retained preference backup byte-for-byte.
+    print("INFO: retained synthetic simulation detected; force-stopping package")
+    adb.force_stop()
+    deadline = time.monotonic() + 4.0
+    while time.monotonic() < deadline:
+        if not base.simulation_active(adb):
+            print("PASS: retained synthetic simulation stopped")
+            return
+        time.sleep(0.2)
+    raise StoreCaptureQaError("simulation remains active after package force-stop")
+
+
 def command(args: argparse.Namespace) -> int:
     if base.git_tracked_status(ROOT):
         raise StoreCaptureQaError("tracked repository files are modified")
@@ -216,8 +238,28 @@ def command(args: argparse.Namespace) -> int:
     print("PASS: tracked source clean")
 
     print("\n=== Harness self-tests ===")
+    base.self_test_command(argparse.Namespace())
+    overlay.self_test_command(argparse.Namespace())
     bundle.self_test_command(argparse.Namespace())
-    print("PASS: bundle self-test")
+    neutral_source = (
+        ROOT
+        / "app"
+        / "src"
+        / "debug"
+        / "java"
+        / "com"
+        / "k2040"
+        / "geojoystick"
+        / "NeutralCaptureActivity.java"
+    ).read_text(encoding="utf-8")
+    for required in (
+        "geojoystick_debug_stop_simulation",
+        "stopService(new Intent(this, MockLocationService.class))",
+    ):
+        if required not in neutral_source:
+            raise StoreCaptureQaError(f"debug stop hook source missing: {required}")
+    print("PASS: all harness self-tests")
+    print("PASS: deterministic debug stop hook present in source")
 
     print("\n=== Exact debug build ===")
     run([sys.executable, str(ROOT / "tools" / "build.py")], cwd=ROOT, env=environment)
@@ -242,10 +284,6 @@ def command(args: argparse.Namespace) -> int:
     print("\n=== Canonical device ===")
     adb = base.SafeAdb(str(adb_path), args.serial, PACKAGE)
     base.verify_identity(adb, args)
-    if base.simulation_active(adb):
-        raise StoreCaptureQaError(
-            "simulation is active before install; run the maintained bundle recovery first"
-        )
     mock_before = appop_mode(adb, "MOCK_LOCATION")
     overlay_before = appop_mode(adb, "SYSTEM_ALERT_WINDOW")
     if overlay_before != "allow":
@@ -253,7 +291,7 @@ def command(args: argparse.Namespace) -> int:
             f"overlay permission is not allowed: {overlay_before}"
         )
     print("PASS: exact canonical Android 16/API 36 device")
-    print("PASS: simulation inactive")
+    ensure_preinstall_inactive(adb)
     print(f"Mock-location app-op: {mock_before}")
     print(f"Overlay app-op:       {overlay_before}")
 
@@ -354,6 +392,8 @@ def main() -> int:
         StoreCaptureQaError,
         bundle.BundleCaptureError,
         base.CaptureError,
+        overlay.OverlayCaptureError,
+        impl.QAError,
         OSError,
         subprocess.SubprocessError,
     ) as exc:
