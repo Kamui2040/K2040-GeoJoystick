@@ -1948,8 +1948,7 @@ public final class MainActivity extends Activity {
 
     private String changelogText() {
         return t(
-                "0.1.4\n"
-                        + "• Redesigned Home, Settings, and overlay controls with clearer status and compact mode.\n"
+                "• Redesigned Home, Settings, and overlay controls with clearer status and compact mode.\n"
                         + "• Improved simulation recovery, restore-last-position, and invalid-input handling.\n"
                         + "• Added onboarding plus About, Changelog, License & usage, and Sources screens.\n"
                         + "• Expanded map-link parsing and map picker reliability.\n"
@@ -1960,8 +1959,7 @@ public final class MainActivity extends Activity {
                         + "• GeoJoystick now uses a dedicated icon in store listings.\n\n"
                         + "0.1.0\n"
                         + "• Initial public release with coordinate and altitude entry, map selection and link import, favorites, appearance and language settings, and floating joystick controls.",
-                "0.1.4\n"
-                        + "• Startseite, Einstellungen und Overlay-Steuerung wurden mit klarerem Status und besserem Kompaktmodus überarbeitet.\n"
+                "• Startseite, Einstellungen und Overlay-Steuerung wurden mit klarerem Status und besserem Kompaktmodus überarbeitet.\n"
                         + "• Simulations-Wiederherstellung, letzte Position und Fehlerbehandlung wurden verbessert.\n"
                         + "• Onboarding sowie Info-, Änderungsverlauf-, Lizenz- und Quellenansichten wurden ergänzt.\n"
                         + "• Kartenlink-Import und Kartenwahl wurden robuster.\n"
