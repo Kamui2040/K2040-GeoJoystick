@@ -1,0 +1,6 @@
+- Startseite, Einstellungen und Overlay-Steuerung wurden mit klarerem Status und besserem Kompaktmodus überarbeitet.
+- Simulations-Wiederherstellung, letzte Position und Fehlerbehandlung wurden verbessert.
+- Onboarding sowie Info-, Änderungsverlauf-, Lizenz- und Quellenansichten wurden ergänzt.
+- Kartenlink-Import und Kartenwahl wurden robuster.
+- Barrierefreiheit, große Schrift und Touch-Ziele wurden verbessert.
+- Neues GeoJoystick-Maskottchen/App-Symbol und Android-16/API-36-Zurücknavigation.

@@ -1,0 +1,6 @@
+- Redesigned Home, Settings, and overlay controls with clearer status and compact mode.
+- Improved simulation recovery, restore-last-position, and invalid-input handling.
+- Added onboarding plus About, Changelog, License & usage, and Sources screens.
+- Expanded map-link parsing and map picker reliability.
+- Improved accessibility, large-font behavior, and touch targets.
+- Added the new GeoJoystick mascot/launcher identity and Android 16/API 36 back-navigation support.
