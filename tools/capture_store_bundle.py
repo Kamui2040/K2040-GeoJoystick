@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """Capture the complete sanitized GeoJoystick store screenshot bundle.
 
-This is the maintainer-facing orchestration entrypoint for Issue #12. It first
-recovers any interrupted overlay-capture state, then runs the normal localized
-app capture and the real expanded-overlay capture into a private temporary
-staging directory. Both provenance manifests and all ten PNGs are validated
-before the requested output directory is published. Partial capture output is
-never promoted.
+This is the maintainer-facing orchestration entrypoint for Issue #12. It runs the
+normal localized app capture and the real expanded-overlay capture into a private
+temporary staging directory, validates both provenance manifests and all ten PNGs,
+and publishes the requested output directory only after the complete bundle passes.
+Partial capture output is never promoted.
 """
 
 from __future__ import annotations
@@ -102,6 +101,49 @@ def _wait_activity_robust(adb: base.SafeAdb, suffix: str, timeout: float = 6.0) 
     )
 
 
+def _stop_via_main_robust(
+    adb: base.SafeAdb,
+    locale: str,
+    *,
+    allow_force_stop: bool,
+) -> None:
+    """Stop simulation through MainActivity without assuming status-card state."""
+    if not base.simulation_active(adb):
+        return
+
+    stop_label = overlay.OVERLAY_LABELS[locale]["main_stop"]
+    ui_error: BaseException | None = None
+
+    try:
+        adb.launch()
+        _wait_activity_robust(adb, base.MAIN_ACTIVITY)
+        stop = base.require_node(
+            adb,
+            lambda item: item.clickable and item.desc == stop_label,
+            stop_label,
+            scroll=True,
+            attempts=10,
+        )
+        adb.tap(stop.bounds)
+        overlay.wait_simulation(adb, False)
+        return
+    except BaseException as exc:
+        ui_error = exc
+
+    if allow_force_stop:
+        adb.force_stop()
+        try:
+            overlay.wait_simulation(adb, False, timeout=3.0)
+            return
+        except BaseException as force_error:
+            raise BundleCaptureError(
+                f"MainActivity stop failed: {ui_error}; "
+                f"force-stop recovery also failed: {force_error}"
+            ) from ui_error
+
+    raise BundleCaptureError(f"MainActivity stop failed: {ui_error}") from ui_error
+
+
 def capture_command(args: argparse.Namespace) -> int:
     output = Path(args.output_dir).expanduser().resolve()
     if output.exists():
@@ -109,11 +151,11 @@ def capture_command(args: argparse.Namespace) -> int:
             f"output path already exists; refusing overwrite: {output}"
         )
 
-    # Keep recovery inside the maintained entrypoint. It is idempotent and
-    # ensures interrupted overlay attempts cannot require a separate shell step.
-    base.wait_activity = _wait_activity_robust
-    recovery_args = _common_namespace(args, output)
-    overlay.recover_command(recovery_args)
+    common = _common_namespace(args, output)
+
+    # Recovery is deliberately part of the same maintained operation so the
+    # maintainer handoff contains one device-facing Python invocation only.
+    overlay.recover_command(common)
 
     output.parent.mkdir(parents=True, exist_ok=True)
     staging_root = Path(
@@ -124,6 +166,12 @@ def capture_command(args: argparse.Namespace) -> int:
     try:
         common = _common_namespace(args, staged_output)
         base.capture_command(common)
+
+        # The overlay harness imports the same capture_store_screenshots module as
+        # this bundle. Replace only its device/OEM-sensitive helpers after the base
+        # capture so the generic base path remains unchanged.
+        base.wait_activity = _wait_activity_robust
+        overlay.stop_via_main = _stop_via_main_robust
         overlay.capture_command(common)
 
         base_result = base.validate_capture_tree(staged_output)
@@ -200,6 +248,9 @@ def self_test_command(_args: argparse.Namespace) -> int:
         raise BundleCaptureError("overlay screenshot filename changed unexpectedly")
     if set(base.LOCALES) != set(overlay.OVERLAY_LABELS):
         raise BundleCaptureError("base/overlay locale sets differ")
+    for locale, labels in overlay.OVERLAY_LABELS.items():
+        if not labels.get("main_stop"):
+            raise BundleCaptureError(f"missing MainActivity stop label for {locale}")
 
     package = "com.k2040.geojoystick"
     suffix = ".NeutralCaptureActivity"
@@ -232,7 +283,7 @@ def parser() -> argparse.ArgumentParser:
     subparsers = result.add_subparsers(dest="command", required=True)
 
     capture = subparsers.add_parser(
-        "capture", help="recover state, then atomically capture all 10 screenshots"
+        "capture", help="recover, capture, validate, and atomically publish all 10 screenshots"
     )
     capture.add_argument("--serial", required=True)
     capture.add_argument("--expected-model", required=True)
