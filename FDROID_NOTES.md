@@ -11,17 +11,19 @@ This repository is being prepared for F-Droid or similar FLOSS Android repositor
 - No subscriptions or paid features
 - No proprietary Android dependencies in the Gradle build
 - Command-line build path through `build.bat` / `tools/build.py`
-- Upstream Fastlane-style metadata under `fastlane/metadata/android/en-US/`
+- Public canonical source repository on GitHub
+- Upstream Fastlane-style text metadata under `fastlane/metadata/android/en-US/`
+- Accepted synthetic/sanitized phone screenshots under both `fastlane/metadata/android/en-US/images/phoneScreenshots/` and `fastlane/metadata/android/de-DE/images/phoneScreenshots/`
+- Public-safe screenshot provenance and accepted SHA-256 hashes in `fastlane/metadata/android/SCREENSHOT_PROVENANCE.md`
 - Optional Ko-fi support link only; the app remains fully functional without it
 
-## Before F-Droid submission
+## Current F-Droid / publication checks
 
-- Publish the canonical source repository.
-- Add real release tags, e.g. `v0.1.17` for `versionName '0.1.17-public-preview'` / `versionCode 17`.
-- Capture neutral app screenshots and place them under `fastlane/metadata/android/en-US/images/phoneScreenshots/`.
+- The F-Droid submission MR is merged; publication/availability remains separate from repository integration and should be verified before making current-store claims.
+- Keep the accepted Issue #12 screenshots synthetic and sanitized. Do not restore or reuse the removed historical phone screenshots that contained authentic precise location material.
 - The WebView map picker uses local source code and does not load external JavaScript. It downloads map tile images from OpenStreetMap when the picker is opened.
 - Review whether OpenStreetMap tile and map-link-resolution network usage needs an F-Droid metadata note.
-- Confirm the public source repository is reachable before submitting fdroiddata metadata.
+- Confirm the public source repository and required release/tag inputs are reachable before any future fdroiddata update or release submission.
 
 ## Draft fdroiddata fields
 
