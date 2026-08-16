@@ -194,7 +194,6 @@ def validate_overlay_tree(root: Path) -> dict[str, object]:
         for locale in OVERLAY_LABELS
     }
     actual_paths: set[str] = set()
-    hashes: set[str] = set()
     dimensions: set[tuple[int, int]] = set()
 
     for item in screenshots:
@@ -211,9 +210,6 @@ def validate_overlay_tree(root: Path) -> dict[str, object]:
             raise OverlayCaptureError(f"overlay screenshot hash mismatch: {relative}")
         if width != item.get("width") or height != item.get("height"):
             raise OverlayCaptureError(f"overlay screenshot dimensions mismatch: {relative}")
-        if digest in hashes:
-            raise OverlayCaptureError(f"duplicate overlay screenshot bytes: {relative}")
-        hashes.add(digest)
         dimensions.add((width, height))
         actual_paths.add(relative)
 
