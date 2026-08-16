@@ -158,11 +158,35 @@ def command(args: argparse.Namespace) -> int:
     overlay.self_test_command(argparse.Namespace())
     bundle.self_test_command(argparse.Namespace())
     neutral_source = (ROOT / "app" / "src" / "debug" / "java" / "com" / "k2040" / "geojoystick" / "NeutralCaptureActivity.java").read_text(encoding="utf-8")
-    for required in ("geojoystick_debug_stop_simulation", "stopService(new Intent(this, MockLocationService.class))"):
+    neutral_manifest = (ROOT / "app" / "src" / "debug" / "AndroidManifest.xml").read_text(encoding="utf-8")
+    for required in (
+        "geojoystick_debug_stop_simulation",
+        "stopService(new Intent(this, MockLocationService.class))",
+        "protected void onNewIntent(Intent intent)",
+        "handleStopIntent(intent)",
+        "setContentView(background);",
+        "decorView.getWindowInsetsController()",
+    ):
         if required not in neutral_source:
-            raise StoreCaptureQaError(f"debug stop hook source missing: {required}")
+            raise StoreCaptureQaError(f"debug capture helper source missing: {required}")
+    if "getWindow().getInsetsController()" in neutral_source:
+        raise StoreCaptureQaError("known OEM-crashing pre-decor insets access remains")
+    if neutral_source.index("setContentView(background);") >= neutral_source.index("decorView.getWindowInsetsController()"):
+        raise StoreCaptureQaError("neutral content must be installed before insets-controller access")
+    for required in (
+        'android:launchMode="singleTop"',
+        'android:taskAffinity="com.k2040.geojoystick.capture"',
+        'android:excludeFromRecents="true"',
+    ):
+        if required not in neutral_manifest:
+            raise StoreCaptureQaError(f"debug capture task isolation missing: {required}")
+    if 'android:finishOnTaskLaunch="true"' in neutral_manifest:
+        raise StoreCaptureQaError("capture helper must not finish during external task relaunch")
     print("PASS: all harness self-tests")
     print("PASS: deterministic debug stop hook present in source")
+    print("PASS: neutral capture task isolated from MainActivity task")
+    print("PASS: reused neutral activity handles stop intent via onNewIntent")
+    print("PASS: OEM-crashing pre-decor insets sequence absent")
     print("\n=== Exact debug build ===")
     run([sys.executable, str(ROOT / "tools" / "build.py")], cwd=ROOT, env=environment)
     debug_apk = ROOT / "dist" / "GeoJoystick-debug.apk"
@@ -177,7 +201,14 @@ def command(args: argparse.Namespace) -> int:
     print("PASS: debug capture helper present")
     print("\n=== Unit / lint / release boundary ===")
     release_validation(args, environment, tool_cache, aapt)
-    print("PASS: testDebugUnitTest")
+    test_sources = list((ROOT / "app" / "src" / "test").rglob("*.java")) if (ROOT / "app" / "src" / "test").is_dir() else []
+    test_sources += list((ROOT / "app" / "src" / "test").rglob("*.kt")) if (ROOT / "app" / "src" / "test").is_dir() else []
+    android_test_sources = list((ROOT / "app" / "src" / "androidTest").rglob("*.java")) if (ROOT / "app" / "src" / "androidTest").is_dir() else []
+    android_test_sources += list((ROOT / "app" / "src" / "androidTest").rglob("*.kt")) if (ROOT / "app" / "src" / "androidTest").is_dir() else []
+    if test_sources or android_test_sources:
+        print("PASS: testDebugUnitTest")
+    else:
+        print("NO-SOURCE: testDebugUnitTest (no app/src/test or app/src/androidTest sources)")
     print("PASS: lintRelease")
     print("PASS: assembleRelease")
     print("PASS: capture helper absent from release APK")
