@@ -90,6 +90,8 @@ The home-header About entry now uses the user-approved waving gecko interacting 
 
 The accepted launcher artwork is stored as a lossless WebP resource after the original indexed PNG exposed an AAPT2 release-resource compilation incompatibility. The replacement preserves the approved 384×384 artwork pixel-for-pixel while using an Android-compatible resource container. `NOTICE.md` records both accepted GeoJoystick assets under the existing K2040 CC BY 4.0 provenance framework.
 
+Fastlane store metadata is now aligned with the accepted gecko launcher identity: `fastlane/metadata/android/en-US/images/icon.png` is a direct 512×512 32-bit RGBA PNG export of the current launcher artwork (`SHA-256 6bf5a6fd69fb88f1a18e65177addc9ff64abe090bc812e5e0241bb5495383074`). This supersedes the stale pre-gecko store icon. Store publication remains a separate maintainer-controlled action.
+
 Local and physical validation on the exact PR #26 head passed `git diff --check`, the `LocationLinkParser` regression harness, `tools/build.py`, `testDebugUnitTest`, `lintRelease`, `assembleRelease` including release AAPT2 resource processing, and signer-safe replacement installation. Installation preserved app data, the user-controlled mock-location app-op state, overlay permission, and inactive simulation state. Human visual QA accepted the in-app mascot, About tap-through/K2040 avatar, and centered/unclipped app-drawer symbol. The primary local checkout remained untouched and temporary QA artifacts were cleaned.
 
 ### Android 16 / API 36 development baseline

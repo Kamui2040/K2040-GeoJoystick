@@ -15,6 +15,7 @@ This repository is being prepared for F-Droid or similar FLOSS Android repositor
 - Upstream Fastlane-style text metadata under `fastlane/metadata/android/en-US/`
 - Accepted synthetic/sanitized phone screenshots under both `fastlane/metadata/android/en-US/images/phoneScreenshots/` and `fastlane/metadata/android/de-DE/images/phoneScreenshots/`
 - Public-safe screenshot provenance and accepted SHA-256 hashes in `fastlane/metadata/android/SCREENSHOT_PROVENANCE.md`
+- Fastlane/F-Droid store icon metadata uses a 512×512 32-bit RGBA PNG exported directly from the accepted current gecko launcher artwork (`SHA-256 6bf5a6fd69fb88f1a18e65177addc9ff64abe090bc812e5e0241bb5495383074`).
 - Optional Ko-fi support link only; the app remains fully functional without it
 
 ## Current F-Droid / publication state
