@@ -42,15 +42,15 @@ The overlay screenshots use the real GeoJoystick `TYPE_APPLICATION_OVERLAY` over
 
 All ten accepted screenshots were reviewed after sanitation. The final set contains no unrelated notification icons or navigation controls, no transient start toast, no authentic/private location data, and no device identifier or local path. English/German localization is consistent, synthetic coordinates are visible where intended, and OpenStreetMap attribution remains visible on both map screenshots.
 
-## Version 0.1.4 APKPure English / Dark candidate
+## Version 0.1.4 accepted store sets
 
-The APKPure screenshot candidate for GeoJoystick version 0.1.4 was captured from a real Android device at source revision `0c3ae37501660300e4f23c45aeb07cffb68e62f9`. The candidate was visually accepted on 2026-08-17. This records capture and acceptance only; APKPure publication remains a separate maintainer-controlled action.
+The accepted GeoJoystick version 0.1.4 English/Dark and German/Dark store screenshot sets use the exact installed debug APK built from source revision `0c3ae37501660300e4f23c45aeb07cffb68e62f9` (`versionCode 104`). The English set was captured at that revision. The German set used maintained capture tooling from documentation-only main revision `50398f7c0509243cb7b9b2826d571c0b85e4f04c`; that revision did not change the installed runtime APK. Both sets passed human visual acceptance on 2026-08-17.
 
 ### Synthetic capture state
 
 - Package: `com.k2040.geojoystick`
 - Version: `0.1.4` (`versionCode 104`)
-- Locale: `en-US`
+- Locales: `en-US`, `de-DE`
 - Appearance: Dark
 - Synthetic coordinates only: latitude `51.234567`, longitude `10.123456`, altitude `123.0 m`
 - No authentic location history or private favorites were used.
@@ -61,21 +61,32 @@ The APKPure screenshot candidate for GeoJoystick version 0.1.4 was captured from
 
 ### Capture and sanitation
 
-The Main, Settings, and About images are genuine Android `screencap` captures from the maintained screenshot harness. The Map image is a genuine Android `screencap` with the real expanded GeoJoystick `TYPE_APPLICATION_OVERLAY` running over the real `MapActivity`; it is not composited and does not use the debug-only neutral overlay background.
+For each locale, Main, Settings, and About are genuine Android `screencap` captures from the maintained screenshot harness. The Map image is a genuine Android `screencap` with the real expanded GeoJoystick `TYPE_APPLICATION_OVERLAY` running over the real `MapActivity`; it is not composited and does not use the debug-only neutral overlay background.
 
-The map uses the same fixed synthetic coordinates as the maintained store harness. The live overlay was positioned below the map instruction card so the map controls, instructions, and OpenStreetMap attribution remain readable. The capture waited for the localized map content and exact `© OpenStreetMap contributors` attribution before taking the screenshot.
+The map uses the same fixed synthetic coordinates as the maintained store harness. The live overlay was positioned below the map instruction card so the map controls, instructions, and OpenStreetMap attribution remain readable. Capture waited for the localized map content and exact `© OpenStreetMap contributors` attribution before taking each map screenshot.
 
-All four raw captures were `1080x2392`. Android reported a `116 px` status-bar inset and a `120 px` navigation-bar inset. The maintained sanitizer removed only those device-reported system-bar rows, producing the final `1080x2156` images. No app content was composited or AI-generated.
+All raw captures were `1080x2392`. Android reported a `116 px` status-bar inset and a `120 px` navigation-bar inset. The maintained sanitizer removed only those device-reported system-bar rows, producing the final `1080x2156` images. No app content was composited or AI-generated.
 
-### Accepted APKPure candidate SHA-256
+### Accepted screenshot SHA-256
+
+#### en-US
 
 - `01-main.png`: `edbc6d06f7b1e1273ea49c506ec47a1c94c6d035028554fccdae0190e393c7dc`
 - `02-settings.png`: `2797dfff2b0eb7f6d0cd1b20ee66fec6fe11a83c28a350f35b34d46940b7390a`
 - `03-about.png`: `8d2e784211aeda881c0be5a32d3751facdc891a483a2f2dfce08d7d838ed62f0`
 - `04-map-overlay.png`: `55fdd727387f9bc9b2b6a19872f999e228f686a93b86ff531d6288e577e54d28`
 
-### Visual acceptance
+#### de-DE
 
-The final four-image candidate passed human visual review after deterministic system-bar sanitation. Main, Settings, and About are readable and unclipped for their intended store presentation. The Map image keeps the map instruction card, location controls, zoom controls, OpenStreetMap attribution, and the complete expanded live overlay visible without the overlay obscuring the instruction card. No unrelated System UI, authentic/private location data, device identifier, or machine-specific path is present in the final images.
+- `01-main.png`: `f2fb2f7dbcbeb2889f7107b7d7c1e44645938e500636c71f2e2d3b0855b79e61`
+- `02-settings.png`: `4955c5cdefc9839c5702b226fbf7c3cec99530b4fa4f4eead1ff49be810aa527`
+- `03-about.png`: `2c48a8067e484cd77d9cdbcb9f32a3213fd72a30cea8c4cb0be91093f6c916aa`
+- `04-map-overlay.png`: `d46901bd866656c5e72458468da0f373b042cf85df857b8e9916d780e17002e7`
 
-This provenance records asset creation and visual acceptance only. It does not represent a store, F-Droid, release, or publication submission.
+### Visual acceptance and Fastlane state
+
+Both final four-image sets passed human visual review after deterministic system-bar sanitation. Main, Settings, and About are readable and unclipped. The Map images preserve the localized instruction card, location controls, zoom controls, OpenStreetMap attribution, and the complete expanded live overlay without overlap of the instruction card.
+
+The accepted four-image sets replace the previous five-image Fastlane phone screenshot sets for both `en-US` and `de-DE`. No unrelated System UI, authentic/private location data, device identifier, or machine-specific path is present in the final images.
+
+This provenance records asset creation, visual acceptance, and Fastlane metadata state only. It does not represent a store, F-Droid, release, signing, or publication submission.
