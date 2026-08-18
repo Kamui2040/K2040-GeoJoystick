@@ -20,8 +20,7 @@ GRADLE_VERSION = "8.13"
 GRADLE_URL = f"https://services.gradle.org/distributions/gradle-{GRADLE_VERSION}-bin.zip"
 GRADLE_SHA_URL = GRADLE_URL + ".sha256"
 COMPILE_SDK = 36
-PREFERRED_BUILD_TOOLS = "35.0.0"
-MINIMUM_COMPATIBLE_BUILD_TOOLS = (35, 0, 0)
+BUILD_TOOLS_VERSION = "35.0.0"
 
 ROOT = Path(__file__).resolve().parents[1]
 CACHE_ROOT = Path(os.environ.get("LOCALAPPDATA", ROOT / ".tools")) / "K2040" / "GeoJoystick"
@@ -125,29 +124,6 @@ def find_android_sdk() -> Path:
     fail("Android SDK was not found. Install it through Android Studio or set ANDROID_SDK_ROOT.")
 
 
-def parse_stable_version(name: str) -> tuple[int, int, int] | None:
-    match = re.fullmatch(r"(\d+)\.(\d+)\.(\d+)", name)
-    if not match:
-        return None
-    return tuple(int(part) for part in match.groups())
-
-
-def installed_build_tools(sdk: Path) -> list[tuple[tuple[int, int, int], str]]:
-    root = sdk / "build-tools"
-    results: list[tuple[tuple[int, int, int], str]] = []
-    if not root.is_dir():
-        return results
-    for directory in root.iterdir():
-        version = parse_stable_version(directory.name)
-        if version is None or not directory.is_dir():
-            continue
-        aapt2 = directory / ("aapt2.exe" if os.name == "nt" else "aapt2")
-        d8_candidates = [directory / "d8.bat", directory / "d8"]
-        if aapt2.exists() and any(candidate.exists() for candidate in d8_candidates):
-            results.append((version, directory.name))
-    return sorted(results, reverse=True)
-
-
 def sdkmanager_candidates(sdk: Path) -> list[Path]:
     executable = "sdkmanager.bat" if os.name == "nt" else "sdkmanager"
     candidates = [sdk / "cmdline-tools" / "latest" / "bin" / executable]
@@ -190,17 +166,20 @@ def install_sdk_packages(sdk: Path, java_home: Path, packages: list[str]) -> boo
     return result.returncode == 0
 
 
-def resolve_sdk_components(sdk: Path, java_home: Path) -> str:
+def build_tools_available(sdk: Path) -> bool:
+    directory = sdk / "build-tools" / BUILD_TOOLS_VERSION
+    aapt2 = directory / ("aapt2.exe" if os.name == "nt" else "aapt2")
+    d8_candidates = [directory / "d8.bat", directory / "d8"]
+    return aapt2.exists() and any(candidate.exists() for candidate in d8_candidates)
+
+
+def resolve_sdk_components(sdk: Path, java_home: Path) -> None:
     platform_dir = sdk / "platforms" / f"android-{COMPILE_SDK}"
     packages_to_install: list[str] = []
     if not (platform_dir / "android.jar").exists():
         packages_to_install.append(f"platforms;android-{COMPILE_SDK}")
-
-    versions = installed_build_tools(sdk)
-    compatible = [item for item in versions if item[0] >= MINIMUM_COMPATIBLE_BUILD_TOOLS]
-    build_tools = compatible[0][1] if compatible else None
-    if build_tools is None:
-        packages_to_install.append(f"build-tools;{PREFERRED_BUILD_TOOLS}")
+    if not build_tools_available(sdk):
+        packages_to_install.append(f"build-tools;{BUILD_TOOLS_VERSION}")
 
     if packages_to_install:
         installed = install_sdk_packages(sdk, java_home, packages_to_install)
@@ -213,18 +192,10 @@ def resolve_sdk_components(sdk: Path, java_home: Path) -> str:
 
     if not (platform_dir / "android.jar").exists():
         fail(f"Android SDK Platform {COMPILE_SDK} is still missing after installation.")
+    if not build_tools_available(sdk):
+        fail(f"Android SDK Build-Tools {BUILD_TOOLS_VERSION} are still missing after installation.")
 
-    versions = installed_build_tools(sdk)
-    compatible = [item for item in versions if item[0] >= MINIMUM_COMPATIBLE_BUILD_TOOLS]
-    if not compatible:
-        fail(f"Android SDK Build-Tools {PREFERRED_BUILD_TOOLS} or newer are still missing after installation.")
-
-    selected = compatible[0][1]
-    if selected != PREFERRED_BUILD_TOOLS:
-        print(f"Using installed Android SDK Build-Tools {selected} instead of {PREFERRED_BUILD_TOOLS}.")
-    else:
-        print(f"Using Android SDK Build-Tools {selected}.")
-    return selected
+    print(f"Using Android SDK Build-Tools {BUILD_TOOLS_VERSION}.")
 
 
 def write_local_properties(sdk: Path) -> None:
@@ -232,13 +203,12 @@ def write_local_properties(sdk: Path) -> None:
     (ROOT / "local.properties").write_text(f"sdk.dir={value}\n", encoding="utf-8")
 
 
-def run_build(gradle: Path, java_home: Path, build_tools: str) -> Path:
+def run_build(gradle: Path, java_home: Path) -> Path:
     environment = os.environ.copy()
     environment["JAVA_HOME"] = str(java_home)
     command = [
         str(gradle),
         "--no-daemon",
-        f"-PgeoBuildToolsVersion={build_tools}",
         "clean",
         "assembleDebug",
     ]
@@ -266,10 +236,10 @@ def main() -> None:
         fail(f"Unsupported platform: {platform.system()}")
     java_home = find_java_home()
     sdk = find_android_sdk()
-    build_tools = resolve_sdk_components(sdk, java_home)
+    resolve_sdk_components(sdk, java_home)
     write_local_properties(sdk)
     gradle = ensure_gradle()
-    apk = run_build(gradle, java_home, build_tools)
+    apk = run_build(gradle, java_home)
     publish(apk)
 
 

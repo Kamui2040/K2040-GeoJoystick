@@ -5,10 +5,7 @@ plugins {
 android {
     namespace 'com.k2040.geojoystick'
     compileSdk 36
-
-    if (project.hasProperty('geoBuildToolsVersion')) {
-        buildToolsVersion project.property('geoBuildToolsVersion')
-    }
+    buildToolsVersion '35.0.0'
 
     defaultConfig {
         applicationId 'com.k2040.geojoystick'
@@ -20,6 +17,9 @@ android {
 
     buildTypes {
         release {
+            vcsInfo {
+                include = false
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
