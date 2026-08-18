@@ -101,7 +101,7 @@ Do not claim v0.1.4 is available on F-Droid until version 104 is actually publis
 
 ### APKPure
 
-The official APKPure package listing exists for `com.k2040.geojoystick`. The maintainer submitted the v0.1.4 update through the authenticated publisher flow, but **v0.1.4 has not been published yet**. The pending submission must use the repaired canonical APK before publication; do not allow the superseded reference APK to become the first public APKPure v0.1.4 binary.
+The official APKPure package listing exists for `com.k2040.geojoystick`. The maintainer submitted the original v0.1.4 APK through the authenticated publisher flow, and **v0.1.4 has not been published yet**. The APKPure console currently does not permit replacing or updating the submitted binary while that upload is still awaiting review. Once the review finishes, use the repaired canonical APK at the first permitted publisher action and do not mark the channel complete until the repaired artifact is public.
 
 ### OpenAPK
 
@@ -109,7 +109,7 @@ The maintainer submitted GeoJoystick to OpenAPK. Treat this as **submitted/pendi
 
 ### Uptodown
 
-The earlier v0.1.3 submission was rejected for low quality and the existing app entry currently prevents a new APK upload. The maintainer refreshed the English/German store descriptions and licensing information for v0.1.4 and submitted a support request asking Uptodown to reopen the existing entry for a new v0.1.4 review. Treat Uptodown as **pending support/review**, not a live v0.1.4 channel. Any future v0.1.4 upload must use the repaired canonical APK.
+The GeoJoystick Uptodown listing has been restored and is publicly available again, but it still exposes the previous **v0.1.3 (`versionCode 103`)** release rather than v0.1.4. The former blocked-entry/restoration gate is therefore resolved. The remaining Uptodown work is to submit the repaired canonical v0.1.4 APK and then verify that the public listing serves v0.1.4 / 104 before marking the channel current.
 
 Durable downstream tracker: GitHub Issue #37, **Complete GeoJoystick v0.1.4 downstream publication**.
 
