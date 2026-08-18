@@ -16,14 +16,17 @@ The current canonical production release is **GeoJoystick v0.1.4 (`versionCode 1
 - Release source commit: `0c3ae37501660300e4f23c45aeb07cffb68e62f9`
 - Release: https://github.com/Kamui2040/K2040-GeoJoystick/releases/tag/v0.1.4
 - APK: `GeoJoystick-v0.1.4.apk`
-- APK size: `1,754,890` bytes
-- APK SHA-256: `f768d9ed09aa16d51a585470804374b52972f34ffb778f615b580de466b1d312`
+- APK size: `1,763,281` bytes
+- APK SHA-256: `450ca89ca53e875c4a1d6efa27928924a72b8324d762c6525f2471c80dfa1f3e`
 - Production signer certificate SHA-256: `e0a833050d7c8fce7ddce85b2a86561304456d87b67bd6be1577d8f657e16778`
 - APK Signature Scheme v2: verified
+- Embedded release VCS revision: `0c3ae37501660300e4f23c45aeb07cffb68e62f9`
 
 GitHub Releases remains the authoritative source for published developer-signed artifacts and release notes.
 
-After the v0.1.4 release source, `main` received only documentation/store-metadata work through the accepted screenshot and store-icon corrections; no Android runtime source changed in those post-release commits. A new production release is therefore not implied by later `main` documentation or Fastlane asset updates.
+On 2026-08-18 the v0.1.4 release APK was explicitly repaired for F-Droid reproducibility. The replacement was rebuilt from a pristine Git checkout at the unchanged v0.1.4 tag/source commit, reproduced the previously validated unsigned fresh-Git APK, preserved the accepted application payload, was signed with the established production certificate, and was re-downloaded from GitHub for verification. The tag and source history were not changed.
+
+After the v0.1.4 release source, `main` received documentation/store-metadata work and the accepted reproducibility hardening from PR #43. That hardening pins Build-Tools 35.0.0 for the maintained build path and disables AGP VCS metadata in release builds. No post-release Android runtime behavior change is implied by those changes.
 
 ## v0.1.4 accepted product state
 
@@ -60,7 +63,7 @@ Current maintained development baseline:
 - `minSdk 27`
 - Android Gradle Plugin 8.12.3
 - Gradle 8.13
-- Build Tools 35.0.0 or a newer compatible stable version
+- Android SDK Build-Tools exactly 35.0.0 for the maintained reproducible release path
 
 The repository-owned bootstrap remains the supported build path. Public builds must remain independent of private credentials, signing material, or private infrastructure.
 
@@ -80,7 +83,7 @@ Historical screenshots containing authentic precise location material remain rem
 
 ### GitHub
 
-v0.1.4 is published and is the canonical release.
+v0.1.4 is published and is the canonical release. The repaired canonical APK is the artifact identified above by SHA-256 `450ca89ca53e875c4a1d6efa27928924a72b8324d762c6525f2471c80dfa1f3e`.
 
 ### K2040 Android Projects
 
@@ -90,31 +93,31 @@ The GeoJoystick Android Projects page is published for v0.1.4. It uses the exact
 
 The public F-Droid package page currently exposes **0.1.3 (`versionCode 103`)** as the suggested version.
 
-F-Droid automatic update processing created fdroiddata MR `!46016` for v0.1.4 / 104, but binary verification failed because the published reference APK and the F-Droid build differ. The reported comparison includes different Android version-control metadata (`NO_VALID_GIT_FOUND` in the reference APK versus an embedded Git revision in the F-Droid build) and a `classes.dex` difference.
+F-Droid automatic update processing created fdroiddata MR `!46016` for v0.1.4 / 104, but its original binary verification failed against the former GitHub reference APK. Investigation showed that the original reported `classes.dex` difference was not reproducible on the canonical source/toolchain; the reproducible difference was AGP version-control metadata. The canonical GitHub v0.1.4 APK has now been rebuilt from the exact tagged Git checkout and replaced with a production-signed artifact containing the correct release revision.
 
-Durable defect tracker: GitHub Issue #38, **F-Droid Build Failed**.
+A downstream F-Droid retry/verification has **not yet been performed**. Durable tracker: GitHub Issue #38, **F-Droid Build Failed**.
 
-Do not claim v0.1.4 is available on F-Droid until the reproducibility/build issue is resolved and version 104 is actually published.
+Do not claim v0.1.4 is available on F-Droid until version 104 is actually published on the public package page.
 
 ### APKPure
 
-The official APKPure package listing exists for `com.k2040.geojoystick`. The maintainer submitted the v0.1.4 update through the authenticated publisher flow. Treat v0.1.4 as **submitted/pending verification**, not confirmed live, until the public listing is checked successfully.
+The official APKPure package listing exists for `com.k2040.geojoystick`. The maintainer submitted the v0.1.4 update through the authenticated publisher flow, but **v0.1.4 has not been published yet**. The pending submission must use the repaired canonical APK before publication; do not allow the superseded reference APK to become the first public APKPure v0.1.4 binary.
 
 ### OpenAPK
 
-The maintainer submitted GeoJoystick to OpenAPK. Treat this as **submitted/pending review or publication** until a public listing is independently verified.
+The maintainer submitted GeoJoystick to OpenAPK. Treat this as **submitted/pending review or publication** until a public listing is independently verified. After the repaired canonical APK is propagated, determine whether OpenAPK stores an independent old binary or mirrors the canonical source before changing anything.
 
 ### Uptodown
 
-The earlier v0.1.3 submission was rejected for low quality and the existing app entry currently prevents a new APK upload. The maintainer refreshed the English/German store descriptions and licensing information for v0.1.4 and submitted a support request asking Uptodown to reopen the existing entry for a new v0.1.4 review. Treat Uptodown as **pending support/review**, not a live v0.1.4 channel.
+The earlier v0.1.3 submission was rejected for low quality and the existing app entry currently prevents a new APK upload. The maintainer refreshed the English/German store descriptions and licensing information for v0.1.4 and submitted a support request asking Uptodown to reopen the existing entry for a new v0.1.4 review. Treat Uptodown as **pending support/review**, not a live v0.1.4 channel. Any future v0.1.4 upload must use the repaired canonical APK.
 
 Durable downstream tracker: GitHub Issue #37, **Complete GeoJoystick v0.1.4 downstream publication**.
 
 ## F-Droid/reproducibility boundary
 
-Keep developer-signed GitHub release evidence separate from F-Droid reproducibility evidence. The GitHub v0.1.4 artifact is already published and must not be silently replaced merely to satisfy downstream verification.
+Keep developer-signed GitHub release evidence separate from F-Droid reproducibility evidence. The explicitly approved v0.1.4 reference-APK repair is complete; its replacement hash, signer identity, source commit, and VCS revision are recorded above. Issue #38 remains open until downstream F-Droid verification succeeds.
 
-`FDROID_NOTES.md` owns the current F-Droid-specific state. Issue #38 owns unresolved remediation work.
+`FDROID_NOTES.md` owns the detailed F-Droid-specific state. Any future production signing, artifact replacement, tag/release mutation, or store/F-Droid submission remains an explicit maintainer-controlled publication action unless the current task has already authorized that exact action.
 
 ## Licensing and provenance
 
@@ -142,7 +145,7 @@ Completed implementation/QA history remains available through closed issues and 
 
 ## Validation boundary
 
-The v0.1.4 production release was created from a separately validated source/release workflow. Later accepted store screenshot and store icon changes are presentation metadata only and do not constitute runtime/device validation of a new release.
+The repaired v0.1.4 canonical APK was rebuilt from pristine source at the unchanged release commit and statically validated for package/version, production signer, APK Signature Scheme v2, alignment, corrected VCS revision, and preserved `classes.dex`. No runtime source changed as part of the artifact repair, so no additional physical-device QA was required or performed.
 
 Documentation-only maintenance does not require an Android rebuild when runtime source, dependencies, and build configuration are unchanged. Any future runtime, build-system, signing, mock-provider, location-input, or network behavior change requires scope-appropriate validation before release claims.
 
