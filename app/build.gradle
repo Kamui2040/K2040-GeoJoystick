@@ -7,10 +7,6 @@ android {
     compileSdk 36
     buildToolsVersion '35.0.0'
 
-    vcsInfo {
-        include = false
-    }
-
     defaultConfig {
         applicationId 'com.k2040.geojoystick'
         minSdk 27
@@ -21,6 +17,9 @@ android {
 
     buildTypes {
         release {
+            vcsInfo {
+                include = false
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
