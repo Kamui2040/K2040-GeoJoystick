@@ -5,9 +5,10 @@ plugins {
 android {
     namespace 'com.k2040.geojoystick'
     compileSdk 36
+    buildToolsVersion '35.0.0'
 
-    if (project.hasProperty('geoBuildToolsVersion')) {
-        buildToolsVersion project.property('geoBuildToolsVersion')
+    vcsInfo {
+        include = false
     }
 
     defaultConfig {
