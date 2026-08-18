@@ -1,149 +1,153 @@
 # Project Context
 
+Updated: 2026-08-18
+
 ## Purpose
 
-GeoJoystick is an open-source Android mock-location joystick intended for emulator and developer testing. It provides a floating joystick, speed presets, manual coordinates, an internal map picker, map-link coordinate import, and a persistent foreground service through Android's standard mock-location provider flow.
+GeoJoystick is an open-source Android mock-location joystick for emulator and developer testing. It uses Android's standard mock-location provider flow and manual Developer Options selection. Public descriptions must not present it as game tooling, cheating software, anti-detection tooling, or a bypass utility.
 
-## Current public release
+The app remains ad-free, account-free, analytics-free, tracking-free, subscription-free, and free of mandatory proprietary services. Saved coordinates, favorites, and settings remain local unless the user explicitly performs a documented external action. The built-in map uses OpenStreetMap only when opened, with required attribution preserved.
 
-- Version: 0.1.3
-- Version code: 103
-- Canonical repository: https://github.com/Kamui2040/K2040-GeoJoystick
-- F-Droid submission MR !42238 is merged into `fdroid/fdroiddata` master; the store may still show v0.1.2 until the v0.1.3 metadata/build update is processed.
-- Official APKPure listing is live at https://apkpure.com/p/com.k2040.geojoystick.
-- GitHub Releases remains the canonical source for release notes and published release assets.
-- No APKPure installation smoke test is recorded in this repository yet.
-- Current `main` now builds with compileSdk/targetSdk 36 after Issue #11; this development baseline does not itself publish or replace any existing release artifact.
+## Current canonical release
 
-GeoJoystick remains ad-free, account-free, analytics-free, tracking-free, subscription-free, and free of mandatory proprietary services. Saved coordinates, favorites, and settings remain local unless the user explicitly performs a documented external action. The map uses OpenStreetMap only when opened, with required attribution preserved.
+The current canonical production release is **GeoJoystick v0.1.4 (`versionCode 104`)**.
 
-## Upstream relationship
+- Tag: `v0.1.4`
+- Release source commit: `0c3ae37501660300e4f23c45aeb07cffb68e62f9`
+- Release: https://github.com/Kamui2040/K2040-GeoJoystick/releases/tag/v0.1.4
+- APK: `GeoJoystick-v0.1.4.apk`
+- APK size: `1,754,890` bytes
+- APK SHA-256: `f768d9ed09aa16d51a585470804374b52972f34ffb778f615b580de466b1d312`
+- Production signer certificate SHA-256: `e0a833050d7c8fce7ddce85b2a86561304456d87b67bd6be1577d8f657e16778`
+- APK Signature Scheme v2: verified
 
-The project reuses and simplifies architecture and movement concepts from `ZCShou/GoGoGo`, baseline commit `de0d596190c57b8ca71481f60ce6b9e50af5107f`, under GPL-3.0-only. The Baidu SDK, embedded signing configuration, updater, logging stack, history database, and legacy permissions are intentionally not carried over.
+GitHub Releases remains the authoritative source for published developer-signed artifacts and release notes.
 
-Public descriptions should present GeoJoystick as a mock-location utility for emulator and developer testing, not as game tooling, cheating software, anti-detection tooling, or a bypass utility.
+After the v0.1.4 release source, `main` received only documentation/store-metadata work through the accepted screenshot and store-icon corrections; no Android runtime source changed in those post-release commits. A new production release is therefore not implied by later `main` documentation or Fastlane asset updates.
+
+## v0.1.4 accepted product state
+
+v0.1.4 includes the previously accepted lifecycle/state reconciliation plus the later UI, onboarding, accessibility, mascot, store-metadata, and Android 16 work.
+
+Current accepted behavior includes:
+
+- manual latitude, longitude, and altitude entry with strict validation
+- built-in OpenStreetMap picker
+- supported map-link coordinate import with bounded network resolution where needed
+- floating joystick with expanded and compact layouts
+- walk, run, bike-style, and custom speed presets
+- hold, pause, hide, and stop controls
+- explicit start/active/failure state reconciliation
+- optional restore of the last successfully published position
+- five named favorite-location slots
+- overlay opacity, high-contrast controls, and reset-position action
+- System/Light/Dark appearance and System/English/German language selection
+- first-run onboarding with Continue as the acknowledgement path
+- About, Changelog, License & usage, Sources, GPL, artwork, and OpenStreetMap/ODbL information surfaces
+- Android 16 / API 36 back-navigation compatibility
+- no concealment of Android mock-location status
+
+Invalid, missing, malformed, non-finite, out-of-range, ambiguous, or unsupported coordinate input fails closed. Parse or validation failure must never substitute a real-world fallback coordinate.
+
+## Build baseline
+
+Current maintained development baseline:
+
+- JDK 17
+- Android SDK Platform 36
+- `compileSdk 36`
+- `targetSdk 36`
+- `minSdk 27`
+- Android Gradle Plugin 8.12.3
+- Gradle 8.13
+- Build Tools 35.0.0 or a newer compatible stable version
+
+The repository-owned bootstrap remains the supported build path. Public builds must remain independent of private credentials, signing material, or private infrastructure.
+
+## Store assets and presentation
+
+The accepted current Fastlane/store presentation uses sanitized real-device screenshots with synthetic coordinates only.
+
+- English screenshots: Main, Settings, About, Map + overlay
+- German screenshots: Main, Settings, About, Map + overlay
+- Screenshot provenance and accepted hashes: `fastlane/metadata/android/SCREENSHOT_PROVENANCE.md`
+- Current store icon: 512×512 32-bit RGBA PNG exported directly from the accepted gecko launcher artwork
+- Store icon SHA-256: `6bf5a6fd69fb88f1a18e65177addc9ff64abe090bc812e5e0241bb5495383074`
+
+Historical screenshots containing authentic precise location material remain removed and must not be restored.
+
+## Downstream publication state
+
+### GitHub
+
+v0.1.4 is published and is the canonical release.
+
+### K2040 Android Projects
+
+The GeoJoystick Android Projects page is published for v0.1.4. It uses the exact accepted English/German 1024×500 promotional banners rather than reconstructed artwork, and the landing-page Latest / Project Updates entry uses the same localized banner set.
+
+### F-Droid
+
+The public F-Droid package page currently exposes **0.1.3 (`versionCode 103`)** as the suggested version.
+
+F-Droid automatic update processing created fdroiddata MR `!46016` for v0.1.4 / 104, but binary verification failed because the published reference APK and the F-Droid build differ. The reported comparison includes different Android version-control metadata (`NO_VALID_GIT_FOUND` in the reference APK versus an embedded Git revision in the F-Droid build) and a `classes.dex` difference.
+
+Durable defect tracker: GitHub Issue #38, **F-Droid Build Failed**.
+
+Do not claim v0.1.4 is available on F-Droid until the reproducibility/build issue is resolved and version 104 is actually published.
+
+### APKPure
+
+The official APKPure package listing exists for `com.k2040.geojoystick`. The maintainer submitted the v0.1.4 update through the authenticated publisher flow. Treat v0.1.4 as **submitted/pending verification**, not confirmed live, until the public listing is checked successfully.
+
+### OpenAPK
+
+The maintainer submitted GeoJoystick to OpenAPK. Treat this as **submitted/pending review or publication** until a public listing is independently verified.
+
+### Uptodown
+
+The earlier v0.1.3 submission was rejected for low quality and the existing app entry currently prevents a new APK upload. The maintainer refreshed the English/German store descriptions and licensing information for v0.1.4 and submitted a support request asking Uptodown to reopen the existing entry for a new v0.1.4 review. Treat Uptodown as **pending support/review**, not a live v0.1.4 channel.
+
+Durable downstream tracker: GitHub Issue #37, **Complete GeoJoystick v0.1.4 downstream publication**.
+
+## F-Droid/reproducibility boundary
+
+Keep developer-signed GitHub release evidence separate from F-Droid reproducibility evidence. The GitHub v0.1.4 artifact is already published and must not be silently replaced merely to satisfy downstream verification.
+
+`FDROID_NOTES.md` owns the current F-Droid-specific state. Issue #38 owns unresolved remediation work.
 
 ## Licensing and provenance
 
 - Application code remains `GPL-3.0-only`.
-- K2040-authored GPL code carries the separate GPLv3 section 7(b) attribution-preservation term only where the source file explicitly marks that term as applicable.
-- Original K2040 artwork and UI artwork with established project provenance is `CC-BY-4.0`, including the bundled K2040 avatar, the GeoJoystick waving gecko mascot, and the simplified full-color launcher emblem.
+- K2040-authored GPL code carries the separate GPLv3 section 7(b) attribution-preservation term only where the source file explicitly marks it as applicable.
+- Original K2040 artwork and UI artwork with established project provenance is `CC-BY-4.0`, including the bundled K2040 avatar, the GeoJoystick mascot, and the simplified gecko + joystick launcher identity.
 - GoGoGo-derived and other third-party code/assets/data retain their own controlling licences, notices, and attribution.
 - OpenStreetMap data remains © OpenStreetMap contributors under ODbL 1.0.
-- F-Droid metadata includes `AntiFeatures: TetheredNet` because the optional map picker uses OpenStreetMap services.
+- F-Droid metadata discloses the OpenStreetMap-backed map picker with the applicable network-service anti-feature note.
 
-## Accepted development integration on main
+`NOTICE.md` owns detailed provenance and attribution scope.
 
-The accepted reconciliation, Issue #13 onboarding/About/licensing work, Issue #16 restore-last-position follow-up, and Issues #15/#20/#21 UI redesign are integrated into `main` through squash-merged PR #14.
+## Upstream relationship
 
-- PR #14 merge commit: `2864c7711b256214493362c03915a60c53fa589e`
-- validated PR #14 head before squash: `adb804e14543654ad5d638dd89e2b80dc0df300c`
-- validated base `main`: `0dcd335fd4ebb6810a0dc2ea82dc7854ed3ed4b4`
-- PR #23 UI redesign squash on the integration branch: `454624a65562fe8c52dd482426144ea71135b0c4`
-- final physically accepted pre-integration runtime candidate: `9c83e7bd8e35362d65c51db8310550a06923def5`
-- accepted/final-validation debug APK SHA-256: `01966f8d426452750acec9b9819859a72218442899be1553f711d9c0d707f455`
+GeoJoystick reuses and simplifies architecture and movement concepts from `ZCShou/GoGoGo`, baseline commit `de0d596190c57b8ca71481f60ce6b9e50af5107f`, under GPL-3.0-only. The Baidu SDK, embedded signing configuration, updater, logging stack, history database, and legacy permissions are intentionally not carried over.
 
-Issues #9, #10, #11, #13, #15, #16, #20, #21, #22, and #27 are closed as completed.
+## Current durable work
 
-### Lifecycle/state behavior
+Open public issues currently requiring follow-up:
 
-Issue #9 physical-device lifecycle/state reconciliation is accepted. Accepted coverage includes fresh/unset and invalid-input behavior, successful-publication gating and last-active persistence, mock-location app-op/manual deselection reconciliation, provider/publication failure cleanup, process-death and reboot stale-state behavior, restore-last-position behavior, all three user-visible stop paths, and a final inactive state. Android mock-location-app selection remained manual and user-controlled throughout.
+- #37 — Complete GeoJoystick v0.1.4 downstream publication
+- #38 — F-Droid Build Failed
 
-Issue #16 prevents detached Settings-page coordinate fields from overwriting a restored draft. Local validation and physical-device regression confirmed normal home-to-Settings draft persistence and restore-last-position behavior without unintended service startup.
+Completed implementation/QA history remains available through closed issues and merged PRs. This file intentionally keeps only current state and durable boundaries rather than repeating the full historical integration chronology.
 
-### Onboarding, About, licensing, and provenance presentation
+## Validation boundary
 
-Issue #13 is accepted and integrated. Continue remains the only onboarding acknowledgement path, incoming shared intents remain deferred until acknowledgement, and About/Changelog/License & usage/Sources/GPL/CC BY 4.0 artwork/OpenStreetMap-ODbL information remain maintained in-app surfaces with the authorship/provenance boundaries above.
+The v0.1.4 production release was created from a separately validated source/release workflow. Later accepted store screenshot and store icon changes are presentation metadata only and do not constitute runtime/device validation of a new release.
 
-Focused English/German physical-device QA passed. A synthetic plain-coordinate `ACTION_SEND` remained deferred until Continue and was processed only afterward. Simulation remained inactive and Android's mock-location selection was unchanged during that accepted QA.
+Documentation-only maintenance does not require an Android rebuild when runtime source, dependencies, and build configuration are unchanged. Any future runtime, build-system, signing, mock-provider, location-input, or network behavior change requires scope-appropriate validation before release claims.
 
-### Accepted UI redesign
-
-- Issue #15: overlay glyphs use the accepted 10/11/12dp visual sizes while existing 48dp interaction targets remain; expanded speed/action frames are visually inset; compact `+`/`−` remain small and borderless; direction guides are lighter; compact mode removes the outer panel/frame entirely so only the joystick and `+` remain visible; expanding restores the full panel.
-- Issue #20: Status is collapsed by default with reduced vertical padding; the Status label and chevron remain vertically centered in a fixed header position while details expand below; `Simulation`, Start, and Stop share one centered horizontal row with preserved interaction targets and existing provider/lifecycle methods.
-- Issue #21: Settings secondary descriptions are removed; Mock location, Overlay permission, Restore last position, and Overlay high contrast show explicit state text with green/red state styling while remaining understandable without color alone; Settings refreshes after returning from Android settings.
-
-Physical-device visual QA accepted the complete redesign on 2026-08-15. Signer-safe installation preserved app data and the user-controlled Android mock-location selection.
-
-### Accessibility and device-scale behavior
-
-Issue #10 is accepted and closed. Reusable deterministic device-scale/accessibility automation was added through squash-merged PR #24.
-
-- PR #24 QA-tooling merge commit: `baf1eb79c4f60be5858850d6d6deb54931f426fb`
-- PR #25 accessibility runtime-fix merge commit: `167937578c1d3410bb67a74d20feb69d168b9f14`
-- validated PR #25 head before squash: `6afeef4504dddca68111c85827f56ddf9d5b07ec`
-- accepted PR #25 debug APK SHA-256: `88260a65f4d5488c2845a280ebf094efb3c471d7d4c4230616137a4717523038`
-
-The maintained harness covers an 18-scenario matrix across English/German, System/Light/Dark appearance, representative font scales through 2.0x, and baseline/stress display density. It preserves and restores app preferences, font scale, density, and inactive simulation state; uses synthetic coordinates for the overlay phase; and keeps private QA device identity out of Git.
-
-The complete refined run separated UIAutomator viewport/hierarchy artifacts from two genuine defects. PR #25 enlarged the clickable Home About/avatar target to 48dp while preserving its approximately 40dp visual footprint, and made the About body vertically scrollable while retaining the fixed identity/close row. Focused device QA confirmed a 48.0x48.0dp About target and English/German About navigation reachability at 2.0x font scale. Signer-safe replacement preserved app data, mock-location selection, overlay permission, and inactive simulation state. Human visual QA accepted normal-scale presentation, About scrolling/fixed close behavior, Theme/Language dialogs, and large-font About usability.
-
-### Mascot and launcher identity
-
-Issue #22 is accepted and integrated through squash-merged PR #26.
-
-- PR #26 mascot/icon merge commit: `cfb5d7162d75c60573dcf24cc7b3730a1b887868`
-- validated PR #26 head before squash: `61894232c7831dbf9f81bc71fac680fd85067a23`
-- accepted PR #26 debug APK SHA-256: `470a67059c1723f5a0e9654cce83ad3687cd7fc2a5a502a4b111b469d99e44cc`
-
-The home-header About entry now uses the user-approved waving gecko interacting with an arcade joystick. Tapping it continues to open the existing About card, which retains the K2040 avatar; Welcome also retains the K2040 avatar. The full-color launcher/app-drawer artwork uses the separately reviewed and approved simplified gecko + joystick map-pin emblem. The existing adaptive-icon wiring and themed monochrome artwork remain unchanged.
-
-The accepted launcher artwork is stored as a lossless WebP resource after the original indexed PNG exposed an AAPT2 release-resource compilation incompatibility. The replacement preserves the approved 384×384 artwork pixel-for-pixel while using an Android-compatible resource container. `NOTICE.md` records both accepted GeoJoystick assets under the existing K2040 CC BY 4.0 provenance framework.
-
-Fastlane store metadata is now aligned with the accepted gecko launcher identity: `fastlane/metadata/android/en-US/images/icon.png` is a direct 512×512 32-bit RGBA PNG export of the current launcher artwork (`SHA-256 6bf5a6fd69fb88f1a18e65177addc9ff64abe090bc812e5e0241bb5495383074`). This supersedes the stale pre-gecko store icon. Store publication remains a separate maintainer-controlled action.
-
-Local and physical validation on the exact PR #26 head passed `git diff --check`, the `LocationLinkParser` regression harness, `tools/build.py`, `testDebugUnitTest`, `lintRelease`, `assembleRelease` including release AAPT2 resource processing, and signer-safe replacement installation. Installation preserved app data, the user-controlled mock-location app-op state, overlay permission, and inactive simulation state. Human visual QA accepted the in-app mascot, About tap-through/K2040 avatar, and centered/unclipped app-drawer symbol. The primary local checkout remained untouched and temporary QA artifacts were cleaned.
-
-### Android 16 / API 36 development baseline
-
-Issue #11 is accepted and integrated through squash-merged PR #28, and its predictive-back follow-up Issue #27 is accepted and integrated through squash-merged PR #29.
-
-- PR #28 API 36 merge commit: `ded38f66d6fd04f9a1c390c974f3d696f0eb73df`
-- validated PR #28 head before squash: `47d776484b65becb45a4c1b3b5fecf1cf9747614`
-- accepted PR #28 debug APK SHA-256: `942a2dd644ed196850d0b194e9916ab66b0a1cc0abd3a100a4ad6fc3e6385136`
-- PR #29 predictive-back merge commit: `7bc1e32d0d802418791d9afc1c1f9617503c3cb4`
-- validated PR #29 head before squash: `cb436eed4481f48ce9e645a56032fcb8b7f75347`
-- accepted PR #29 debug APK SHA-256: `b790093b95f21240e6f2d2ec9dca9c1bd37eb43fd21028631b3f76c5b5eff7ff`
-
-The maintained development build baseline is now JDK 17, Android SDK Platform 36, `compileSdk 36`, `targetSdk 36`, `minSdk 27`, AGP 8.12.3, and Gradle 8.13. Build Tools 35.0.0 or a newer compatible stable version remain accepted; the validated migration used Build Tools 36.0.0. `tools/build.py` now checks/installs Platform 36 rather than Platform 35.
-
-The Android 16 review found no required change to GeoJoystick's standard Android mock-location test-provider flow, `specialUse` foreground-service declaration, notification permission handling, overlay permission model, backup/data-extraction exclusions, exported-component boundaries, or optional OpenStreetMap/link-resolution network behavior. The migration added no proprietary dependency, API key, root/Shizuku requirement, concealment mechanism, or non-standard location injection.
-
-MainActivity now uses the platform `OnBackInvokedDispatcher` on Android 13/API 33+ only while GeoJoystick is displaying custom nested UI that needs to intercept Back. Home/main leaves the custom callback unregistered so Android retains normal system back-to-home/task behavior. Android 8.1–12L retains the legacy `onBackPressed()` fallback for the maintained minSdk 27 range with a method-scoped lint suppression. The temporary MainActivity `android:enableOnBackInvokedCallback="false"` manifest opt-out and root `lint.xml` workaround introduced during the API 36 transition are removed. `MapActivity` remains on normal Android back behavior.
-
-Final exact-head API 36 validation passed `git diff --check`, the `LocationLinkParser` regression harness, Platform 36 debug build, `testDebugUnitTest`, `lintRelease`, and unsigned `assembleRelease`. Signer-safe replacement installation preserved app data, mock-location app-op state, and overlay permission. Physical Android 16/API 36 regression confirmed Settings -> Home, About -> Home, and nested License -> About -> Home Back behavior; synthetic-coordinate foreground simulation start/publication and a user-visible stop path; invalid-input start remaining inactive; byte-for-byte preference restoration; and a final inactive simulation state. The primary local checkout remained untouched and temporary QA artifacts were cleaned.
-
-Issue #27 exact-head validation additionally passed Platform 36 debug/release builds and `lintRelease` with the temporary root lint workaround absent. Deterministic Android 16 navigation checks passed Settings -> Home, About -> Home, Changelog -> About -> Home, Sources -> About, GPL -> License -> About -> Home, the Welcome Back guard, and normal Home system Back. Preferences were restored byte-for-byte, mock-location and overlay app-op state were preserved, and simulation remained inactive. One injected touch-edge swipe on Sources was inconclusive, but the unchanged candidate passed the same Sources -> About route through deterministic Back dispatch. The canonical QA device is configured for 3-button navigation (`navigation_mode=0`, three-button SystemUI overlay active, gestural overlay inactive), so a human predictive edge-gesture animation check was not applicable without changing the user's system navigation configuration; that configuration was intentionally left unchanged for QA.
-
-## Final integration validation
-
-The complete PR #14 tree was validated locally before merge as one unit rather than relying only on component validation:
-
-- exact PR head/base pair verified before validation
-- full PR `git diff --check`: PASS
-- accepted PR #23 UI tree unchanged by squash/integration: PASS
-- obsolete GitHub Actions workflow absent from the maintained tree
-- dependency-free `LocationLinkParser` regression: PASS
-- JDK 17 / Android SDK Platform 35 / Build Tools 36.0.0 debug build: PASS
-- package identity `com.k2040.geojoystick` 0.1.3 (103): PASS
-- `:app:testDebugUnitTest`: NO-SOURCE at this boundary
-- `:app:lintRelease`: PASS
-- `:app:assembleRelease`: PASS
-- tracked source and primary checkout preserved
-- temporary validation worktrees cleaned
-- device not modified by the final integration build pass
-- no GitHub Actions jobs were dispatched or used as integration-validation evidence
-
-Issue #10's later runtime fix was separately validated on its exact source head with `git diff --check`, parser regression, JDK 17 / SDK 35 / Build Tools 36.0.0 debug build, `testDebugUnitTest`, `lintRelease`, `assembleRelease`, signer-safe physical installation, focused structural QA, state restoration, and human visual acceptance. GitHub Actions were not used as validation evidence for that workflow.
-
-Issue #22's mascot/icon integration was separately validated on its exact source head with provider-side scope checks, `git diff --check`, parser regression, JDK 17 / SDK 35 / Build Tools 36.0.0 debug build, `testDebugUnitTest`, `lintRelease`, `assembleRelease`, successful release AAPT2 processing of the lossless launcher resource, signer-safe physical installation, state preservation, and human visual acceptance. GitHub Actions were not used as validation evidence for that workflow.
-
-Issue #11's API 36 migration was separately validated on its exact source head with Platform 36, Build Tools 36.0.0, parser regression, debug/release builds, lint, signer-safe installation, target-36 Back compatibility, synthetic start/publication/stop, invalid-input reconciliation, and complete state restoration. No GitHub Actions jobs were dispatched or used as validation evidence.
-
-Issue #27's predictive-back integration was separately validated on its exact source head with Platform 36, parser regression, debug/release builds, lint without the temporary root exception, signer-safe installation, deterministic nested-page Back routing, Welcome guarding, Home system-Back behavior, complete preference restoration, preserved app-ops, and inactive simulation. The canonical QA device's current 3-button navigation mode made visual predictive edge-gesture animation QA not applicable without changing system navigation settings, so that configuration was preserved. No GitHub Actions jobs were dispatched or used as validation evidence.
-
-No additional Android build is required for this documentation-only post-merge context update.
+GitHub Actions are not used as PC/Linux validation evidence unless explicitly approved for a separate workflow.
 
 ## Publication boundary
 
-The accepted development integration is now on `main`, but it is not a production release action. Production signing, reproducibility claims, tags/releases, F-Droid/store publication, deployments, announcements, repository-visibility changes, and comparable public actions remain separate explicit approval gates.
+Production signing, new tags/releases, F-Droid/store submissions, deployments, announcements, and comparable publication actions remain explicit maintainer-controlled gates unless the current task has already authorized the specific action.

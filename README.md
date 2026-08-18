@@ -21,14 +21,26 @@ It uses Android's standard mock-location provider flow, shows a small floating j
 - Overlay opacity and high-contrast settings
 - Reset overlay position from the main screen
 - Foreground notification while the simulation service is running
+- First-run onboarding plus About, Changelog, License & usage, and Sources information
 - No ads, subscriptions, accounts, analytics, billing, or updater
 
-## Downloads
+## Current release
+
+The current canonical release is **GeoJoystick v0.1.4** (`versionCode 104`).
+
+- Release: https://github.com/Kamui2040/K2040-GeoJoystick/releases/tag/v0.1.4
+- APK: https://github.com/Kamui2040/K2040-GeoJoystick/releases/download/v0.1.4/GeoJoystick-v0.1.4.apk
+
+GitHub Releases is the authoritative source for published release notes and developer-signed APKs. Development `main` may contain later documentation or store-metadata changes that are not a new runtime release.
+
+## Downloads and project pages
 
 - GitHub Releases: https://github.com/Kamui2040/K2040-GeoJoystick/releases
+- F-Droid: https://f-droid.org/packages/com.k2040.geojoystick/
 - APKPure: https://apkpure.com/p/com.k2040.geojoystick
+- K2040 Android Projects: https://kamui2040.github.io/K2040-Android-Releases/apps/geojoystick/
 
-GitHub Releases remains the canonical source for release notes and published release assets. The APKPure page is an official store listing for the same app package, `com.k2040.geojoystick`. Development branches may contain changes that are not part of the latest published release.
+Downstream stores may update on a different schedule from the canonical GitHub release. Mutable publication status is tracked in `PROJECT_CONTEXT.md` and the repository issues rather than duplicated here.
 
 ## Build locally
 
@@ -36,7 +48,7 @@ The project intentionally uses a small Python bootstrap instead of committing a 
 
 Requirements:
 
-- JDK 17 (current build baseline)
+- JDK 17
 - Android SDK Platform 36
 - Android SDK Build-Tools 35.0.0 or newer compatible stable version
 - Python 3
@@ -70,7 +82,7 @@ A matching SHA-256 is written to `dist/SHA256SUMS.txt`.
 3. In Android Developer options, select **GeoJoystick** as the mock-location app.
 4. Enter coordinates, choose a location on the map, or import a supported map link.
 5. Press **Start simulation**, then use the floating overlay.
-6. Use **Settings** for app appearance, language, setup actions, overlay opacity, high contrast, restore-last-position, reset overlay position, favorites, and custom speed.
+6. Use **Settings** for appearance, language, setup actions, overlay opacity, high contrast, restore-last-position, reset overlay position, favorites, and custom speed.
 
 The app uses ordinary Android mock locations and does not attempt to conceal that status.
 
@@ -80,7 +92,7 @@ The built-in picker loads OpenStreetMap map tiles only when the map is used. Its
 
 Coordinate import accepts supported HTTPS links from Google Maps, Apple Maps, and OpenStreetMap. Coordinates embedded directly in a supported link are parsed locally. When a supported link needs resolution, the app performs a bounded HTTPS request with redirect, size, timeout, host, and public-address checks; unsupported or invalid input is rejected rather than replaced with a fallback location.
 
-For F-Droid submission prep, see `FDROID_NOTES.md`.
+For F-Droid-specific state and reproducibility notes, see `FDROID_NOTES.md`.
 
 ## Support
 
