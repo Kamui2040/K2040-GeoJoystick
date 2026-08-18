@@ -109,7 +109,7 @@ The maintainer submitted GeoJoystick to OpenAPK. Treat this as **submitted/pendi
 
 ### Uptodown
 
-The GeoJoystick Uptodown listing has been restored and is publicly available again, but it still exposes the previous **v0.1.3 (`versionCode 103`)** release rather than v0.1.4. The former blocked-entry/restoration gate is therefore resolved. The remaining Uptodown work is to submit the repaired canonical v0.1.4 APK and then verify that the public listing serves v0.1.4 / 104 before marking the channel current.
+Uptodown has approved and publicly published the **corrected canonical v0.1.4 (`versionCode 104`) package**. The Uptodown channel is therefore current for v0.1.4, and no further publisher action is required for this release unless new feedback or a later release creates a new gate.
 
 Durable downstream tracker: GitHub Issue #37, **Complete GeoJoystick v0.1.4 downstream publication**.
 
