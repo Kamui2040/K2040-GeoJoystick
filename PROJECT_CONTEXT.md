@@ -104,13 +104,18 @@ The published F-Droid versions use the established GeoJoystick developer signing
 
 F-Droid automatic update processing created fdroiddata MR `!46016` for v0.1.4 / 104. The original developer-binary verification failed. The technical source/build and developer-signing diagnosis is now closed:
 
-- a controlled fdroiddata fork CI test on 2026-08-19 successfully built v0.1.4 from the exact release commit using the normal F-Droid source-build path;
+- exact F-Droid source build succeeds from release commit `0c3ae37501660300e4f23c45aeb07cffb68e62f9`;
 - exact F-Droid unsigned v0.1.4 diagnostic APK SHA-256: `a7f7d0b1d04bf6bbc15fa352830054d2b7c16c9509e9d60aea26e467a8d7fc1f`;
 - implicit Build-Tools 35 `apksigner` scheme defaults were confirmed to generate JAR-signing material that breaks F-Droid signature-copy verification despite verifier output reporting v1 as false;
 - the validated production path explicitly uses v1 `false`, v2 `true`, v3 `true`, v4 `false` with `--alignment-preserved`;
-- the exact canonical GitHub APK now uses that corrected path and passes the retained F-Droid signature-copy verification with byte identity.
+- the exact canonical GitHub APK now uses that corrected path and passes the retained local F-Droid signature-copy verification with byte identity;
+- diagnostic branch `geojoystick-v104-canonical-reference-test` at commit `bcb24ac45aa8c15786a1da703cab547c2e08a19d` changed only the v104 build-specific `binary:` URL to the canonical GitHub release URL;
+- pipeline `2773265250` exact `fdroid build` job `15987693203` succeeded: F-Droid built v104 from the exact release commit, retrieved the canonical GitHub APK, verified its v1/v2/v3/v4 state, successfully verified the copied-signature APK, and reported that the built binary matched the supplied reference binary;
+- the earlier v3 `CHUNKED_SHA512` mismatch was absent.
 
-The next downstream step is to retry the existing v104 developer-binary verification path against the unchanged GitHub release URL, which now serves the corrected canonical APK. Issue #38 remains open until the actual F-Droid path succeeds and version 104 is published.
+The aggregate diagnostic pipeline was failed by another job, but the exact GeoJoystick `fdroid build` job is independently verified successful. That aggregate failure must be classified separately before it is used as production CI evidence.
+
+The next downstream step is to inspect MR `!46016` and its exact production metadata/source branch, classify the unrelated aggregate pipeline failure, then apply only the minimal production fdroiddata correction required to use the verified developer-binary path. Issue #38 remains open until the production F-Droid path is complete and version 104 is public.
 
 Do not claim v0.1.4 is available on F-Droid until version 104 is actually published on the public package page.
 
@@ -138,8 +143,11 @@ Verified on 2026-08-19:
 - current F-Droid unsigned diagnostic APK SHA-256 is `a7f7d0b1d04bf6bbc15fa352830054d2b7c16c9509e9d60aea26e467a8d7fc1f`;
 - implicit `apksigner` signing-scheme defaults are the confirmed cause of the reproducible-binary signature-copy failure;
 - the validated GeoJoystick signing recipe explicitly sets v1 `false`, v2 `true`, v3 `true`, v4 `false` and uses `--alignment-preserved` with Build-Tools 35;
-- the canonical published GitHub APK SHA-256 `2f6ce92f8b3bbe33dde16e1aef0254a35c939a5382ac108d1a580a0eb05c83d0` passes signer, scheme, `META-INF`, alignment, release-content, post-download, signature-copy verification, and byte-identity gates;
+- the canonical published GitHub APK SHA-256 `2f6ce92f8b3bbe33dde16e1aef0254a35c939a5382ac108d1a580a0eb05c83d0` passes signer, scheme, `META-INF`, alignment, release-content, post-download, and local signature-copy byte-identity gates;
+- the exact fdroiddata diagnostic `fdroid build` job also verifies the copied-signature APK and reports the F-Droid-built binary matches the canonical GitHub developer APK;
 - ordinary F-Droid repository signing is not the current migration path because existing F-Droid installations already rely on the GeoJoystick developer signing identity.
+
+No further APK rebuild or signing is required by the currently verified v0.1.4 reproducibility result.
 
 `FDROID_NOTES.md` owns the detailed F-Droid-specific state and reproducible-signing requirements. Any future production signing, release-asset replacement, tag/release mutation, or store/F-Droid submission beyond the already approved work remains an explicit maintainer-controlled publication action unless the current task has already authorized that exact action.
 
@@ -169,7 +177,9 @@ Completed implementation/QA history remains available through closed issues and 
 
 ## Validation boundary
 
-The current published v0.1.4 GitHub APK was validated after publication for package/version, permanent signer, explicit v1 `false` / v2 `true` / v3 `true` / v4 `false` scheme state, accepted `classes.dex`, exact release revision, absence of generated JAR-signing metadata, `zipalign -c 4`, and exact F-Droid signature-copy byte identity. Its SHA-256 is `2f6ce92f8b3bbe33dde16e1aef0254a35c939a5382ac108d1a580a0eb05c83d0`.
+The current published v0.1.4 GitHub APK was validated after publication for package/version, permanent signer, explicit v1 `false` / v2 `true` / v3 `true` / v4 `false` scheme state, accepted `classes.dex`, exact release revision, absence of generated JAR-signing metadata, `zipalign -c 4`, and exact retained F-Droid signature-copy byte identity. Its SHA-256 is `2f6ce92f8b3bbe33dde16e1aef0254a35c939a5382ac108d1a580a0eb05c83d0`.
+
+The fdroiddata canonical-reference diagnostic independently proved that F-Droid's own v104 `fdroid build` path retrieves that exact canonical GitHub reference, builds from the exact v0.1.4 source commit, successfully verifies the copied-signature APK, and reports that the built APK matches the supplied developer binary. The exact job succeeded even though an unrelated job caused the aggregate diagnostic pipeline to fail.
 
 No Android runtime source changed during this diagnosis or artifact replacement, so no physical-device QA was required or performed.
 
