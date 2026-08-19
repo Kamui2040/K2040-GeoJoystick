@@ -141,7 +141,7 @@ That production F-Droid submission / upstream human communication remains approv
 
 ### APKPure
 
-The authenticated publisher flow has an earlier v0.1.4 submission still awaiting review. The console did not permit replacing the pending binary at last check. At the first permitted publisher action, use the current canonical APK.
+APKPure has published the corrected canonical GeoJoystick v0.1.4 / versionCode 104 package. The publisher-side publication state was confirmed by the maintainer on 2026-08-19. No further APKPure replacement action is required for this release unless later verification identifies a mismatch or a future release supersedes it.
 
 ### OpenAPK
 
@@ -149,9 +149,7 @@ GeoJoystick was submitted. Treat it as pending review/publication until a public
 
 ### Uptodown
 
-Uptodown previously published the then-canonical v0.1.4 APK. Because the canonical GitHub APK was later replaced for F-Droid compatibility, Uptodown must be treated as serving a separately published earlier v0.1.4 artifact until independently compared or explicitly replaced.
-
-Durable downstream tracker: GitHub Issue #37, **Complete GeoJoystick v0.1.4 downstream publication**.
+Uptodown has published the corrected canonical GeoJoystick v0.1.4 / versionCode 104 package. The channel is current for this release; no further publisher action is required unless a later release or new evidence creates a new gate.
 
 ## Store assets and privacy
 
@@ -176,7 +174,6 @@ Current Fastlane/store presentation uses sanitized real-device screenshots with 
 
 Open public issues requiring follow-up:
 
-- #37 — Complete GeoJoystick v0.1.4 downstream publication
 - #38 — F-Droid Build Failed
 
 ## Validation boundary
