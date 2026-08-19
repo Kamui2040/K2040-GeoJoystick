@@ -34,17 +34,21 @@ The canonical GitHub release is **v0.1.4 (`versionCode 104`)** from source commi
 
 `0c3ae37501660300e4f23c45aeb07cffb68e62f9`
 
-The currently published GitHub APK remains:
+The currently published GitHub APK is:
 
 - `GeoJoystick-v0.1.4.apk`
-- size: `1,763,281` bytes
-- SHA-256: `450ca89ca53e875c4a1d6efa27928924a72b8324d762c6525f2471c80dfa1f3e`
+- size: `1,754,890` bytes
+- SHA-256: `2f6ce92f8b3bbe33dde16e1aef0254a35c939a5382ac108d1a580a0eb05c83d0`
 - production signer SHA-256: `e0a833050d7c8fce7ddce85b2a86561304456d87b67bd6be1577d8f657e16778`
+- APK Signature Scheme v1: disabled
+- APK Signature Scheme v2: enabled
+- APK Signature Scheme v3: enabled
+- APK Signature Scheme v4: disabled
 - embedded Git revision: `0c3ae37501660300e4f23c45aeb07cffb68e62f9`
 
-The previous GitHub v0.1.4 APK (`SHA-256 f768d9ed09aa16d51a585470804374b52972f34ffb778f615b580de466b1d312`) remains superseded. The release tag and source commit were not changed.
+On 2026-08-19 the previously published v0.1.4 APK (`SHA-256 450ca89ca53e875c4a1d6efa27928924a72b8324d762c6525f2471c80dfa1f3e`) was replaced under explicit maintainer approval with the corrected F-Droid-compatible artifact. The replacement was re-downloaded from GitHub and verified byte-for-byte against the accepted candidate. It preserves package/version, accepted `classes.dex`, exact release revision, permanent signing identity, and `zipalign -c 4`, contains no generated JAR-signing `.SF` / `.RSA` / `MANIFEST.MF` material, and passes the exact retained F-Droid `apksigcopier` signature-copy path with byte identity.
 
-The 2026-08-18 artifact repair corrected the source/VCS-metadata side of the original F-Droid mismatch, but later testing showed that the repaired published APK still used an F-Droid-incompatible manual signing invocation. The canonical GitHub release has **not** yet been replaced again; publication remains a separate maintainer-controlled action.
+The still earlier v0.1.4 APK (`SHA-256 f768d9ed09aa16d51a585470804374b52972f34ffb778f615b580de466b1d312`) also remains superseded. The release tag, source commit, source history, and release notes were not changed.
 
 ## v0.1.4 F-Droid investigation
 
@@ -64,7 +68,7 @@ A controlled fdroiddata fork CI test on 2026-08-19 confirmed that F-Droid can in
 
 ## Confirmed signing root cause
 
-The reproducible-binary failure is now isolated to the manual `apksigner` invocation used for the published developer APK.
+The reproducible-binary failure was isolated to the manual `apksigner` invocation used for the earlier published developer APK.
 
 Controlled A/B testing used the same exact unsigned APK, Build-Tools 35 `apksigner`, and the same disposable RSA-4096 key:
 
@@ -72,7 +76,7 @@ Controlled A/B testing used the same exact unsigned APK, Build-Tools 35 `apksign
 - F-Droid's vendored `apksigcopier.do_copy` completed on that APK, but the copied output failed verification with an APK Signature Scheme v3 `CHUNKED_SHA512 digest mismatch`;
 - with `--v1-signing-enabled false` explicitly supplied, the generated JAR-signing files were absent and the copied APK verified and was byte-for-byte identical to the signed input.
 
-The same explicit-scheme test was then repeated with the permanent GeoJoystick production key on the exact F-Droid unsigned APK. It passed all gates:
+The same explicit-scheme test was repeated with the permanent GeoJoystick production key on the exact F-Droid unsigned APK. It passed all gates:
 
 - production certificate SHA-256 remained `e0a833050d7c8fce7ddce85b2a86561304456d87b67bd6be1577d8f657e16778`;
 - v1 `false`, v2 `true`, v3 `true`, v4 `false` were explicitly selected and verified;
@@ -80,28 +84,27 @@ The same explicit-scheme test was then repeated with the permanent GeoJoystick p
 - `zipalign -c 4` passed;
 - F-Droid's vendored signature-copy path completed successfully;
 - copied output verified;
-- copied output was byte-for-byte identical to the signed diagnostic APK.
+- copied output was byte-for-byte identical.
 
-The successful permanent-key diagnostic APK had SHA-256:
+That exact validated permanent-key artifact is now the canonical published GitHub v0.1.4 APK with SHA-256:
 
 `2f6ce92f8b3bbe33dde16e1aef0254a35c939a5382ac108d1a580a0eb05c83d0`
-
-This diagnostic artifact is **not** a published release artifact and must not be presented as such.
 
 Root cause: **relying on implicit apksigner signing-scheme defaults generated JAR-signing metadata that breaks the F-Droid reproducible-binary signature-copy path, even though verifier output reports v1 as disabled.**
 
 ## Current v0.1.4 F-Droid status
 
-Issue #38 remains open because v0.1.4 has not yet completed the actual F-Droid publication path:
+Issue #38 remains open because v0.1.4 has not yet completed the downstream F-Droid publication path:
 
 https://github.com/Kamui2040/K2040-GeoJoystick/issues/38
 
-Technical source buildability and the corrected developer-signing recipe are now verified. Remaining production work is publication-controlled:
+The source build, corrected developer-signing recipe, canonical GitHub reference artifact, post-upload re-download verification, and local F-Droid signature-copy byte-identity gate are now verified.
 
-1. decide whether to replace the currently published GitHub v0.1.4 APK with a correctly signed artifact produced from the accepted F-Droid-compatible unsigned input;
-2. after any approved replacement, re-verify the downloaded GitHub asset for source/version, signer, explicit scheme state, absence of generated JAR-signing metadata, alignment, and F-Droid signature-copy byte identity;
-3. update/retry the F-Droid developer-binary verification path while preserving the established GeoJoystick signing identity;
-4. do not mark v0.1.4 available on F-Droid until version 104 is actually published on the public package page.
+Remaining work:
+
+1. retry the existing v104 developer-binary F-Droid verification path against the unchanged GitHub release URL, which now serves the corrected canonical APK;
+2. if the technical retry succeeds, update the production fdroiddata path without changing signing identity;
+3. do not mark v0.1.4 available on F-Droid until version 104 is actually published on the public package page.
 
 ## Reproducible-release requirements
 
