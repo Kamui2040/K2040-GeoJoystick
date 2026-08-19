@@ -64,7 +64,28 @@ The accepted source/build diagnostics established:
 - accepted `classes.dex` SHA-256: `edfc89a65c655a971cf0700614ce4688ddc4156db634003e4acc20de3ce61a8b`
 - exact F-Droid unsigned v0.1.4 diagnostic APK SHA-256: `a7f7d0b1d04bf6bbc15fa352830054d2b7c16c9509e9d60aea26e467a8d7fc1f`
 
-A controlled fdroiddata fork CI test on 2026-08-19 confirmed that F-Droid can independently build v0.1.4 from the exact release commit. That test was technical validation only, not a production submission. An attempted metadata shape that preserved historical developer-binary verification for old builds while making only v104 independently signed was invalid under the current fdroiddata schema, and ordinary F-Droid signing is not an acceptable migration path for this package because existing F-Droid users already receive developer-signed GeoJoystick updates.
+A controlled fdroiddata fork CI test on 2026-08-19 confirmed that F-Droid can independently build v0.1.4 from the exact release commit. An attempted metadata shape that preserved historical developer-binary verification for old builds while making only v104 independently signed was invalid under the current fdroiddata schema, and ordinary F-Droid signing is not an acceptable migration path for this package because existing F-Droid users already receive developer-signed GeoJoystick updates.
+
+A later diagnostic branch first reproduced the known signature-copy failure because its v104 build-specific `binary:` field still pointed at an obsolete GitLab test APK. That failed reference was SHA-256 `f5c9c7dc680bdb2ca48f4f7529e956211da66875ff029dbb307bb647bb973aea`, size `1,763,281` bytes. The failed branch `geojoystick-v104-repro-ci-test` remains preserved at commit `b777dcc1bbbf32d8491a3e6e5dff262499c684c8` as diagnostic evidence.
+
+A separate diagnostic branch then changed only the v104 `binary:` URL to the canonical GitHub release URL. Provider-side validation proved a one-file, one-line metadata delta. The test state was:
+
+- branch: `geojoystick-v104-canonical-reference-test`
+- commit: `bcb24ac45aa8c15786a1da703cab547c2e08a19d`
+- pipeline: `2773265250`
+- exact `fdroid build` job: `15987693203`
+
+The exact `fdroid build` job **succeeded** even though the aggregate diagnostic pipeline ended failed because of another job that has not yet been classified. The successful build job proved:
+
+- F-Droid built `com.k2040.geojoystick:104` from exact source commit `0c3ae37501660300e4f23c45aeb07cffb68e62f9`;
+- F-Droid actually retrieved `https://github.com/Kamui2040/K2040-GeoJoystick/releases/download/v0.1.4/GeoJoystick-v0.1.4.apk`;
+- the supplied reference APK verified with v1 `false`, v2 `true`, v3 `true`, v3.1 `false`, and v4 `false`;
+- the copied-signature APK verified successfully;
+- F-Droid reported `compared built binary to supplied reference binary successfully`;
+- F-Droid reported `success: com.k2040.geojoystick` and `1 build succeeded`;
+- the previous v3 `CHUNKED_SHA512` digest mismatch was absent.
+
+This closes the GeoJoystick v0.1.4 technical reproducible developer-binary verification gate against the actual canonical GitHub release APK.
 
 ## Confirmed signing root cause
 
@@ -94,17 +115,20 @@ Root cause: **relying on implicit apksigner signing-scheme defaults generated JA
 
 ## Current v0.1.4 F-Droid status
 
-Issue #38 remains open because v0.1.4 has not yet completed the downstream F-Droid publication path:
+Issue #38 remains open because v0.1.4 has not yet completed the production F-Droid publication path:
 
 https://github.com/Kamui2040/K2040-GeoJoystick/issues/38
 
-The source build, corrected developer-signing recipe, canonical GitHub reference artifact, post-upload re-download verification, and local F-Droid signature-copy byte-identity gate are now verified.
+The technical reproducibility work is complete. Verified evidence now includes the exact source build, corrected developer-signing recipe, canonical GitHub reference artifact, post-upload re-download verification, local signature-copy byte identity, and successful fdroiddata `fdroid build` developer-binary comparison against the actual canonical GitHub URL.
 
 Remaining work:
 
-1. retry the existing v104 developer-binary F-Droid verification path against the unchanged GitHub release URL, which now serves the corrected canonical APK;
-2. if the technical retry succeeds, update the production fdroiddata path without changing signing identity;
-3. do not mark v0.1.4 available on F-Droid until version 104 is actually published on the public package page.
+1. classify the unrelated job responsible for the aggregate diagnostic pipeline failure so it is not confused with the successful GeoJoystick `fdroid build` result;
+2. inspect MR `!46016` and its exact current production metadata/source branch before any mutation;
+3. make only the minimal production fdroiddata correction required to use the now-verified canonical developer-binary path while preserving the established GeoJoystick signing identity;
+4. do not mark v0.1.4 available on F-Droid until version 104 is actually published on the public package page.
+
+No additional APK rebuild, production signing, or diagnostic signing is required by the currently verified reproducibility result.
 
 ## Reproducible-release requirements
 
