@@ -258,7 +258,7 @@ class SafeHarness(impl.Harness):
     def _verify_rendered_ui_configuration(
         self, language: str, theme: str
     ) -> None:
-        expected = impl.scenario_expectations(language, theme)
+        expected = impl.settings_expectations(language, theme)
         settings = self.find_node(
             lambda node: node.desc in expected["settings"],
             attempts=5,
@@ -498,26 +498,27 @@ class SafeHarness(impl.Harness):
                     )
 
     def home_top(self, scenario: impl.Scenario) -> None:
+        expected = impl.main_expectations(scenario.language)
         self.adb.force_stop()
         self.adb.launch()
         snap = self.snapshot()
-        self.record_expected(snap, scenario, "main-top", ("GeoJoystick",))
+        self.record_expected(snap, scenario, "main-top", expected["app_name"])
         self.record_expected(
             snap,
             scenario,
             "main-top",
-            impl.localized_text(scenario.language, "ui_008"),
+            expected["status"],
         )
         self.analyze(snap, scenario, "main-top")
 
         self.tap_desc_any(
-            impl.localized_text(scenario.language, "ui_008")
+            expected["status"]
         )
         snap = self.snapshot()
         for candidates in (
-            impl.localized_text(scenario.language, "ui_028"),
-            impl.localized_text(scenario.language, "ui_031"),
-            impl.localized_text(scenario.language, "ui_019"),
+            expected["mock_location"],
+            expected["overlay_permission"],
+            expected["simulation"],
         ):
             self.record_expected(
                 snap, scenario, "main-status", candidates
@@ -526,12 +527,12 @@ class SafeHarness(impl.Harness):
 
         start = self.find_node_any_state(
             lambda item: item.desc
-            in impl.localized_text(scenario.language, "ui_020"),
+            in expected["start"],
             scroll="up",
         )
         stop = self.find_node_any_state(
             lambda item: item.desc
-            in impl.localized_text(scenario.language, "ui_021"),
+            in expected["stop"],
             scroll="up",
         )
         if start is None or stop is None:

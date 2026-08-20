@@ -57,7 +57,21 @@ def localized_text(language: str, resource_name: str) -> tuple[str, ...]:
     return tuple(values)
 
 
-def scenario_expectations(language: str, theme: str) -> dict[str, tuple[str, ...]]:
+def main_expectations(language: str) -> dict[str, tuple[str, ...]]:
+    """Localized labels asserted by the live main-screen QA path."""
+    return {
+        "app_name": ("GeoJoystick",),
+        "status": localized_text(language, "ui_008"),
+        "mock_location": localized_text(language, "ui_028"),
+        "overlay_permission": localized_text(language, "ui_031"),
+        "simulation": localized_text(language, "ui_019"),
+        "start": localized_text(language, "ui_020"),
+        "stop": localized_text(language, "ui_021"),
+    }
+
+
+def settings_expectations(language: str, theme: str) -> dict[str, tuple[str, ...]]:
+    """Localized labels asserted by the live settings-screen QA path."""
     if language not in SUPPORTED_LANGUAGES:
         raise QAError(f"unsupported QA scenario language: {language}")
     if theme not in {"system", "light", "dark"}:
@@ -70,10 +84,38 @@ def scenario_expectations(language: str, theme: str) -> dict[str, tuple[str, ...
     }[language]
     return {
         "settings": localized_text(language, "ui_026"),
+        "mock_location": localized_text(language, "ui_028"),
+        "overlay_permission": localized_text(language, "ui_031"),
         "language_title": localized_text(language, "ui_046"),
         "language_value": localized_text(language, language_value),
         "theme_title": localized_text(language, "ui_045"),
         "theme_value": localized_text(language, {"system": "ui_096", "light": "ui_097", "dark": "ui_098"}[theme]),
+    }
+
+
+def scenario_expectations(language: str, theme: str) -> dict[str, tuple[str, ...]]:
+    """Backward-compatible name for the shared settings configuration contract."""
+    return settings_expectations(language, theme)
+
+
+def about_expectations(language: str) -> dict[str, tuple[str, ...]]:
+    """Localized labels asserted by the live About-screen QA path."""
+    return {
+        "about": localized_text(language, "ui_023"),
+        "close": localized_text(language, "ui_048"),
+        "license": localized_text(language, "ui_051"),
+        "artwork": localized_text(language, "ui_052"),
+        "osm": localized_text(language, "ui_053"),
+    }
+
+
+def map_expectations(language: str) -> dict[str, tuple[str, ...]]:
+    """Localized labels asserted by the live map-screen QA path."""
+    return {
+        "open_map": localized_text(language, "ui_014"),
+        "instructions": localized_text(language, "ui_165"),
+        "zoom_in": localized_text(language, "ui_166"),
+        "close": localized_text(language, "ui_164"),
     }
 
 
@@ -109,6 +151,35 @@ def modal_expectations(language: str) -> dict[str, tuple[str, ...]]:
         "osm_close": localized_text(language, "ui_083"),
         "sources_close": localized_text(language, "ui_089"),
     }
+
+
+def surface_expectation_matrix(theme: str = "dark") -> tuple[
+    tuple[str, str, dict[str, tuple[str, ...]]], ...
+]:
+    """Build every live-QA surface contract without invoking ADB.
+
+    System mode deliberately retains every supported rendered catalog, while each
+    explicit preference mode resolves only its selected catalog through the same
+    helpers used by device interaction paths.
+    """
+    surfaces = (
+        ("main", lambda language: main_expectations(language)),
+        ("settings", lambda language: settings_expectations(language, theme)),
+        ("about", lambda language: about_expectations(language)),
+        ("map", lambda language: map_expectations(language)),
+        ("overlay", lambda language: overlay_expectations(language)),
+        ("modal/dialog", lambda language: modal_expectations(language)),
+    )
+    matrix = []
+    for language in SUPPORTED_LANGUAGES:
+        for surface, build_expectations in surfaces:
+            expected = build_expectations(language)
+            if not expected or not all(expected.values()):
+                raise QAError(
+                    f"missing {surface} expectation for QA language {language!r}"
+                )
+            matrix.append((language, surface, expected))
+    return tuple(matrix)
 
 
 class QAError(RuntimeError):
@@ -620,13 +691,13 @@ class Harness:
         return node
 
     def set_language(self, language: str) -> None:
-        expected = scenario_expectations(language, "system")
+        expected = settings_expectations(language, "system")
         self.tap_desc_any(expected["language_title"], starts=True, scroll="up")
         self.tap_text_any(expected["language_value"])
         time.sleep(0.25)
 
     def set_theme(self, language: str, theme: str) -> None:
-        expected = scenario_expectations(language, theme)
+        expected = settings_expectations(language, theme)
         self.tap_desc_any(expected["theme_title"], starts=True, scroll="up")
         self.tap_text_any(expected["theme_value"])
         time.sleep(0.25)
@@ -746,36 +817,37 @@ class Harness:
                     )
 
     def home_top(self, scenario: Scenario) -> None:
+        expected = main_expectations(scenario.language)
         self.adb.force_stop()
         self.adb.launch()
         snap = self.snapshot()
-        self.record_expected(snap, scenario, "main-top", ("GeoJoystick",))
+        self.record_expected(snap, scenario, "main-top", expected["app_name"])
         self.record_expected(
             snap,
             scenario,
             "main-top",
-            localized_text(scenario.language, "ui_008"),
+            expected["status"],
         )
         self.analyze(snap, scenario, "main-top")
 
         self.tap_desc_any(
-            localized_text(scenario.language, "ui_008")
+            expected["status"]
         )
         snap = self.snapshot()
         for candidates in (
-            localized_text(scenario.language, "ui_028"),
-            localized_text(scenario.language, "ui_031"),
-            localized_text(scenario.language, "ui_019"),
+            expected["mock_location"],
+            expected["overlay_permission"],
+            expected["simulation"],
         ):
             self.record_expected(snap, scenario, "main-status", candidates)
         self.analyze(snap, scenario, "main-status")
 
         start = self.find_node(
-            lambda item: item.desc in localized_text(scenario.language, "ui_020"),
+            lambda item: item.desc in expected["start"],
             scroll="up",
         )
         stop = self.find_node(
-            lambda item: item.desc in localized_text(scenario.language, "ui_021"),
+            lambda item: item.desc in expected["stop"],
             scroll="up",
         )
         if start is None or stop is None:
@@ -792,24 +864,25 @@ class Harness:
 
     def settings_screens(self, scenario: Scenario) -> None:
         language = scenario.language
+        expected = settings_expectations(language, scenario.theme)
         self.adb.force_stop()
         self.adb.launch()
-        self.tap_desc_any(scenario_expectations(language, scenario.theme)["settings"])
+        self.tap_desc_any(expected["settings"])
         snap = self.snapshot()
-        self.record_expected(snap, scenario, "settings-top", localized_text(scenario.language, "ui_026"))
+        self.record_expected(snap, scenario, "settings-top", expected["settings"])
         for candidates in (
-            localized_text(scenario.language, "ui_028"),
-            localized_text(scenario.language, "ui_031"),
+            expected["mock_location"],
+            expected["overlay_permission"],
         ):
             self.record_expected(snap, scenario, "settings-top", candidates)
         self.analyze(snap, scenario, "settings-top")
 
         theme = self.find_node(
-            lambda item: item.desc.startswith(localized_text(scenario.language, "ui_045")),
+            lambda item: item.desc.startswith(expected["theme_title"]),
             scroll="up",
         )
         language = self.find_node(
-            lambda item: item.desc.startswith(localized_text(scenario.language, "ui_046")),
+            lambda item: item.desc.startswith(expected["language_title"]),
             scroll="up",
         )
         if theme is None or language is None:
@@ -825,33 +898,35 @@ class Harness:
             self.analyze(self.snapshot(), scenario, "settings-bottom")
 
     def about_screen(self, scenario: Scenario) -> None:
+        expected = about_expectations(scenario.language)
         self.adb.force_stop()
         self.adb.launch()
-        self.tap_desc_any(localized_text(scenario.language, "ui_023"))
+        self.tap_desc_any(expected["about"])
         snap = self.snapshot()
         for candidates in (
-            localized_text(scenario.language, "ui_048"),
-            localized_text(scenario.language, "ui_051"),
-            localized_text(scenario.language, "ui_052"),
-            localized_text(scenario.language, "ui_053"),
+            expected["close"],
+            expected["license"],
+            expected["artwork"],
+            expected["osm"],
         ):
             self.record_expected(snap, scenario, "about", candidates)
         self.analyze(snap, scenario, "about")
 
     def map_screen(self, scenario: Scenario) -> None:
+        expected = map_expectations(scenario.language)
         self.adb.force_stop()
         self.adb.launch()
-        self.tap_text_any(localized_text(scenario.language, "ui_014"), contains=True)
+        self.tap_text_any(expected["open_map"], contains=True)
         time.sleep(0.55)
         snap = self.snapshot()
         for candidates in (
-            localized_text(scenario.language, "ui_165"),
-            localized_text(scenario.language, "ui_166"),
-            localized_text(scenario.language, "ui_164"),
+            expected["instructions"],
+            expected["zoom_in"],
+            expected["close"],
         ):
             self.record_expected(snap, scenario, "map", candidates)
         self.analyze(snap, scenario, "map")
-        self.tap_desc_any(localized_text(scenario.language, "ui_164"))
+        self.tap_desc_any(expected["close"])
 
     def run_scenario(self, scenario: Scenario) -> None:
         before = len(self.findings)
@@ -1155,19 +1230,33 @@ def self_test() -> int:
     scenarios = build_scenarios(480, 550)
     assert len(scenarios) == 90
     assert set(EXPLICIT_LANGUAGES) == {"en", "de", "fr", "es", "it", "nl", "da", "sv", "nb"}
-    for language in SUPPORTED_LANGUAGES:
-        expected = scenario_expectations(language, "dark")
-        assert all(expected.values())
-        assert localized_text(language, "ui_026")
-        assert all(overlay_expectations(language).values())
-        assert all(modal_expectations(language).values())
-    try:
-        scenario_expectations("malformed", "dark")
-    except QAError:
-        pass
-    else:
-        raise AssertionError("unsupported scenario language was accepted")
-    print("GeoJoystick Issue #10 QA harness self-test: PASS")
+    matrix = surface_expectation_matrix()
+    expected_surfaces = {"main", "settings", "about", "map", "overlay", "modal/dialog"}
+    assert len(matrix) == len(SUPPORTED_LANGUAGES) * len(expected_surfaces)
+    assert {(language, surface) for language, surface, _ in matrix} == {
+        (language, surface)
+        for language in SUPPORTED_LANGUAGES
+        for surface in expected_surfaces
+    }
+    for build_expectations in (
+        main_expectations,
+        lambda language: settings_expectations(language, "dark"),
+        about_expectations,
+        map_expectations,
+        overlay_expectations,
+        modal_expectations,
+    ):
+        try:
+            build_expectations("malformed")
+        except QAError:
+            pass
+        else:
+            raise AssertionError("unsupported scenario language was accepted")
+    print(
+        "GeoJoystick Issue #10 QA harness self-test: PASS "
+        f"({len(matrix)} expectation contracts: "
+        f"{len(SUPPORTED_LANGUAGES)} language modes x {len(expected_surfaces)} surfaces)"
+    )
     return 0
 
 
