@@ -238,4 +238,5 @@ Coordinates and settings stay on your device.</string>
     <string name="service_publish_failed">GeoJoystick stopped because mock-location publication failed.</string>
     <string name="service_cannot_publish">GeoJoystick could not publish a mock location. Check Developer Options and select GeoJoystick as the mock-location app.</string>
     <string name="service_cannot_start">GeoJoystick could not start its foreground simulation service.</string>
+    <string name="joystick_accessibility">Movement joystick</string>
 </resources>

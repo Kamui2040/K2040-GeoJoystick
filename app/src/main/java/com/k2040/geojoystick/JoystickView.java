@@ -33,13 +33,16 @@ final class JoystickView extends View {
         guidePaint.setStrokeCap(Paint.Cap.ROUND);
         knobPaint.setStyle(Paint.Style.FILL);
         updatePaintColors();
-        setContentDescription("Movement joystick");
         setMinimumWidth(dp(88));
         setMinimumHeight(dp(88));
     }
 
     void setListener(Listener listener) {
         this.listener = listener;
+    }
+
+    void setAccessibilityDescription(CharSequence description) {
+        setContentDescription(description);
     }
 
     void setHoldEnabled(boolean enabled) {

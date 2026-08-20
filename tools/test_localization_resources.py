@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import re
+import shutil
 import sys
+import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -38,12 +40,29 @@ def catalog(path: Path) -> dict[str, str]:
     return result
 
 
-def main() -> int:
-    english = catalog(RES / "values/strings.xml")
+def locale_directories(res_root: Path) -> set[str]:
+    found: set[str] = set()
+    for directory in res_root.iterdir():
+        if not directory.is_dir() or not directory.name.startswith("values-"):
+            continue
+        qualifier = directory.name[len("values-"):].split("-")[0]
+        if re.fullmatch(r"[a-z]{2}(?:-r[A-Z]{2})?", qualifier):
+            found.add(qualifier[:2])
+    return found
+
+
+def validate(res_root: Path) -> None:
+    actual_locales = locale_directories(res_root)
+    expected_locales = set(LOCALES)
+    if actual_locales != expected_locales:
+        raise AssertionError(f"unexpected locale directories: {sorted(actual_locales ^ expected_locales)}")
+    english = catalog(res_root / "values/strings.xml")
     if not REQUIRED_MAP_KEYS <= set(english):
         raise AssertionError("English catalog is missing bundled-map localization keys")
     for locale in LOCALES:
-        target = catalog(RES / f"values-{locale}/strings.xml")
+        target = catalog(res_root / f"values-{locale}/strings.xml")
+        if target == english:
+            raise AssertionError(f"{locale} catalog is an exact English copy")
         if set(target) != set(english):
             missing = sorted(set(english) - set(target))
             extra = sorted(set(target) - set(english))
@@ -56,6 +75,11 @@ def main() -> int:
             if actual != expected:
                 raise AssertionError(
                     f"{locale}/{name} format placeholders differ: {actual!r} != {expected!r}")
+
+
+def main() -> int:
+    validate(RES)
+    english = catalog(RES / "values/strings.xml")
     settings_source = (ROOT / "app/src/main/java/com/k2040/geojoystick/GeoSettings.java").read_text(
         encoding="utf-8")
     setting_constants = {
@@ -68,13 +92,51 @@ def main() -> int:
             raise AssertionError(f"GeoSettings does not declare explicit {locale} support")
     if "isSupportedLanguage(value) ? value : LANGUAGE_SYSTEM" not in settings_source:
         raise AssertionError("malformed explicit language values do not safely fall back to system mode")
+    service_source = (ROOT / "app/src/main/java/com/k2040/geojoystick/MockLocationService.java").read_text(
+        encoding="utf-8")
+    for required in (
+            "registerOnSharedPreferenceChangeListener(preferenceListener)",
+            "unregisterOnSharedPreferenceChangeListener(preferenceListener)",
+            "refreshLocalizedRuntimeUi",
+            "GeoSettings.PREF_LANGUAGE"):
+        if required not in service_source:
+            raise AssertionError(f"service live-language refresh is missing {required}")
+    joystick_source = (ROOT / "app/src/main/java/com/k2040/geojoystick/JoystickView.java").read_text(
+        encoding="utf-8")
+    if '"Movement joystick"' in joystick_source:
+        raise AssertionError("JoystickView still hard-codes English accessibility text")
     print(f"Localization resource test: PASS ({len(english)} keys × {len(LOCALES)} locales)")
+    return 0
+
+
+def self_test() -> int:
+    with tempfile.TemporaryDirectory(prefix="geojoystick-locale-test-") as temporary:
+        copied = Path(temporary) / "res"
+        shutil.copytree(RES, copied)
+        shutil.copytree(copied / "values", copied / "values-night")
+        validate(copied)
+        shutil.copytree(copied / "values", copied / "values-pt")
+        try:
+            validate(copied)
+        except AssertionError as exc:
+            assert "unexpected locale directories" in str(exc)
+        else:
+            raise AssertionError("unexpected locale fixture falsely passed")
+        shutil.rmtree(copied / "values-pt")
+        shutil.copytree(copied / "values", copied / "values-fr", dirs_exist_ok=True)
+        try:
+            validate(copied)
+        except AssertionError as exc:
+            assert "exact English copy" in str(exc)
+        else:
+            raise AssertionError("English-copy fixture falsely passed")
+    print("Localization resource self-test: PASS")
     return 0
 
 
 if __name__ == "__main__":
     try:
-        raise SystemExit(main())
+        raise SystemExit(self_test() if "--self-test" in sys.argv else main())
     except AssertionError as exc:
         print(f"Localization resource test: FAIL: {exc}", file=sys.stderr)
         raise SystemExit(1)

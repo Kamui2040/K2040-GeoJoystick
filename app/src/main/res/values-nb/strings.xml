@@ -238,4 +238,5 @@ Koordinater og innstillinger forblir på enheten din.</string>
     <string name="service_publish_failed">GeoJoystick stoppet fordi mock-location-publisering mislyktes.</string>
     <string name="service_cannot_publish">GeoJoystick kunne ikke publisere en falsk plassering. Merk av for utvikleralternativer og velg GeoJoystick som appen for falsk plassering.</string>
     <string name="service_cannot_start">GeoJoystick kunne ikke starte sin forgrunnssimuleringstjeneste.</string>
+    <string name="joystick_accessibility">Bevegelsesspak</string>
 </resources>

@@ -238,4 +238,5 @@ Las coordenadas y la configuración permanecen en su dispositivo.</string>
     <string name="service_publish_failed">GeoJoystick se detuvo porque falló la publicación de la ubicación simulada.</string>
     <string name="service_cannot_publish">GeoJoystick no pudo publicar una ubicación simulada. Verifique las Opciones de desarrollador y seleccione GeoJoystick como aplicación de ubicación simulada.</string>
     <string name="service_cannot_start">GeoJoystick no pudo iniciar su servicio de simulación en primer plano.</string>
+    <string name="joystick_accessibility">Joystick de movimiento</string>
 </resources>

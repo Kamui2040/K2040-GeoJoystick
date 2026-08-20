@@ -238,4 +238,5 @@ Le coordinate e le impostazioni rimangono sul tuo dispositivo.</string>
     <string name="service_publish_failed">GeoJoystick interrotto perché la pubblicazione della posizione fittizia non è riuscita.</string>
     <string name="service_cannot_publish">GeoJoystick non è riuscito a pubblicare una posizione fittizia. Controlla le Opzioni sviluppatore e seleziona GeoJoystick come app di localizzazione simulata.</string>
     <string name="service_cannot_start">GeoJoystick non è riuscito ad avviare il servizio di simulazione in primo piano.</string>
+    <string name="joystick_accessibility">Joystick di movimento</string>
 </resources>

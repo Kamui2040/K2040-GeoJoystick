@@ -20,6 +20,7 @@ import sys
 import time
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Callable, Sequence
 
 
@@ -33,6 +34,22 @@ BACKUP_PATH = "cache/geojoystick_issue10_prefs_backup.xml"
 STATE_PATH = "cache/geojoystick_issue10_restore_state.txt"
 UI_DUMP_PATH = "/data/local/tmp/geojoystick_issue10_ui.xml"
 SYNTHETIC_COORDS = ("12.345678", "45.678901", "42.0")
+ROOT = Path(__file__).resolve().parents[1]
+RESOURCE_ROOT = ROOT / "app/src/main/res"
+SUPPORTED_LANGUAGES = ("system", "en", "de", "fr", "es", "it", "nl", "da", "sv", "nb")
+
+
+def localized_text(language: str, resource_name: str) -> tuple[str, ...]:
+    languages = ("en", "de", "fr", "es", "it", "nl", "da", "sv", "nb") if language == "system" else (language,)
+    values = []
+    for current in languages:
+        directory = "values" if current == "en" else f"values-{current}"
+        root = ET.parse(RESOURCE_ROOT / directory / "strings.xml").getroot()
+        value = next((item.text or "" for item in root.findall("string")
+                      if item.attrib.get("name") == resource_name), "")
+        if value:
+            values.append(value)
+    return tuple(values)
 
 
 class QAError(RuntimeError):
@@ -295,7 +312,7 @@ def symbol_only(text: str) -> bool:
 
 def build_scenarios(base_density: int, stress_density: int) -> list[Scenario]:
     scenarios: list[Scenario] = []
-    for language in ("en", "de"):
+    for language in SUPPORTED_LANGUAGES:
         for theme in ("system", "light", "dark"):
             scenarios.append(Scenario(language, theme, 1.00, base_density))
         for theme in ("light", "dark"):
@@ -544,35 +561,32 @@ class Harness:
         return node
 
     def set_language(self, language: str) -> None:
-        self.tap_desc_any(("Language.", "Sprache."), starts=True, scroll="up")
-        option = {
-            "en": ("English",),
-            "de": ("Deutsch",),
-            "system": ("System default",),
-        }[language]
+        self.tap_desc_any(localized_text(language, "ui_046"), starts=True, scroll="up")
+        option = localized_text(language, {
+            "system": "language_system_default", "en": "language_english",
+            "de": "language_german", "fr": "language_french", "es": "language_spanish",
+            "it": "language_italian", "nl": "language_dutch", "da": "language_danish",
+            "sv": "language_swedish", "nb": "language_norwegian_bokmal"}[language])
         self.tap_text_any(option)
         time.sleep(0.25)
 
-    def set_theme(self, theme: str) -> None:
-        self.tap_desc_any(("Theme.", "Darstellung."), starts=True, scroll="up")
-        options = {
-            "system": ("System default", "Systemstandard"),
-            "light": ("Light", "Hell"),
-            "dark": ("Dark", "Dunkel"),
-        }[theme]
+    def set_theme(self, language: str, theme: str) -> None:
+        self.tap_desc_any(localized_text(language, "ui_045"), starts=True, scroll="up")
+        options = localized_text(language, {
+            "system": "ui_096", "light": "ui_097", "dark": "ui_098"}[theme])
         self.tap_text_any(options)
         time.sleep(0.25)
 
     def configure_app(self, language: str, theme: str) -> None:
         self.adb.force_stop()
         self.adb.launch()
-        if self.find_node(lambda item: item.text in ("Continue", "Weiter")):
+        if self.find_node(lambda item: item.text in localized_text(language, "ui_062")):
             raise QAError(
                 "first-run onboarding is unacknowledged; refusing to acknowledge it automatically"
             )
-        self.tap_desc_any(("Settings", "Einstellungen"))
+        self.tap_desc_any(localized_text(language, "ui_026"))
         self.set_language(language)
-        self.set_theme(theme)
+        self.set_theme(language, theme)
         self.adb.force_stop()
         self.adb.launch()
 
@@ -725,22 +739,22 @@ class Harness:
     def settings_screens(self, scenario: Scenario) -> None:
         self.adb.force_stop()
         self.adb.launch()
-        self.tap_desc_any(("Settings", "Einstellungen"))
+        self.tap_desc_any(localized_text(language, "ui_026"))
         snap = self.snapshot()
-        self.record_expected(snap, scenario, "settings-top", ("Settings", "Einstellungen"))
+        self.record_expected(snap, scenario, "settings-top", localized_text(scenario.language, "ui_026"))
         for candidates in (
-            ("Mock location", "Mock-Standort"),
-            ("Overlay permission", "Overlay-Berechtigung"),
+            localized_text(scenario.language, "ui_028"),
+            localized_text(scenario.language, "ui_031"),
         ):
             self.record_expected(snap, scenario, "settings-top", candidates)
         self.analyze(snap, scenario, "settings-top")
 
         theme = self.find_node(
-            lambda item: item.desc.startswith(("Theme.", "Darstellung.")),
+            lambda item: item.desc.startswith(localized_text(scenario.language, "ui_045")),
             scroll="up",
         )
         language = self.find_node(
-            lambda item: item.desc.startswith(("Language.", "Sprache.")),
+            lambda item: item.desc.startswith(localized_text(scenario.language, "ui_046")),
             scroll="up",
         )
         if theme is None or language is None:
@@ -1083,7 +1097,8 @@ def self_test() -> int:
     assert not symbol_only("Map")
     assert overlap_ratio(Bounds(0, 0, 100, 100), Bounds(50, 50, 150, 150)) == 0.25
     scenarios = build_scenarios(480, 550)
-    assert len(scenarios) == 18
+    assert len(scenarios) == 90
+    assert localized_text("fr", "ui_026")
     print("GeoJoystick Issue #10 QA harness self-test: PASS")
     return 0
 

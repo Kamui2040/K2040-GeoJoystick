@@ -143,6 +143,7 @@ final class JoystickOverlay {
         root.addView(titleRow, new LinearLayout.LayoutParams(dp(200), dp(48)));
 
         joystickView = new JoystickView(context);
+        joystickView.setAccessibilityDescription(t(R.string.joystick_accessibility));
         joystickView.setHighContrast(highContrast);
         joystickView.setOverlayOpacity(overlayOpacityPercent);
         joystickView.setListener((east, north) -> {
@@ -237,6 +238,18 @@ final class JoystickOverlay {
             }
             updateCoordinateText();
         });
+    }
+
+    void refreshLocalizedText() {
+        dragHandle.setContentDescription(t(R.string.ui_178));
+        joystickView.setAccessibilityDescription(t(R.string.joystick_accessibility));
+        walkButton.setContentDescription(t(R.string.ui_180));
+        runButton.setContentDescription(t(R.string.ui_181));
+        bikeButton.setContentDescription(t(R.string.ui_182));
+        stopButton.setContentDescription(t(R.string.ui_186));
+        updateSpeedButtonStates();
+        updateToggleStates();
+        applyOverlayMode();
     }
 
     private void setSpeed(String kind) {

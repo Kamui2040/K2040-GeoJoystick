@@ -669,6 +669,14 @@ def adapter_self_test() -> None:
         and child.attrib.get("value") == "80"
         for child in rewritten_root
     )
+    rewritten_french = rewrite_ui_preferences(sample, "fr", "light")
+    assert read_ui_preferences(rewritten_french) == ("fr", "light")
+    try:
+        rewrite_ui_preferences(sample, "malformed", "light")
+    except impl.QAError:
+        pass
+    else:
+        raise AssertionError("unsupported QA language was accepted")
 
     unacknowledged = '<map><string name="app_language">en</string></map>'
     try:

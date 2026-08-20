@@ -238,4 +238,5 @@ Koordinaten und Einstellungen bleiben auf deinem Gerät.</string>
     <string name="service_publish_failed">GeoJoystick wurde beendet, weil die Mock-Standort-Veröffentlichung fehlgeschlagen ist.</string>
     <string name="service_cannot_publish">GeoJoystick konnte keinen Mock-Standort veröffentlichen. Prüfe die Entwickleroptionen und wähle GeoJoystick als Mock-Standort-App.</string>
     <string name="service_cannot_start">GeoJoystick konnte den Vordergrunddienst für die Simulation nicht starten.</string>
+    <string name="joystick_accessibility">Bewegungs-Joystick</string>
 </resources>

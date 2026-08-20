@@ -196,7 +196,7 @@ Coördinaten en instellingen blijven op uw apparaat staan.</string>
     <string name="ui_172">Houdt de zichtbare simulatie van de neplocatie actief.</string>
     <string name="ui_173">Mock-locatiesimulatie actief</string>
     <string name="ui_174">Simulatie van een neplocatie starten</string>
-    <string name="ui_175">Show</string>
+    <string name="ui_175">Tonen</string>
     <string name="ui_176">Verbergen</string>
     <string name="ui_177">Stop</string>
     <string name="ui_178">Verplaats de GeoJoystick-overlay</string>
@@ -238,4 +238,5 @@ Coördinaten en instellingen blijven op uw apparaat staan.</string>
     <string name="service_publish_failed">GeoJoystick is gestopt omdat de publicatie van de neplocatie is mislukt.</string>
     <string name="service_cannot_publish">GeoJoystick kon geen neplocatie publiceren. Controleer de ontwikkelaarsopties en selecteer GeoJoystick als de neplocatie-app.</string>
     <string name="service_cannot_start">GeoJoystick kon zijn voorgrondsimulatieservice niet starten.</string>
+    <string name="joystick_accessibility">Bewegingsjoystick</string>
 </resources>

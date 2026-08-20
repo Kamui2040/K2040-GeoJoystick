@@ -238,4 +238,5 @@ Les coordonnées et les paramètres restent sur votre appareil.</string>
     <string name="service_publish_failed">GeoJoystick s\'est arrêté en raison de l\'échec de la publication de l\'emplacement fictif.</string>
     <string name="service_cannot_publish">GeoJoystick n\'a pas pu publier un emplacement fictif. Vérifiez les options du développeur et sélectionnez GeoJoystick comme application de localisation fictive.</string>
     <string name="service_cannot_start">GeoJoystick n\'a pas pu démarrer son service de simulation de premier plan.</string>
+    <string name="joystick_accessibility">Joystick de déplacement</string>
 </resources>

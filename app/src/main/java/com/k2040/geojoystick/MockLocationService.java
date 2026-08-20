@@ -85,6 +85,14 @@ public final class MockLocationService extends Service {
     private double lastPublishedLongitude;
     private double lastPublishedAltitude;
     private boolean foregroundStarted;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private final SharedPreferences.OnSharedPreferenceChangeListener preferenceListener =
+            (changedPreferences, key) -> {
+                if (GeoSettings.PREF_LANGUAGE.equals(key)
+                        && (simulationActive || simulationStarting)) {
+                    mainHandler.post(this::refreshLocalizedRuntimeUi);
+                }
+            };
 
     static boolean isSimulationActive() {
         return simulationActive;
@@ -98,6 +106,7 @@ public final class MockLocationService extends Service {
     public void onCreate() {
         super.onCreate();
         preferences = getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        preferences.registerOnSharedPreferenceChangeListener(preferenceListener);
         setSimulationState(false, false);
         speedMetersPerSecond = loadSavedSpeed();
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -182,6 +191,9 @@ public final class MockLocationService extends Service {
 
     @Override
     public void onDestroy() {
+        if (preferences != null) {
+            preferences.unregisterOnSharedPreferenceChangeListener(preferenceListener);
+        }
         setSimulationState(false, false);
         eastFactor = 0.0;
         northFactor = 0.0;
@@ -645,6 +657,17 @@ public final class MockLocationService extends Service {
                 NotificationManager.IMPORTANCE_LOW);
         channel.setDescription(t(R.string.ui_172));
         manager.createNotificationChannel(channel);
+    }
+
+    private void refreshLocalizedRuntimeUi() {
+        if (!simulationActive && !simulationStarting) {
+            return;
+        }
+        createNotificationChannel();
+        if (overlay != null) {
+            overlay.refreshLocalizedText();
+        }
+        updateNotification();
     }
 
     private Notification buildNotification(boolean active) {
