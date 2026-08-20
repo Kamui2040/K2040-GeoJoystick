@@ -36,11 +36,16 @@ UI_DUMP_PATH = "/data/local/tmp/geojoystick_issue10_ui.xml"
 SYNTHETIC_COORDS = ("12.345678", "45.678901", "42.0")
 ROOT = Path(__file__).resolve().parents[1]
 RESOURCE_ROOT = ROOT / "app/src/main/res"
-SUPPORTED_LANGUAGES = ("system", "en", "de", "fr", "es", "it", "nl", "da", "sv", "nb")
+EXPLICIT_LANGUAGES = ("en", "de", "fr", "es", "it", "nl", "da", "sv", "nb")
+SUPPORTED_LANGUAGES = ("system",) + EXPLICIT_LANGUAGES
 
 
 def localized_text(language: str, resource_name: str) -> tuple[str, ...]:
-    languages = ("en", "de", "fr", "es", "it", "nl", "da", "sv", "nb") if language == "system" else (language,)
+    if language not in SUPPORTED_LANGUAGES:
+        raise QAError(f"unsupported QA scenario language: {language}")
+    # System mode intentionally accepts any supported rendered catalog; the harness does not
+    # assume a device locale. Explicit modes use exactly their requested catalog.
+    languages = EXPLICIT_LANGUAGES if language == "system" else (language,)
     values = []
     for current in languages:
         directory = "values" if current == "en" else f"values-{current}"
@@ -50,6 +55,26 @@ def localized_text(language: str, resource_name: str) -> tuple[str, ...]:
         if value:
             values.append(value)
     return tuple(values)
+
+
+def scenario_expectations(language: str, theme: str) -> dict[str, tuple[str, ...]]:
+    if language not in SUPPORTED_LANGUAGES:
+        raise QAError(f"unsupported QA scenario language: {language}")
+    if theme not in {"system", "light", "dark"}:
+        raise QAError(f"unsupported QA scenario theme: {theme}")
+    language_value = {
+        "system": "language_system_default", "en": "language_english",
+        "de": "language_german", "fr": "language_french", "es": "language_spanish",
+        "it": "language_italian", "nl": "language_dutch", "da": "language_danish",
+        "sv": "language_swedish", "nb": "language_norwegian_bokmal",
+    }[language]
+    return {
+        "settings": localized_text(language, "ui_026"),
+        "language_title": localized_text(language, "ui_046"),
+        "language_value": localized_text(language, language_value),
+        "theme_title": localized_text(language, "ui_045"),
+        "theme_value": localized_text(language, {"system": "ui_096", "light": "ui_097", "dark": "ui_098"}[theme]),
+    }
 
 
 class QAError(RuntimeError):
@@ -561,20 +586,15 @@ class Harness:
         return node
 
     def set_language(self, language: str) -> None:
-        self.tap_desc_any(localized_text(language, "ui_046"), starts=True, scroll="up")
-        option = localized_text(language, {
-            "system": "language_system_default", "en": "language_english",
-            "de": "language_german", "fr": "language_french", "es": "language_spanish",
-            "it": "language_italian", "nl": "language_dutch", "da": "language_danish",
-            "sv": "language_swedish", "nb": "language_norwegian_bokmal"}[language])
-        self.tap_text_any(option)
+        expected = scenario_expectations(language, "system")
+        self.tap_desc_any(expected["language_title"], starts=True, scroll="up")
+        self.tap_text_any(expected["language_value"])
         time.sleep(0.25)
 
     def set_theme(self, language: str, theme: str) -> None:
-        self.tap_desc_any(localized_text(language, "ui_045"), starts=True, scroll="up")
-        options = localized_text(language, {
-            "system": "ui_096", "light": "ui_097", "dark": "ui_098"}[theme])
-        self.tap_text_any(options)
+        expected = scenario_expectations(language, theme)
+        self.tap_desc_any(expected["theme_title"], starts=True, scroll="up")
+        self.tap_text_any(expected["theme_value"])
         time.sleep(0.25)
 
     def configure_app(self, language: str, theme: str) -> None:
@@ -700,28 +720,28 @@ class Harness:
             snap,
             scenario,
             "main-top",
-            ("Status collapsed. Tap to expand", "Status eingeklappt. Zum Öffnen tippen"),
+            localized_text(scenario.language, "ui_008"),
         )
         self.analyze(snap, scenario, "main-top")
 
         self.tap_desc_any(
-            ("Status collapsed. Tap to expand", "Status eingeklappt. Zum Öffnen tippen")
+            localized_text(scenario.language, "ui_008")
         )
         snap = self.snapshot()
         for candidates in (
-            ("Mock location", "Mock-Standort"),
-            ("Overlay permission", "Overlay-Berechtigung"),
-            ("Simulation",),
+            localized_text(scenario.language, "ui_028"),
+            localized_text(scenario.language, "ui_031"),
+            localized_text(scenario.language, "ui_019"),
         ):
             self.record_expected(snap, scenario, "main-status", candidates)
         self.analyze(snap, scenario, "main-status")
 
         start = self.find_node(
-            lambda item: item.desc in ("Start simulation", "Simulation starten"),
+            lambda item: item.desc in localized_text(scenario.language, "ui_020"),
             scroll="up",
         )
         stop = self.find_node(
-            lambda item: item.desc in ("Stop simulation", "Simulation stoppen"),
+            lambda item: item.desc in localized_text(scenario.language, "ui_021"),
             scroll="up",
         )
         if start is None or stop is None:
@@ -737,9 +757,10 @@ class Harness:
             self.analyze(self.snapshot(), scenario, "main-simulation")
 
     def settings_screens(self, scenario: Scenario) -> None:
+        language = scenario.language
         self.adb.force_stop()
         self.adb.launch()
-        self.tap_desc_any(localized_text(language, "ui_026"))
+        self.tap_desc_any(scenario_expectations(language, scenario.theme)["settings"])
         snap = self.snapshot()
         self.record_expected(snap, scenario, "settings-top", localized_text(scenario.language, "ui_026"))
         for candidates in (
@@ -772,13 +793,13 @@ class Harness:
     def about_screen(self, scenario: Scenario) -> None:
         self.adb.force_stop()
         self.adb.launch()
-        self.tap_desc_any(("About GeoJoystick", "Über GeoJoystick"))
+        self.tap_desc_any(localized_text(scenario.language, "ui_023"))
         snap = self.snapshot()
         for candidates in (
-            ("Close About", "Info schließen"),
-            ("Changelog", "Änderungsverlauf"),
-            ("License & usage", "Lizenz & Nutzung"),
-            ("Sources", "Quellen"),
+            localized_text(scenario.language, "ui_048"),
+            localized_text(scenario.language, "ui_051"),
+            localized_text(scenario.language, "ui_052"),
+            localized_text(scenario.language, "ui_053"),
         ):
             self.record_expected(snap, scenario, "about", candidates)
         self.analyze(snap, scenario, "about")
@@ -786,17 +807,17 @@ class Harness:
     def map_screen(self, scenario: Scenario) -> None:
         self.adb.force_stop()
         self.adb.launch()
-        self.tap_text_any(("Map", "Karte"), contains=True)
+        self.tap_text_any(localized_text(scenario.language, "ui_014"), contains=True)
         time.sleep(0.55)
         snap = self.snapshot()
         for candidates in (
-            ("Choose location", "Standort wählen"),
-            ("Use location", "Standort nutzen"),
-            ("Cancel map selection", "Kartenauswahl abbrechen"),
+            localized_text(scenario.language, "ui_165"),
+            localized_text(scenario.language, "ui_166"),
+            localized_text(scenario.language, "ui_164"),
         ):
             self.record_expected(snap, scenario, "map", candidates)
         self.analyze(snap, scenario, "map")
-        self.tap_desc_any(("Cancel map selection", "Kartenauswahl abbrechen"))
+        self.tap_desc_any(localized_text(scenario.language, "ui_164"))
 
     def run_scenario(self, scenario: Scenario) -> None:
         before = len(self.findings)
@@ -1098,7 +1119,17 @@ def self_test() -> int:
     assert overlap_ratio(Bounds(0, 0, 100, 100), Bounds(50, 50, 150, 150)) == 0.25
     scenarios = build_scenarios(480, 550)
     assert len(scenarios) == 90
-    assert localized_text("fr", "ui_026")
+    assert set(EXPLICIT_LANGUAGES) == {"en", "de", "fr", "es", "it", "nl", "da", "sv", "nb"}
+    for language in SUPPORTED_LANGUAGES:
+        expected = scenario_expectations(language, "dark")
+        assert all(expected.values())
+        assert localized_text(language, "ui_026")
+    try:
+        scenario_expectations("malformed", "dark")
+    except QAError:
+        pass
+    else:
+        raise AssertionError("unsupported scenario language was accepted")
     print("GeoJoystick Issue #10 QA harness self-test: PASS")
     return 0
 

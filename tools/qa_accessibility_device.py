@@ -36,7 +36,7 @@ PREF_LANGUAGE = "app_language"
 PREF_APPEARANCE = "app_appearance"
 PREF_WELCOME = "welcome_acknowledged"
 PREF_LEGACY_WELCOME = "license_accepted"
-SUPPORTED_LANGUAGES = {"en", "de", "fr", "es", "it", "nl", "da", "sv", "nb", "system"}
+SUPPORTED_LANGUAGES = set(impl.SUPPORTED_LANGUAGES)
 
 
 class SafeAdb(impl.Adb):
@@ -258,9 +258,9 @@ class SafeHarness(impl.Harness):
     def _verify_rendered_ui_configuration(
         self, language: str, theme: str
     ) -> None:
-        settings_desc = "Einstellungen" if language == "de" else "Settings"
+        expected = impl.scenario_expectations(language, theme)
         settings = self.find_node(
-            lambda node: node.desc == settings_desc,
+            lambda node: node.desc in expected["settings"],
             attempts=5,
         )
         if settings is None:
@@ -270,39 +270,32 @@ class SafeHarness(impl.Harness):
             )
         self.adb.tap(settings.bounds)
 
-        expected_language = (
-            "Sprache. Deutsch" if language == "de" else "Language. English"
-        )
         language_row = self.find_node(
-            lambda node: node.desc == expected_language,
+            lambda node: any(
+                node.desc == f"{title}. {value}"
+                for title in expected["language_title"]
+                for value in expected["language_value"]),
             scroll="up",
             attempts=8,
         )
         if language_row is None:
             raise impl.QAError(
                 "settings did not expose requested language state: "
-                f"{expected_language!r}"
+                f"{expected['language_title']!r}"
             )
 
-        theme_value = {
-            ("en", "system"): "System",
-            ("en", "light"): "Light",
-            ("en", "dark"): "Dark",
-            ("de", "system"): "System",
-            ("de", "light"): "Hell",
-            ("de", "dark"): "Dunkel",
-        }[(language, theme)]
-        theme_title = "Darstellung" if language == "de" else "Theme"
-        expected_theme = f"{theme_title}. {theme_value}"
         theme_row = self.find_node(
-            lambda node: node.desc == expected_theme,
+            lambda node: any(
+                node.desc == f"{title}. {value}"
+                for title in expected["theme_title"]
+                for value in expected["theme_value"]),
             scroll="up",
             attempts=8,
         )
         if theme_row is None:
             raise impl.QAError(
                 "settings did not expose requested theme state: "
-                f"{expected_theme!r}"
+                f"{expected['theme_title']!r}"
             )
 
     def configure_app(self, language: str, theme: str) -> None:
@@ -512,24 +505,18 @@ class SafeHarness(impl.Harness):
             snap,
             scenario,
             "main-top",
-            (
-                "Status collapsed. Tap to expand",
-                "Status eingeklappt. Zum Öffnen tippen",
-            ),
+            impl.localized_text(scenario.language, "ui_008"),
         )
         self.analyze(snap, scenario, "main-top")
 
         self.tap_desc_any(
-            (
-                "Status collapsed. Tap to expand",
-                "Status eingeklappt. Zum Öffnen tippen",
-            )
+            impl.localized_text(scenario.language, "ui_008")
         )
         snap = self.snapshot()
         for candidates in (
-            ("Mock location", "Mock-Standort"),
-            ("Overlay permission", "Overlay-Berechtigung"),
-            ("Simulation",),
+            impl.localized_text(scenario.language, "ui_028"),
+            impl.localized_text(scenario.language, "ui_031"),
+            impl.localized_text(scenario.language, "ui_019"),
         ):
             self.record_expected(
                 snap, scenario, "main-status", candidates
@@ -538,12 +525,12 @@ class SafeHarness(impl.Harness):
 
         start = self.find_node_any_state(
             lambda item: item.desc
-            in ("Start simulation", "Simulation starten"),
+            in impl.localized_text(scenario.language, "ui_020"),
             scroll="up",
         )
         stop = self.find_node_any_state(
             lambda item: item.desc
-            in ("Stop simulation", "Simulation stoppen"),
+            in impl.localized_text(scenario.language, "ui_021"),
             scroll="up",
         )
         if start is None or stop is None:
