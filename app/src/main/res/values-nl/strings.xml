@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GeoJoystick</string>
+    <string name="ui_001">De kaart heeft geen geldige coördinaten geretourneerd</string>
+    <string name="ui_002">De kaart heeft ongeldige coördinaten geretourneerd</string>
+    <string name="ui_003">Locatie geselecteerd. Voer een hoogte in voordat u begint.</string>
+    <string name="ui_004">Status</string>
+    <string name="ui_005">Mock-locatie</string>
+    <string name="ui_006">Overlay-toestemming</string>
+    <string name="ui_007">Simulatie</string>
+    <string name="ui_008">Status ingestort. Tik om uit te vouwen</string>
+    <string name="ui_009">Status uitgebreid. Tik om samen te vouwen</string>
+    <string name="ui_010">Coördinaten</string>
+    <string name="ui_011">Breedte</string>
+    <string name="ui_012">Lengte</string>
+    <string name="ui_013">Hoogte (m)</string>
+    <string name="ui_014">Kaart</string>
+    <string name="ui_015">Link plakken</string>
+    <string name="ui_016">Favoriet</string>
+    <string name="ui_017">Favorieten</string>
+    <string name="ui_018">Tik op · houd vast om te bewerken</string>
+    <string name="ui_019">Simulatie</string>
+    <string name="ui_020">Simulatie starten</string>
+    <string name="ui_021">Simulatie stoppen</string>
+    <string name="ui_022">Open source · Alleen GPL-3.0 · Eerst lokaal</string>
+    <string name="ui_023">Over GeoJoystick</string>
+    <string name="ui_024">Transparante simulatie van neplocaties</string>
+    <string name="ui_025">Instellingen</string>
+    <string name="ui_026">Instellingen</string>
+    <string name="ui_027">Installatie</string>
+    <string name="ui_028">Mock-locatie</string>
+    <string name="ui_029">Gekozen</string>
+    <string name="ui_030">Niet geselecteerd</string>
+    <string name="ui_031">Overlay-toestemming</string>
+    <string name="ui_032">Toegekend</string>
+    <string name="ui_033">Niet verleend</string>
+    <string name="ui_034">Overlaypositie opnieuw instellen</string>
+    <string name="ui_035">Herstel laatste positie</string>
+    <string name="ui_036">Op</string>
+    <string name="ui_037">Uit</string>
+    <string name="ui_038">Gedrag</string>
+    <string name="ui_039">Simulatie snelheid</string>
+    <string name="ui_040">Overlay met hoog contrast</string>
+    <string name="ui_041">Op</string>
+    <string name="ui_042">Uit</string>
+    <string name="ui_043">Overlay</string>
+    <string name="ui_044">Uiterlijk &amp; taal</string>
+    <string name="ui_045">Thema</string>
+    <string name="ui_046">Taal</string>
+    <string name="ui_047">K2040-avatar</string>
+    <string name="ui_048">Sluit Over</string>
+    <string name="ui_049">Transparante joystick met neplocatie voor het testen van Android-ontwikkelaars en -emulators.</string>
+    <string name="ui_050">Lokaal · eerst offline · geen account · geen advertenties · geen analyses · geen tracking</string>
+    <string name="ui_051">Wijzigingslog</string>
+    <string name="ui_052">Licentie &amp; gebruik</string>
+    <string name="ui_053">Bronnen</string>
+    <string name="ui_054">Ondersteuning op Ko-fi</string>
+    <string name="ui_055">Wijzigingslog</string>
+    <string name="ui_056">Dichtbij</string>
+    <string name="ui_057">Sluit het wijzigingslogboek</string>
+    <string name="ui_058">K2040-avatar</string>
+    <string name="ui_059">Transparante joystick met neplocatie voor het testen van Android-ontwikkelaars en -emulators. Lokaal eerst, zonder account, advertenties, analyses of tracking.</string>
+    <string name="ui_060">App-code: alleen GPL-3.0
+K2040-kunstwerk: CC BY 4.0
+Kaartgegevens: © OpenStreetMap-bijdragers · ODbL 1.0</string>
+    <string name="ui_061">Licenties: app-code alleen GPL-3.0, K2040 artwork CC BY 4.0 en OpenStreetMap ODbL 1.0. Licentiegegevens openen</string>
+    <string name="ui_062">Doorgaan</string>
+    <string name="ui_063">Ga verder naar GeoJoystick</string>
+    <string name="ui_064">Licentie &amp; gebruik</string>
+    <string name="ui_065">LOKALE GEGEVENS</string>
+    <string name="ui_066">Coördinaten en instellingen blijven op dit apparaat staan. De kaart haalt alleen OpenStreetMap-tegels op wanneer u deze opent; ondersteunde linkresolutie kan gebruik maken van begrensde HTTPS-verzoeken. Geen account, analyses of verborgen uploads.</string>
+    <string name="ui_067">LICENTIES</string>
+    <string name="ui_068">Tik op een item voor de onderhouden licentiegegevens.</string>
+    <string name="ui_069">Applicatiecode is alleen GPL-3.0. De door K2040 geschreven GPL-code heeft ook een aparte toeschrijvingsterm uit sectie 7(b). Origineel K2040-artwork is CC BY 4.0. Materiaal van derden behoudt zijn eigen voorwaarden.</string>
+    <string name="ui_070">Applicatiecode · De door K2040 geschreven delen dragen ook §7(b)-toeschrijving</string>
+    <string name="ui_071">K2040-kunstwerk · CC BY 4.0</string>
+    <string name="ui_072">Originele K2040-illustraties en UI-illustraties · toeschrijving vereist</string>
+    <string name="ui_073">Kaartgegevens · © OpenStreetMap-bijdragers</string>
+    <string name="ui_074">Dichtbij</string>
+    <string name="ui_075">De gebundelde Engelse GPL-tekst is de gezaghebbende GPL-tekst. De originele, door K2040 geschreven GPL-code bevat ook de afzonderlijke sectie 7(b) toeschrijving-behoud-term die \'Copyright (c) 2026 K2040\' vereist. Van GoGoGo afkomstig materiaal en ander materiaal van derden behouden hun eigen kennisgevingen.</string>
+    <string name="ui_076">Dichtbij</string>
+    <string name="ui_077">K2040-kunstwerk · CC BY 4.0</string>
+    <string name="ui_078">Origineel artwork en UI-artwork geschreven door K2040 en geïdentificeerd op basis van de herkomst van het project, is gelicentieerd onder Creative Commons Attribution 4.0 International (CC BY 4.0).
+
+Wanneer u gedekte illustraties deelt, vermeld dan K2040, identificeer CC BY 4.0, link waar redelijkerwijs mogelijk naar de licentie en geef wijzigingen aan. Activa van derden en upstream-activa zijn uitgesloten en behouden hun eigen voorwaarden.</string>
+    <string name="ui_079">Officiële licentie openen</string>
+    <string name="ui_080">Dichtbij</string>
+    <string name="ui_081">De ingebouwde kaart van GeoJoystick laadt alleen tegels uit OpenStreetMap wanneer de kaart wordt gebruikt. Kaartgegevens zijn © OpenStreetMap-bijdragers en worden beschikbaar gesteld onder de Open Data Commons Open Database License (ODbL) 1.0.
+
+De kaart houdt de toeschrijving van de bijdrager zichtbaar. De officiële OpenStreetMap copyright- en licentiepagina bevat de bijgehouden details en eventuele aanvullende mededelingen die van toepassing zijn op de tegelservice.</string>
+    <string name="ui_082">Officiële details openen</string>
+    <string name="ui_083">Dichtbij</string>
+    <string name="ui_084">Bronnen</string>
+    <string name="ui_085">Externe projecten en materiaal waar GeoJoystick op voortbouwt of direct gebruik van maakt.</string>
+    <string name="ui_086">Origineel stroomopwaarts project · ZCShou en medewerkers</string>
+    <string name="ui_087">Kaarttegels en gegevens · © OpenStreetMap-bijdragers</string>
+    <string name="ui_088">GeoJoystick is een GPL-3.0-derivaat, geïnformeerd door GoGoGo. De neplocatieservice en het bewegingsontwerp van de joystick werden aangepast en aanzienlijk vereenvoudigd. Van GoGoGo afkomstig materiaal behoudt zijn upstream GPLv3-toeschrijving; de K2040 §7(b)-term is alleen van toepassing op door K2040 geschreven GPL-materiaal. Eigen Baidu SDK-componenten en advertenties zijn niet inbegrepen.</string>
+    <string name="ui_089">Dichtbij</string>
+    <string name="ui_090">Open</string>
+    <string name="ui_091">Lokaal · Geen account · Geen onnodige tracking</string>
+    <string name="ui_092">Coördinaten en instellingen blijven op uw apparaat staan. Geen analyses en geen accountsysteem.</string>
+    <string name="ui_093">Open</string>
+    <string name="ui_094">Transparante joystick met neplocatie voor het testen van Android-ontwikkelaars en -emulators.
+
+Local-first · Geen account · Geen advertenties · Geen analyses · Geen tracking
+Coördinaten en instellingen blijven op uw apparaat staan.</string>
+    <string name="ui_095">Rug</string>
+    <string name="ui_096">Systeemstandaard</string>
+    <string name="ui_097">Licht</string>
+    <string name="ui_098">Donker</string>
+    <string name="ui_099">Verschijning</string>
+    <string name="ui_100">Annuleren</string>
+    <string name="ui_101">Taal</string>
+    <string name="ui_102">Annuleren</string>
+    <string name="ui_103">Donker</string>
+    <string name="ui_104">Licht</string>
+    <string name="ui_105">Systeem</string>
+    <string name="ui_106">Systeem</string>
+    <string name="ui_107">Overlaypositie opnieuw ingesteld voor de volgende show</string>
+    <string name="ui_108">Naam</string>
+    <string name="ui_109">Snelheid in m/s</string>
+    <string name="ui_110">Aangepaste snelheid</string>
+    <string name="ui_111">Redden</string>
+    <string name="ui_112">Annuleren</string>
+    <string name="ui_113">Voer een geldige snelheid in</string>
+    <string name="ui_114">Overlay-grootte: %d%%</string>
+    <string name="ui_115">Overlay-dekking: %d%%</string>
+    <string name="ui_116">Favoriet</string>
+    <string name="ui_117">Kies favoriete slot</string>
+    <string name="ui_118">Annuleren</string>
+    <string name="ui_119">Favoriet geladen in coördinatenvelden</string>
+    <string name="ui_120">Favoriet</string>
+    <string name="ui_121">Favoriete naam</string>
+    <string name="ui_122">Breedte</string>
+    <string name="ui_123">Lengte</string>
+    <string name="ui_124">Hoogte (m)</string>
+    <string name="ui_125">Favoriet</string>
+    <string name="ui_126">Redden</string>
+    <string name="ui_127">Annuleren</string>
+    <string name="ui_128">Duidelijk</string>
+    <string name="ui_129">Favoriet</string>
+    <string name="ui_130">Voer geldige favoriete coördinaten in</string>
+    <string name="ui_131">Favoriet</string>
+    <string name="ui_132">Lege favoriet</string>
+    <string name="ui_133">Favoriet</string>
+    <string name="ui_134">Klembord is leeg</string>
+    <string name="ui_135">Klembord is leeg</string>
+    <string name="ui_136">Geen locatielink gevonden</string>
+    <string name="ui_137">Locatielink lezen…</string>
+    <string name="ui_138">Kon geen coördinaten uit die link halen</string>
+    <string name="ui_139">De geïmporteerde coördinaten waren ongeldig</string>
+    <string name="ui_140">Coördinaten geïmporteerd</string>
+    <string name="ui_141">Coördinaten geïmporteerd. Voer een hoogte in voordat u begint.</string>
+    <string name="ui_142">Selecteer GeoJoystick</string>
+    <string name="ui_143">In Ontwikkelaarsopties kiest u GeoJoystick onder Selecteer neplocatie-app en keert u vervolgens hier terug.</string>
+    <string name="ui_144">Instellingen openen</string>
+    <string name="ui_145">Annuleren</string>
+    <string name="ui_146">Voer een geldige breedtegraad, lengtegraad en hoogte in</string>
+    <string name="ui_147">GeoJoystick-start aangevraagd</string>
+    <string name="ui_148">GeoJoystick kon niet worden gestart</string>
+    <string name="ui_149">GeoJoystick-stop aangevraagd</string>
+    <string name="ui_150">GeoJoystick kon niet worden gestopt</string>
+    <string name="ui_151">Gekozen</string>
+    <string name="ui_152">Niet geselecteerd</string>
+    <string name="ui_153">Toegekend</string>
+    <string name="ui_154">Niet verleend</string>
+    <string name="ui_155">Actief</string>
+    <string name="ui_156">Beginnen</string>
+    <string name="ui_157">Inactief</string>
+    <string name="ui_158">Voer een geldige breedtegraad, lengtegraad en hoogte in</string>
+    <string name="ui_159">Controleren…</string>
+    <string name="ui_160">• Opnieuw ontworpen bedieningselementen voor Home, Instellingen en overlay met duidelijkere status en compacte modus.
+• Verbeterd simulatieherstel, herstel van de laatste positie en afhandeling van ongeldige invoer.
+• Onboarding plus schermen Over, Changelog, Licentie en gebruik en Bronnen toegevoegd.
+• Uitgebreide parsering van kaartlinks en betrouwbaarheid van de kaartkiezer.
+• Verbeterde toegankelijkheid, gedrag van grote lettertypen en aanraakdoelen.
+• De nieuwe GeoJoystick-mascotte/launcher-identiteit en Android 16/API 36-ondersteuning voor terugnavigatie toegevoegd.
+
+0.1.3
+• Dialogen volgen nu het geselecteerde donkere thema.
+• GeoJoystick gebruikt nu een speciaal pictogram in winkelvermeldingen.
+
+0.1.0
+• Eerste publieke release met invoer van coördinaten en hoogte, kaartselectie en import van links, favorieten, uiterlijk- en taalinstellingen en zwevende joystickbediening.</string>
+    <string name="ui_161">Donaties zijn geheel optioneel. Ze ontgrendelen geen functies en bieden geen extra voordelen.</string>
+    <string name="ui_162">Licentietekst is niet beschikbaar in deze build.</string>
+    <string name="ui_163">Geen browser-app beschikbaar</string>
+    <string name="ui_164">Kaartselectie annuleren</string>
+    <string name="ui_165">Kies locatie</string>
+    <string name="ui_166">Gebruik locatie</string>
+    <string name="ui_167">Tik op de kaart om de markering te plaatsen. Er wordt niet automatisch een locatie geselecteerd.</string>
+    <string name="ui_168">Kaart niet beschikbaar</string>
+    <string name="ui_169">Geen locatie geselecteerd</string>
+    <string name="ui_170">%1$.6f, %2$.6f</string>
+    <string name="ui_171">Mock-locatieservice</string>
+    <string name="ui_172">Houdt de zichtbare simulatie van de neplocatie actief.</string>
+    <string name="ui_173">Mock-locatiesimulatie actief</string>
+    <string name="ui_174">Simulatie van een neplocatie starten</string>
+    <string name="ui_175">Show</string>
+    <string name="ui_176">Verbergen</string>
+    <string name="ui_177">Stop</string>
+    <string name="ui_178">Verplaats de GeoJoystick-overlay</string>
+    <string name="ui_179">Schakel over naar compacte overlay</string>
+    <string name="ui_180">Loop snelheid</string>
+    <string name="ui_181">Snelheid uitvoeren</string>
+    <string name="ui_182">Fiets snelheid</string>
+    <string name="ui_183">Aangepaste snelheid</string>
+    <string name="ui_184">Beweging actief; tik om te pauzeren</string>
+    <string name="ui_185">Wachtstand inschakelen</string>
+    <string name="ui_186">Stop de GeoJoystick-service en sluit de overlay</string>
+    <string name="ui_187">Schakel over naar uitgebreide overlay</string>
+    <string name="ui_188">Schakel over naar compacte overlay</string>
+    <string name="ui_189">Aangepaste snelheid:</string>
+    <string name="ui_190">Beweging gepauzeerd; tik om te hervatten</string>
+    <string name="ui_191">Beweging actief; tik om te pauzeren</string>
+    <string name="ui_192">Wachtstand uitschakelen</string>
+    <string name="ui_193">Wachtstand inschakelen</string>
+    <string name="ui_194">Positie niet beschikbaar</string>
+    <string name="map_instruction">Tik op de kaart om de markering te plaatsen. Sleep om te pannen.</string>
+    <string name="map_zoom_in">Zoom in</string>
+    <string name="map_zoom_out">Uitzoomen</string>
+    <string name="language_system_default">Systeemstandaard</string>
+    <string name="language_english">Engels</string>
+    <string name="language_german">Duits</string>
+    <string name="language_french">Frans</string>
+    <string name="language_spanish">Spaans</string>
+    <string name="language_italian">Italiaans</string>
+    <string name="language_dutch">Nederlands</string>
+    <string name="language_danish">Dansk</string>
+    <string name="language_swedish">Zweeds</string>
+    <string name="language_norwegian_bokmal">Norsk bokmål</string>
+    <string name="custom_speed_default">Aangepast</string>
+    <string name="favorite_default">Favoriet %1$d</string>
+    <string name="service_invalid_start">GeoJoystick startte niet omdat de coördinaten ongeldig waren.</string>
+    <string name="service_not_active">GeoJoystick is niet actief.</string>
+    <string name="service_coordinates_rejected">De nieuwe coördinaten werden afgewezen.</string>
+    <string name="service_no_provider">GeoJoystick stopte omdat geen enkele aanbieder van neplocaties de functie accepteerde.</string>
+    <string name="service_publish_failed">GeoJoystick is gestopt omdat de publicatie van de neplocatie is mislukt.</string>
+    <string name="service_cannot_publish">GeoJoystick kon geen neplocatie publiceren. Controleer de ontwikkelaarsopties en selecteer GeoJoystick als de neplocatie-app.</string>
+    <string name="service_cannot_start">GeoJoystick kon zijn voorgrondsimulatieservice niet starten.</string>
+</resources>

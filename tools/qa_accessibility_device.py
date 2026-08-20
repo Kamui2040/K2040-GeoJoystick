@@ -36,6 +36,7 @@ PREF_LANGUAGE = "app_language"
 PREF_APPEARANCE = "app_appearance"
 PREF_WELCOME = "welcome_acknowledged"
 PREF_LEGACY_WELCOME = "license_accepted"
+SUPPORTED_LANGUAGES = {"en", "de", "fr", "es", "it", "nl", "da", "sv", "nb", "system"}
 
 
 class SafeAdb(impl.Adb):
@@ -105,7 +106,7 @@ def _boolean_value(root: ET.Element, name: str) -> bool:
 
 
 def rewrite_ui_preferences(xml_text: str, language: str, theme: str) -> str:
-    if language not in {"en", "de", "system"}:
+    if language not in SUPPORTED_LANGUAGES:
         raise impl.QAError(f"invalid QA language: {language}")
     if theme not in {"system", "light", "dark"}:
         raise impl.QAError(f"invalid QA theme: {theme}")

@@ -15,7 +15,7 @@ It uses Android's standard mock-location provider flow, shows a small floating j
 - Hold, pause, hide, and stop controls
 - Saved overlay mode and speed preset between starts
 - App appearance setting: System, Light, or Dark
-- App language setting: System, English, or German
+- App language setting: System, English, German, French, Spanish, Italian, Dutch, Danish, Swedish, or Norwegian Bokmål
 - Optional restore of the last successfully published position
 - Five compact named favorite-location slots
 - Overlay opacity and high-contrast settings

@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GeoJoystick</string>
+    <string name="ui_001">Die Karte hat keine gültigen Koordinaten zurückgegeben</string>
+    <string name="ui_002">Die Karte hat ungültige Koordinaten zurückgegeben</string>
+    <string name="ui_003">Standort ausgewählt. Gib vor dem Start eine Höhe ein.</string>
+    <string name="ui_004">Status</string>
+    <string name="ui_005">Mock-Standort</string>
+    <string name="ui_006">Overlay-Berechtigung</string>
+    <string name="ui_007">Simulation</string>
+    <string name="ui_008">Status eingeklappt. Zum Öffnen tippen</string>
+    <string name="ui_009">Status ausgeklappt. Zum Schließen tippen</string>
+    <string name="ui_010">Koordinaten</string>
+    <string name="ui_011">Breitengrad</string>
+    <string name="ui_012">Längengrad</string>
+    <string name="ui_013">Höhe (m)</string>
+    <string name="ui_014">Karte</string>
+    <string name="ui_015">Link einfügen</string>
+    <string name="ui_016">Favorit</string>
+    <string name="ui_017">Favoriten</string>
+    <string name="ui_018">Tippen · halten zum Bearbeiten</string>
+    <string name="ui_019">Simulation</string>
+    <string name="ui_020">Simulation starten</string>
+    <string name="ui_021">Simulation stoppen</string>
+    <string name="ui_022">Open Source · GPL-3.0-only · Lokal</string>
+    <string name="ui_023">Über GeoJoystick</string>
+    <string name="ui_024">Transparente Mock-Standort-Simulation</string>
+    <string name="ui_025">Einstellungen</string>
+    <string name="ui_026">Einstellungen</string>
+    <string name="ui_027">Einrichtung</string>
+    <string name="ui_028">Mock-Standort</string>
+    <string name="ui_029">Ausgewählt</string>
+    <string name="ui_030">Nicht ausgewählt</string>
+    <string name="ui_031">Overlay-Berechtigung</string>
+    <string name="ui_032">Erteilt</string>
+    <string name="ui_033">Nicht erteilt</string>
+    <string name="ui_034">Overlay-Position zurücksetzen</string>
+    <string name="ui_035">Letzte Position wiederherstellen</string>
+    <string name="ui_036">Ein</string>
+    <string name="ui_037">Aus</string>
+    <string name="ui_038">Verhalten</string>
+    <string name="ui_039">Simulationsgeschwindigkeit</string>
+    <string name="ui_040">Overlay mit hohem Kontrast</string>
+    <string name="ui_041">Ein</string>
+    <string name="ui_042">Aus</string>
+    <string name="ui_043">Overlay</string>
+    <string name="ui_044">Darstellung &amp; Sprache</string>
+    <string name="ui_045">Darstellung</string>
+    <string name="ui_046">Sprache</string>
+    <string name="ui_047">K2040-Avatar</string>
+    <string name="ui_048">Info schließen</string>
+    <string name="ui_049">Transparenter Mock-Standort-Joystick für Android-Entwicklung und Emulator-Tests.</string>
+    <string name="ui_050">Lokal · offline-first · kein Konto · keine Werbung · keine Analysen · kein Tracking</string>
+    <string name="ui_051">Änderungsverlauf</string>
+    <string name="ui_052">Lizenz &amp; Nutzung</string>
+    <string name="ui_053">Quellen</string>
+    <string name="ui_054">Auf Ko-fi unterstützen</string>
+    <string name="ui_055">Änderungsverlauf</string>
+    <string name="ui_056">Schließen</string>
+    <string name="ui_057">Änderungsverlauf schließen</string>
+    <string name="ui_058">K2040-Avatar</string>
+    <string name="ui_059">Transparenter Mock-Standort-Joystick für Android-Entwicklung und Emulator-Tests. Lokal, ohne Konto, Werbung, Analysen oder Tracking.</string>
+    <string name="ui_060">App-Code: GPL-3.0-only
+K2040-Grafik: CC BY 4.0
+Kartendaten: © OpenStreetMap-Mitwirkende · ODbL 1.0</string>
+    <string name="ui_061">Lizenzen: App-Code GPL-3.0-only, K2040-Grafik CC BY 4.0 und OpenStreetMap ODbL 1.0. Lizenzdetails öffnen</string>
+    <string name="ui_062">Weiter</string>
+    <string name="ui_063">Weiter zu GeoJoystick</string>
+    <string name="ui_064">Lizenz &amp; Nutzung</string>
+    <string name="ui_065">LOKALE DATEN</string>
+    <string name="ui_066">Koordinaten und Einstellungen bleiben auf diesem Gerät. Die Karte lädt OpenStreetMap-Kacheln nur, wenn du sie öffnest; unterstützte Linkauflösung kann begrenzte HTTPS-Anfragen verwenden. Kein Konto, keine Analysen und keine versteckten Uploads.</string>
+    <string name="ui_067">LIZENZEN</string>
+    <string name="ui_068">Tippe auf einen Eintrag für die gepflegten Lizenzdetails.</string>
+    <string name="ui_069">Der Anwendungscode ist GPL-3.0-only. Von K2040 verfasster GPL-Code trägt zusätzlich eine separate §7(b)-Namensnennungsklausel. Originale K2040-Grafik ist CC BY 4.0. Drittmaterial behält seine eigenen Bedingungen.</string>
+    <string name="ui_070">Anwendungscode · K2040-verfasste Teile zusätzlich mit §7(b)-Namensnennung</string>
+    <string name="ui_071">K2040-Grafik · CC BY 4.0</string>
+    <string name="ui_072">Originale K2040-Grafik und UI-Grafik · Namensnennung erforderlich</string>
+    <string name="ui_073">Kartendaten · © OpenStreetMap-Mitwirkende</string>
+    <string name="ui_074">Schließen</string>
+    <string name="ui_075">Der enthaltene englische GPL-Text ist der maßgebliche GPL-Text. Originaler, von K2040 verfasster GPL-Code trägt zusätzlich die separate §7(b)-Namensnennungsklausel mit dem Hinweis \'Copyright (c) 2026 K2040.\' Von GoGoGo abgeleitetes und sonstiges Drittmaterial behält seine eigenen Hinweise.</string>
+    <string name="ui_076">Schließen</string>
+    <string name="ui_077">K2040-Grafik · CC BY 4.0</string>
+    <string name="ui_078">Originale Grafiken und UI-Grafiken, die von K2040 erstellt und durch die Projekt-Provenienz ausgewiesen sind, stehen unter Creative Commons Attribution 4.0 International (CC BY 4.0).
+
+Bei Weitergabe der erfassten Grafiken ist K2040 zu nennen, CC BY 4.0 anzugeben, soweit praktikabel auf die Lizenz zu verlinken und auf Änderungen hinzuweisen. Dritt- und Upstream-Assets sind ausgenommen und behalten ihre eigenen Bedingungen.</string>
+    <string name="ui_079">Offizielle Lizenz öffnen</string>
+    <string name="ui_080">Schließen</string>
+    <string name="ui_081">Die integrierte GeoJoystick-Karte lädt Kacheln von OpenStreetMap nur, wenn die Karte verwendet wird. Kartendaten sind © OpenStreetMap-Mitwirkende und werden unter der Open Data Commons Open Database License (ODbL) 1.0 bereitgestellt.
+
+Die Karte behält die sichtbare Mitwirkenden-Nennung bei. Die offizielle OpenStreetMap-Seite zu Urheberrecht und Lizenzierung enthält die gepflegten Details und zusätzliche Hinweise, die für den Kacheldienst gelten.</string>
+    <string name="ui_082">Offizielle Details öffnen</string>
+    <string name="ui_083">Schließen</string>
+    <string name="ui_084">Quellen</string>
+    <string name="ui_085">Externe Projekte und Materialien, auf denen GeoJoystick aufbaut oder die direkt verwendet werden.</string>
+    <string name="ui_086">Ursprüngliches Upstream-Projekt · ZCShou und Mitwirkende</string>
+    <string name="ui_087">Kartenkacheln und -daten · © OpenStreetMap-Mitwirkende</string>
+    <string name="ui_088">GeoJoystick ist ein GPL-3.0-only-Derivat, das auf GoGoGo aufbaut. Mock-Standort-Dienst und Joystick-Bewegungsdesign wurden angepasst und deutlich vereinfacht. Von GoGoGo abgeleitetes Material behält seine GPLv3-Upstream-Namensnennung; die K2040-§7(b)-Klausel gilt nur für von K2040 verfasstes GPL-Material. Proprietäre Baidu-SDK-Komponenten und Werbung sind nicht enthalten.</string>
+    <string name="ui_089">Schließen</string>
+    <string name="ui_090">Öffnen</string>
+    <string name="ui_091">Lokal · Kein Konto · Kein unnötiges Tracking</string>
+    <string name="ui_092">Koordinaten und Einstellungen bleiben auf deinem Gerät. Keine Analysen und kein Kontosystem.</string>
+    <string name="ui_093">Öffnen</string>
+    <string name="ui_094">Transparenter Mock-Standort-Joystick für Android-Entwicklung und Emulator-Tests.
+
+Lokal · Kein Konto · Keine Werbung · Keine Analysen · Kein Tracking
+Koordinaten und Einstellungen bleiben auf deinem Gerät.</string>
+    <string name="ui_095">Zurück</string>
+    <string name="ui_096">Systemstandard</string>
+    <string name="ui_097">Hell</string>
+    <string name="ui_098">Dunkel</string>
+    <string name="ui_099">Darstellung</string>
+    <string name="ui_100">Abbrechen</string>
+    <string name="ui_101">Sprache</string>
+    <string name="ui_102">Abbrechen</string>
+    <string name="ui_103">Dunkel</string>
+    <string name="ui_104">Hell</string>
+    <string name="ui_105">System</string>
+    <string name="ui_106">System</string>
+    <string name="ui_107">Overlay-Position für die nächste Anzeige zurückgesetzt</string>
+    <string name="ui_108">Name</string>
+    <string name="ui_109">Geschwindigkeit in m/s</string>
+    <string name="ui_110">Eigene Geschwindigkeit</string>
+    <string name="ui_111">Speichern</string>
+    <string name="ui_112">Abbrechen</string>
+    <string name="ui_113">Gib eine gültige Geschwindigkeit ein</string>
+    <string name="ui_114">Overlay-Größe: %d%%</string>
+    <string name="ui_115">Overlay-Deckkraft: %d%%</string>
+    <string name="ui_116">Favorit </string>
+    <string name="ui_117">Favoritenplatz wählen</string>
+    <string name="ui_118">Abbrechen</string>
+    <string name="ui_119">Favorit in Koordinatenfelder geladen</string>
+    <string name="ui_120">Favorit </string>
+    <string name="ui_121">Favoritenname</string>
+    <string name="ui_122">Breitengrad</string>
+    <string name="ui_123">Längengrad</string>
+    <string name="ui_124">Höhe (m)</string>
+    <string name="ui_125">Favorit </string>
+    <string name="ui_126">Speichern</string>
+    <string name="ui_127">Abbrechen</string>
+    <string name="ui_128">Leeren</string>
+    <string name="ui_129">Favorit </string>
+    <string name="ui_130">Gib gültige Favoriten-Koordinaten ein</string>
+    <string name="ui_131">Fav </string>
+    <string name="ui_132">Leerer Favorit </string>
+    <string name="ui_133">Fav </string>
+    <string name="ui_134">Zwischenablage ist leer</string>
+    <string name="ui_135">Zwischenablage ist leer</string>
+    <string name="ui_136">Kein Standortlink gefunden</string>
+    <string name="ui_137">Standortlink wird gelesen…</string>
+    <string name="ui_138">Aus diesem Link konnten keine Koordinaten gelesen werden</string>
+    <string name="ui_139">Die importierten Koordinaten waren ungültig</string>
+    <string name="ui_140">Koordinaten importiert</string>
+    <string name="ui_141">Koordinaten importiert. Gib vor dem Start eine Höhe ein.</string>
+    <string name="ui_142">GeoJoystick auswählen</string>
+    <string name="ui_143">Wähle in den Entwickleroptionen GeoJoystick unter Mock-Standort-App auswählen und kehre dann hierher zurück.</string>
+    <string name="ui_144">Einstellungen öffnen</string>
+    <string name="ui_145">Abbrechen</string>
+    <string name="ui_146">Gib gültige Werte für Breitengrad, Längengrad und Höhe ein</string>
+    <string name="ui_147">GeoJoystick-Start angefordert</string>
+    <string name="ui_148">GeoJoystick konnte nicht gestartet werden</string>
+    <string name="ui_149">GeoJoystick-Stopp angefordert</string>
+    <string name="ui_150">GeoJoystick konnte nicht gestoppt werden</string>
+    <string name="ui_151">Ausgewählt</string>
+    <string name="ui_152">Nicht ausgewählt</string>
+    <string name="ui_153">Erteilt</string>
+    <string name="ui_154">Nicht erteilt</string>
+    <string name="ui_155">Aktiv</string>
+    <string name="ui_156">Wird gestartet</string>
+    <string name="ui_157">Inaktiv</string>
+    <string name="ui_158">Gib gültige Werte für Breitengrad, Längengrad und Höhe ein</string>
+    <string name="ui_159">Wird geprüft…</string>
+    <string name="ui_160">• Startseite, Einstellungen und Overlay-Steuerung wurden mit klarerem Status und besserem Kompaktmodus überarbeitet.
+• Simulations-Wiederherstellung, letzte Position und Fehlerbehandlung wurden verbessert.
+• Onboarding sowie Info-, Änderungsverlauf-, Lizenz- und Quellenansichten wurden ergänzt.
+• Kartenlink-Import und Kartenwahl wurden robuster.
+• Barrierefreiheit, große Schrift und Touch-Ziele wurden verbessert.
+• Neues GeoJoystick-Maskottchen/App-Symbol und Android-16/API-36-Zurücknavigation.
+
+0.1.3
+• Dialoge folgen nun dem ausgewählten dunklen Design.
+• GeoJoystick verwendet nun ein eigenes Symbol in Store-Einträgen.
+
+0.1.0
+• Erste öffentliche Version mit Koordinaten- und Höheneingabe, Kartenauswahl und Linkimport, Favoriten, Darstellungs- und Spracheinstellungen sowie schwebender Joystick-Steuerung.</string>
+    <string name="ui_161">Spenden sind vollständig freiwillig. Sie schalten keine Funktionen frei und bieten keinerlei zusätzliche Vorteile.</string>
+    <string name="ui_162">Der Lizenztext ist in diesem Build nicht verfügbar.</string>
+    <string name="ui_163">Keine Browser-App verfügbar</string>
+    <string name="ui_164">Kartenauswahl abbrechen</string>
+    <string name="ui_165">Standort wählen</string>
+    <string name="ui_166">Standort nutzen</string>
+    <string name="ui_167">Tippe auf die Karte, um die Markierung zu setzen. Es wird kein Standort automatisch ausgewählt.</string>
+    <string name="ui_168">Karte nicht verfügbar</string>
+    <string name="ui_169">Kein Standort ausgewählt</string>
+    <string name="ui_170">%1$.6f, %2$.6f</string>
+    <string name="ui_171">Mock-Standort-Dienst</string>
+    <string name="ui_172">Hält die sichtbare Mock-Standort-Simulation aktiv.</string>
+    <string name="ui_173">Mock-Standort-Simulation aktiv</string>
+    <string name="ui_174">Mock-Standort-Simulation wird gestartet</string>
+    <string name="ui_175">Anzeigen</string>
+    <string name="ui_176">Ausblenden</string>
+    <string name="ui_177">Stoppen</string>
+    <string name="ui_178">GeoJoystick-Overlay verschieben</string>
+    <string name="ui_179">Zum kompakten Overlay wechseln</string>
+    <string name="ui_180">Gehgeschwindigkeit</string>
+    <string name="ui_181">Laufgeschwindigkeit</string>
+    <string name="ui_182">Fahrradgeschwindigkeit</string>
+    <string name="ui_183">Eigene Geschwindigkeit</string>
+    <string name="ui_184">Bewegung aktiv; zum Pausieren tippen</string>
+    <string name="ui_185">Halten aktivieren</string>
+    <string name="ui_186">GeoJoystick-Dienst stoppen und Overlay schließen</string>
+    <string name="ui_187">Zum erweiterten Overlay wechseln</string>
+    <string name="ui_188">Zum kompakten Overlay wechseln</string>
+    <string name="ui_189">Eigene Geschwindigkeit: </string>
+    <string name="ui_190">Bewegung pausiert; zum Fortsetzen tippen</string>
+    <string name="ui_191">Bewegung aktiv; zum Pausieren tippen</string>
+    <string name="ui_192">Halten deaktivieren</string>
+    <string name="ui_193">Halten aktivieren</string>
+    <string name="ui_194">Position nicht verfügbar</string>
+    <string name="map_instruction">Tippe auf die Karte, um die Markierung zu setzen. Ziehe zum Verschieben.</string>
+    <string name="map_zoom_in">Vergrößern</string>
+    <string name="map_zoom_out">Verkleinern</string>
+    <string name="language_system_default">Systemstandard</string>
+    <string name="language_english">English</string>
+    <string name="language_german">Deutsch</string>
+    <string name="language_french">Français</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_italian">Italiano</string>
+    <string name="language_dutch">Nederlands</string>
+    <string name="language_danish">Dansk</string>
+    <string name="language_swedish">Svenska</string>
+    <string name="language_norwegian_bokmal">Norsk bokmål</string>
+    <string name="custom_speed_default">Benutzerdefiniert</string>
+    <string name="favorite_default">Favorit %1$d</string>
+    <string name="service_invalid_start">GeoJoystick wurde nicht gestartet, weil die Koordinaten ungültig waren.</string>
+    <string name="service_not_active">GeoJoystick ist nicht aktiv.</string>
+    <string name="service_coordinates_rejected">Die neuen Koordinaten wurden abgelehnt.</string>
+    <string name="service_no_provider">GeoJoystick wurde beendet, weil kein Mock-Standort-Anbieter die Position angenommen hat.</string>
+    <string name="service_publish_failed">GeoJoystick wurde beendet, weil die Mock-Standort-Veröffentlichung fehlgeschlagen ist.</string>
+    <string name="service_cannot_publish">GeoJoystick konnte keinen Mock-Standort veröffentlichen. Prüfe die Entwickleroptionen und wähle GeoJoystick als Mock-Standort-App.</string>
+    <string name="service_cannot_start">GeoJoystick konnte den Vordergrunddienst für die Simulation nicht starten.</string>
+</resources>

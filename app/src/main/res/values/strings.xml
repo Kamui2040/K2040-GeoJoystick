@@ -1,4 +1,241 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">GeoJoystick</string>
+    <string name="ui_001">The map returned no valid coordinates</string>
+    <string name="ui_002">The map returned invalid coordinates</string>
+    <string name="ui_003">Location selected. Enter an altitude before starting.</string>
+    <string name="ui_004">Status</string>
+    <string name="ui_005">Mock location</string>
+    <string name="ui_006">Overlay permission</string>
+    <string name="ui_007">Simulation</string>
+    <string name="ui_008">Status collapsed. Tap to expand</string>
+    <string name="ui_009">Status expanded. Tap to collapse</string>
+    <string name="ui_010">Coordinates</string>
+    <string name="ui_011">Latitude</string>
+    <string name="ui_012">Longitude</string>
+    <string name="ui_013">Altitude (m)</string>
+    <string name="ui_014">Map</string>
+    <string name="ui_015">Paste link</string>
+    <string name="ui_016">Favorite</string>
+    <string name="ui_017">Favorites</string>
+    <string name="ui_018">Tap · hold to edit</string>
+    <string name="ui_019">Simulation</string>
+    <string name="ui_020">Start simulation</string>
+    <string name="ui_021">Stop simulation</string>
+    <string name="ui_022">Open source · GPL-3.0-only · Local-first</string>
+    <string name="ui_023">About GeoJoystick</string>
+    <string name="ui_024">Transparent mock-location simulation</string>
+    <string name="ui_025">Settings</string>
+    <string name="ui_026">Settings</string>
+    <string name="ui_027">Setup</string>
+    <string name="ui_028">Mock location</string>
+    <string name="ui_029">Selected</string>
+    <string name="ui_030">Not selected</string>
+    <string name="ui_031">Overlay permission</string>
+    <string name="ui_032">Granted</string>
+    <string name="ui_033">Not granted</string>
+    <string name="ui_034">Reset overlay position</string>
+    <string name="ui_035">Restore last position</string>
+    <string name="ui_036">On</string>
+    <string name="ui_037">Off</string>
+    <string name="ui_038">Behavior</string>
+    <string name="ui_039">Simulation speed</string>
+    <string name="ui_040">High contrast overlay</string>
+    <string name="ui_041">On</string>
+    <string name="ui_042">Off</string>
+    <string name="ui_043">Overlay</string>
+    <string name="ui_044">Appearance &amp; language</string>
+    <string name="ui_045">Theme</string>
+    <string name="ui_046">Language</string>
+    <string name="ui_047">K2040 avatar</string>
+    <string name="ui_048">Close About</string>
+    <string name="ui_049">Transparent mock-location joystick for Android developer and emulator testing.</string>
+    <string name="ui_050">Local · offline-first · no account · no ads · no analytics · no tracking</string>
+    <string name="ui_051">Changelog</string>
+    <string name="ui_052">License &amp; usage</string>
+    <string name="ui_053">Sources</string>
+    <string name="ui_054">Support on Ko-fi</string>
+    <string name="ui_055">Changelog</string>
+    <string name="ui_056">Close</string>
+    <string name="ui_057">Close changelog</string>
+    <string name="ui_058">K2040 avatar</string>
+    <string name="ui_059">Transparent mock-location joystick for Android developer and emulator testing. Local-first, with no account, ads, analytics, or tracking.</string>
+    <string name="ui_060">App code: GPL-3.0-only
+K2040 artwork: CC BY 4.0
+Map data: © OpenStreetMap contributors · ODbL 1.0</string>
+    <string name="ui_061">Licenses: app code GPL-3.0-only, K2040 artwork CC BY 4.0, and OpenStreetMap ODbL 1.0. Open license details</string>
+    <string name="ui_062">Continue</string>
+    <string name="ui_063">Continue to GeoJoystick</string>
+    <string name="ui_064">License &amp; usage</string>
+    <string name="ui_065">LOCAL DATA</string>
+    <string name="ui_066">Coordinates and settings stay on this device. The map fetches OpenStreetMap tiles only when you open it; supported link resolution may use bounded HTTPS requests. No account, analytics, or hidden uploads.</string>
+    <string name="ui_067">LICENSES</string>
+    <string name="ui_068">Tap an entry for the maintained license details.</string>
+    <string name="ui_069">Application code is GPL-3.0-only. K2040-authored GPL code also carries a separate section 7(b) attribution term. Original K2040 artwork is CC BY 4.0. Third-party material retains its own terms.</string>
+    <string name="ui_070">Application code · K2040-authored portions also carry §7(b) attribution</string>
+    <string name="ui_071">K2040 artwork · CC BY 4.0</string>
+    <string name="ui_072">Original K2040 artwork and UI artwork · attribution required</string>
+    <string name="ui_073">Map data · © OpenStreetMap contributors</string>
+    <string name="ui_074">Close</string>
+    <string name="ui_075">The bundled English GPL text is the authoritative GPL text. Original K2040-authored GPL code also carries the separate section 7(b) attribution-preservation term requiring \'Copyright (c) 2026 K2040.\' GoGoGo-derived and other third-party material retain their own notices.</string>
+    <string name="ui_076">Close</string>
+    <string name="ui_077">K2040 artwork · CC BY 4.0</string>
+    <string name="ui_078">Original artwork and UI artwork authored by K2040 and identified by project provenance is licensed under Creative Commons Attribution 4.0 International (CC BY 4.0).
+
+When sharing covered artwork, credit K2040, identify CC BY 4.0, link to the licence where reasonably practicable, and indicate modifications. Third-party and upstream assets are excluded and retain their own terms.</string>
+    <string name="ui_079">Open official license</string>
+    <string name="ui_080">Close</string>
+    <string name="ui_081">GeoJoystick\'s built-in map loads tiles from OpenStreetMap only when the map is used. Map data is © OpenStreetMap contributors and is made available under the Open Data Commons Open Database License (ODbL) 1.0.
+
+The map keeps visible contributor attribution. The official OpenStreetMap copyright and licensing page contains the maintained details and any additional notices that apply to the tile service.</string>
+    <string name="ui_082">Open official details</string>
+    <string name="ui_083">Close</string>
+    <string name="ui_084">Sources</string>
+    <string name="ui_085">External projects and material GeoJoystick builds on or uses directly.</string>
+    <string name="ui_086">Original upstream project · ZCShou and contributors</string>
+    <string name="ui_087">Map tiles and data · © OpenStreetMap contributors</string>
+    <string name="ui_088">GeoJoystick is a GPL-3.0-only derivative informed by GoGoGo. Its mock-location service and joystick movement design were adapted and substantially simplified. GoGoGo-derived material keeps its upstream GPLv3 attribution; the K2040 §7(b) term applies only to K2040-authored GPL material. Proprietary Baidu SDK components and advertising are not included.</string>
+    <string name="ui_089">Close</string>
+    <string name="ui_090">Open</string>
+    <string name="ui_091">Local · No account · No unnecessary tracking</string>
+    <string name="ui_092">Coordinates and settings stay on your device. No analytics and no account system.</string>
+    <string name="ui_093">Open</string>
+    <string name="ui_094">Transparent mock-location joystick for Android developer and emulator testing.
+
+Local-first · No account · No ads · No analytics · No tracking
+Coordinates and settings stay on your device.</string>
+    <string name="ui_095">Back</string>
+    <string name="ui_096">System default</string>
+    <string name="ui_097">Light</string>
+    <string name="ui_098">Dark</string>
+    <string name="ui_099">Appearance</string>
+    <string name="ui_100">Cancel</string>
+    <string name="ui_101">Language</string>
+    <string name="ui_102">Cancel</string>
+    <string name="ui_103">Dark</string>
+    <string name="ui_104">Light</string>
+    <string name="ui_105">System</string>
+    <string name="ui_106">System</string>
+    <string name="ui_107">Overlay position reset for next show</string>
+    <string name="ui_108">Name</string>
+    <string name="ui_109">Speed in m/s</string>
+    <string name="ui_110">Custom speed</string>
+    <string name="ui_111">Save</string>
+    <string name="ui_112">Cancel</string>
+    <string name="ui_113">Enter a valid speed</string>
+    <string name="ui_114">Overlay size: %d%%</string>
+    <string name="ui_115">Overlay opacity: %d%%</string>
+    <string name="ui_116">Favorite </string>
+    <string name="ui_117">Choose favorite slot</string>
+    <string name="ui_118">Cancel</string>
+    <string name="ui_119">Favorite loaded into coordinate fields</string>
+    <string name="ui_120">Favorite </string>
+    <string name="ui_121">Favorite name</string>
+    <string name="ui_122">Latitude</string>
+    <string name="ui_123">Longitude</string>
+    <string name="ui_124">Altitude (m)</string>
+    <string name="ui_125">Favorite </string>
+    <string name="ui_126">Save</string>
+    <string name="ui_127">Cancel</string>
+    <string name="ui_128">Clear</string>
+    <string name="ui_129">Favorite </string>
+    <string name="ui_130">Enter valid favorite coordinates</string>
+    <string name="ui_131">Fav </string>
+    <string name="ui_132">Empty favorite </string>
+    <string name="ui_133">Fav </string>
+    <string name="ui_134">Clipboard is empty</string>
+    <string name="ui_135">Clipboard is empty</string>
+    <string name="ui_136">No location link found</string>
+    <string name="ui_137">Reading location link…</string>
+    <string name="ui_138">Could not extract coordinates from that link</string>
+    <string name="ui_139">The imported coordinates were invalid</string>
+    <string name="ui_140">Coordinates imported</string>
+    <string name="ui_141">Coordinates imported. Enter an altitude before starting.</string>
+    <string name="ui_142">Select GeoJoystick</string>
+    <string name="ui_143">In Developer options, choose GeoJoystick under Select mock location app, then return here.</string>
+    <string name="ui_144">Open settings</string>
+    <string name="ui_145">Cancel</string>
+    <string name="ui_146">Enter valid latitude, longitude, and altitude</string>
+    <string name="ui_147">GeoJoystick start requested</string>
+    <string name="ui_148">GeoJoystick could not be started</string>
+    <string name="ui_149">GeoJoystick stop requested</string>
+    <string name="ui_150">GeoJoystick could not be stopped</string>
+    <string name="ui_151">Selected</string>
+    <string name="ui_152">Not selected</string>
+    <string name="ui_153">Granted</string>
+    <string name="ui_154">Not granted</string>
+    <string name="ui_155">Active</string>
+    <string name="ui_156">Starting</string>
+    <string name="ui_157">Inactive</string>
+    <string name="ui_158">Enter valid latitude, longitude, and altitude</string>
+    <string name="ui_159">Checking…</string>
+    <string name="ui_160">• Redesigned Home, Settings, and overlay controls with clearer status and compact mode.
+• Improved simulation recovery, restore-last-position, and invalid-input handling.
+• Added onboarding plus About, Changelog, License &amp; usage, and Sources screens.
+• Expanded map-link parsing and map picker reliability.
+• Improved accessibility, large-font behavior, and touch targets.
+• Added the new GeoJoystick mascot/launcher identity and Android 16/API 36 back-navigation support.
+
+0.1.3
+• Dialogs now follow the selected dark theme.
+• GeoJoystick now uses a dedicated icon in store listings.
+
+0.1.0
+• Initial public release with coordinate and altitude entry, map selection and link import, favorites, appearance and language settings, and floating joystick controls.</string>
+    <string name="ui_161">Donations are entirely optional. They do not unlock features or provide any additional benefits.</string>
+    <string name="ui_162">License text is unavailable in this build.</string>
+    <string name="ui_163">No browser app available</string>
+    <string name="ui_164">Cancel map selection</string>
+    <string name="ui_165">Choose location</string>
+    <string name="ui_166">Use location</string>
+    <string name="ui_167">Tap the map to place the marker. No location is selected automatically.</string>
+    <string name="ui_168">Map unavailable</string>
+    <string name="ui_169">No location selected</string>
+    <string name="ui_170">%1$.6f, %2$.6f</string>
+    <string name="ui_171">Mock location service</string>
+    <string name="ui_172">Keeps the visible mock-location simulation active.</string>
+    <string name="ui_173">Mock-location simulation active</string>
+    <string name="ui_174">Starting mock-location simulation</string>
+    <string name="ui_175">Show</string>
+    <string name="ui_176">Hide</string>
+    <string name="ui_177">Stop</string>
+    <string name="ui_178">Move GeoJoystick overlay</string>
+    <string name="ui_179">Switch to compact overlay</string>
+    <string name="ui_180">Walk speed</string>
+    <string name="ui_181">Run speed</string>
+    <string name="ui_182">Bike speed</string>
+    <string name="ui_183">Custom speed</string>
+    <string name="ui_184">Movement active; tap to pause</string>
+    <string name="ui_185">Enable hold</string>
+    <string name="ui_186">Stop GeoJoystick service and close overlay</string>
+    <string name="ui_187">Switch to expanded overlay</string>
+    <string name="ui_188">Switch to compact overlay</string>
+    <string name="ui_189">Custom speed: </string>
+    <string name="ui_190">Movement paused; tap to resume</string>
+    <string name="ui_191">Movement active; tap to pause</string>
+    <string name="ui_192">Disable hold</string>
+    <string name="ui_193">Enable hold</string>
+    <string name="ui_194">Position unavailable</string>
+    <string name="map_instruction">Tap the map to place the marker. Drag to pan.</string>
+    <string name="map_zoom_in">Zoom in</string>
+    <string name="map_zoom_out">Zoom out</string>
+    <string name="language_system_default">System default</string>
+    <string name="language_english">English</string>
+    <string name="language_german">Deutsch</string>
+    <string name="language_french">Français</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_italian">Italiano</string>
+    <string name="language_dutch">Nederlands</string>
+    <string name="language_danish">Dansk</string>
+    <string name="language_swedish">Svenska</string>
+    <string name="language_norwegian_bokmal">Norsk bokmål</string>
+    <string name="custom_speed_default">Custom</string>
+    <string name="favorite_default">Favorite %1$d</string>
+    <string name="service_invalid_start">GeoJoystick did not start because the coordinates were invalid.</string>
+    <string name="service_not_active">GeoJoystick is not active.</string>
+    <string name="service_coordinates_rejected">The new coordinates were rejected.</string>
+    <string name="service_no_provider">GeoJoystick stopped because no mock-location provider accepted the position.</string>
+    <string name="service_publish_failed">GeoJoystick stopped because mock-location publication failed.</string>
+    <string name="service_cannot_publish">GeoJoystick could not publish a mock location. Check Developer Options and select GeoJoystick as the mock-location app.</string>
+    <string name="service_cannot_start">GeoJoystick could not start its foreground simulation service.</string>
 </resources>
