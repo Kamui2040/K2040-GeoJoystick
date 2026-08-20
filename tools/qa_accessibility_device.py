@@ -347,6 +347,7 @@ class SafeHarness(impl.Harness):
         self,
         snap: impl.Snapshot,
         screen: str,
+        language: str,
     ) -> list[impl.UiNode]:
         app_nodes = [
             node
@@ -359,7 +360,7 @@ class SafeHarness(impl.Harness):
                 (
                     node
                     for node in app_nodes
-                    if node.desc in ("Close About", "Info schließen")
+                    if node.desc in impl.modal_expectations(language)["about_close"]
                 ),
                 None,
             )
@@ -405,7 +406,7 @@ class SafeHarness(impl.Harness):
         scenario: impl.Scenario,
         screen: str,
     ) -> None:
-        app_nodes = self._active_nodes(snap, screen)
+        app_nodes = self._active_nodes(snap, screen, scenario.language)
         density_scale = snap.density / 160.0
 
         for node in app_nodes:
@@ -743,7 +744,7 @@ def adapter_self_test() -> None:
     close = impl.UiNode(
         path=(1, 0),
         text="×",
-        desc="Close About",
+        desc=impl.modal_expectations("en")["about_close"][0],
         class_name="android.widget.TextView",
         package=args.package,
         clickable=True,
@@ -754,6 +755,7 @@ def adapter_self_test() -> None:
     scoped = harness._active_nodes(
         impl.Snapshot(1080, 2400, 480, [background, modal, close]),
         "about",
+        "en",
     )
     assert background not in scoped
     assert modal in scoped and close in scoped

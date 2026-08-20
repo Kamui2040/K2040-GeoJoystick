@@ -77,6 +77,40 @@ def scenario_expectations(language: str, theme: str) -> dict[str, tuple[str, ...
     }
 
 
+def overlay_expectations(language: str) -> dict[str, tuple[str, ...]]:
+    if language not in SUPPORTED_LANGUAGES:
+        raise QAError(f"unsupported QA scenario language: {language}")
+    return {
+        "start": localized_text(language, "ui_020"),
+        "move": localized_text(language, "ui_178"),
+        "compact": localized_text(language, "ui_188"),
+        "expanded": localized_text(language, "ui_187"),
+        "walk": localized_text(language, "ui_180"),
+        "run": localized_text(language, "ui_181"),
+        "bike": localized_text(language, "ui_182"),
+        "custom": localized_text(language, "ui_189"),
+        "pause": localized_text(language, "ui_191"),
+        "resume": localized_text(language, "ui_190"),
+        "enable_hold": localized_text(language, "ui_193"),
+        "disable_hold": localized_text(language, "ui_192"),
+        "stop": localized_text(language, "ui_186"),
+        "joystick": localized_text(language, "joystick_accessibility"),
+    }
+
+
+def modal_expectations(language: str) -> dict[str, tuple[str, ...]]:
+    if language not in SUPPORTED_LANGUAGES:
+        raise QAError(f"unsupported QA scenario language: {language}")
+    return {
+        "about_close": localized_text(language, "ui_048"),
+        "changelog_close": localized_text(language, "ui_057"),
+        "license_close": localized_text(language, "ui_074"),
+        "artwork_close": localized_text(language, "ui_080"),
+        "osm_close": localized_text(language, "ui_083"),
+        "sources_close": localized_text(language, "ui_089"),
+    }
+
+
 class QAError(RuntimeError):
     pass
 
@@ -903,9 +937,10 @@ class Harness:
             time.sleep(0.25)
         return False
 
-    def overlay_phase(self, density: int) -> None:
-        key = f"overlay/en/dark/font=1.30/density={density}"
-        scenario = Scenario("en", "dark", 1.30, density)
+    def overlay_phase(self, density: int, language: str) -> None:
+        expected = overlay_expectations(language)
+        key = f"overlay/{language}/dark/font=1.30/density={density}"
+        scenario = Scenario(language, "dark", 1.30, density)
 
         if not self.mock_app_selected():
             self.findings.append(
@@ -924,10 +959,10 @@ class Harness:
             return
 
         self.apply_system_scale(1.30, density)
-        self.configure_app("en", "dark")
+        self.configure_app(language, "dark")
         self.fill_synthetic_coordinates()
 
-        start = self.find_node(lambda item: item.desc == "Start simulation", scroll="up")
+        start = self.find_node(lambda item: item.desc in expected["start"], scroll="up")
         if start is None:
             self.findings.append(
                 Finding(key, "overlay", "missing", "Start simulation control not reachable")
@@ -942,10 +977,7 @@ class Harness:
             return
 
         toggle = self.find_node(
-            lambda item: item.desc in (
-                "Switch to compact overlay",
-                "Switch to expanded overlay",
-            ),
+            lambda item: item.desc in expected["compact"] + expected["expanded"],
             attempts=8,
         )
         if toggle is None:
@@ -954,25 +986,33 @@ class Harness:
             )
             return
 
-        original_compact = toggle.desc == "Switch to expanded overlay"
+        original_compact = toggle.desc in expected["expanded"]
         if original_compact:
             self.adb.tap(toggle.bounds)
             time.sleep(0.25)
 
         snap = self.snapshot()
-        expected_expanded = (
-            "Move GeoJoystick overlay",
-            "Switch to compact overlay",
-            "Walk speed",
-            "Run speed",
-            "Bike speed",
-            "Stop GeoJoystick service and close overlay",
-        )
+        expected_expanded = ("move", "compact", "walk", "run", "bike", "custom", "pause",
+                             "enable_hold", "stop", "joystick")
         for label in expected_expanded:
-            self.record_expected(snap, scenario, "overlay-expanded", (label,))
+            self.record_expected(snap, scenario, "overlay-expanded", expected[label])
         self.analyze(snap, scenario, "overlay-expanded")
 
-        toggle = self.find_node(lambda item: item.desc == "Switch to compact overlay")
+        pause = self.find_node(lambda item: item.desc in expected["pause"])
+        hold = self.find_node(lambda item: item.desc in expected["enable_hold"])
+        if pause is None or hold is None:
+            self.findings.append(
+                Finding(key, "overlay-expanded", "missing", "pause/hold controls not exposed")
+            )
+        else:
+            self.adb.tap(pause.bounds)
+            time.sleep(0.15)
+            self.record_expected(self.snapshot(), scenario, "overlay-paused", expected["resume"])
+            self.adb.tap(hold.bounds)
+            time.sleep(0.15)
+            self.record_expected(self.snapshot(), scenario, "overlay-hold", expected["disable_hold"])
+
+        toggle = self.find_node(lambda item: item.desc in expected["compact"])
         if toggle is None:
             self.findings.append(
                 Finding(key, "overlay-compact", "missing", "compact-mode control missing")
@@ -982,16 +1022,10 @@ class Harness:
         time.sleep(0.25)
         snap = self.snapshot()
         self.record_expected(
-            snap, scenario, "overlay-compact", ("Switch to expanded overlay",)
+            snap, scenario, "overlay-compact", expected["expanded"]
         )
-        for label in (
-            "Move GeoJoystick overlay",
-            "Walk speed",
-            "Run speed",
-            "Bike speed",
-            "Stop GeoJoystick service and close overlay",
-        ):
-            if any(node.desc == label for node in snap.nodes if node.package == self.package):
+        for label in ("move", "walk", "run", "bike", "custom", "pause", "enable_hold", "stop", "joystick"):
+            if any(node.desc in expected[label] for node in snap.nodes if node.package == self.package):
                 self.findings.append(
                     Finding(
                         key,
@@ -1003,7 +1037,7 @@ class Harness:
         self.analyze(snap, scenario, "overlay-compact")
 
         if not original_compact:
-            toggle = self.find_node(lambda item: item.desc == "Switch to expanded overlay")
+            toggle = self.find_node(lambda item: item.desc in expected["expanded"])
             if toggle:
                 self.adb.tap(toggle.bounds)
 
@@ -1013,7 +1047,7 @@ class Harness:
                 Finding(key, "overlay", "cleanup", "simulation service did not stop")
             )
         else:
-            print("PASS: overlay expanded/compact structural phase")
+            print(f"PASS: overlay expanded/compact structural phase ({language})")
 
     def print_findings(self) -> None:
         if not self.findings:
@@ -1057,7 +1091,8 @@ class Harness:
         try:
             for scenario in scenarios:
                 self.run_scenario(scenario)
-            self.overlay_phase(stress_density)
+            for language in SUPPORTED_LANGUAGES:
+                self.overlay_phase(stress_density, language)
         except BaseException as exc:
             primary_error = exc
         finally:
@@ -1124,6 +1159,8 @@ def self_test() -> int:
         expected = scenario_expectations(language, "dark")
         assert all(expected.values())
         assert localized_text(language, "ui_026")
+        assert all(overlay_expectations(language).values())
+        assert all(modal_expectations(language).values())
     try:
         scenario_expectations("malformed", "dark")
     except QAError:
