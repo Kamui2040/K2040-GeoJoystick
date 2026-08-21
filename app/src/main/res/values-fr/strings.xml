@@ -63,7 +63,7 @@
     <string name="ui_060">Code de l\'application : GPL-3.0-only
 Illustration K2040 : CC BY 4.0
 Données cartographiques : © Contributeurs OpenStreetMap · ODbL 1.0</string>
-    <string name="ui_061">Licences : code d\'application GPL-3.0-only, illustration K2040 CC BY 4.0 et OpenStreetMap ODbL 1.0. Détails de la licence ouverte</string>
+    <string name="ui_061">Licences : code d\'application GPL-3.0-only, illustration K2040 CC BY 4.0 et OpenStreetMap ODbL 1.0. Ouvrir les détails des licences</string>
     <string name="ui_062">Continuer</string>
     <string name="ui_063">Continuer vers GeoJoystick</string>
     <string name="ui_064">Licence et utilisation</string>

@@ -22,7 +22,7 @@
     <string name="ui_019">Simulazione</string>
     <string name="ui_020">Avvia la simulazione</string>
     <string name="ui_021">Interrompi la simulazione</string>
-    <string name="ui_022">Open source · GPL-3.0-only · Prima locale</string>
+    <string name="ui_022">Open source · GPL-3.0-only · Prima di tutto locale</string>
     <string name="ui_023">Informazioni su GeoJoystick</string>
     <string name="ui_024">Simulazione trasparente della posizione</string>
     <string name="ui_025">Impostazioni</string>
@@ -169,19 +169,19 @@ Le coordinate e le impostazioni rimangono sul tuo dispositivo.</string>
     <string name="ui_157">Inattivo</string>
     <string name="ui_158">Inserisci latitudine, longitudine e altitudine valide</string>
     <string name="ui_159">Verifica in corso…</string>
-    <string name="ui_160">• Home, Impostazioni e controlli in sovrapposizione riprogettati con stato più chiaro e modalità compatta.
-• Miglioramento del recupero della simulazione, del ripristino dell\'ultima posizione e della gestione degli input non validi.
-• Aggiunte onboarding e schermate Informazioni, Registro modifiche, Licenza e utilizzo e Sorgenti.
-• Analisi ampliata dei collegamenti delle mappe e affidabilità del selettore di mappe.
-• Accessibilità, comportamento dei caratteri grandi e target tattili migliorati.
-• Aggiunta la nuova identità mascotte/launcher GeoJoystick e supporto per la navigazione all\'indietro Android 16/API 36.
+    <string name="ui_160">• Schermata principale, Impostazioni e controlli in sovrapposizione riprogettati con uno stato più chiaro e una modalità compatta.
+• Migliorati il ripristino della simulazione, il recupero dell\'ultima posizione e la gestione dei dati non validi.
+• Aggiunte l\'introduzione iniziale e le schermate Informazioni, Registro delle modifiche, Licenza e utilizzo e Fonti.
+• Migliorati l\'analisi dei collegamenti delle mappe e l\'affidabilità del selettore della mappa.
+• Migliorati accessibilità, supporto ai caratteri grandi e aree di tocco.
+• Aggiunte la nuova mascotte e identità dell\'app GeoJoystick e il supporto alla navigazione indietro di Android 16/API 36.
 
 0.1.3
 • Le finestre di dialogo ora seguono il tema scuro selezionato.
-• GeoJoystick ora utilizza un\'icona dedicata negli elenchi dei negozi.
+• GeoJoystick ora utilizza un\'icona dedicata negli elenchi degli store.
 
 0.1.0
-• Versione pubblica iniziale con immissione di coordinate e altitudine, selezione della mappa e importazione di collegamenti, preferiti, impostazioni di aspetto e lingua e controlli joystick mobili.</string>
+• Prima versione pubblica con inserimento di coordinate e altitudine, selezione della mappa e importazione di collegamenti, preferiti, impostazioni di aspetto e lingua e controlli joystick mobili.</string>
     <string name="ui_161">Le donazioni sono del tutto facoltative. Non sbloccano funzionalità né forniscono vantaggi aggiuntivi.</string>
     <string name="ui_162">Il testo della licenza non è disponibile in questa build.</string>
     <string name="ui_163">Nessuna app browser disponibile</string>
@@ -205,14 +205,14 @@ Le coordinate e le impostazioni rimangono sul tuo dispositivo.</string>
     <string name="ui_181">Velocità di corsa</string>
     <string name="ui_182">Velocità della bici</string>
     <string name="ui_183">Velocità personalizzata</string>
-    <string name="ui_184">Movimento attivo; toccare per mettere in pausa</string>
+    <string name="ui_184">Movimento attivo; tocca per mettere in pausa</string>
     <string name="ui_185">Abilita la sospensione</string>
     <string name="ui_186">Arresta il servizio GeoJoystick e chiudi l\'overlay</string>
     <string name="ui_187">Passa alla sovrapposizione estesa</string>
     <string name="ui_188">Passa alla sovrapposizione compatta</string>
     <string name="ui_189">Velocità personalizzata: %1$s</string>
     <string name="ui_190">Movimento in pausa; tocca per riprendere</string>
-    <string name="ui_191">Movimento attivo; toccare per mettere in pausa</string>
+    <string name="ui_191">Movimento attivo; tocca per mettere in pausa</string>
     <string name="ui_192">Disattiva la sospensione</string>
     <string name="ui_193">Abilita la sospensione</string>
     <string name="ui_194">Posizione non disponibile</string>

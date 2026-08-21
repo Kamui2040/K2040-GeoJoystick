@@ -169,12 +169,12 @@ Coördinaten en instellingen blijven op uw apparaat staan.</string>
     <string name="ui_157">Inactief</string>
     <string name="ui_158">Voer een geldige breedtegraad, lengtegraad en hoogte in</string>
     <string name="ui_159">Bezig met controleren…</string>
-    <string name="ui_160">• Opnieuw ontworpen bedieningselementen voor Home, Instellingen en overlay met duidelijkere status en compacte modus.
-• Verbeterd simulatieherstel, herstel van de laatste positie en afhandeling van ongeldige invoer.
-• Onboarding plus schermen Over, Changelog, Licentie en gebruik en Bronnen toegevoegd.
-• Uitgebreide parsering van kaartlinks en betrouwbaarheid van de kaartkiezer.
-• Verbeterde toegankelijkheid, gedrag van grote lettertypen en aanraakdoelen.
-• De nieuwe GeoJoystick-mascotte/launcher-identiteit en Android 16/API 36-ondersteuning voor terugnavigatie toegevoegd.
+    <string name="ui_160">• Bediening op het startscherm, in Instellingen en in de overlay vernieuwd, met duidelijkere status en compacte modus.
+• Herstel van de simulatie, herstel van de laatste positie en afhandeling van ongeldige invoer verbeterd.
+• Introductie en de schermen Over, Wijzigingslog, Licentie en gebruik en Bronnen toegevoegd.
+• Verwerking van kaartlinks en betrouwbaarheid van de kaartkiezer verbeterd.
+• Toegankelijkheid, ondersteuning voor grote tekst en aanraakdoelen verbeterd.
+• Nieuwe GeoJoystick-mascotte en app-identiteit toegevoegd, met ondersteuning voor terugnavigatie in Android 16/API 36.
 
 0.1.3
 • Dialogen volgen nu het geselecteerde donkere thema.
