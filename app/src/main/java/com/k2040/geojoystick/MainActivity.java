@@ -1390,7 +1390,7 @@ public final class MainActivity extends Activity {
         String[] slots = new String[GeoSettings.FAVORITE_COUNT];
         for (int i = 0; i < slots.length; i++) {
             GeoSettings.Favorite favorite = settings.favorite(i);
-            slots[i] = favorite == null ? t(R.string.ui_116) + (i + 1) : favorite.name;
+            slots[i] = favorite == null ? settings.text(R.string.ui_116, i + 1) : favorite.name;
         }
         appDialogBuilder()
                 .setTitle(t(R.string.ui_117))
@@ -1415,7 +1415,7 @@ public final class MainActivity extends Activity {
         double latitude = useSaved && saved != null ? saved.latitude : safeLatitude();
         double longitude = useSaved && saved != null ? saved.longitude : safeLongitude();
         double altitude = useSaved && saved != null ? saved.altitude : safeAltitude();
-        String initialName = useSaved && saved != null ? saved.name : t(R.string.ui_120) + (slot + 1);
+        String initialName = useSaved && saved != null ? saved.name : settings.text(R.string.ui_120, slot + 1);
 
         LinearLayout form = new LinearLayout(this);
         form.setOrientation(LinearLayout.VERTICAL);
@@ -1430,7 +1430,7 @@ public final class MainActivity extends Activity {
         form.addView(alt, innerRow());
 
         AlertDialog dialog = appDialogBuilder()
-                .setTitle(t(R.string.ui_125) + (slot + 1))
+                .setTitle(settings.text(R.string.ui_125, slot + 1))
                 .setView(form)
                 .setPositiveButton(t(R.string.ui_126), null)
                 .setNegativeButton(t(R.string.ui_127), null)
@@ -1446,7 +1446,7 @@ public final class MainActivity extends Activity {
                         throw new NumberFormatException("coordinates");
                     }
                     String favoriteName = name.getText().toString().trim();
-                    if (favoriteName.isEmpty()) favoriteName = t(R.string.ui_129) + (slot + 1);
+                    if (favoriteName.isEmpty()) favoriteName = settings.text(R.string.ui_129, slot + 1);
                     settings.saveFavorite(slot, favoriteName, favoriteLat, favoriteLng, favoriteAlt);
                     refreshFavoriteButtons();
                     dialog.dismiss();
@@ -1468,16 +1468,16 @@ public final class MainActivity extends Activity {
             Button button = favoriteButtons[i];
             if (button == null) continue;
             GeoSettings.Favorite favorite = settings.favorite(i);
-            String name = favorite == null ? t(R.string.ui_131) + (i + 1) : favorite.name;
+            String name = favorite == null ? settings.text(R.string.ui_131, i + 1) : favorite.name;
             button.setText(name.length() > 13 ? name.substring(0, 13) : name);
             button.setContentDescription(favorite == null
-                    ? t(R.string.ui_132) + (i + 1)
+                    ? settings.text(R.string.ui_132, i + 1)
                     : favorite.name);
         }
     }
 
     private Button favoriteButton(int slot) {
-        Button button = GeoUi.button(this, palette, t(R.string.ui_133) + (slot + 1), false);
+        Button button = GeoUi.button(this, palette, settings.text(R.string.ui_133, slot + 1), false);
         button.setTextSize(11);
         button.setSingleLine(true);
         return button;

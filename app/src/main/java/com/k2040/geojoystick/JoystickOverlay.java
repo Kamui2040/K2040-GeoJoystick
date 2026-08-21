@@ -355,7 +355,8 @@ final class JoystickOverlay {
         styleIconButton(runButton, SPEED_RUN.equals(selectedSpeedKind));
         styleIconButton(bikeButton, SPEED_BIKE.equals(selectedSpeedKind));
         styleIconButton(customButton, SPEED_CUSTOM.equals(selectedSpeedKind));
-        customButton.setContentDescription(t(R.string.ui_189) + customSpeedName());
+        customButton.setContentDescription(
+                new GeoSettings(context).text(R.string.ui_189, customSpeedName()));
     }
 
     private void updateToggleStates() {

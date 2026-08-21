@@ -15,6 +15,20 @@ ROOT = Path(__file__).resolve().parents[1]
 RES = ROOT / "app/src/main/res"
 LOCALES = ("de", "fr", "es", "it", "nl", "da", "sv", "nb")
 REQUIRED_MAP_KEYS = {"map_instruction", "map_zoom_in", "map_zoom_out"}
+LANGUAGE_AUTONYMS = {
+    "language_english": "English",
+    "language_german": "Deutsch",
+    "language_french": "Français",
+    "language_spanish": "Español",
+    "language_italian": "Italiano",
+    "language_dutch": "Nederlands",
+    "language_danish": "Dansk",
+    "language_swedish": "Svenska",
+    "language_norwegian_bokmal": "Norsk bokmål",
+}
+FORMATTED_RESOURCES = {
+    "ui_116", "ui_120", "ui_125", "ui_129", "ui_131", "ui_132", "ui_133", "ui_189",
+}
 FORMAT = re.compile(r"%(?:\d+\$)?[-#+ 0,(]*\d*(?:\.\d+)?[a-zA-Z%]")
 
 
@@ -57,6 +71,13 @@ def validate(res_root: Path) -> None:
     if actual_locales != expected_locales:
         raise AssertionError(f"unexpected locale directories: {sorted(actual_locales ^ expected_locales)}")
     english = catalog(res_root / "values/strings.xml")
+    for name, autonym in LANGUAGE_AUTONYMS.items():
+        if english.get(name) != autonym:
+            raise AssertionError(f"English {name} is not the required autonym")
+    for name in FORMATTED_RESOURCES:
+        placeholders = FORMAT.findall(english.get(name, ""))
+        if not placeholders:
+            raise AssertionError(f"English {name} must contain a format placeholder")
     if not REQUIRED_MAP_KEYS <= set(english):
         raise AssertionError("English catalog is missing bundled-map localization keys")
     for locale in LOCALES:
@@ -69,6 +90,12 @@ def validate(res_root: Path) -> None:
             raise AssertionError(f"{locale} key mismatch: missing={missing}, extra={extra}")
         if not REQUIRED_MAP_KEYS <= set(target):
             raise AssertionError(f"{locale} is missing bundled-map localization keys")
+        for name, autonym in LANGUAGE_AUTONYMS.items():
+            if target.get(name) != autonym:
+                raise AssertionError(f"{locale}/{name} is not the required autonym")
+        for name in FORMATTED_RESOURCES:
+            if not target.get(name, "").strip():
+                raise AssertionError(f"{locale}/{name} is missing or empty")
         for name, source in english.items():
             expected = FORMAT.findall(source)
             actual = FORMAT.findall(target[name])

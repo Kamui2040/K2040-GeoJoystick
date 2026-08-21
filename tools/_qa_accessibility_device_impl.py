@@ -130,7 +130,8 @@ def overlay_expectations(language: str) -> dict[str, tuple[str, ...]]:
         "walk": localized_text(language, "ui_180"),
         "run": localized_text(language, "ui_181"),
         "bike": localized_text(language, "ui_182"),
-        "custom": localized_text(language, "ui_189"),
+        "custom": tuple(value.replace("%1$s", "Custom")
+                        for value in localized_text(language, "ui_189")),
         "pause": localized_text(language, "ui_191"),
         "resume": localized_text(language, "ui_190"),
         "enable_hold": localized_text(language, "ui_193"),
