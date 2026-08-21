@@ -3,7 +3,7 @@
     <string name="app_name">GeoJoystick</string>
     <string name="ui_001">El mapa no arrojó coordenadas válidas.</string>
     <string name="ui_002">El mapa devolvió coordenadas no válidas.</string>
-    <string name="ui_003">Ubicación seleccionada. Introduzca una altitud antes de comenzar.</string>
+    <string name="ui_003">Ubicación seleccionada. Introduce una altitud antes de comenzar.</string>
     <string name="ui_004">Estado</string>
     <string name="ui_005">Ubicación simulada</string>
     <string name="ui_006">Permiso de superposición</string>
@@ -18,7 +18,7 @@
     <string name="ui_015">Pegar enlace</string>
     <string name="ui_016">Favorito</string>
     <string name="ui_017">Favoritos</string>
-    <string name="ui_018">Toque · mantenga presionado para editar</string>
+    <string name="ui_018">Toca · mantén pulsado para editar</string>
     <string name="ui_019">Simulación</string>
     <string name="ui_020">Iniciar simulación</string>
     <string name="ui_021">Detener simulación</string>
@@ -48,7 +48,7 @@
     <string name="ui_045">Tema</string>
     <string name="ui_046">Idioma</string>
     <string name="ui_047">avatar k2040</string>
-    <string name="ui_048">Cerrar Acerca de</string>
+    <string name="ui_048">Cerrar la página Acerca de</string>
     <string name="ui_049">Joystick transparente con ubicación simulada para desarrolladores de Android y pruebas de emuladores.</string>
     <string name="ui_050">Local · primero sin conexión · sin cuenta · sin anuncios · sin análisis · sin seguimiento</string>
     <string name="ui_051">Registro de cambios</string>
@@ -60,18 +60,18 @@
     <string name="ui_057">Cerrar registro de cambios</string>
     <string name="ui_058">avatar k2040</string>
     <string name="ui_059">Joystick transparente con ubicación simulada para desarrolladores de Android y pruebas de emuladores. Primero local, sin cuenta, anuncios, análisis ni seguimiento.</string>
-    <string name="ui_060">Código de aplicación: solo GPL-3.0
+    <string name="ui_060">Código de la aplicación: GPL-3.0-only
 Ilustraciones K2040: CC BY 4.0
 Datos del mapa: © Colaboradores de OpenStreetMap · ODbL 1.0</string>
-    <string name="ui_061">Licencias: código de aplicación GPL-3.0 únicamente, obra de arte K2040 CC BY 4.0 y OpenStreetMap ODbL 1.0. Abrir detalles de licencia</string>
+    <string name="ui_061">Licencias: código de la aplicación GPL-3.0-only, ilustraciones de K2040 CC BY 4.0 y OpenStreetMap ODbL 1.0. Abrir detalles de la licencia</string>
     <string name="ui_062">Continuar</string>
     <string name="ui_063">Continuar a GeoJoystick</string>
     <string name="ui_064">Licencia y uso</string>
     <string name="ui_065">DATOS LOCALES</string>
     <string name="ui_066">Las coordenadas y la configuración permanecen en este dispositivo. El mapa recupera mosaicos de OpenStreetMap sólo cuando lo abres; La resolución de enlaces admitida puede utilizar solicitudes HTTPS limitadas. Sin cuenta, análisis ni cargas ocultas.</string>
     <string name="ui_067">LICENCIAS</string>
-    <string name="ui_068">Toque una entrada para obtener los detalles de la licencia mantenida.</string>
-    <string name="ui_069">El código de la aplicación es solo GPL-3.0. El código GPL creado por K2040 también incluye un término de atribución independiente en la sección 7(b). El arte original del K2040 es CC BY 4.0. El material de terceros conserva sus propios términos.</string>
+    <string name="ui_068">Toca una entrada para ver los detalles de la licencia.</string>
+    <string name="ui_069">El código de la aplicación está bajo GPL-3.0-only. El código GPL creado por K2040 también incluye un término de atribución independiente de la sección 7(b). Las ilustraciones originales de K2040 son CC BY 4.0. El material de terceros conserva sus propios términos.</string>
     <string name="ui_070">Código de la aplicación · Las partes escritas por K2040 también llevan la atribución §7(b)</string>
     <string name="ui_071">Ilustraciones K2040 · CC BY 4.0</string>
     <string name="ui_072">Ilustraciones originales de K2040 y de la interfaz de usuario · se requiere atribución</string>
@@ -91,10 +91,10 @@ El mapa mantiene visible la atribución de los contribuyentes. La página oficia
     <string name="ui_082">Abrir detalles oficiales</string>
     <string name="ui_083">Cerrar</string>
     <string name="ui_084">Fuentes</string>
-    <string name="ui_085">Proyectos externos y material que GeoJoystick construye o utiliza directamente.</string>
+    <string name="ui_085">Proyectos y material externos en los que GeoJoystick se basa o que utiliza directamente.</string>
     <string name="ui_086">Proyecto upstream original · ZCShou y colaboradores</string>
     <string name="ui_087">Mosaicos y datos del mapa · © Contribuidores de OpenStreetMap</string>
-    <string name="ui_088">GeoJoystick es un derivado exclusivo de GPL-3.0 informado por GoGoGo. Su servicio de ubicación simulada y el diseño del movimiento del joystick se adaptaron y simplificaron sustancialmente. El material derivado de GoGoGo mantiene su atribución GPLv3 ascendente; El término K2040 §7(b) se aplica únicamente al material GPL escrito por K2040. No se incluyen publicidad ni componentes propietarios del SDK de Baidu.</string>
+    <string name="ui_088">GeoJoystick es un derivado de GPL-3.0-only basado en GoGoGo. Su servicio de ubicación simulada y el diseño del movimiento del joystick se adaptaron y simplificaron sustancialmente. El material derivado de GoGoGo conserva su atribución GPLv3 upstream; el término §7(b) de K2040 se aplica solo al material GPL escrito por K2040. No se incluyen publicidad ni componentes propietarios del SDK de Baidu.</string>
     <string name="ui_089">Cerrar</string>
     <string name="ui_090">Abrir</string>
     <string name="ui_091">Local · Sin cuenta · Sin seguimiento innecesario</string>
@@ -122,15 +122,15 @@ Las coordenadas y la configuración permanecen en su dispositivo.</string>
     <string name="ui_110">Velocidad personalizada</string>
     <string name="ui_111">Guardar</string>
     <string name="ui_112">Cancelar</string>
-    <string name="ui_113">Introduzca una velocidad válida</string>
+    <string name="ui_113">Introduce una velocidad válida</string>
     <string name="ui_114">Tamaño de superposición: %d%%</string>
     <string name="ui_115">Opacidad de superposición: %d%%</string>
     <string name="ui_116">Favorito %1$d</string>
-    <string name="ui_117">Elegir ranura de favorito</string>
+    <string name="ui_117">Elige un espacio de favoritos</string>
     <string name="ui_118">Cancelar</string>
     <string name="ui_119">Favorito cargado en campos de coordenadas</string>
     <string name="ui_120">Favorito %1$d</string>
-    <string name="ui_121">nombre favorito</string>
+    <string name="ui_121">Nombre del favorito</string>
     <string name="ui_122">Latitud</string>
     <string name="ui_123">Longitud</string>
     <string name="ui_124">Altitud (m)</string>
@@ -139,7 +139,7 @@ Las coordenadas y la configuración permanecen en su dispositivo.</string>
     <string name="ui_127">Cancelar</string>
     <string name="ui_128">Borrar</string>
     <string name="ui_129">Favorito %1$d</string>
-    <string name="ui_130">Introduzca coordenadas favoritas válidas</string>
+    <string name="ui_130">Introduce coordenadas favoritas válidas</string>
     <string name="ui_131">Favorito %1$d</string>
     <string name="ui_132">Favorito vacío %1$d</string>
     <string name="ui_133">Favorito %1$d</string>
@@ -150,24 +150,24 @@ Las coordenadas y la configuración permanecen en su dispositivo.</string>
     <string name="ui_138">No se pudieron extraer las coordenadas de ese enlace.</string>
     <string name="ui_139">Las coordenadas importadas no eran válidas.</string>
     <string name="ui_140">Coordenadas importadas</string>
-    <string name="ui_141">Coordenadas importadas. Introduzca una altitud antes de comenzar.</string>
-    <string name="ui_142">Seleccione GeoJoystick</string>
-    <string name="ui_143">En Opciones de desarrollador, elija GeoJoystick en Seleccionar aplicación de ubicación simulada y luego regrese aquí.</string>
+    <string name="ui_141">Coordenadas importadas. Introduce una altitud antes de comenzar.</string>
+    <string name="ui_142">Selecciona GeoJoystick</string>
+    <string name="ui_143">En Opciones de desarrollador, elige GeoJoystick en Seleccionar aplicación de ubicación simulada y luego vuelve aquí.</string>
     <string name="ui_144">Abrir configuración</string>
     <string name="ui_145">Cancelar</string>
-    <string name="ui_146">Introduzca latitud, longitud y altitud válidas</string>
+    <string name="ui_146">Introduce latitud, longitud y altitud válidas</string>
     <string name="ui_147">Inicio del GeoJoystick solicitado</string>
     <string name="ui_148">No se pudo iniciar GeoJoystick</string>
     <string name="ui_149">Parada del GeoJoystick solicitada</string>
     <string name="ui_150">GeoJoystick no se pudo detener</string>
     <string name="ui_151">Seleccionado</string>
     <string name="ui_152">No seleccionado</string>
-    <string name="ui_153">Otorgada</string>
+    <string name="ui_153">Concedido</string>
     <string name="ui_154">No concedido</string>
     <string name="ui_155">Activo</string>
     <string name="ui_156">Iniciando</string>
     <string name="ui_157">Inactivo</string>
-    <string name="ui_158">Introduzca latitud, longitud y altitud válidas</string>
+    <string name="ui_158">Introduce latitud, longitud y altitud válidas</string>
     <string name="ui_159">Comprobando…</string>
     <string name="ui_160">• Inicio, Configuración y controles superpuestos rediseñados con un estado más claro y un modo compacto.
 • Recuperación de simulación mejorada, restauración de la última posición y manejo de entradas no válidas.
@@ -188,14 +188,14 @@ Las coordenadas y la configuración permanecen en su dispositivo.</string>
     <string name="ui_164">Cancelar selección de mapa</string>
     <string name="ui_165">Elige ubicación</string>
     <string name="ui_166">Usar ubicación</string>
-    <string name="ui_167">Toque el mapa para colocar el marcador. No se selecciona ninguna ubicación automáticamente.</string>
+    <string name="ui_167">Toca el mapa para colocar el marcador. No se selecciona ninguna ubicación automáticamente.</string>
     <string name="ui_168">Mapa no disponible</string>
     <string name="ui_169">Ninguna ubicación seleccionada</string>
     <string name="ui_170">%1$.6f, %2$.6f</string>
     <string name="ui_171">Servicio de ubicación simulada</string>
     <string name="ui_172">Mantiene activa la simulación de ubicación simulada visible.</string>
     <string name="ui_173">Simulación de ubicación simulada activa</string>
-    <string name="ui_174">Iniciar simulación de ubicación simulada</string>
+    <string name="ui_174">Iniciando la simulación de ubicación simulada</string>
     <string name="ui_175">Mostrar</string>
     <string name="ui_176">Ocultar</string>
     <string name="ui_177">Detener</string>
@@ -216,7 +216,7 @@ Las coordenadas y la configuración permanecen en su dispositivo.</string>
     <string name="ui_192">Desactivar retención</string>
     <string name="ui_193">Habilitar retención</string>
     <string name="ui_194">Posición no disponible</string>
-    <string name="map_instruction">Toque el mapa para colocar el marcador. Arrastre para desplazarse.</string>
+    <string name="map_instruction">Toca el mapa para colocar el marcador. Arrastra para desplazarte.</string>
     <string name="map_zoom_in">Acercar</string>
     <string name="map_zoom_out">Alejar</string>
     <string name="language_system_default">Valor predeterminado del sistema</string>
@@ -236,7 +236,7 @@ Las coordenadas y la configuración permanecen en su dispositivo.</string>
     <string name="service_coordinates_rejected">Las nuevas coordenadas fueron rechazadas.</string>
     <string name="service_no_provider">GeoJoystick se detuvo porque ningún proveedor de ubicación simulada aceptó la posición.</string>
     <string name="service_publish_failed">GeoJoystick se detuvo porque falló la publicación de la ubicación simulada.</string>
-    <string name="service_cannot_publish">GeoJoystick no pudo publicar una ubicación simulada. Verifique las Opciones de desarrollador y seleccione GeoJoystick como aplicación de ubicación simulada.</string>
+    <string name="service_cannot_publish">GeoJoystick no pudo publicar una ubicación simulada. Comprueba las Opciones de desarrollador y selecciona GeoJoystick como aplicación de ubicación simulada.</string>
     <string name="service_cannot_start">GeoJoystick no pudo iniciar su servicio de simulación en primer plano.</string>
     <string name="joystick_accessibility">Joystick de movimiento</string>
 </resources>

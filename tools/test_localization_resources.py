@@ -30,10 +30,13 @@ FORMATTED_RESOURCES = {
     "ui_116", "ui_120", "ui_125", "ui_129", "ui_131", "ui_132", "ui_133", "ui_189",
 }
 FORMAT = re.compile(r"%(?:\d+\$)?[-#+ 0,(]*\d*(?:\.\d+)?[a-zA-Z%]")
+ZERO_WIDTH_SPACE = "\u200b"
 
 
 def catalog(path: Path) -> dict[str, str]:
     raw = path.read_text(encoding="utf-8")
+    if ZERO_WIDTH_SPACE in raw:
+        raise AssertionError(f"zero width space in {path}")
     if re.search(r"(?<!\\)'", raw):
         raise AssertionError(f"unescaped apostrophe in {path}")
     try:
@@ -157,6 +160,19 @@ def self_test() -> int:
             assert "exact English copy" in str(exc)
         else:
             raise AssertionError("English-copy fixture falsely passed")
+        strings = copied / "values-fr/strings.xml"
+        strings.write_text(
+            strings.read_text(encoding="utf-8").replace(
+                "GeoJoystick", "Geo\u200bJoystick", 1
+            ),
+            encoding="utf-8",
+        )
+        try:
+            validate(copied)
+        except AssertionError as exc:
+            assert "zero width space" in str(exc)
+        else:
+            raise AssertionError("zero-width-space fixture falsely passed")
     print("Localization resource self-test: PASS")
     return 0
 

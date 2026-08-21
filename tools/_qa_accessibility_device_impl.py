@@ -57,6 +57,31 @@ def localized_text(language: str, resource_name: str) -> tuple[str, ...]:
     return tuple(values)
 
 
+def localized_formatted_text(
+    language: str, format_resource: str, value_resource: str
+) -> tuple[str, ...]:
+    """Format locale-paired resources exactly as Android's positional string does."""
+    if language not in SUPPORTED_LANGUAGES:
+        raise QAError(f"unsupported QA scenario language: {language}")
+    languages = EXPLICIT_LANGUAGES if language == "system" else (language,)
+    values = []
+    for current in languages:
+        directory = "values" if current == "en" else f"values-{current}"
+        root = ET.parse(RESOURCE_ROOT / directory / "strings.xml").getroot()
+        resources = {
+            item.attrib.get("name"): item.text or ""
+            for item in root.findall("string")
+        }
+        template = resources.get(format_resource, "")
+        value = resources.get(value_resource, "")
+        if not template or not value:
+            raise QAError(
+                f"missing {format_resource}/{value_resource} for QA language {current!r}"
+            )
+        values.append(template.replace("%1$s", value))
+    return tuple(values)
+
+
 def main_expectations(language: str) -> dict[str, tuple[str, ...]]:
     """Localized labels asserted by the live main-screen QA path."""
     return {
@@ -130,8 +155,9 @@ def overlay_expectations(language: str) -> dict[str, tuple[str, ...]]:
         "walk": localized_text(language, "ui_180"),
         "run": localized_text(language, "ui_181"),
         "bike": localized_text(language, "ui_182"),
-        "custom": tuple(value.replace("%1$s", "Custom")
-                        for value in localized_text(language, "ui_189")),
+        "custom": localized_formatted_text(
+            language, "ui_189", "custom_speed_default"
+        ),
         "pause": localized_text(language, "ui_191"),
         "resume": localized_text(language, "ui_190"),
         "enable_hold": localized_text(language, "ui_193"),
@@ -714,7 +740,14 @@ class Harness:
         self.set_language(language)
         self.set_theme(language, theme)
         self.adb.force_stop()
+        self.reset_custom_speed_name()
         self.adb.launch()
+
+    def reset_custom_speed_name(self) -> None:
+        """Use the locale default during QA; recover() restores the original preferences."""
+        self.adb.run_as(
+            "sed -i '/name=\"overlay_custom_speed_name\"/d' " + PREFS_PATH
+        )
 
     def record_expected(
         self,
@@ -1231,6 +1264,19 @@ def self_test() -> int:
     scenarios = build_scenarios(480, 550)
     assert len(scenarios) == 90
     assert set(EXPLICIT_LANGUAGES) == {"en", "de", "fr", "es", "it", "nl", "da", "sv", "nb"}
+    for language in EXPLICIT_LANGUAGES:
+        custom = overlay_expectations(language)["custom"]
+        default = localized_text(language, "custom_speed_default")
+        assert len(custom) == len(default) == 1
+        assert default[0] in custom[0]
+        if language != "en":
+            assert "Custom" not in custom[0]
+    system_custom = overlay_expectations("system")["custom"]
+    assert system_custom == tuple(
+        overlay_expectations(language)["custom"][0]
+        for language in EXPLICIT_LANGUAGES
+    )
+    assert len(system_custom) == len(set(system_custom))
     matrix = surface_expectation_matrix()
     expected_surfaces = {"main", "settings", "about", "map", "overlay", "modal/dialog"}
     assert len(matrix) == len(SUPPORTED_LANGUAGES) * len(expected_surfaces)
