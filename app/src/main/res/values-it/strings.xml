@@ -22,9 +22,9 @@
     <string name="ui_019">Simulazione</string>
     <string name="ui_020">Avvia la simulazione</string>
     <string name="ui_021">Interrompi la simulazione</string>
-    <string name="ui_022">Open source · Solo GPL-3.0 · Locale prima di tutto</string>
+    <string name="ui_022">Open source · GPL-3.0-only · Prima locale</string>
     <string name="ui_023">Informazioni su GeoJoystick</string>
-    <string name="ui_024">Simulazione trasparente della posizione simulata</string>
+    <string name="ui_024">Simulazione trasparente della posizione</string>
     <string name="ui_025">Impostazioni</string>
     <string name="ui_026">Impostazioni</string>
     <string name="ui_027">Configurazione</string>
@@ -64,7 +64,7 @@
 Grafica K2040: CC BY 4.0
 Dati mappa: © Collaboratori di OpenStreetMap · ODbL 1.0</string>
     <string name="ui_061">Licenze: codice dell\'applicazione GPL-3.0-only, grafica K2040 CC BY 4.0 e OpenStreetMap ODbL 1.0. Apri i dettagli della licenza</string>
-    <string name="ui_062">Continuare</string>
+    <string name="ui_062">Continua</string>
     <string name="ui_063">Continua su GeoJoystick</string>
     <string name="ui_064">Licenza e utilizzo</string>
     <string name="ui_065">DATI LOCALI</string>
@@ -193,9 +193,9 @@ Le coordinate e le impostazioni rimangono sul tuo dispositivo.</string>
     <string name="ui_169">Nessuna località selezionata</string>
     <string name="ui_170">%1$.6f, %2$.6f</string>
     <string name="ui_171">Servizio di posizione simulata</string>
-    <string name="ui_172">Mantiene attiva la simulazione della posizione simulata visibile.</string>
-    <string name="ui_173">Simulazione della posizione simulata attiva</string>
-    <string name="ui_174">Avvio della simulazione della posizione simulata</string>
+    <string name="ui_172">Mantiene attiva la simulazione della posizione visibile.</string>
+    <string name="ui_173">Simulazione della posizione attiva</string>
+    <string name="ui_174">Avvio della simulazione della posizione</string>
     <string name="ui_175">Mostra</string>
     <string name="ui_176">Nascondi</string>
     <string name="ui_177">Arresta</string>

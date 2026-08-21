@@ -24,7 +24,7 @@
     <string name="ui_021">Stoppa simulering</string>
     <string name="ui_022">Öppen källkod · GPL-3.0-only · Lokalt först</string>
     <string name="ui_023">Om GeoJoystick</string>
-    <string name="ui_024">Transparent simulering av simulerad plats</string>
+    <string name="ui_024">Transparent platssimulering</string>
     <string name="ui_025">Inställningar</string>
     <string name="ui_026">Inställningar</string>
     <string name="ui_027">Inställning</string>
@@ -33,7 +33,7 @@
     <string name="ui_030">Ej vald</string>
     <string name="ui_031">Överlagringsbehörighet</string>
     <string name="ui_032">Beviljad</string>
-    <string name="ui_033">Inte beviljat</string>
+    <string name="ui_033">Inte beviljad</string>
     <string name="ui_034">Återställ överläggsposition</string>
     <string name="ui_035">Återställ den senaste positionen</string>
     <string name="ui_036">På</string>
@@ -163,7 +163,7 @@ Koordinater och inställningar finns kvar på din enhet.</string>
     <string name="ui_151">Vald</string>
     <string name="ui_152">Ej vald</string>
     <string name="ui_153">Beviljad</string>
-    <string name="ui_154">Inte beviljat</string>
+    <string name="ui_154">Inte beviljad</string>
     <string name="ui_155">Aktiv</string>
     <string name="ui_156">Startar</string>
     <string name="ui_157">Inaktiv</string>
@@ -193,9 +193,9 @@ Koordinater och inställningar finns kvar på din enhet.</string>
     <string name="ui_169">Ingen plats har valts</string>
     <string name="ui_170">%1$.6f, %2$.6f</string>
     <string name="ui_171">Tjänst för simulerad plats</string>
-    <string name="ui_172">Håller den synliga simuleringen av simulerad plats aktiv.</string>
-    <string name="ui_173">Simulering av simulerad plats aktiv</string>
-    <string name="ui_174">Startar simulering av simulerad plats</string>
+    <string name="ui_172">Håller den synliga platssimuleringen aktiv.</string>
+    <string name="ui_173">Platssimulering aktiv</string>
+    <string name="ui_174">Startar platssimulering</string>
     <string name="ui_175">Visa</string>
     <string name="ui_176">Dölj</string>
     <string name="ui_177">Stoppa</string>

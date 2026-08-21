@@ -22,9 +22,9 @@
     <string name="ui_019">Simulatie</string>
     <string name="ui_020">Simulatie starten</string>
     <string name="ui_021">Simulatie stoppen</string>
-    <string name="ui_022">Open source · Alleen GPL-3.0 · Eerst lokaal</string>
+    <string name="ui_022">Open source · GPL-3.0-only · Eerst lokaal</string>
     <string name="ui_023">Over GeoJoystick</string>
-    <string name="ui_024">Transparante simulatie van gesimuleerde locaties</string>
+    <string name="ui_024">Transparante locatiesimulatie</string>
     <string name="ui_025">Instellingen</string>
     <string name="ui_026">Instellingen</string>
     <string name="ui_027">Configuratie</string>
@@ -193,9 +193,9 @@ Coördinaten en instellingen blijven op uw apparaat staan.</string>
     <string name="ui_169">Geen locatie geselecteerd</string>
     <string name="ui_170">%1$.6f, %2$.6f</string>
     <string name="ui_171">Service voor gesimuleerde locaties</string>
-    <string name="ui_172">Houdt de zichtbare simulatie van de gesimuleerde locatie actief.</string>
-    <string name="ui_173">Simulatie van gesimuleerde locatie actief</string>
-    <string name="ui_174">Simulatie van een gesimuleerde locatie wordt gestart</string>
+    <string name="ui_172">Houdt de zichtbare locatiesimulatie actief.</string>
+    <string name="ui_173">Locatiesimulatie actief</string>
+    <string name="ui_174">Locatiesimulatie wordt gestart</string>
     <string name="ui_175">Tonen</string>
     <string name="ui_176">Verbergen</string>
     <string name="ui_177">Stop</string>

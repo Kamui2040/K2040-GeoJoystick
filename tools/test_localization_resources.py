@@ -29,6 +29,7 @@ LANGUAGE_AUTONYMS = {
 FORMATTED_RESOURCES = {
     "ui_116", "ui_120", "ui_125", "ui_129", "ui_131", "ui_132", "ui_133", "ui_189",
 }
+SPDX_LICENSE_SUMMARY_RESOURCES = {"ui_022", "ui_060", "ui_061", "ui_069", "ui_088"}
 FORMAT = re.compile(r"%(?:\d+\$)?[-#+ 0,(]*\d*(?:\.\d+)?[a-zA-Z%]")
 ZERO_WIDTH_SPACE = "\u200b"
 
@@ -74,6 +75,9 @@ def validate(res_root: Path) -> None:
     if actual_locales != expected_locales:
         raise AssertionError(f"unexpected locale directories: {sorted(actual_locales ^ expected_locales)}")
     english = catalog(res_root / "values/strings.xml")
+    for name in SPDX_LICENSE_SUMMARY_RESOURCES:
+        if "GPL-3.0-only" not in english.get(name, ""):
+            raise AssertionError(f"English {name} is missing GPL-3.0-only")
     for name, autonym in LANGUAGE_AUTONYMS.items():
         if english.get(name) != autonym:
             raise AssertionError(f"English {name} is not the required autonym")
@@ -96,6 +100,9 @@ def validate(res_root: Path) -> None:
         for name, autonym in LANGUAGE_AUTONYMS.items():
             if target.get(name) != autonym:
                 raise AssertionError(f"{locale}/{name} is not the required autonym")
+        for name in SPDX_LICENSE_SUMMARY_RESOURCES:
+            if "GPL-3.0-only" not in target.get(name, ""):
+                raise AssertionError(f"{locale}/{name} is missing GPL-3.0-only")
         for name in FORMATTED_RESOURCES:
             if not target.get(name, "").strip():
                 raise AssertionError(f"{locale}/{name} is missing or empty")
@@ -173,6 +180,19 @@ def self_test() -> int:
             assert "zero width space" in str(exc)
         else:
             raise AssertionError("zero-width-space fixture falsely passed")
+        shutil.rmtree(copied / "values-fr")
+        shutil.copytree(RES / "values-fr", copied / "values-fr")
+        strings = copied / "values-fr/strings.xml"
+        strings.write_text(
+            strings.read_text(encoding="utf-8").replace("GPL-3.0-only", "GPL-3.0", 1),
+            encoding="utf-8",
+        )
+        try:
+            validate(copied)
+        except AssertionError as exc:
+            assert "missing GPL-3.0-only" in str(exc)
+        else:
+            raise AssertionError("shortened-GPL fixture falsely passed")
     print("Localization resource self-test: PASS")
     return 0
 

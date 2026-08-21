@@ -22,9 +22,9 @@
     <string name="ui_019">Simulación</string>
     <string name="ui_020">Iniciar simulación</string>
     <string name="ui_021">Detener simulación</string>
-    <string name="ui_022">Código abierto · Solo GPL-3.0 · Local primero</string>
+    <string name="ui_022">Código abierto · GPL-3.0-only · Local primero</string>
     <string name="ui_023">Acerca de GeoJoystick</string>
-    <string name="ui_024">Simulación transparente de ubicación simulada</string>
+    <string name="ui_024">Simulación transparente de ubicación</string>
     <string name="ui_025">Ajustes</string>
     <string name="ui_026">Ajustes</string>
     <string name="ui_027">Configuración</string>
@@ -47,7 +47,7 @@
     <string name="ui_044">Apariencia e idioma</string>
     <string name="ui_045">Tema</string>
     <string name="ui_046">Idioma</string>
-    <string name="ui_047">avatar k2040</string>
+    <string name="ui_047">Avatar K2040</string>
     <string name="ui_048">Cerrar la página Acerca de</string>
     <string name="ui_049">Joystick transparente con ubicación simulada para desarrolladores de Android y pruebas de emuladores.</string>
     <string name="ui_050">Local · primero sin conexión · sin cuenta · sin anuncios · sin análisis · sin seguimiento</string>
@@ -58,7 +58,7 @@
     <string name="ui_055">Registro de cambios</string>
     <string name="ui_056">Cerrar</string>
     <string name="ui_057">Cerrar registro de cambios</string>
-    <string name="ui_058">avatar k2040</string>
+    <string name="ui_058">Avatar K2040</string>
     <string name="ui_059">Joystick transparente con ubicación simulada para desarrolladores de Android y pruebas de emuladores. Primero local, sin cuenta, anuncios, análisis ni seguimiento.</string>
     <string name="ui_060">Código de la aplicación: GPL-3.0-only
 Ilustraciones K2040: CC BY 4.0
@@ -193,9 +193,9 @@ Las coordenadas y la configuración permanecen en su dispositivo.</string>
     <string name="ui_169">Ninguna ubicación seleccionada</string>
     <string name="ui_170">%1$.6f, %2$.6f</string>
     <string name="ui_171">Servicio de ubicación simulada</string>
-    <string name="ui_172">Mantiene activa la simulación de ubicación simulada visible.</string>
-    <string name="ui_173">Simulación de ubicación simulada activa</string>
-    <string name="ui_174">Iniciando la simulación de ubicación simulada</string>
+    <string name="ui_172">Mantiene activa la simulación de ubicación visible.</string>
+    <string name="ui_173">Simulación de ubicación activa</string>
+    <string name="ui_174">Iniciando la simulación de ubicación</string>
     <string name="ui_175">Mostrar</string>
     <string name="ui_176">Ocultar</string>
     <string name="ui_177">Detener</string>
@@ -205,14 +205,14 @@ Las coordenadas y la configuración permanecen en su dispositivo.</string>
     <string name="ui_181">Velocidad al correr</string>
     <string name="ui_182">Velocidad en bicicleta</string>
     <string name="ui_183">Velocidad personalizada</string>
-    <string name="ui_184">Movimiento activo; toque para pausar</string>
+    <string name="ui_184">Movimiento activo; toca para pausar</string>
     <string name="ui_185">Habilitar retención</string>
     <string name="ui_186">Detener el servicio GeoJoystick y cerrar la superposición</string>
     <string name="ui_187">Cambiar a superposición expandida</string>
     <string name="ui_188">Cambiar a superposición compacta</string>
     <string name="ui_189">Velocidad personalizada: %1$s</string>
     <string name="ui_190">Movimiento en pausa; toca para reanudar</string>
-    <string name="ui_191">Movimiento activo; toque para pausar</string>
+    <string name="ui_191">Movimiento activo; toca para pausar</string>
     <string name="ui_192">Desactivar retención</string>
     <string name="ui_193">Habilitar retención</string>
     <string name="ui_194">Posición no disponible</string>

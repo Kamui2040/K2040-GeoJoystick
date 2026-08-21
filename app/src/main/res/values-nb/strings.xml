@@ -22,9 +22,9 @@
     <string name="ui_019">Simulering</string>
     <string name="ui_020">Start simulering</string>
     <string name="ui_021">Stopp simulering</string>
-    <string name="ui_022">Åpen kildekode · Kun GPL-3.0 · Lokal først</string>
+    <string name="ui_022">Åpen kildekode · GPL-3.0-only · Lokal først</string>
     <string name="ui_023">Om GeoJoystick</string>
-    <string name="ui_024">Gjennomsiktig simulering av simulert posisjon</string>
+    <string name="ui_024">Gjennomsiktig posisjonssimulering</string>
     <string name="ui_025">Innstillinger</string>
     <string name="ui_026">Innstillinger</string>
     <string name="ui_027">Oppsett</string>
@@ -193,9 +193,9 @@ Koordinater og innstillinger forblir på enheten din.</string>
     <string name="ui_169">Ingen plassering er valgt</string>
     <string name="ui_170">%1$.6f, %2$.6f</string>
     <string name="ui_171">Tjeneste for simulert posisjon</string>
-    <string name="ui_172">Holder den synlige simuleringen av simulert posisjon aktiv.</string>
-    <string name="ui_173">Simulering av simulert posisjon aktiv</string>
-    <string name="ui_174">Starter simulering av simulert posisjon</string>
+    <string name="ui_172">Holder den synlige posisjonssimuleringen aktiv.</string>
+    <string name="ui_173">Posisjonssimulering aktiv</string>
+    <string name="ui_174">Starter posisjonssimulering</string>
     <string name="ui_175">Vis</string>
     <string name="ui_176">Skjul</string>
     <string name="ui_177">Stopp</string>
