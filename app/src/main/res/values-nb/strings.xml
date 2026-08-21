@@ -32,8 +32,8 @@
     <string name="ui_029">Valgt</string>
     <string name="ui_030">Ikke valgt</string>
     <string name="ui_031">Overleggstillatelse</string>
-    <string name="ui_032">Gitt</string>
-    <string name="ui_033">Ikke gitt</string>
+    <string name="ui_032">Tillatt</string>
+    <string name="ui_033">Ikke tillatt</string>
     <string name="ui_034">Tilbakestill overleggsposisjon</string>
     <string name="ui_035">Gjenopprett siste posisjon</string>
     <string name="ui_036">På</string>
@@ -152,7 +152,7 @@ Koordinater og innstillinger forblir på enheten din.</string>
     <string name="ui_140">Koordinater importert</string>
     <string name="ui_141">Koordinater importert. Angi en høyde før du starter.</string>
     <string name="ui_142">Velg GeoJoystick</string>
-    <string name="ui_143">I Utvikleralternativer velger du GeoJoystick under Velg app for simulert posisjon og går deretter tilbake hit.</string>
+    <string name="ui_143">I Utvikleralternativer velger du GeoJoystick under «Velg app for fiktiv posisjon» og går deretter tilbake hit.</string>
     <string name="ui_144">Åpne innstillinger</string>
     <string name="ui_145">Avbryt</string>
     <string name="ui_146">Angi gyldig breddegrad, lengdegrad og høyde</string>
@@ -162,8 +162,8 @@ Koordinater og innstillinger forblir på enheten din.</string>
     <string name="ui_150">GeoJoystick kunne ikke stoppes</string>
     <string name="ui_151">Valgt</string>
     <string name="ui_152">Ikke valgt</string>
-    <string name="ui_153">Gitt</string>
-    <string name="ui_154">Ikke gitt</string>
+    <string name="ui_153">Tillatt</string>
+    <string name="ui_154">Ikke tillatt</string>
     <string name="ui_155">Aktiv</string>
     <string name="ui_156">Starter</string>
     <string name="ui_157">Inaktiv</string>

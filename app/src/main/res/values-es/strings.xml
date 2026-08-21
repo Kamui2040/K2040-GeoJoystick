@@ -152,7 +152,7 @@ Las coordenadas y la configuración permanecen en su dispositivo.</string>
     <string name="ui_140">Coordenadas importadas</string>
     <string name="ui_141">Coordenadas importadas. Introduce una altitud antes de comenzar.</string>
     <string name="ui_142">Selecciona GeoJoystick</string>
-    <string name="ui_143">En Opciones de desarrollador, elige GeoJoystick en Seleccionar aplicación de ubicación simulada y luego vuelve aquí.</string>
+    <string name="ui_143">En Opciones para desarrolladores, elige GeoJoystick en «Elegir aplicación para simular ubicación» y luego vuelve aquí.</string>
     <string name="ui_144">Abrir configuración</string>
     <string name="ui_145">Cancelar</string>
     <string name="ui_146">Introduce latitud, longitud y altitud válidas</string>

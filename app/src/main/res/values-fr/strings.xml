@@ -152,7 +152,7 @@ Les coordonnées et les paramètres restent sur votre appareil.</string>
     <string name="ui_140">Coordonnées importées</string>
     <string name="ui_141">Coordonnées importées. Entrez une altitude avant de commencer.</string>
     <string name="ui_142">Sélectionnez GeoJoystick</string>
-    <string name="ui_143">Dans les options du développeur, choisissez GeoJoystick sous Sélectionner l\'application de position simulée, puis revenez ici.</string>
+    <string name="ui_143">Dans les Options pour les développeurs, choisissez GeoJoystick sous « Sélectionner l\'application de position fictive », puis revenez ici.</string>
     <string name="ui_144">Ouvrir les paramètres</string>
     <string name="ui_145">Annuler</string>
     <string name="ui_146">Entrez une latitude, une longitude et une altitude valides</string>

@@ -152,7 +152,7 @@ Koordinater og indstillinger forbliver på din enhed.</string>
     <string name="ui_140">Koordinater importeret</string>
     <string name="ui_141">Koordinater importeret. Indtast en højde før start.</string>
     <string name="ui_142">Vælg GeoJoystick</string>
-    <string name="ui_143">I Udviklerindstillinger skal du vælge GeoJoystick under Vælg app til simuleret placering og derefter vende tilbage hertil.</string>
+    <string name="ui_143">I Udviklerindstillinger skal du vælge GeoJoystick under “Vælg app til falsk lokation” og derefter vende tilbage hertil.</string>
     <string name="ui_144">Åbn indstillinger</string>
     <string name="ui_145">Annuller</string>
     <string name="ui_146">Indtast gyldig breddegrad, længdegrad og højde</string>

@@ -152,7 +152,7 @@ Coördinaten en instellingen blijven op uw apparaat staan.</string>
     <string name="ui_140">Coördinaten geïmporteerd</string>
     <string name="ui_141">Coördinaten geïmporteerd. Voer een hoogte in voordat u begint.</string>
     <string name="ui_142">Selecteer GeoJoystick</string>
-    <string name="ui_143">In Ontwikkelaarsopties kiest u GeoJoystick onder Selecteer app voor gesimuleerde locatie en keert u vervolgens hier terug.</string>
+    <string name="ui_143">In Ontwikkelaarsopties kiest u GeoJoystick onder ‘App voor neplocatie selecteren’ en keert u vervolgens hier terug.</string>
     <string name="ui_144">Instellingen openen</string>
     <string name="ui_145">Annuleren</string>
     <string name="ui_146">Voer een geldige breedtegraad, lengtegraad en hoogte in</string>

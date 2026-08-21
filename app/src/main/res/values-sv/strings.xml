@@ -32,8 +32,8 @@
     <string name="ui_029">Vald</string>
     <string name="ui_030">Ej vald</string>
     <string name="ui_031">Överlagringsbehörighet</string>
-    <string name="ui_032">Beviljad</string>
-    <string name="ui_033">Inte beviljad</string>
+    <string name="ui_032">Tillåts</string>
+    <string name="ui_033">Tillåts inte</string>
     <string name="ui_034">Återställ överläggsposition</string>
     <string name="ui_035">Återställ den senaste positionen</string>
     <string name="ui_036">På</string>
@@ -152,7 +152,7 @@ Koordinater och inställningar finns kvar på din enhet.</string>
     <string name="ui_140">Koordinater importerade</string>
     <string name="ui_141">Koordinater importerade. Ange en höjd innan du startar.</string>
     <string name="ui_142">Välj GeoJoystick</string>
-    <string name="ui_143">I Utvecklaralternativ väljer du GeoJoystick under Välj app för simulerad plats och återvänder sedan hit.</string>
+    <string name="ui_143">I Utvecklaralternativ väljer du GeoJoystick under ”Välj app för påhittad plats” och återvänder sedan hit.</string>
     <string name="ui_144">Öppna inställningar</string>
     <string name="ui_145">Avbryt</string>
     <string name="ui_146">Ange giltig latitud, longitud och höjd</string>
@@ -162,8 +162,8 @@ Koordinater och inställningar finns kvar på din enhet.</string>
     <string name="ui_150">GeoJoystick kunde inte stoppas</string>
     <string name="ui_151">Vald</string>
     <string name="ui_152">Ej vald</string>
-    <string name="ui_153">Beviljad</string>
-    <string name="ui_154">Inte beviljad</string>
+    <string name="ui_153">Tillåts</string>
+    <string name="ui_154">Tillåts inte</string>
     <string name="ui_155">Aktiv</string>
     <string name="ui_156">Startar</string>
     <string name="ui_157">Inaktiv</string>
