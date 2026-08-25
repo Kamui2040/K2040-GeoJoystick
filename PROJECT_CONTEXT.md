@@ -21,6 +21,8 @@ The current canonical production release is **GeoJoystick v0.1.4 (`versionCode 1
 
 GitHub Releases is the authoritative source for published developer APKs and release notes.
 
+GeoJoystick v0.1.4 has also been published on ONE Store. Availability may vary by supported region or distribution channel.
+
 ## Accepted product state
 
 v0.1.4 includes:
