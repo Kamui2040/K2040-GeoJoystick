@@ -1,3 +1,6 @@
+# Public contributor reference.
+# Production metadata in fdroid/fdroiddata is authoritative.
+
 Categories:
   - Navigation
   - System
@@ -17,15 +20,5 @@ SourceCode: https://github.com/Kamui2040/K2040-GeoJoystick
 IssueTracker: https://github.com/Kamui2040/K2040-GeoJoystick/issues
 Changelog: https://github.com/Kamui2040/K2040-GeoJoystick/releases
 
-Builds:
-  - versionName: 0.1.0
-    versionCode: 100
-    commit: v0.1.0
-    subdir: .
-    gradle:
-      - yes
-
-AutoUpdateMode: Version v%v
+AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: 0.1.0
-CurrentVersionCode: 100
