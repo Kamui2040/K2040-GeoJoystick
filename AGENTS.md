@@ -16,7 +16,7 @@ GeoJoystick is an open-source Android mock-location utility for emulator and dev
 ## Data and privacy
 
 - Keep saved coordinates, favorites, settings, and other user state local unless a user explicitly invokes a documented export/import or network action.
-- Never commit credentials, signing material, personal data, real location histories, device identifiers, private QA evidence, machine-specific paths, or other maintainer-only operational information.
+- Never commit credentials, signing material, personal data, real location histories, device identifiers, machine-specific paths, or maintainer-only operational information.
 - Use synthetic or deliberately sanitized fixtures and examples.
 
 ## Build and validation
@@ -24,15 +24,14 @@ GeoJoystick is an open-source Android mock-location utility for emulator and dev
 - JDK 17 and Android SDK Platform 36 are the current build baseline.
 - Use the repository build/bootstrap tooling; do not require a globally installed Gradle.
 - Keep Linux, macOS, and Windows build instructions contributor-facing and machine-independent.
-- Before a change is considered complete, inspect the changed-file scope and run applicable tests/lint/build checks plus `git diff --check`.
+- Before a change is considered complete, inspect the changed-file scope and run applicable tests, lint, build checks, and `git diff --check`.
+- Keep source, build, runtime/device, signing, reproducibility, and publication evidence distinct.
 - Do not claim installation, physical-device behavior, signing, reproducibility, or release readiness without corresponding evidence.
 
-## Contributions and releases
+## Contributions
 
 - Keep `main` stable and prefer focused, reviewable changes.
-- Preserve GPL-3.0-only licensing and required third-party attribution/provenance.
-- Do not commit generated APK/AAB files, local build caches, private signing material, or machine-specific configuration.
-- Starting with v0.1.5, use an F-Droid-first release gate: before any public release tag, production APK, or downstream store publication, freeze the exact release candidate and prove the maintained F-Droid developer-binary path can reproduce the unsigned APK and successfully complete signature-copy verification against the intended developer-signed artifact.
-- Keep the established permanent GeoJoystick production signing identity for future releases. Choose signing schemes explicitly from the app's supported Android range and release requirements; do not rely on `apksigner` defaults.
-- If the F-Droid-first gate fails, correct the release candidate or build configuration before publication rather than introducing a post-publication workaround.
-- Releases, store submissions, signing decisions, and other official publication actions are maintainer-controlled.
+- Preserve GPL-3.0-only licensing and required third-party attribution and provenance.
+- Do not commit generated APK/AAB files, local build caches, signing material, or machine-specific configuration.
+- Normal public issues and pull requests may document bugs, implementation work, compatibility changes, localization targets, and other contributor-relevant technical plans.
+- Keep public documentation focused on information useful to users and contributors.

@@ -40,7 +40,7 @@ GitHub Releases is the authoritative source for published release notes and deve
 - APKPure: https://apkpure.com/p/com.k2040.geojoystick
 - K2040 Android Projects: https://kamui2040.github.io/K2040-Android-Releases/apps/geojoystick/
 
-Downstream stores may update on a different schedule from the canonical GitHub release. Mutable publication status is tracked in `PROJECT_CONTEXT.md` and the repository issues rather than duplicated here.
+Downstream stores may update on a different schedule from the canonical GitHub release. Check each linked distribution page for its current availability.
 
 ## Build locally
 
