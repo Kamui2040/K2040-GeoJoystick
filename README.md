@@ -38,6 +38,7 @@ GitHub Releases is the authoritative source for published release notes and deve
 - GitHub Releases: https://github.com/Kamui2040/K2040-GeoJoystick/releases
 - F-Droid: https://f-droid.org/packages/com.k2040.geojoystick/
 - APKPure: https://apkpure.com/p/com.k2040.geojoystick
+- ONE Store: published; availability may vary by region or distribution channel
 - K2040 Android Projects: https://kamui2040.github.io/K2040-Android-Releases/apps/geojoystick/
 
 Downstream stores may update on a different schedule from the canonical GitHub release. Check each linked distribution page for its current availability.
