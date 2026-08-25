@@ -34,9 +34,7 @@ Original artwork and UI artwork authored by K2040 and for which K2040 can grant 
 
 When sharing covered K2040 artwork, provide attribution to **K2040**, identify `CC BY 4.0`, link to the licence where reasonably practicable, and indicate modifications as required by CC BY 4.0.
 
-The bundled K2040 avatar at `app/src/main/res/drawable-nodpi/k2040_avatar.png` is explicitly documented as original user-approved K2040 artwork. The repository copy is a 512 × 512 resized derivative of the approved source image and is covered by the K2040 CC BY 4.0 artwork licence described above.
-
-The About-page K2040 avatar at `app/src/main/res/drawable-nodpi/k2040_about_avatar.png` is the user-approved 512 × 512 PNG source artwork. The repository copy preserves that approved source image unchanged and is covered by the K2040 CC BY 4.0 artwork licence described above.
+The bundled K2040 avatar at `app/src/main/res/drawable-nodpi/k2040_avatar.png` and the About-page copy at `app/src/main/res/drawable-nodpi/k2040_about_avatar.png` both preserve the same user-approved 512 × 512 PNG source artwork unchanged and are covered by the K2040 CC BY 4.0 artwork licence described above.
 
 The GeoJoystick mascot at `app/src/main/res/drawable-nodpi/geojoystick_mascot.png` is the Issue #22 user-approved waving gecko-and-joystick project artwork. The repository copy is an optimized Android PNG derivative of the approved artwork and is covered by the K2040 CC BY 4.0 artwork licence described above.
 
