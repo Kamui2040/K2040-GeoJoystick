@@ -36,6 +36,7 @@ PREF_LANGUAGE = "app_language"
 PREF_APPEARANCE = "app_appearance"
 PREF_WELCOME = "welcome_acknowledged"
 PREF_LEGACY_WELCOME = "license_accepted"
+SUPPORTED_LANGUAGES = set(impl.SUPPORTED_LANGUAGES)
 
 
 class SafeAdb(impl.Adb):
@@ -105,7 +106,7 @@ def _boolean_value(root: ET.Element, name: str) -> bool:
 
 
 def rewrite_ui_preferences(xml_text: str, language: str, theme: str) -> str:
-    if language not in {"en", "de", "system"}:
+    if language not in SUPPORTED_LANGUAGES:
         raise impl.QAError(f"invalid QA language: {language}")
     if theme not in {"system", "light", "dark"}:
         raise impl.QAError(f"invalid QA theme: {theme}")
@@ -257,9 +258,9 @@ class SafeHarness(impl.Harness):
     def _verify_rendered_ui_configuration(
         self, language: str, theme: str
     ) -> None:
-        settings_desc = "Einstellungen" if language == "de" else "Settings"
+        expected = impl.settings_expectations(language, theme)
         settings = self.find_node(
-            lambda node: node.desc == settings_desc,
+            lambda node: node.desc in expected["settings"],
             attempts=5,
         )
         if settings is None:
@@ -269,39 +270,32 @@ class SafeHarness(impl.Harness):
             )
         self.adb.tap(settings.bounds)
 
-        expected_language = (
-            "Sprache. Deutsch" if language == "de" else "Language. English"
-        )
         language_row = self.find_node(
-            lambda node: node.desc == expected_language,
+            lambda node: any(
+                node.desc == f"{title}. {value}"
+                for title in expected["language_title"]
+                for value in expected["language_value"]),
             scroll="up",
             attempts=8,
         )
         if language_row is None:
             raise impl.QAError(
                 "settings did not expose requested language state: "
-                f"{expected_language!r}"
+                f"{expected['language_title']!r}"
             )
 
-        theme_value = {
-            ("en", "system"): "System",
-            ("en", "light"): "Light",
-            ("en", "dark"): "Dark",
-            ("de", "system"): "System",
-            ("de", "light"): "Hell",
-            ("de", "dark"): "Dunkel",
-        }[(language, theme)]
-        theme_title = "Darstellung" if language == "de" else "Theme"
-        expected_theme = f"{theme_title}. {theme_value}"
         theme_row = self.find_node(
-            lambda node: node.desc == expected_theme,
+            lambda node: any(
+                node.desc == f"{title}. {value}"
+                for title in expected["theme_title"]
+                for value in expected["theme_value"]),
             scroll="up",
             attempts=8,
         )
         if theme_row is None:
             raise impl.QAError(
                 "settings did not expose requested theme state: "
-                f"{expected_theme!r}"
+                f"{expected['theme_title']!r}"
             )
 
     def configure_app(self, language: str, theme: str) -> None:
@@ -353,6 +347,7 @@ class SafeHarness(impl.Harness):
         self,
         snap: impl.Snapshot,
         screen: str,
+        language: str,
     ) -> list[impl.UiNode]:
         app_nodes = [
             node
@@ -365,7 +360,7 @@ class SafeHarness(impl.Harness):
                 (
                     node
                     for node in app_nodes
-                    if node.desc in ("Close About", "Info schließen")
+                    if node.desc in impl.modal_expectations(language)["about_close"]
                 ),
                 None,
             )
@@ -405,13 +400,35 @@ class SafeHarness(impl.Harness):
             or node.class_name.endswith("ImageView")
         )
 
+    @staticmethod
+    def _touch_bounds_are_scroll_clipped(
+        node: impl.UiNode,
+        app_nodes: list[impl.UiNode],
+    ) -> bool:
+        """UIAutomator clips descendants to ScrollView visible bounds."""
+        for ancestor in app_nodes:
+            if not impl.is_ancestor(ancestor.path, node.path):
+                continue
+            if not ancestor.class_name.endswith("ScrollView"):
+                continue
+            outer = ancestor.bounds
+            inner = node.bounds
+            if (
+                inner.left <= outer.left
+                or inner.top <= outer.top
+                or inner.right >= outer.right
+                or inner.bottom >= outer.bottom
+            ):
+                return True
+        return False
+
     def analyze(
         self,
         snap: impl.Snapshot,
         scenario: impl.Scenario,
         screen: str,
     ) -> None:
-        app_nodes = self._active_nodes(snap, screen)
+        app_nodes = self._active_nodes(snap, screen, scenario.language)
         density_scale = snap.density / 160.0
 
         for node in app_nodes:
@@ -457,7 +474,12 @@ class SafeHarness(impl.Harness):
             if self._touch_target_candidate(node):
                 width_dp = bounds.width / density_scale
                 height_dp = bounds.height / density_scale
-                if width_dp < 47.0 or height_dp < 47.0:
+                if (
+                    (width_dp < 47.0 or height_dp < 47.0)
+                    and not self._touch_bounds_are_scroll_clipped(
+                        node, app_nodes
+                    )
+                ):
                     self.findings.append(
                         impl.Finding(
                             scenario.key,
@@ -503,32 +525,27 @@ class SafeHarness(impl.Harness):
                     )
 
     def home_top(self, scenario: impl.Scenario) -> None:
+        expected = impl.main_expectations(scenario.language)
         self.adb.force_stop()
         self.adb.launch()
         snap = self.snapshot()
-        self.record_expected(snap, scenario, "main-top", ("GeoJoystick",))
+        self.record_expected(snap, scenario, "main-top", expected["app_name"])
         self.record_expected(
             snap,
             scenario,
             "main-top",
-            (
-                "Status collapsed. Tap to expand",
-                "Status eingeklappt. Zum Öffnen tippen",
-            ),
+            expected["status"],
         )
         self.analyze(snap, scenario, "main-top")
 
         self.tap_desc_any(
-            (
-                "Status collapsed. Tap to expand",
-                "Status eingeklappt. Zum Öffnen tippen",
-            )
+            expected["status"]
         )
         snap = self.snapshot()
         for candidates in (
-            ("Mock location", "Mock-Standort"),
-            ("Overlay permission", "Overlay-Berechtigung"),
-            ("Simulation",),
+            expected["mock_location"],
+            expected["overlay_permission"],
+            expected["simulation"],
         ):
             self.record_expected(
                 snap, scenario, "main-status", candidates
@@ -537,12 +554,12 @@ class SafeHarness(impl.Harness):
 
         start = self.find_node_any_state(
             lambda item: item.desc
-            in ("Start simulation", "Simulation starten"),
+            in expected["start"],
             scroll="up",
         )
         stop = self.find_node_any_state(
             lambda item: item.desc
-            in ("Stop simulation", "Simulation stoppen"),
+            in expected["stop"],
             scroll="up",
         )
         if start is None or stop is None:
@@ -668,6 +685,14 @@ def adapter_self_test() -> None:
         and child.attrib.get("value") == "80"
         for child in rewritten_root
     )
+    rewritten_french = rewrite_ui_preferences(sample, "fr", "light")
+    assert read_ui_preferences(rewritten_french) == ("fr", "light")
+    try:
+        rewrite_ui_preferences(sample, "malformed", "light")
+    except impl.QAError:
+        pass
+    else:
+        raise AssertionError("unsupported QA language was accepted")
 
     unacknowledged = '<map><string name="app_language">en</string></map>'
     try:
@@ -722,6 +747,39 @@ def adapter_self_test() -> None:
         for finding in harness.findings
     )
 
+    harness.findings.clear()
+    scroll = impl.UiNode(
+        path=(0,),
+        text="",
+        desc="",
+        class_name="android.widget.ScrollView",
+        package=args.package,
+        clickable=False,
+        enabled=True,
+        bounds=impl.Bounds(0, 0, 1080, 2000),
+        child_count=1,
+    )
+    clipped_button = impl.UiNode(
+        path=(0, 0),
+        text="▶",
+        desc="Start simulation",
+        class_name="android.widget.Button",
+        package=args.package,
+        clickable=True,
+        enabled=True,
+        bounds=impl.Bounds(800, 1900, 944, 2000),
+        child_count=0,
+    )
+    harness.analyze(
+        impl.Snapshot(1080, 2400, 480, [scroll, clipped_button]),
+        scenario,
+        "main-status",
+    )
+    assert not any(
+        finding.code == "touch-target"
+        for finding in harness.findings
+    )
+
     background = impl.UiNode(
         path=(0,),
         text="Background",
@@ -747,7 +805,7 @@ def adapter_self_test() -> None:
     close = impl.UiNode(
         path=(1, 0),
         text="×",
-        desc="Close About",
+        desc=impl.modal_expectations("en")["about_close"][0],
         class_name="android.widget.TextView",
         package=args.package,
         clickable=True,
@@ -758,6 +816,7 @@ def adapter_self_test() -> None:
     scoped = harness._active_nodes(
         impl.Snapshot(1080, 2400, 480, [background, modal, close]),
         "about",
+        "en",
     )
     assert background not in scoped
     assert modal in scoped and close in scoped

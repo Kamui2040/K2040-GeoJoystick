@@ -25,8 +25,6 @@ import android.os.SystemClock;
 import android.provider.Settings;
 import android.widget.Toast;
 
-import java.util.Locale;
-
 public final class MockLocationService extends Service {
     static final String ACTION_START = "com.k2040.geojoystick.action.START";
     static final String ACTION_SET_POSITION = "com.k2040.geojoystick.action.SET_POSITION";
@@ -51,9 +49,6 @@ public final class MockLocationService extends Service {
     private static final String PREF_SELECTED_SPEED = "overlay_selected_speed";
     private static final String PREF_SELECTED_SPEED_KIND = "overlay_selected_speed_kind";
     private static final String PREF_CUSTOM_SPEED = "overlay_custom_speed";
-    private static final String PREF_LANGUAGE = "app_language";
-    private static final String LANGUAGE_SYSTEM = "system";
-    private static final String LANGUAGE_GERMAN = "de";
     private static final String CHANNEL_ID = "geojoystick_mock_location";
     private static final int NOTIFICATION_ID = 2040;
     private static final long UPDATE_INTERVAL_MS = 200L;
@@ -90,6 +85,14 @@ public final class MockLocationService extends Service {
     private double lastPublishedLongitude;
     private double lastPublishedAltitude;
     private boolean foregroundStarted;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private final SharedPreferences.OnSharedPreferenceChangeListener preferenceListener =
+            (changedPreferences, key) -> {
+                if (GeoSettings.PREF_LANGUAGE.equals(key)
+                        && (simulationActive || simulationStarting)) {
+                    mainHandler.post(this::refreshLocalizedRuntimeUi);
+                }
+            };
 
     static boolean isSimulationActive() {
         return simulationActive;
@@ -103,6 +106,7 @@ public final class MockLocationService extends Service {
     public void onCreate() {
         super.onCreate();
         preferences = getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        preferences.registerOnSharedPreferenceChangeListener(preferenceListener);
         setSimulationState(false, false);
         speedMetersPerSecond = loadSavedSpeed();
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -125,9 +129,7 @@ public final class MockLocationService extends Service {
 
         if (ACTION_START.equals(action)) {
             if (!setPositionFromIntent(intent)) {
-                reportRuntimeError(
-                        "GeoJoystick did not start because the coordinates were invalid.",
-                        "GeoJoystick wurde nicht gestartet, weil die Koordinaten ungültig waren.");
+                reportRuntimeError(R.string.service_invalid_start);
                 setSimulationState(false, false);
                 stopSelf(startId);
                 return START_NOT_STICKY;
@@ -139,23 +141,17 @@ public final class MockLocationService extends Service {
 
         if (ACTION_SET_POSITION.equals(action)) {
             if (!simulationActive) {
-                reportRuntimeError(
-                        "GeoJoystick is not active.",
-                        "GeoJoystick ist nicht aktiv.");
+                reportRuntimeError(R.string.service_not_active);
                 stopSelf(startId);
                 return START_NOT_STICKY;
             }
             if (!setPositionFromIntent(intent)) {
-                reportRuntimeError(
-                        "The new coordinates were rejected.",
-                        "Die neuen Koordinaten wurden abgelehnt.");
+                reportRuntimeError(R.string.service_coordinates_rejected);
                 return START_NOT_STICKY;
             }
             prepareProviders();
             if (!publishReadyProviders()) {
-                failSimulation(
-                        "GeoJoystick stopped because no mock-location provider accepted the position.",
-                        "GeoJoystick wurde beendet, weil kein Mock-Standort-Anbieter die Position angenommen hat.");
+                failSimulation(R.string.service_no_provider);
                 return START_NOT_STICKY;
             }
             persistPosition();
@@ -195,6 +191,9 @@ public final class MockLocationService extends Service {
 
     @Override
     public void onDestroy() {
+        if (preferences != null) {
+            preferences.unregisterOnSharedPreferenceChangeListener(preferenceListener);
+        }
         setSimulationState(false, false);
         eastFactor = 0.0;
         northFactor = 0.0;
@@ -245,9 +244,7 @@ public final class MockLocationService extends Service {
             }
 
             if (!publishReadyProviders()) {
-                failSimulation(
-                        "GeoJoystick stopped because mock-location publication failed.",
-                        "GeoJoystick wurde beendet, weil die Mock-Standort-Veröffentlichung fehlgeschlagen ist.");
+                failSimulation(R.string.service_publish_failed);
                 return;
             }
             double lat;
@@ -332,9 +329,7 @@ public final class MockLocationService extends Service {
             ensureRuntimeComponents();
             prepareProviders();
             if (!publishReadyProviders()) {
-                return failSimulation(
-                        "GeoJoystick could not publish a mock location. Check Developer Options and select GeoJoystick as the mock-location app.",
-                        "GeoJoystick konnte keinen Mock-Standort veröffentlichen. Prüfe die Entwickleroptionen und wähle GeoJoystick als Mock-Standort-App.");
+                return failSimulation(R.string.service_cannot_publish);
             }
 
             persistPosition();
@@ -358,9 +353,7 @@ public final class MockLocationService extends Service {
             }
             return true;
         } catch (RuntimeException exception) {
-            return failSimulation(
-                    "GeoJoystick could not start its foreground simulation service.",
-                    "GeoJoystick konnte den Vordergrunddienst für die Simulation nicht starten.");
+            return failSimulation(R.string.service_cannot_start);
         }
     }
 
@@ -458,11 +451,11 @@ public final class MockLocationService extends Service {
         }
     }
 
-    private boolean failSimulation(String english, String germanText) {
+    private boolean failSimulation(int resourceId) {
         setSimulationState(false, false);
         eastFactor = 0.0;
         northFactor = 0.0;
-        reportRuntimeError(english, germanText);
+        reportRuntimeError(resourceId);
         stopSelf();
         return false;
     }
@@ -474,8 +467,8 @@ public final class MockLocationService extends Service {
         stopSelf();
     }
 
-    private void reportRuntimeError(String english, String germanText) {
-        String message = t(english, germanText);
+    private void reportRuntimeError(int resourceId) {
+        String message = t(resourceId);
         new Handler(Looper.getMainLooper()).post(() ->
                 Toast.makeText(
                         getApplicationContext(),
@@ -660,12 +653,21 @@ public final class MockLocationService extends Service {
         }
         NotificationChannel channel = new NotificationChannel(
                 CHANNEL_ID,
-                t("Mock location service", "Mock-Standort-Dienst"),
+                t(R.string.ui_171),
                 NotificationManager.IMPORTANCE_LOW);
-        channel.setDescription(t(
-                "Keeps the visible mock-location simulation active.",
-                "Hält die sichtbare Mock-Standort-Simulation aktiv."));
+        channel.setDescription(t(R.string.ui_172));
         manager.createNotificationChannel(channel);
+    }
+
+    private void refreshLocalizedRuntimeUi() {
+        if (!simulationActive && !simulationStarting) {
+            return;
+        }
+        createNotificationChannel();
+        if (overlay != null) {
+            overlay.refreshLocalizedText();
+        }
+        updateNotification();
     }
 
     private Notification buildNotification(boolean active) {
@@ -684,8 +686,8 @@ public final class MockLocationService extends Service {
                 .setSmallIcon(R.drawable.ic_stat_location)
                 .setContentTitle("GeoJoystick")
                 .setContentText(active
-                        ? t("Mock-location simulation active", "Mock-Standort-Simulation aktiv")
-                        : t("Starting mock-location simulation", "Mock-Standort-Simulation wird gestartet"))
+                        ? t(R.string.ui_173)
+                        : t(R.string.ui_174))
                 .setContentIntent(openPendingIntent)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true);
@@ -693,16 +695,16 @@ public final class MockLocationService extends Service {
         if (active) {
             builder.addAction(new Notification.Action.Builder(
                     notificationIcon(),
-                    t("Show", "Anzeigen"),
+                    t(R.string.ui_175),
                     showIntent).build());
             builder.addAction(new Notification.Action.Builder(
                     notificationIcon(),
-                    t("Hide", "Ausblenden"),
+                    t(R.string.ui_176),
                     hideIntent).build());
         }
         builder.addAction(new Notification.Action.Builder(
                 notificationIcon(),
-                t("Stop", "Stoppen"),
+                t(R.string.ui_177),
                 stopIntent).build());
         return builder.build();
     }
@@ -716,14 +718,8 @@ public final class MockLocationService extends Service {
         sendBroadcast(update, PERMISSION_INTERNAL_STATE);
     }
 
-    private String t(String english, String germanText) {
-        String language = preferences == null
-                ? LANGUAGE_SYSTEM
-                : preferences.getString(PREF_LANGUAGE, LANGUAGE_SYSTEM);
-        boolean german = LANGUAGE_GERMAN.equals(language)
-                || (LANGUAGE_SYSTEM.equals(language)
-                && Locale.getDefault().getLanguage().equals("de"));
-        return german ? germanText : english;
+    private String t(int resourceId) {
+        return new GeoSettings(this).text(resourceId);
     }
 
     private static final class PositionSnapshot {

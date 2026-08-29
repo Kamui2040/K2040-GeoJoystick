@@ -10,6 +10,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 
+import java.util.Arrays;
+
 import java.util.Locale;
 
 /** Shared, package-private access to GeoJoystick UI preferences. */
@@ -40,6 +42,13 @@ final class GeoSettings {
     static final String LANGUAGE_SYSTEM = "system";
     static final String LANGUAGE_ENGLISH = "en";
     static final String LANGUAGE_GERMAN = "de";
+    static final String LANGUAGE_FRENCH = "fr";
+    static final String LANGUAGE_SPANISH = "es";
+    static final String LANGUAGE_ITALIAN = "it";
+    static final String LANGUAGE_DUTCH = "nl";
+    static final String LANGUAGE_DANISH = "da";
+    static final String LANGUAGE_SWEDISH = "sv";
+    static final String LANGUAGE_NORWEGIAN_BOKMAL = "nb";
     static final int FAVORITE_COUNT = 5;
 
     static final class Favorite {
@@ -68,13 +77,6 @@ final class GeoSettings {
         return preferences;
     }
 
-    boolean isGerman() {
-        String language = preferences.getString(PREF_LANGUAGE, LANGUAGE_SYSTEM);
-        return LANGUAGE_GERMAN.equals(language)
-                || (LANGUAGE_SYSTEM.equals(language)
-                && Locale.getDefault().getLanguage().equals("de"));
-    }
-
     boolean isDark() {
         String appearance = preferences.getString(PREF_APPEARANCE, APPEARANCE_SYSTEM);
         if (APPEARANCE_DARK.equals(appearance)) {
@@ -97,11 +99,50 @@ final class GeoSettings {
     }
 
     String language() {
-        return preferences.getString(PREF_LANGUAGE, LANGUAGE_SYSTEM);
+        String language = preferences.getString(PREF_LANGUAGE, LANGUAGE_SYSTEM);
+        return isSupportedLanguage(language) ? language : LANGUAGE_SYSTEM;
     }
 
     void setLanguage(String value) {
-        preferences.edit().putString(PREF_LANGUAGE, value).apply();
+        preferences.edit().putString(PREF_LANGUAGE,
+                isSupportedLanguage(value) ? value : LANGUAGE_SYSTEM).apply();
+    }
+
+    String text(int resourceId) {
+        return localizedContext().getString(resourceId);
+    }
+
+    String text(int resourceId, Object... formatArgs) {
+        return localizedContext().getString(resourceId, formatArgs);
+    }
+
+    Context localizedContext() {
+        String language = language();
+        if (LANGUAGE_SYSTEM.equals(language)) {
+            return context;
+        }
+        Configuration configuration = new Configuration(context.getResources().getConfiguration());
+        configuration.setLocale(Locale.forLanguageTag(language));
+        return context.createConfigurationContext(configuration);
+    }
+
+    String resolvedLanguage() {
+        String language = language();
+        return LANGUAGE_SYSTEM.equals(language) ? Locale.getDefault().getLanguage() : language;
+    }
+
+    static boolean isSupportedLanguage(String value) {
+        return value != null && Arrays.asList(
+                LANGUAGE_SYSTEM,
+                LANGUAGE_ENGLISH,
+                LANGUAGE_GERMAN,
+                LANGUAGE_FRENCH,
+                LANGUAGE_SPANISH,
+                LANGUAGE_ITALIAN,
+                LANGUAGE_DUTCH,
+                LANGUAGE_DANISH,
+                LANGUAGE_SWEDISH,
+                LANGUAGE_NORWEGIAN_BOKMAL).contains(value);
     }
 
     boolean welcomeAcknowledged() {
@@ -156,9 +197,9 @@ final class GeoSettings {
     }
 
     String customSpeedName() {
-        String value = preferences.getString(PREF_CUSTOM_SPEED_NAME, "Custom");
+        String value = preferences.getString(PREF_CUSTOM_SPEED_NAME, text(R.string.custom_speed_default));
         if (value == null || value.trim().isEmpty()) {
-            return "Custom";
+            return text(R.string.custom_speed_default);
         }
         return value.trim();
     }
@@ -213,14 +254,15 @@ final class GeoSettings {
                 || !preferences.getBoolean(favoriteKey(slot, "set"), false)) {
             return null;
         }
-        String name = preferences.getString(favoriteKey(slot, "name"), "Favorite " + (slot + 1));
+        String name = preferences.getString(favoriteKey(slot, "name"),
+                text(R.string.favorite_default, slot + 1));
         double latitude = favoriteDouble(slot, "latitude");
         double longitude = favoriteDouble(slot, "longitude");
         double altitude = favoriteDouble(slot, "altitude");
         if (!validCoordinates(latitude, longitude, altitude)) {
             return null;
         }
-        return new Favorite(name == null ? "Favorite " + (slot + 1) : name,
+        return new Favorite(name == null ? text(R.string.favorite_default, slot + 1) : name,
                 latitude,
                 longitude,
                 altitude);

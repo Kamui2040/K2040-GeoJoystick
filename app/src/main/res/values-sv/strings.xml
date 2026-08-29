@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GeoJoystick</string>
+    <string name="ui_001">Kartan returnerade inga giltiga koordinater</string>
+    <string name="ui_002">Kartan returnerade ogiltiga koordinater</string>
+    <string name="ui_003">Plats vald. Ange en höjd innan du startar.</string>
+    <string name="ui_004">Status</string>
+    <string name="ui_005">Simulerad plats</string>
+    <string name="ui_006">Överlagringsbehörighet</string>
+    <string name="ui_007">Simulering</string>
+    <string name="ui_008">Status minimerad. Tryck för att expandera</string>
+    <string name="ui_009">Status expanderad. Tryck för att minimera</string>
+    <string name="ui_010">Koordinater</string>
+    <string name="ui_011">Latitud</string>
+    <string name="ui_012">Longitud</string>
+    <string name="ui_013">Höjd (m)</string>
+    <string name="ui_014">Karta</string>
+    <string name="ui_015">Klistra in länken</string>
+    <string name="ui_016">Favorit</string>
+    <string name="ui_017">Favoriter</string>
+    <string name="ui_018">Tryck på · håll för att redigera</string>
+    <string name="ui_019">Simulering</string>
+    <string name="ui_020">Starta simulering</string>
+    <string name="ui_021">Stoppa simulering</string>
+    <string name="ui_022">Öppen källkod · GPL-3.0-only · Lokalt först</string>
+    <string name="ui_023">Om GeoJoystick</string>
+    <string name="ui_024">Transparent platssimulering</string>
+    <string name="ui_025">Inställningar</string>
+    <string name="ui_026">Inställningar</string>
+    <string name="ui_027">Inställning</string>
+    <string name="ui_028">Simulerad plats</string>
+    <string name="ui_029">Vald</string>
+    <string name="ui_030">Ej vald</string>
+    <string name="ui_031">Överlagringsbehörighet</string>
+    <string name="ui_032">Tillåts</string>
+    <string name="ui_033">Tillåts inte</string>
+    <string name="ui_034">Återställ överläggsposition</string>
+    <string name="ui_035">Återställ den senaste positionen</string>
+    <string name="ui_036">På</string>
+    <string name="ui_037">Av</string>
+    <string name="ui_038">Beteende</string>
+    <string name="ui_039">Simuleringshastighet</string>
+    <string name="ui_040">Överlägg med hög kontrast</string>
+    <string name="ui_041">På</string>
+    <string name="ui_042">Av</string>
+    <string name="ui_043">Överlägg</string>
+    <string name="ui_044">Utseende &amp; språk</string>
+    <string name="ui_045">Tema</string>
+    <string name="ui_046">Språk</string>
+    <string name="ui_047">K2040 avatar</string>
+    <string name="ui_048">Stäng Om GeoJoystick</string>
+    <string name="ui_049">Transparent joystick med simulerad plats för Android-utvecklare och emulatortestning.</string>
+    <string name="ui_050">Lokalt · offline-först · inget konto · inga annonser · inga analyser · ingen spårning</string>
+    <string name="ui_051">Ändringslogg</string>
+    <string name="ui_052">Licens och användning</string>
+    <string name="ui_053">Källor</string>
+    <string name="ui_054">Support på Ko-fi</string>
+    <string name="ui_055">Ändringslogg</string>
+    <string name="ui_056">Stäng</string>
+    <string name="ui_057">Stäng ändringslogg</string>
+    <string name="ui_058">K2040 avatar</string>
+    <string name="ui_059">Transparent joystick med simulerad plats för Android-utvecklare och emulatortestning. Lokalt först, utan konto, annonser, analyser eller spårning.</string>
+    <string name="ui_060">App-kod: GPL-3.0-only
+K2040 konstverk: CC BY 4.0
+Kartdata: © OpenStreetMap-bidragsgivare · ODbL 1.0</string>
+    <string name="ui_061">Licenser: appkod GPL-3.0-only, K2040-konstverk CC BY 4.0 och OpenStreetMap ODbL 1.0. Öppna licensdetaljer</string>
+    <string name="ui_062">Fortsätt</string>
+    <string name="ui_063">Fortsätt till GeoJoystick</string>
+    <string name="ui_064">Licens och användning</string>
+    <string name="ui_065">LOKALA DATA</string>
+    <string name="ui_066">Koordinater och inställningar finns kvar på den här enheten. Kartan hämtar OpenStreetMap-rutor endast när du öppnar den; Länkupplösning som stöds kan använda begränsade HTTPS-förfrågningar. Inga konton, analyser eller dolda uppladdningar.</string>
+    <string name="ui_067">LICENSER</string>
+    <string name="ui_068">Tryck på en post för de underhållna licensdetaljerna.</string>
+    <string name="ui_069">Applikationskoden är GPL-3.0-only. K2040-författad GPL-kod innehåller också ett separat tillskrivningsvillkor i avsnitt 7(b). Originalkonstverk av K2040 är CC BY 4.0. Tredjepartsmaterial behåller sina egna villkor.</string>
+    <string name="ui_070">Applikationskod · K2040-författade delar har också §7(b)-tillskrivning</string>
+    <string name="ui_071">K2040 konstverk · CC BY 4.0</string>
+    <string name="ui_072">Original K2040-konstverk och UI-konstverk · tillskrivning krävs</string>
+    <string name="ui_073">Kartdata · © OpenStreetMap-bidragsgivare</string>
+    <string name="ui_074">Stäng</string>
+    <string name="ui_075">Den medföljande engelska GPL-texten är den auktoritativa GPL-texten. Ursprunglig K2040-författad GPL-kod innehåller också den separata villkoren för tillskrivning och bevarande av avsnitt 7(b) som kräver \'Copyright (c) 2026 K2040.\' GoGoGo-härlett och annat material från tredje part behåller sina egna meddelanden.</string>
+    <string name="ui_076">Stäng</string>
+    <string name="ui_077">K2040 konstverk · CC BY 4.0</string>
+    <string name="ui_078">Originalkonstverk och UI-konstverk författade av K2040 och identifierade av projektets ursprung är licensierade under Creative Commons Attribution 4.0 International (CC BY 4.0).
+
+När du delar täckt konstverk, kreditera K2040, identifiera CC BY 4.0, länka till licensen där det är rimligt möjligt och ange ändringar. Tredjepartstillgångar och uppströmstillgångar exkluderas och behåller sina egna villkor.</string>
+    <string name="ui_079">Öppna officiell licens</string>
+    <string name="ui_080">Stäng</string>
+    <string name="ui_081">GeoJoysticks inbyggda karta laddar brickor från OpenStreetMap endast när kartan används. Kartdata är © OpenStreetMap-bidragsgivare och görs tillgängliga under Open Data Commons Open Database License (ODbL) 1.0.
+
+Kartan visar bidragsgivarnas tillskrivning tydligt. Den officiella OpenStreetMap-sidan för upphovsrätt och licensiering innehåller de underhållna detaljerna och eventuella ytterligare meddelanden som gäller tjänsten för kartrutor.</string>
+    <string name="ui_082">Öppna officiella detaljer</string>
+    <string name="ui_083">Stäng</string>
+    <string name="ui_084">Källor</string>
+    <string name="ui_085">Externa projekt och material GeoJoystick bygger på eller använder direkt.</string>
+    <string name="ui_086">Ursprungligt uppströmsprojekt · ZCShou och bidragsgivare</string>
+    <string name="ui_087">Kartrutor och data · © OpenStreetMap-bidragsgivare</string>
+    <string name="ui_088">GeoJoystick är ett GPL-3.0-only-derivat baserat på GoGoGo. Dess tjänst för simulerad plats och joystickens rörelsedesign har anpassats och förenklats avsevärt. Material som härrör från GoGoGo behåller sin upstream GPLv3-tillskrivning; K2040:s §7(b)-villkor gäller endast GPL-material författat av K2040. Proprietära Baidu SDK-komponenter och reklam ingår inte.</string>
+    <string name="ui_089">Stäng</string>
+    <string name="ui_090">Öppna</string>
+    <string name="ui_091">Lokalt · Inget konto · Ingen onödig spårning</string>
+    <string name="ui_092">Koordinater och inställningar finns kvar på din enhet. Ingen analys och inget kontosystem.</string>
+    <string name="ui_093">Öppna</string>
+    <string name="ui_094">Transparent joystick med simulerad plats för Android-utvecklare och emulatortestning.
+
+Lokalt först · Inget konto · Inga annonser · Ingen analys · Ingen spårning
+Koordinater och inställningar finns kvar på din enhet.</string>
+    <string name="ui_095">Tillbaka</string>
+    <string name="ui_096">Systemstandard</string>
+    <string name="ui_097">Ljus</string>
+    <string name="ui_098">Mörk</string>
+    <string name="ui_099">Utseende</string>
+    <string name="ui_100">Avbryt</string>
+    <string name="ui_101">Språk</string>
+    <string name="ui_102">Avbryt</string>
+    <string name="ui_103">Mörk</string>
+    <string name="ui_104">Ljus</string>
+    <string name="ui_105">System</string>
+    <string name="ui_106">System</string>
+    <string name="ui_107">Överläggsposition återställd för nästa visning</string>
+    <string name="ui_108">Namn</string>
+    <string name="ui_109">Hastighet i m/s</string>
+    <string name="ui_110">Anpassad hastighet</string>
+    <string name="ui_111">Spara</string>
+    <string name="ui_112">Avbryt</string>
+    <string name="ui_113">Ange en giltig hastighet</string>
+    <string name="ui_114">Överlagringsstorlek: %d%%</string>
+    <string name="ui_115">Överläggets opacitet: %d%%</string>
+    <string name="ui_116">Favorit %1$d</string>
+    <string name="ui_117">Välj en favoritplats</string>
+    <string name="ui_118">Avbryt</string>
+    <string name="ui_119">Favorit laddad i koordinatfält</string>
+    <string name="ui_120">Favorit %1$d</string>
+    <string name="ui_121">Favoritnamn</string>
+    <string name="ui_122">Latitud</string>
+    <string name="ui_123">Longitud</string>
+    <string name="ui_124">Höjd (m)</string>
+    <string name="ui_125">Favorit %1$d</string>
+    <string name="ui_126">Spara</string>
+    <string name="ui_127">Avbryt</string>
+    <string name="ui_128">Rensa</string>
+    <string name="ui_129">Favorit %1$d</string>
+    <string name="ui_130">Ange giltiga favoritkoordinater</string>
+    <string name="ui_131">Fav %1$d</string>
+    <string name="ui_132">Tom favorit %1$d</string>
+    <string name="ui_133">Fav %1$d</string>
+    <string name="ui_134">Urklipp är tomt</string>
+    <string name="ui_135">Urklipp är tomt</string>
+    <string name="ui_136">Ingen platslänk hittades</string>
+    <string name="ui_137">Läser platslänk...</string>
+    <string name="ui_138">Det gick inte att extrahera koordinater från den länken</string>
+    <string name="ui_139">De importerade koordinaterna var ogiltiga</string>
+    <string name="ui_140">Koordinater importerade</string>
+    <string name="ui_141">Koordinater importerade. Ange en höjd innan du startar.</string>
+    <string name="ui_142">Välj GeoJoystick</string>
+    <string name="ui_143">I Utvecklaralternativ väljer du GeoJoystick under ”Välj app för påhittad plats” och återvänder sedan hit.</string>
+    <string name="ui_144">Öppna inställningar</string>
+    <string name="ui_145">Avbryt</string>
+    <string name="ui_146">Ange giltig latitud, longitud och höjd</string>
+    <string name="ui_147">Start av GeoJoystick begärd</string>
+    <string name="ui_148">GeoJoystick kunde inte startas</string>
+    <string name="ui_149">GeoJoystick-stopp begärt</string>
+    <string name="ui_150">GeoJoystick kunde inte stoppas</string>
+    <string name="ui_151">Vald</string>
+    <string name="ui_152">Ej vald</string>
+    <string name="ui_153">Tillåts</string>
+    <string name="ui_154">Tillåts inte</string>
+    <string name="ui_155">Aktiv</string>
+    <string name="ui_156">Startar</string>
+    <string name="ui_157">Inaktiv</string>
+    <string name="ui_158">Ange giltig latitud, longitud och höjd</string>
+    <string name="ui_159">Kontrollerar…</string>
+    <string name="ui_160">• Kontrollerna för startsidan, Inställningar och överlägget har gjorts om med tydligare status och kompakt läge.
+• Återställning av simuleringen, senaste position och hantering av ogiltiga indata har förbättrats.
+• Introduktion samt skärmarna Om, Ändringslogg, Licens och användning och Källor har lagts till.
+• Hantering av kartlänkar och kartväljarens tillförlitlighet har förbättrats.
+• Tillgänglighet, stöd för stor text och beröringsytor har förbättrats.
+• En ny GeoJoystick-maskot och appidentitet har lagts till tillsammans med stöd för bakåtnavigering i Android 16/API 36.
+
+0.1.3
+• Dialogrutor följer nu det valda mörka temat.
+• GeoJoystick använder nu en särskild ikon i butikslistorna.
+
+0.1.0
+• Första offentliga versionen med inmatning av koordinater och höjd, kartval och länkimport, favoriter, inställningar för utseende och språk samt flytande joystick-kontroller.</string>
+    <string name="ui_161">Donationer är helt frivilliga. De låser inte upp funktioner eller ger några ytterligare fördelar.</string>
+    <string name="ui_162">Licenstexten är inte tillgänglig i den här versionen.</string>
+    <string name="ui_163">Ingen webbläsarapp tillgänglig</string>
+    <string name="ui_164">Avbryt kartval</string>
+    <string name="ui_165">Välj plats</string>
+    <string name="ui_166">Använd plats</string>
+    <string name="ui_167">Tryck på kartan för att placera markören. Ingen plats väljs automatiskt.</string>
+    <string name="ui_168">Kartan är inte tillgänglig</string>
+    <string name="ui_169">Ingen plats har valts</string>
+    <string name="ui_170">%1$.6f, %2$.6f</string>
+    <string name="ui_171">Tjänst för simulerad plats</string>
+    <string name="ui_172">Håller den synliga platssimuleringen aktiv.</string>
+    <string name="ui_173">Platssimulering aktiv</string>
+    <string name="ui_174">Startar platssimulering</string>
+    <string name="ui_175">Visa</string>
+    <string name="ui_176">Dölj</string>
+    <string name="ui_177">Stoppa</string>
+    <string name="ui_178">Flytta GeoJoystick-överlägget</string>
+    <string name="ui_179">Byt till kompakt överlägg</string>
+    <string name="ui_180">Gåhastighet</string>
+    <string name="ui_181">Löphastighet</string>
+    <string name="ui_182">Cykelhastighet</string>
+    <string name="ui_183">Anpassad hastighet</string>
+    <string name="ui_184">Rörelse aktiv; tryck för att pausa</string>
+    <string name="ui_185">Aktivera låsning</string>
+    <string name="ui_186">Stoppa GeoJoystick-tjänsten och stäng överlägget</string>
+    <string name="ui_187">Byt till utökad överlagring</string>
+    <string name="ui_188">Byt till kompakt överlägg</string>
+    <string name="ui_189">Anpassad hastighet: %1$s</string>
+    <string name="ui_190">Rörelse pausad; tryck för att fortsätta</string>
+    <string name="ui_191">Rörelse aktiv; tryck för att pausa</string>
+    <string name="ui_192">Inaktivera låsning</string>
+    <string name="ui_193">Aktivera låsning</string>
+    <string name="ui_194">Position inte tillgänglig</string>
+    <string name="map_instruction">Tryck på kartan för att placera markören. Dra för att panorera.</string>
+    <string name="map_zoom_in">Zooma in</string>
+    <string name="map_zoom_out">Zooma ut</string>
+    <string name="language_system_default">Systemstandard</string>
+    <string name="language_english">English</string>
+    <string name="language_german">Deutsch</string>
+    <string name="language_french">Français</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_italian">Italiano</string>
+    <string name="language_dutch">Nederlands</string>
+    <string name="language_danish">Dansk</string>
+    <string name="language_swedish">Svenska</string>
+    <string name="language_norwegian_bokmal">Norsk bokmål</string>
+    <string name="custom_speed_default">Anpassad</string>
+    <string name="favorite_default">Favorit %1$d</string>
+    <string name="service_invalid_start">GeoJoystick startade inte eftersom koordinaterna var ogiltiga.</string>
+    <string name="service_not_active">GeoJoystick är inte aktiv.</string>
+    <string name="service_coordinates_rejected">De nya koordinaterna förkastades.</string>
+    <string name="service_no_provider">GeoJoystick stoppade eftersom ingen leverantör av simulerad plats accepterade positionen.</string>
+    <string name="service_publish_failed">GeoJoystick stoppade eftersom publicering av simulerad plats misslyckades.</string>
+    <string name="service_cannot_publish">GeoJoystick kunde inte publicera en simulerad plats. Kontrollera utvecklaralternativ och välj GeoJoystick som app för simulerad plats.</string>
+    <string name="service_cannot_start">GeoJoystick kunde inte starta sin förgrundssimuleringstjänst.</string>
+    <string name="joystick_accessibility">Rörelsejoystick</string>
+</resources>

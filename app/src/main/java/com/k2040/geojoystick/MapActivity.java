@@ -34,17 +34,16 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
+import org.json.JSONObject;
+
 public final class MapActivity extends Activity {
     static final String EXTRA_LATITUDE = "map_latitude";
     static final String EXTRA_LONGITUDE = "map_longitude";
 
     private static final String PREFS = "geojoystick";
     private static final String PREF_APPEARANCE = "app_appearance";
-    private static final String PREF_LANGUAGE = "app_language";
     private static final String APPEARANCE_SYSTEM = "system";
     private static final String APPEARANCE_DARK = "dark";
-    private static final String LANGUAGE_SYSTEM = "system";
-    private static final String LANGUAGE_GERMAN = "de";
     private static final String INTERNAL_HOST = "appassets.androidplatform.net";
     private static final String TILE_HOST = "tile.openstreetmap.org";
     private static final String STATE_HAS_SELECTION = "map_has_selection";
@@ -58,7 +57,6 @@ public final class MapActivity extends Activity {
     private TextView coordinateText;
     private Button useButton;
     private WebView webView;
-    private boolean german;
     private GeoUi.Palette palette;
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
@@ -87,14 +85,14 @@ public final class MapActivity extends Activity {
         toolbar.setGravity(Gravity.CENTER_VERTICAL);
         toolbar.setElevation(dp(8));
 
-        Button back = GeoUi.iconButton(this, palette, "‹", t("Cancel map selection", "Kartenauswahl abbrechen"));
+        Button back = GeoUi.iconButton(this, palette, "‹", t(R.string.ui_164));
         back.setOnClickListener(view -> finish());
         toolbar.addView(back, new LinearLayout.LayoutParams(dp(48), dp(48)));
 
         LinearLayout titleBlock = new LinearLayout(this);
         titleBlock.setOrientation(LinearLayout.VERTICAL);
         titleBlock.setPadding(dp(10), 0, dp(10), 0);
-        TextView title = GeoUi.text(this, t("Choose location", "Standort wählen"), 17, palette.text);
+        TextView title = GeoUi.text(this, t(R.string.ui_165), 17, palette.text);
         title.setTypeface(Typeface.DEFAULT_BOLD);
         coordinateText = GeoUi.text(this, "", 11, palette.textDim);
         coordinateText.setSingleLine(true);
@@ -102,7 +100,7 @@ public final class MapActivity extends Activity {
         titleBlock.addView(coordinateText);
         toolbar.addView(titleBlock, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        useButton = GeoUi.button(this, palette, t("Use location", "Standort nutzen"), true);
+        useButton = GeoUi.button(this, palette, t(R.string.ui_166), true);
         useButton.setEnabled(hasSelection);
         useButton.setAlpha(hasSelection ? 1f : 0.48f);
         useButton.setOnClickListener(view -> returnSelection());
@@ -113,8 +111,7 @@ public final class MapActivity extends Activity {
 
         TextView hint = GeoUi.text(
                 this,
-                t("Tap the map to place the marker. No location is selected automatically.",
-                        "Tippe auf die Karte, um die Markierung zu setzen. Es wird kein Standort automatisch ausgewählt."),
+                t(R.string.ui_167),
                 11,
                 palette.textDim);
         hint.setGravity(Gravity.CENTER);
@@ -212,28 +209,32 @@ public final class MapActivity extends Activity {
                     StandardCharsets.UTF_8.name(),
                     null);
         } catch (IOException exception) {
-            coordinateText.setText(t("Map unavailable", "Karte nicht verfügbar"));
+            coordinateText.setText(t(R.string.ui_168));
             setUseButtonEnabled(false);
         }
     }
 
     private void localizeBundledMap(WebView view) {
-        String language = german ? "de" : "en";
-        String title = german ? "Standort wählen" : "Choose location";
-        String message = german
-                ? "Tippe auf die Karte, um die Markierung zu setzen. Ziehe zum Verschieben."
-                : "Tap the map to place the marker. Drag to pan.";
-        String zoomIn = german ? "Vergrößern" : "Zoom in";
-        String zoomOut = german ? "Verkleinern" : "Zoom out";
+        GeoSettings localeSettings = new GeoSettings(this);
+        String language = localeSettings.resolvedLanguage();
+        String title = t(R.string.ui_165);
+        String message = t(R.string.map_instruction);
+        String zoomIn = t(R.string.map_zoom_in);
+        String zoomOut = t(R.string.map_zoom_out);
         String script = "(function(){"
-                + "document.documentElement.lang='" + language + "';"
-                + "document.title='" + title + "';"
+                + "var localized={language:" + JSONObject.quote(language)
+                + ",title:" + JSONObject.quote(title)
+                + ",message:" + JSONObject.quote(message)
+                + ",zoomIn:" + JSONObject.quote(zoomIn)
+                + ",zoomOut:" + JSONObject.quote(zoomOut) + "};"
+                + "document.documentElement.lang=localized.language;"
+                + "document.title=localized.title;"
                 + "var message=document.getElementById('message');"
-                + "if(message){message.textContent='" + message + "';}"
+                + "if(message){message.textContent=localized.message;}"
                 + "var zoomIn=document.getElementById('zoomIn');"
-                + "if(zoomIn){zoomIn.setAttribute('aria-label','" + zoomIn + "');}"
+                + "if(zoomIn){zoomIn.setAttribute('aria-label',localized.zoomIn);}"
                 + "var zoomOut=document.getElementById('zoomOut');"
-                + "if(zoomOut){zoomOut.setAttribute('aria-label','" + zoomOut + "');}"
+                + "if(zoomOut){zoomOut.setAttribute('aria-label',localized.zoomOut);}"
                 + "})();";
         view.evaluateJavascript(script, null);
     }
@@ -275,10 +276,6 @@ public final class MapActivity extends Activity {
 
     private void loadUiSettings() {
         SharedPreferences preferences = getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-        String language = preferences.getString(PREF_LANGUAGE, LANGUAGE_SYSTEM);
-        german = LANGUAGE_GERMAN.equals(language)
-                || (LANGUAGE_SYSTEM.equals(language)
-                && Locale.getDefault().getLanguage().equals("de"));
         String appearance = preferences.getString(PREF_APPEARANCE, APPEARANCE_SYSTEM);
         boolean dark = APPEARANCE_DARK.equals(appearance)
                 || (APPEARANCE_SYSTEM.equals(appearance) && isSystemDarkMode());
@@ -295,14 +292,12 @@ public final class MapActivity extends Activity {
 
     private void updateCoordinateText() {
         if (!hasSelection) {
-            coordinateText.setText(t(
-                    "No location selected",
-                    "Kein Standort ausgewählt"));
+            coordinateText.setText(t(R.string.ui_169));
             return;
         }
         coordinateText.setText(String.format(
                 Locale.US,
-                t("%.6f, %.6f", "%.6f, %.6f"),
+                t(R.string.ui_170),
                 selectedLatitude,
                 selectedLongitude));
     }
@@ -356,8 +351,8 @@ public final class MapActivity extends Activity {
         view.requestApplyInsets();
     }
 
-    private String t(String english, String germanText) {
-        return german ? germanText : english;
+    private String t(int resourceId) {
+        return new GeoSettings(this).text(resourceId);
     }
 
     private int dp(int value) {

@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GeoJoystick</string>
+    <string name="ui_001">Kortet returnerede ingen gyldige koordinater</string>
+    <string name="ui_002">Kortet returnerede ugyldige koordinater</string>
+    <string name="ui_003">Placering valgt. Indtast en højde før start.</string>
+    <string name="ui_004">Status</string>
+    <string name="ui_005">Simuleret placering</string>
+    <string name="ui_006">Overlejringstilladelse</string>
+    <string name="ui_007">Simulering</string>
+    <string name="ui_008">Status kollapset. Tryk for at udvide</string>
+    <string name="ui_009">Status udvidet. Tryk for at skjule</string>
+    <string name="ui_010">Koordinater</string>
+    <string name="ui_011">Breddegrad</string>
+    <string name="ui_012">Længdegrad</string>
+    <string name="ui_013">Højde (m)</string>
+    <string name="ui_014">Kort</string>
+    <string name="ui_015">Indsæt link</string>
+    <string name="ui_016">Favorit</string>
+    <string name="ui_017">Favoritter</string>
+    <string name="ui_018">Tryk på · hold for at redigere</string>
+    <string name="ui_019">Simulering</string>
+    <string name="ui_020">Start simulering</string>
+    <string name="ui_021">Stop simulering</string>
+    <string name="ui_022">Open source · GPL-3.0-only · Lokal først</string>
+    <string name="ui_023">Om GeoJoystick</string>
+    <string name="ui_024">Gennemsigtig positionssimulering</string>
+    <string name="ui_025">Indstillinger</string>
+    <string name="ui_026">Indstillinger</string>
+    <string name="ui_027">Opsætning</string>
+    <string name="ui_028">Simuleret placering</string>
+    <string name="ui_029">Valgt</string>
+    <string name="ui_030">Ikke valgt</string>
+    <string name="ui_031">Overlejringstilladelse</string>
+    <string name="ui_032">Tilladt</string>
+    <string name="ui_033">Ikke tilladt</string>
+    <string name="ui_034">Nulstil overlejringsposition</string>
+    <string name="ui_035">Gendan sidste position</string>
+    <string name="ui_036">Til</string>
+    <string name="ui_037">Fra</string>
+    <string name="ui_038">Opførsel</string>
+    <string name="ui_039">Simuleringshastighed</string>
+    <string name="ui_040">Overlay med høj kontrast</string>
+    <string name="ui_041">Til</string>
+    <string name="ui_042">Fra</string>
+    <string name="ui_043">Overlejring</string>
+    <string name="ui_044">Udseende og sprog</string>
+    <string name="ui_045">Tema</string>
+    <string name="ui_046">Sprog</string>
+    <string name="ui_047">K2040 avatar</string>
+    <string name="ui_048">Luk siden Om GeoJoystick</string>
+    <string name="ui_049">Gennemsigtigt joystick til simuleret placering for Android-udvikler- og emulatortest.</string>
+    <string name="ui_050">Lokal · offline-først · ingen konto · ingen annoncer · ingen analyser · ingen sporing</string>
+    <string name="ui_051">Ændringslog</string>
+    <string name="ui_052">Licens og brug</string>
+    <string name="ui_053">Kilder</string>
+    <string name="ui_054">Support på Ko-fi</string>
+    <string name="ui_055">Ændringslog</string>
+    <string name="ui_056">Luk</string>
+    <string name="ui_057">Luk ændringslog</string>
+    <string name="ui_058">K2040 avatar</string>
+    <string name="ui_059">Gennemsigtigt joystick til simuleret placering for Android-udvikler- og emulatortest. Lokal først, uden konto, annoncer, analyser eller sporing.</string>
+    <string name="ui_060">App-kode: GPL-3.0-only
+K2040 kunstværk: CC BY 4.0
+Kortdata: © OpenStreetMap-bidragydere · ODbL 1.0</string>
+    <string name="ui_061">Licenser: app-kode GPL-3.0-only, K2040-illustrationer CC BY 4.0 og OpenStreetMap ODbL 1.0. Åbn licensoplysninger</string>
+    <string name="ui_062">Fortsæt</string>
+    <string name="ui_063">Fortsæt til GeoJoystick</string>
+    <string name="ui_064">Licens og brug</string>
+    <string name="ui_065">LOKALE DATA</string>
+    <string name="ui_066">Koordinater og indstillinger forbliver på denne enhed. Kortet henter kun OpenStreetMap-fliser, når du åbner det; understøttet linkopløsning kan bruge afgrænsede HTTPS-anmodninger. Ingen konto, analyser eller skjulte uploads.</string>
+    <string name="ui_067">LICENSER</string>
+    <string name="ui_068">Tryk på en post for de vedligeholdte licensoplysninger.</string>
+    <string name="ui_069">Applikationskoden er GPL-3.0-only. K2040-forfattet GPL-kode indeholder også et særskilt tilskrivningsvilkår i afsnit 7(b). Originalt K2040-kunstværk er CC BY 4.0. Tredjepartsmateriale bevarer sine egne vilkår.</string>
+    <string name="ui_070">Applikationskode · K2040-forfattede dele bærer også §7(b)-tilskrivning</string>
+    <string name="ui_071">K2040 kunstværk · CC BY 4.0</string>
+    <string name="ui_072">Originalt K2040-kunstværk og UI-kunstværk · tilskrivning påkrævet</string>
+    <string name="ui_073">Kortdata · © OpenStreetMap-bidragydere</string>
+    <string name="ui_074">Luk</string>
+    <string name="ui_075">Den medfølgende engelske GPL-tekst er den autoritative GPL-tekst. Den originale K2040-forfattede GPL-kode indeholder også den separate sektion 7(b) tilskrivnings-bevaringsterm, der kræver \'Copyright (c) 2026 K2040.\' GoGoGo-afledt og andet tredjepartsmateriale beholder deres egne meddelelser.</string>
+    <string name="ui_076">Luk</string>
+    <string name="ui_077">K2040 kunstværk · CC BY 4.0</string>
+    <string name="ui_078">Originalt kunstværk og UI-kunstværk forfattet af K2040 og identificeret af projektets oprindelse er licenseret under Creative Commons Attribution 4.0 International (CC BY 4.0).
+
+Når du deler dækket kunstværk, skal du kreditere K2040, identificere CC BY 4.0, linke til licensen, hvor det er rimeligt praktisk muligt, og angive ændringer. Tredjeparts- og upstream-aktiver er udelukket og bevarer deres egne vilkår.</string>
+    <string name="ui_079">Åbn officiel licens</string>
+    <string name="ui_080">Luk</string>
+    <string name="ui_081">GeoJoysticks indbyggede kort indlæser kun fliser fra OpenStreetMap, når kortet bruges. Kortdata er © OpenStreetMap-bidragydere og gøres tilgængelige under Open Data Commons Open Database License (ODbL) 1.0.
+
+Kortet bevarer synlig bidragydertilskrivning. Den officielle OpenStreetMap copyright- og licensside indeholder de vedligeholdte detaljer og eventuelle yderligere meddelelser, der gælder for flisetjenesten.</string>
+    <string name="ui_082">Åbn officielle detaljer</string>
+    <string name="ui_083">Luk</string>
+    <string name="ui_084">Kilder</string>
+    <string name="ui_085">Eksterne projekter og materiale GeoJoystick bygger på eller bruger direkte.</string>
+    <string name="ui_086">Originalt upstream-projekt · ZCShou og bidragydere</string>
+    <string name="ui_087">Kortfliser og data · © OpenStreetMap-bidragydere</string>
+    <string name="ui_088">GeoJoystick er et GPL-3.0-only-afledt værk baseret på GoGoGo. Dets tjeneste til simuleret placering og joystickets bevægelsesdesign blev tilpasset og væsentligt forenklet. Materiale afledt af GoGoGo bevarer sin upstream GPLv3-tilskrivning; K2040 §7(b)-vilkåret gælder kun for GPL-materiale forfattet af K2040. Proprietære Baidu SDK-komponenter og reklame er ikke inkluderet.</string>
+    <string name="ui_089">Luk</string>
+    <string name="ui_090">Åbn</string>
+    <string name="ui_091">Lokal · Ingen konto · Ingen unødvendig sporing</string>
+    <string name="ui_092">Koordinater og indstillinger forbliver på din enhed. Ingen analyser og intet kontosystem.</string>
+    <string name="ui_093">Åbn</string>
+    <string name="ui_094">Gennemsigtigt joystick til simuleret placering for Android-udvikler- og emulatortest.
+
+Lokal først · Ingen konto · Ingen annoncer · Ingen analyser · Ingen sporing
+Koordinater og indstillinger forbliver på din enhed.</string>
+    <string name="ui_095">Tilbage</string>
+    <string name="ui_096">Systemstandard</string>
+    <string name="ui_097">Lys</string>
+    <string name="ui_098">Mørk</string>
+    <string name="ui_099">Udseende</string>
+    <string name="ui_100">Annuller</string>
+    <string name="ui_101">Sprog</string>
+    <string name="ui_102">Annuller</string>
+    <string name="ui_103">Mørk</string>
+    <string name="ui_104">Lys</string>
+    <string name="ui_105">System</string>
+    <string name="ui_106">System</string>
+    <string name="ui_107">Overlejringsposition nulstillet til næste visning</string>
+    <string name="ui_108">Navn</string>
+    <string name="ui_109">Hastighed i m/s</string>
+    <string name="ui_110">Brugerdefineret hastighed</string>
+    <string name="ui_111">Gem</string>
+    <string name="ui_112">Annuller</string>
+    <string name="ui_113">Indtast en gyldig hastighed</string>
+    <string name="ui_114">Overlejringsstørrelse: %d%%</string>
+    <string name="ui_115">Overlejringens opacitet: %d%%</string>
+    <string name="ui_116">Favorit %1$d</string>
+    <string name="ui_117">Vælg en favoritplads</string>
+    <string name="ui_118">Annuller</string>
+    <string name="ui_119">Favorit indlæst i koordinatfelter</string>
+    <string name="ui_120">Favorit %1$d</string>
+    <string name="ui_121">Favoritnavn</string>
+    <string name="ui_122">Breddegrad</string>
+    <string name="ui_123">Længdegrad</string>
+    <string name="ui_124">Højde (m)</string>
+    <string name="ui_125">Favorit %1$d</string>
+    <string name="ui_126">Gem</string>
+    <string name="ui_127">Annuller</string>
+    <string name="ui_128">Ryd</string>
+    <string name="ui_129">Favorit %1$d</string>
+    <string name="ui_130">Indtast gyldige favoritkoordinater</string>
+    <string name="ui_131">Fav %1$d</string>
+    <string name="ui_132">Tom favorit %1$d</string>
+    <string name="ui_133">Fav %1$d</string>
+    <string name="ui_134">Udklipsholderen er tom</string>
+    <string name="ui_135">Udklipsholderen er tom</string>
+    <string name="ui_136">Intet positionslink fundet</string>
+    <string name="ui_137">Læser placeringslink...</string>
+    <string name="ui_138">Kunne ikke udtrække koordinater fra det link</string>
+    <string name="ui_139">De importerede koordinater var ugyldige</string>
+    <string name="ui_140">Koordinater importeret</string>
+    <string name="ui_141">Koordinater importeret. Indtast en højde før start.</string>
+    <string name="ui_142">Vælg GeoJoystick</string>
+    <string name="ui_143">I Udviklerindstillinger skal du vælge GeoJoystick under “Vælg app til falsk lokation” og derefter vende tilbage hertil.</string>
+    <string name="ui_144">Åbn indstillinger</string>
+    <string name="ui_145">Annuller</string>
+    <string name="ui_146">Indtast gyldig breddegrad, længdegrad og højde</string>
+    <string name="ui_147">GeoJoystick-start anmodet</string>
+    <string name="ui_148">GeoJoystick kunne ikke startes</string>
+    <string name="ui_149">GeoJoystick-stop anmodet</string>
+    <string name="ui_150">GeoJoystick kunne ikke stoppes</string>
+    <string name="ui_151">Valgt</string>
+    <string name="ui_152">Ikke valgt</string>
+    <string name="ui_153">Tilladt</string>
+    <string name="ui_154">Ikke tilladt</string>
+    <string name="ui_155">Aktiv</string>
+    <string name="ui_156">Starter</string>
+    <string name="ui_157">Inaktiv</string>
+    <string name="ui_158">Indtast gyldig breddegrad, længdegrad og højde</string>
+    <string name="ui_159">Tjekker...</string>
+    <string name="ui_160">• Startside, Indstillinger og overlejringskontroller redesignet med tydeligere status og kompakt tilstand.
+• Gendannelse af simulering, sidste position og håndtering af ugyldige indtastninger forbedret.
+• Introduktion samt skærmene Om, Ændringslog, Licens og brug og Kilder tilføjet.
+• Behandling af kortlinks og kortvælgerens pålidelighed forbedret.
+• Tilgængelighed, understøttelse af stor tekst og berøringsmål forbedret.
+• Ny GeoJoystick-maskot og app-identitet tilføjet sammen med understøttelse af tilbage-navigation i Android 16/API 36.
+
+0.1.3
+• Dialoger følger nu det valgte mørke tema.
+• GeoJoystick bruger nu et dedikeret ikon i butiksfortegnelser.
+
+0.1.0
+• Første offentlige udgivelse med koordinat- og højdeindtastning, kortvalg og linkimport, favoritter, udseende- og sprogindstillinger samt flydende joystick-kontroller.</string>
+    <string name="ui_161">Donationer er helt valgfrie. De låser ikke op for funktioner eller giver yderligere fordele.</string>
+    <string name="ui_162">Licenstekst er ikke tilgængelig i denne build.</string>
+    <string name="ui_163">Ingen browser-app tilgængelig</string>
+    <string name="ui_164">Annuller kortvalg</string>
+    <string name="ui_165">Vælg placering</string>
+    <string name="ui_166">Brug placering</string>
+    <string name="ui_167">Tryk på kortet for at placere markøren. Ingen placering vælges automatisk.</string>
+    <string name="ui_168">Kortet er ikke tilgængeligt</string>
+    <string name="ui_169">Ingen placering valgt</string>
+    <string name="ui_170">%1$.6f, %2$.6f</string>
+    <string name="ui_171">Tjeneste til simuleret placering</string>
+    <string name="ui_172">Holder den synlige positionssimulering aktiv.</string>
+    <string name="ui_173">Positionssimulering aktiv</string>
+    <string name="ui_174">Starter positionssimulering</string>
+    <string name="ui_175">Vis</string>
+    <string name="ui_176">Skjul</string>
+    <string name="ui_177">Stop</string>
+    <string name="ui_178">Flyt GeoJoystick-overlay</string>
+    <string name="ui_179">Skift til kompakt overlejring</string>
+    <string name="ui_180">Gåhastighed</string>
+    <string name="ui_181">Løbehastighed</string>
+    <string name="ui_182">Cykelhastighed</string>
+    <string name="ui_183">Brugerdefineret hastighed</string>
+    <string name="ui_184">Bevægelse aktiv; tryk for at holde pause</string>
+    <string name="ui_185">Aktiver låsning</string>
+    <string name="ui_186">Stop GeoJoystick-tjenesten og luk overlejringen</string>
+    <string name="ui_187">Skift til udvidet overlejring</string>
+    <string name="ui_188">Skift til kompakt overlejring</string>
+    <string name="ui_189">Brugerdefineret hastighed: %1$s</string>
+    <string name="ui_190">Bevægelse sat på pause; tryk for at genoptage</string>
+    <string name="ui_191">Bevægelse aktiv; tryk for at holde pause</string>
+    <string name="ui_192">Deaktiver låsning</string>
+    <string name="ui_193">Aktiver låsning</string>
+    <string name="ui_194">Position ikke tilgængelig</string>
+    <string name="map_instruction">Tryk på kortet for at placere markøren. Træk for at panorere.</string>
+    <string name="map_zoom_in">Zoom ind</string>
+    <string name="map_zoom_out">Zoom ud</string>
+    <string name="language_system_default">System standard</string>
+    <string name="language_english">English</string>
+    <string name="language_german">Deutsch</string>
+    <string name="language_french">Français</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_italian">Italiano</string>
+    <string name="language_dutch">Nederlands</string>
+    <string name="language_danish">Dansk</string>
+    <string name="language_swedish">Svenska</string>
+    <string name="language_norwegian_bokmal">Norsk bokmål</string>
+    <string name="custom_speed_default">Brugerdefineret</string>
+    <string name="favorite_default">Favorit %1$d</string>
+    <string name="service_invalid_start">GeoJoystick startede ikke, fordi koordinaterne var ugyldige.</string>
+    <string name="service_not_active">GeoJoystick er ikke aktivt.</string>
+    <string name="service_coordinates_rejected">De nye koordinater blev afvist.</string>
+    <string name="service_no_provider">GeoJoystick stoppede, fordi ingen udbyder af simuleret placering accepterede positionen.</string>
+    <string name="service_publish_failed">GeoJoystick stoppede, fordi publicering af simuleret placering mislykkedes.</string>
+    <string name="service_cannot_publish">GeoJoystick kunne ikke publicere en simuleret placering. Tjek Udviklerindstillinger, og vælg GeoJoystick som app til simuleret placering.</string>
+    <string name="service_cannot_start">GeoJoystick kunne ikke starte sin forgrundssimuleringstjeneste.</string>
+    <string name="joystick_accessibility">Bevægelsesjoystick</string>
+</resources>

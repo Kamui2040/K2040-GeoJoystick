@@ -61,7 +61,6 @@ public final class MainActivity extends Activity {
 
     private GeoSettings settings;
     private GeoUi.Palette palette;
-    private boolean german;
     private EditText latitudeInput;
     private EditText longitudeInput;
     private EditText altitudeInput;
@@ -255,20 +254,17 @@ public final class MainActivity extends Activity {
         }
         if (!data.hasExtra(MapActivity.EXTRA_LATITUDE)
                 || !data.hasExtra(MapActivity.EXTRA_LONGITUDE)) {
-            toast(t("The map returned no valid coordinates",
-                    "Die Karte hat keine gültigen Koordinaten zurückgegeben"), true);
+            toast(t(R.string.ui_001), true);
             return;
         }
         double latitude = data.getDoubleExtra(MapActivity.EXTRA_LATITUDE, Double.NaN);
         double longitude = data.getDoubleExtra(MapActivity.EXTRA_LONGITUDE, Double.NaN);
         if (!setHorizontalCoordinates(latitude, longitude)) {
-            toast(t("The map returned invalid coordinates",
-                    "Die Karte hat ungültige Koordinaten zurückgegeben"), true);
+            toast(t(R.string.ui_002), true);
             return;
         }
         if (!Double.isFinite(safeAltitude())) {
-            toast(t("Location selected. Enter an altitude before starting.",
-                    "Standort ausgewählt. Gib vor dem Start eine Höhe ein."), true);
+            toast(t(R.string.ui_003), true);
         }
     }
 
@@ -293,7 +289,6 @@ public final class MainActivity extends Activity {
     }
 
     private void loadUiSettings() {
-        german = settings.isGerman();
         palette = new GeoUi.Palette(settings.isDark());
         getWindow().setStatusBarColor(palette.background);
         getWindow().setNavigationBarColor(palette.background);
@@ -324,7 +319,7 @@ public final class MainActivity extends Activity {
         statusHeader.setClickable(true);
         statusHeader.setFocusable(true);
 
-        TextView statusTitle = text(t("Status", "Status"), 13, palette.text, true);
+        TextView statusTitle = text(t(R.string.ui_004), 13, palette.text, true);
         statusTitle.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         statusTitle.setIncludeFontPadding(false);
         statusTitle.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
@@ -342,16 +337,12 @@ public final class MainActivity extends Activity {
         statusDetails.setOrientation(LinearLayout.VERTICAL);
         statusDetails.setPadding(0, 0, 0, dp(4));
         statusDetails.setVisibility(View.GONE);
-        mockStatus = addStatusRow(statusDetails, t("Mock location", "Mock-Standort"));
-        overlayStatus = addStatusRow(statusDetails, t("Overlay permission", "Overlay-Berechtigung"));
-        simulationStatus = addStatusRow(statusDetails, t("Simulation", "Simulation"));
+        mockStatus = addStatusRow(statusDetails, t(R.string.ui_005));
+        overlayStatus = addStatusRow(statusDetails, t(R.string.ui_006));
+        simulationStatus = addStatusRow(statusDetails, t(R.string.ui_007));
 
-        String collapsedStatusDescription = t(
-                "Status collapsed. Tap to expand",
-                "Status eingeklappt. Zum Öffnen tippen");
-        String expandedStatusDescription = t(
-                "Status expanded. Tap to collapse",
-                "Status ausgeklappt. Zum Schließen tippen");
+        String collapsedStatusDescription = t(R.string.ui_008);
+        String expandedStatusDescription = t(R.string.ui_009);
         statusHeader.setContentDescription(collapsedStatusDescription);
         statusHeader.setOnClickListener(view -> {
             boolean expand = statusDetails.getVisibility() != View.VISIBLE;
@@ -366,11 +357,11 @@ public final class MainActivity extends Activity {
         root.addView(status, margin(2, 4));
 
         LinearLayout coordinates = card();
-        addCardTitle(coordinates, t("Coordinates", "Koordinaten"));
+        addCardTitle(coordinates, t(R.string.ui_010));
         double[] initial = initialCoordinates();
-        latitudeInput = coordinateInput(t("Latitude", "Breitengrad"), initial[0]);
-        longitudeInput = coordinateInput(t("Longitude", "Längengrad"), initial[1]);
-        altitudeInput = coordinateInput(t("Altitude (m)", "Höhe (m)"), initial[2]);
+        latitudeInput = coordinateInput(t(R.string.ui_011), initial[0]);
+        longitudeInput = coordinateInput(t(R.string.ui_012), initial[1]);
+        altitudeInput = coordinateInput(t(R.string.ui_013), initial[2]);
         coordinates.addView(latitudeInput, innerRow());
         coordinates.addView(longitudeInput, innerRow());
         coordinates.addView(altitudeInput, innerRow());
@@ -379,11 +370,11 @@ public final class MainActivity extends Activity {
         LinearLayout quick = new LinearLayout(this);
         quick.setOrientation(LinearLayout.HORIZONTAL);
         quick.setGravity(Gravity.CENTER);
-        Button map = actionTile("⌖", t("Map", "Karte"));
+        Button map = actionTile("⌖", t(R.string.ui_014));
         map.setOnClickListener(view -> openMap());
-        Button paste = actionTile("↓", t("Paste link", "Link einfügen"));
+        Button paste = actionTile("↓", t(R.string.ui_015));
         paste.setOnClickListener(view -> importFromClipboard());
-        Button favorite = actionTile("☆", t("Favorite", "Favorit"));
+        Button favorite = actionTile("☆", t(R.string.ui_016));
         favorite.setOnClickListener(view -> chooseFavoriteSlot());
         quick.addView(map, tileWeight());
         quick.addView(paste, tileWeight());
@@ -393,11 +384,10 @@ public final class MainActivity extends Activity {
         LinearLayout favoriteCard = card();
         LinearLayout favoriteHeader = new LinearLayout(this);
         favoriteHeader.setGravity(Gravity.CENTER_VERTICAL);
-        TextView favoriteTitle = text(t("Favorites", "Favoriten"), 13, palette.text, true);
+        TextView favoriteTitle = text(t(R.string.ui_017), 13, palette.text, true);
         favoriteHeader.addView(favoriteTitle,
                 new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        TextView favoriteHint = text(t("Tap · hold to edit",
-                "Tippen · halten zum Bearbeiten"), 9, palette.textDim, false);
+        TextView favoriteHint = text(t(R.string.ui_018), 9, palette.textDim, false);
         favoriteHeader.addView(favoriteHint);
         favoriteCard.addView(favoriteHeader, innerRow());
 
@@ -430,7 +420,7 @@ public final class MainActivity extends Activity {
         LinearLayout simulationRow = new LinearLayout(this);
         simulationRow.setGravity(Gravity.CENTER);
 
-        TextView simulationTitle = text(t("Simulation", "Simulation"),
+        TextView simulationTitle = text(t(R.string.ui_019),
                 13, palette.text, true);
         simulationTitle.setGravity(Gravity.CENTER_VERTICAL);
         simulationTitle.setIncludeFontPadding(false);
@@ -443,7 +433,7 @@ public final class MainActivity extends Activity {
         simulationStartButton.setMinWidth(0);
         simulationStartButton.setMinimumWidth(0);
         simulationStartButton.setContentDescription(
-                t("Start simulation", "Simulation starten"));
+                t(R.string.ui_020));
         simulationStartButton.setOnClickListener(view -> startMocking());
 
         simulationStopButton = GeoUi.button(this, palette, "■", false);
@@ -452,7 +442,7 @@ public final class MainActivity extends Activity {
         simulationStopButton.setMinWidth(0);
         simulationStopButton.setMinimumWidth(0);
         simulationStopButton.setContentDescription(
-                t("Stop simulation", "Simulation stoppen"));
+                t(R.string.ui_021));
         simulationStopButton.setOnClickListener(view -> stopMocking());
 
         LinearLayout.LayoutParams simulationButtonParams =
@@ -471,8 +461,7 @@ public final class MainActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(48)));
         root.addView(simulationCard, margin(5, 3));
 
-        TextView footer = text(t("Open source · GPL-3.0-only · Local-first",
-                "Open Source · GPL-3.0-only · Lokal"), 10, palette.textDim, false);
+        TextView footer = text(t(R.string.ui_022), 10, palette.textDim, false);
         footer.setGravity(Gravity.CENTER);
         footer.setPadding(dp(8), dp(6), dp(8), dp(2));
         footer.setOnClickListener(view -> showAboutPage());
@@ -489,7 +478,7 @@ public final class MainActivity extends Activity {
         avatar.setImageResource(R.drawable.geojoystick_mascot);
         avatar.setScaleType(ImageView.ScaleType.CENTER_CROP);
         avatar.setPadding(dp(4), dp(4), dp(4), dp(4));
-        avatar.setContentDescription(t("About GeoJoystick", "Über GeoJoystick"));
+        avatar.setContentDescription(t(R.string.ui_023));
         avatar.setOnClickListener(view -> showAboutPage());
         header.addView(avatar, new LinearLayout.LayoutParams(dp(48), dp(48)));
 
@@ -497,13 +486,12 @@ public final class MainActivity extends Activity {
         titles.setOrientation(LinearLayout.VERTICAL);
         titles.setPadding(dp(10), 0, 0, 0);
         titles.addView(text("GeoJoystick", 20, palette.text, true));
-        titles.addView(text(t("Transparent mock-location simulation",
-                "Transparente Mock-Standort-Simulation"), 9, palette.textDim, false));
+        titles.addView(text(t(R.string.ui_024), 9, palette.textDim, false));
         header.addView(titles,
                 new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
         Button settingsButton = GeoUi.iconButton(this, palette, "⚙",
-                t("Settings", "Einstellungen"));
+                t(R.string.ui_025));
         settingsButton.setOnClickListener(view -> showSettingsPage());
         header.addView(settingsButton, new LinearLayout.LayoutParams(dp(48), dp(48)));
         return header;
@@ -515,61 +503,61 @@ public final class MainActivity extends Activity {
         ScrollView page = pageScroll();
         LinearLayout root = pageRoot();
         page.addView(root);
-        root.addView(pageHeader(t("Settings", "Einstellungen"), this::showHomePage), margin(0, 4));
+        root.addView(pageHeader(t(R.string.ui_026), this::showHomePage), margin(0, 4));
 
-        root.addView(section(t("Setup", "Einrichtung")), margin(6, 1));
+        root.addView(section(t(R.string.ui_027)), margin(6, 1));
         LinearLayout setup = card();
 
         boolean mockSelected = isSelectedMockLocationApp();
         setup.addView(stateSettingRow(
-                t("Mock location", "Mock-Standort"),
+                t(R.string.ui_028),
                 mockSelected
-                        ? t("Selected", "Ausgewählt")
-                        : t("Not selected", "Nicht ausgewählt"),
+                        ? t(R.string.ui_029)
+                        : t(R.string.ui_030),
                 mockSelected,
                 this::openDeveloperSettings), innerRow());
 
         boolean overlayGranted = Settings.canDrawOverlays(this);
         setup.addView(stateSettingRow(
-                t("Overlay permission", "Overlay-Berechtigung"),
+                t(R.string.ui_031),
                 overlayGranted
-                        ? t("Granted", "Erteilt")
-                        : t("Not granted", "Nicht erteilt"),
+                        ? t(R.string.ui_032)
+                        : t(R.string.ui_033),
                 overlayGranted,
                 this::openOverlaySettings), innerRow());
 
         setup.addView(settingRow(
-                t("Reset overlay position", "Overlay-Position zurücksetzen"),
+                t(R.string.ui_034),
                 "›",
                 this::resetOverlayPosition), innerRow());
 
         boolean restoreEnabled = settings.restoreLastPosition();
         setup.addView(stateSettingRow(
-                t("Restore last position", "Letzte Position wiederherstellen"),
-                restoreEnabled ? t("On", "Ein") : t("Off", "Aus"),
+                t(R.string.ui_035),
+                restoreEnabled ? t(R.string.ui_036) : t(R.string.ui_037),
                 restoreEnabled,
                 this::toggleRestoreLastPosition), innerRow());
 
         root.addView(setup, margin(1, 4));
 
-        root.addView(section(t("Behavior", "Verhalten")), margin(6, 1));
+        root.addView(section(t(R.string.ui_038)), margin(6, 1));
         LinearLayout behavior = card();
 
         behavior.addView(settingRow(
-                t("Simulation speed", "Simulationsgeschwindigkeit"),
+                t(R.string.ui_039),
                 String.format(Locale.US, "%.1f m/s", settings.customSpeed()),
                 this::editCustomSpeed), innerRow());
 
         boolean highContrastEnabled = settings.highContrastOverlay();
         behavior.addView(stateSettingRow(
-                t("High contrast overlay", "Overlay mit hohem Kontrast"),
-                highContrastEnabled ? t("On", "Ein") : t("Off", "Aus"),
+                t(R.string.ui_040),
+                highContrastEnabled ? t(R.string.ui_041) : t(R.string.ui_042),
                 highContrastEnabled,
                 this::toggleHighContrast), innerRow());
 
         root.addView(behavior, margin(1, 4));
 
-        root.addView(section(t("Overlay", "Overlay")), margin(6, 1));
+        root.addView(section(t(R.string.ui_043)), margin(6, 1));
         LinearLayout overlay = card();
 
         TextView sizeLabel = text("", 12, palette.text, false);
@@ -617,14 +605,14 @@ public final class MainActivity extends Activity {
         overlay.addView(opacity, innerRow());
         root.addView(overlay, margin(1, 4));
 
-        root.addView(section(t("Appearance & language", "Darstellung & Sprache")), margin(6, 1));
+        root.addView(section(t(R.string.ui_044)), margin(6, 1));
         LinearLayout appearance = card();
         appearance.addView(settingRow(
-                t("Theme", "Darstellung"),
+                t(R.string.ui_045),
                 appearanceLabel(),
                 this::chooseAppearance), innerRow());
         appearance.addView(settingRow(
-                t("Language", "Sprache"),
+                t(R.string.ui_046),
                 languageLabel(),
                 this::chooseLanguage), innerRow());
         root.addView(appearance, margin(1, 4));
@@ -647,7 +635,7 @@ public final class MainActivity extends Activity {
         ImageView avatar = new ImageView(this);
         avatar.setImageResource(R.drawable.k2040_about_avatar);
         avatar.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        avatar.setContentDescription(t("K2040 avatar", "K2040-Avatar"));
+        avatar.setContentDescription(t(R.string.ui_047));
         identity.addView(avatar, new LinearLayout.LayoutParams(dp(68), dp(68)));
 
         LinearLayout titles = new LinearLayout(this);
@@ -662,7 +650,7 @@ public final class MainActivity extends Activity {
         close.setGravity(Gravity.CENTER);
         close.setClickable(true);
         close.setFocusable(true);
-        close.setContentDescription(t("Close About", "Info schließen"));
+        close.setContentDescription(t(R.string.ui_048));
         close.setOnClickListener(view -> showHomePage());
         identity.addView(close, new LinearLayout.LayoutParams(dp(48), dp(48)));
         modal.addView(identity, innerRow());
@@ -676,30 +664,26 @@ public final class MainActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        TextView about = text(t(
-                "Transparent mock-location joystick for Android developer and emulator testing.",
-                "Transparenter Mock-Standort-Joystick für Android-Entwicklung und Emulator-Tests."),
+        TextView about = text(t(R.string.ui_049),
                 12, palette.text, false);
         about.setGravity(Gravity.CENTER);
         about.setLineSpacing(0, 1.08f);
         about.setPadding(dp(10), dp(8), dp(10), dp(4));
         body.addView(about, innerRow());
 
-        TextView trust = text(t(
-                "Local · offline-first · no account · no ads · no analytics · no tracking",
-                "Lokal · offline-first · kein Konto · keine Werbung · keine Analysen · kein Tracking"),
+        TextView trust = text(t(R.string.ui_050),
                 10, palette.textDim, true);
         trust.setGravity(Gravity.CENTER);
         trust.setPadding(dp(8), dp(2), dp(8), dp(6));
         body.addView(trust, innerRow());
 
-        body.addView(welcomeNavigationRow(t("Changelog", "Änderungsverlauf"),
+        body.addView(welcomeNavigationRow(t(R.string.ui_051),
                 () -> showChangelogPage(false)), innerRow());
-        body.addView(welcomeNavigationRow(t("License & usage", "Lizenz & Nutzung"),
+        body.addView(welcomeNavigationRow(t(R.string.ui_052),
                 () -> showLicensePage(false)), innerRow());
-        body.addView(welcomeNavigationRow(t("Sources", "Quellen"),
+        body.addView(welcomeNavigationRow(t(R.string.ui_053),
                 this::showSourcesPage), innerRow());
-        body.addView(welcomeNavigationRow(t("Support on Ko-fi", "Auf Ko-fi unterstützen"),
+        body.addView(welcomeNavigationRow(t(R.string.ui_054),
                 () -> openExternalUrl("https://ko-fi.com/k2040")), innerRow());
 
         TextView disclosure = text(supportDisclosureText(), 9, palette.textDim, false);
@@ -718,7 +702,7 @@ public final class MainActivity extends Activity {
         FrameLayout stage = modalStage();
         LinearLayout modal = modalCard(dp(16), dp(14));
 
-        TextView heading = text(t("Changelog", "Änderungsverlauf"), 24, palette.text, true);
+        TextView heading = text(t(R.string.ui_055), 24, palette.text, true);
         heading.setPadding(dp(4), dp(2), dp(4), dp(4));
         modal.addView(heading, innerRow());
 
@@ -738,8 +722,8 @@ public final class MainActivity extends Activity {
         modal.addView(bodyScroll, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
-        Button close = welcomeActionButton(t("Close", "Schließen"), false);
-        close.setContentDescription(t("Close changelog", "Änderungsverlauf schließen"));
+        Button close = welcomeActionButton(t(R.string.ui_056), false);
+        close.setContentDescription(t(R.string.ui_057));
         close.setOnClickListener(view -> showAboutPage());
         LinearLayout.LayoutParams closeParams = new LinearLayout.LayoutParams(dp(140), dp(48));
         closeParams.gravity = Gravity.CENTER_HORIZONTAL;
@@ -760,7 +744,7 @@ public final class MainActivity extends Activity {
         ImageView avatar = new ImageView(this);
         avatar.setImageResource(R.drawable.k2040_avatar);
         avatar.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        avatar.setContentDescription(t("K2040 avatar", "K2040-Avatar"));
+        avatar.setContentDescription(t(R.string.ui_058));
         LinearLayout.LayoutParams avatarParams = new LinearLayout.LayoutParams(dp(72), dp(72));
         avatarParams.gravity = Gravity.CENTER_HORIZONTAL;
         avatarParams.bottomMargin = dp(4);
@@ -770,20 +754,14 @@ public final class MainActivity extends Activity {
         title.setGravity(Gravity.CENTER);
         modal.addView(title, innerRow());
 
-        TextView summary = text(t(
-                "Transparent mock-location joystick for Android developer and emulator testing. "
-                        + "Local-first, with no account, ads, analytics, or tracking.",
-                "Transparenter Mock-Standort-Joystick für Android-Entwicklung und Emulator-Tests. "
-                        + "Lokal, ohne Konto, Werbung, Analysen oder Tracking."),
+        TextView summary = text(t(R.string.ui_059),
                 11, palette.textDim, false);
         summary.setGravity(Gravity.CENTER);
         summary.setLineSpacing(0, 1.08f);
         summary.setPadding(dp(8), dp(4), dp(8), dp(6));
         modal.addView(summary, innerRow());
 
-        TextView legal = text(t(
-                "App code: GPL-3.0-only\nK2040 artwork: CC BY 4.0\nMap data: © OpenStreetMap contributors · ODbL 1.0",
-                "App-Code: GPL-3.0-only\nK2040-Grafik: CC BY 4.0\nKartendaten: © OpenStreetMap-Mitwirkende · ODbL 1.0"),
+        TextView legal = text(t(R.string.ui_060),
                 10, palette.textDim, true);
         legal.setGravity(Gravity.CENTER);
         legal.setLineSpacing(0, 1.08f);
@@ -791,16 +769,12 @@ public final class MainActivity extends Activity {
         legal.setMinimumHeight(dp(48));
         legal.setClickable(true);
         legal.setFocusable(true);
-        legal.setContentDescription(t(
-                "Licenses: app code GPL-3.0-only, K2040 artwork CC BY 4.0, and OpenStreetMap ODbL 1.0. Open license details",
-                "Lizenzen: App-Code GPL-3.0-only, K2040-Grafik CC BY 4.0 und OpenStreetMap ODbL 1.0. Lizenzdetails öffnen"));
+        legal.setContentDescription(t(R.string.ui_061));
         legal.setOnClickListener(view -> showLicensePage(true));
         modal.addView(legal, innerRow());
 
-        Button continueButton = welcomeActionButton(t("Continue", "Weiter"), true);
-        continueButton.setContentDescription(t(
-                "Continue to GeoJoystick",
-                "Weiter zu GeoJoystick"));
+        Button continueButton = welcomeActionButton(t(R.string.ui_062), true);
+        continueButton.setContentDescription(t(R.string.ui_063));
         continueButton.setOnClickListener(view -> {
             settings.acknowledgeWelcome();
             showHomePage();
@@ -819,50 +793,41 @@ public final class MainActivity extends Activity {
         FrameLayout stage = modalStage();
         LinearLayout modal = modalCard(dp(16), dp(14));
 
-        TextView heading = text(t("License & usage", "Lizenz & Nutzung"), 24, palette.text, true);
+        TextView heading = text(t(R.string.ui_064), 24, palette.text, true);
         heading.setPadding(dp(4), dp(2), dp(4), dp(8));
         modal.addView(heading, innerRow());
-        TextView localHeading = text(t("LOCAL DATA", "LOKALE DATEN"), 11, palette.textDim, false);
+        TextView localHeading = text(t(R.string.ui_065), 11, palette.textDim, false);
         modal.addView(localHeading, innerRow());
-        TextView localBody = text(t(
-                "Coordinates and settings stay on this device. The map fetches OpenStreetMap tiles only when you open it; supported link resolution may use bounded HTTPS requests. No account, analytics, or hidden uploads.",
-                "Koordinaten und Einstellungen bleiben auf diesem Gerät. Die Karte lädt OpenStreetMap-Kacheln nur, wenn du sie öffnest; unterstützte Linkauflösung kann begrenzte HTTPS-Anfragen verwenden. Kein Konto, keine Analysen und keine versteckten Uploads."),
+        TextView localBody = text(t(R.string.ui_066),
                 11, palette.text, false);
         localBody.setLineSpacing(0, 1.08f);
         localBody.setPadding(0, dp(2), 0, dp(8));
         modal.addView(localBody, innerRow());
 
-        TextView licenseHeading = text(t("LICENSES", "LIZENZEN"), 11, palette.textDim, false);
+        TextView licenseHeading = text(t(R.string.ui_067), 11, palette.textDim, false);
         modal.addView(licenseHeading, innerRow());
-        TextView licenseHint = text(t(
-                "Tap an entry for the maintained license details.",
-                "Tippe auf einen Eintrag für die gepflegten Lizenzdetails."),
+        TextView licenseHint = text(t(R.string.ui_068),
                 10, palette.textDim, false);
         licenseHint.setPadding(0, dp(1), 0, dp(5));
         modal.addView(licenseHint, innerRow());
 
-        TextView scope = text(t(
-                "Application code is GPL-3.0-only. K2040-authored GPL code also carries a separate section 7(b) attribution term. Original K2040 artwork is CC BY 4.0. Third-party material retains its own terms.",
-                "Der Anwendungscode ist GPL-3.0-only. Von K2040 verfasster GPL-Code trägt zusätzlich eine separate §7(b)-Namensnennungsklausel. Originale K2040-Grafik ist CC BY 4.0. Drittmaterial behält seine eigenen Bedingungen."),
+        TextView scope = text(t(R.string.ui_069),
                 10, palette.textDim, false);
         scope.setLineSpacing(0, 1.08f);
         scope.setPadding(0, 0, 0, dp(5));
         modal.addView(scope, innerRow());
 
         modal.addView(infoNavigationRow("GPL-3.0-only",
-                t("Application code · K2040-authored portions also carry §7(b) attribution",
-                        "Anwendungscode · K2040-verfasste Teile zusätzlich mit §7(b)-Namensnennung"),
+                t(R.string.ui_070),
                 () -> showLicenseTextPage(returnToWelcome)), innerRow());
-        modal.addView(infoNavigationRow(t("K2040 artwork · CC BY 4.0", "K2040-Grafik · CC BY 4.0"),
-                t("Original K2040 artwork and UI artwork · attribution required",
-                        "Originale K2040-Grafik und UI-Grafik · Namensnennung erforderlich"),
+        modal.addView(infoNavigationRow(t(R.string.ui_071),
+                t(R.string.ui_072),
                 () -> showArtworkLicensePage(returnToWelcome)), innerRow());
         modal.addView(infoNavigationRow("OpenStreetMap · ODbL 1.0",
-                t("Map data · © OpenStreetMap contributors",
-                        "Kartendaten · © OpenStreetMap-Mitwirkende"),
+                t(R.string.ui_073),
                 () -> showOsmLicensePage(returnToWelcome)), innerRow());
 
-        Button close = welcomeActionButton(t("Close", "Schließen"), false);
+        Button close = welcomeActionButton(t(R.string.ui_074), false);
         close.setOnClickListener(view -> {
             if (returnToWelcome) {
                 showWelcomePage();
@@ -891,9 +856,7 @@ public final class MainActivity extends Activity {
         heading.setPadding(dp(4), dp(2), dp(4), dp(6));
         modal.addView(heading, innerRow());
 
-        TextView note = text(t(
-                "The bundled English GPL text is the authoritative GPL text. Original K2040-authored GPL code also carries the separate section 7(b) attribution-preservation term requiring 'Copyright (c) 2026 K2040.' GoGoGo-derived and other third-party material retain their own notices.",
-                "Der enthaltene englische GPL-Text ist der maßgebliche GPL-Text. Originaler, von K2040 verfasster GPL-Code trägt zusätzlich die separate §7(b)-Namensnennungsklausel mit dem Hinweis 'Copyright (c) 2026 K2040.' Von GoGoGo abgeleitetes und sonstiges Drittmaterial behält seine eigenen Hinweise."),
+        TextView note = text(t(R.string.ui_075),
                 10, palette.textDim, false);
         note.setPadding(dp(4), 0, dp(4), dp(6));
         modal.addView(note, innerRow());
@@ -908,7 +871,7 @@ public final class MainActivity extends Activity {
         modal.addView(scroller, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
-        Button close = welcomeActionButton(t("Close", "Schließen"), false);
+        Button close = welcomeActionButton(t(R.string.ui_076), false);
         close.setOnClickListener(view -> showLicensePage(returnToWelcome));
         LinearLayout.LayoutParams closeParams = new LinearLayout.LayoutParams(dp(140), dp(48));
         closeParams.gravity = Gravity.CENTER_HORIZONTAL;
@@ -924,26 +887,24 @@ public final class MainActivity extends Activity {
         FrameLayout stage = modalStage();
         LinearLayout modal = modalCard(dp(16), dp(14));
 
-        TextView heading = text(t("K2040 artwork · CC BY 4.0", "K2040-Grafik · CC BY 4.0"), 22, palette.text, true);
+        TextView heading = text(t(R.string.ui_077), 22, palette.text, true);
         heading.setPadding(dp(4), dp(2), dp(4), dp(8));
         modal.addView(heading, innerRow());
 
-        TextView body = text(t(
-                "Original artwork and UI artwork authored by K2040 and identified by project provenance is licensed under Creative Commons Attribution 4.0 International (CC BY 4.0).\n\nWhen sharing covered artwork, credit K2040, identify CC BY 4.0, link to the licence where reasonably practicable, and indicate modifications. Third-party and upstream assets are excluded and retain their own terms.",
-                "Originale Grafiken und UI-Grafiken, die von K2040 erstellt und durch die Projekt-Provenienz ausgewiesen sind, stehen unter Creative Commons Attribution 4.0 International (CC BY 4.0).\n\nBei Weitergabe der erfassten Grafiken ist K2040 zu nennen, CC BY 4.0 anzugeben, soweit praktikabel auf die Lizenz zu verlinken und auf Änderungen hinzuweisen. Dritt- und Upstream-Assets sind ausgenommen und behalten ihre eigenen Bedingungen."),
+        TextView body = text(t(R.string.ui_078),
                 12, palette.text, false);
         body.setLineSpacing(0, 1.1f);
         body.setPadding(dp(4), dp(2), dp(4), dp(8));
         modal.addView(body, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
-        Button official = welcomeActionButton(t("Open official license", "Offizielle Lizenz öffnen"), false);
+        Button official = welcomeActionButton(t(R.string.ui_079), false);
         official.setOnClickListener(view -> openExternalUrl("https://creativecommons.org/licenses/by/4.0/legalcode"));
         LinearLayout.LayoutParams officialParams = new LinearLayout.LayoutParams(dp(210), dp(48));
         officialParams.gravity = Gravity.CENTER_HORIZONTAL;
         modal.addView(official, officialParams);
 
-        Button close = welcomeActionButton(t("Close", "Schließen"), false);
+        Button close = welcomeActionButton(t(R.string.ui_080), false);
         close.setOnClickListener(view -> showLicensePage(returnToWelcome));
         LinearLayout.LayoutParams closeParams = new LinearLayout.LayoutParams(dp(140), dp(48));
         closeParams.gravity = Gravity.CENTER_HORIZONTAL;
@@ -966,22 +927,20 @@ public final class MainActivity extends Activity {
         heading.setPadding(dp(4), dp(2), dp(4), dp(6));
         modal.addView(heading, innerRow());
 
-        TextView body = text(t(
-                "GeoJoystick's built-in map loads tiles from OpenStreetMap only when the map is used. Map data is © OpenStreetMap contributors and is made available under the Open Data Commons Open Database License (ODbL) 1.0.\n\nThe map keeps visible contributor attribution. The official OpenStreetMap copyright and licensing page contains the maintained details and any additional notices that apply to the tile service.",
-                "Die integrierte GeoJoystick-Karte lädt Kacheln von OpenStreetMap nur, wenn die Karte verwendet wird. Kartendaten sind © OpenStreetMap-Mitwirkende und werden unter der Open Data Commons Open Database License (ODbL) 1.0 bereitgestellt.\n\nDie Karte behält die sichtbare Mitwirkenden-Nennung bei. Die offizielle OpenStreetMap-Seite zu Urheberrecht und Lizenzierung enthält die gepflegten Details und zusätzliche Hinweise, die für den Kacheldienst gelten."),
+        TextView body = text(t(R.string.ui_081),
                 12, palette.text, false);
         body.setLineSpacing(0, 1.1f);
         body.setPadding(dp(4), dp(2), dp(4), dp(8));
         modal.addView(body, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
-        Button official = welcomeActionButton(t("Open official details", "Offizielle Details öffnen"), false);
+        Button official = welcomeActionButton(t(R.string.ui_082), false);
         official.setOnClickListener(view -> openExternalUrl("https://www.openstreetmap.org/copyright"));
         LinearLayout.LayoutParams officialParams = new LinearLayout.LayoutParams(dp(210), dp(48));
         officialParams.gravity = Gravity.CENTER_HORIZONTAL;
         modal.addView(official, officialParams);
 
-        Button close = welcomeActionButton(t("Close", "Schließen"), false);
+        Button close = welcomeActionButton(t(R.string.ui_083), false);
         close.setOnClickListener(view -> showLicensePage(returnToWelcome));
         LinearLayout.LayoutParams closeParams = new LinearLayout.LayoutParams(dp(140), dp(48));
         closeParams.gravity = Gravity.CENTER_HORIZONTAL;
@@ -996,37 +955,31 @@ public final class MainActivity extends Activity {
         FrameLayout stage = modalStage();
         LinearLayout modal = modalCard(dp(16), dp(14));
 
-        TextView heading = text(t("Sources", "Quellen"), 24, palette.text, true);
+        TextView heading = text(t(R.string.ui_084), 24, palette.text, true);
         heading.setPadding(dp(4), dp(2), dp(4), dp(8));
         modal.addView(heading, innerRow());
 
-        TextView intro = text(t(
-                "External projects and material GeoJoystick builds on or uses directly.",
-                "Externe Projekte und Materialien, auf denen GeoJoystick aufbaut oder die direkt verwendet werden."),
+        TextView intro = text(t(R.string.ui_085),
                 11, palette.text, false);
         intro.setLineSpacing(0, 1.08f);
         intro.setPadding(dp(4), 0, dp(4), dp(8));
         modal.addView(intro, innerRow());
 
         modal.addView(infoNavigationRow("GoGoGo / 影梭",
-                t("Original upstream project · ZCShou and contributors",
-                        "Ursprüngliches Upstream-Projekt · ZCShou und Mitwirkende"),
+                t(R.string.ui_086),
                 () -> openExternalUrl("https://github.com/ZCShou/GoGoGo")), innerRow());
         modal.addView(infoNavigationRow("OpenStreetMap",
-                t("Map tiles and data · © OpenStreetMap contributors",
-                        "Kartenkacheln und -daten · © OpenStreetMap-Mitwirkende"),
+                t(R.string.ui_087),
                 () -> openExternalUrl("https://www.openstreetmap.org/copyright")), innerRow());
 
-        TextView provenance = text(t(
-                "GeoJoystick is a GPL-3.0-only derivative informed by GoGoGo. Its mock-location service and joystick movement design were adapted and substantially simplified. GoGoGo-derived material keeps its upstream GPLv3 attribution; the K2040 §7(b) term applies only to K2040-authored GPL material. Proprietary Baidu SDK components and advertising are not included.",
-                "GeoJoystick ist ein GPL-3.0-only-Derivat, das auf GoGoGo aufbaut. Mock-Standort-Dienst und Joystick-Bewegungsdesign wurden angepasst und deutlich vereinfacht. Von GoGoGo abgeleitetes Material behält seine GPLv3-Upstream-Namensnennung; die K2040-§7(b)-Klausel gilt nur für von K2040 verfasstes GPL-Material. Proprietäre Baidu-SDK-Komponenten und Werbung sind nicht enthalten."),
+        TextView provenance = text(t(R.string.ui_088),
                 10, palette.textDim, false);
         provenance.setLineSpacing(0, 1.08f);
         provenance.setPadding(dp(4), dp(8), dp(4), dp(4));
         modal.addView(provenance, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
-        Button close = welcomeActionButton(t("Close", "Schließen"), false);
+        Button close = welcomeActionButton(t(R.string.ui_089), false);
         close.setOnClickListener(view -> showAboutPage());
         LinearLayout.LayoutParams closeParams = new LinearLayout.LayoutParams(dp(140), dp(48));
         closeParams.gravity = Gravity.CENTER_HORIZONTAL;
@@ -1110,7 +1063,7 @@ public final class MainActivity extends Activity {
         row.setBackground(GeoUi.surface(this, palette));
         row.setClickable(true);
         row.setFocusable(true);
-        row.setContentDescription(title + ". " + subtitle + ". " + t("Open", "Öffnen"));
+        row.setContentDescription(title + ". " + subtitle + ". " + t(R.string.ui_090));
         row.setOnClickListener(view -> action.run());
 
         LinearLayout labels = new LinearLayout(this);
@@ -1134,11 +1087,9 @@ public final class MainActivity extends Activity {
         trust.setOrientation(LinearLayout.VERTICAL);
         trust.setPadding(dp(14), dp(12), dp(14), dp(12));
         trust.setBackground(GeoUi.rounded(this, palette.accentSoft, 14, palette.accent, 1));
-        TextView headline = text(t("Local · No account · No unnecessary tracking",
-                "Lokal · Kein Konto · Kein unnötiges Tracking"), 12, palette.text, true);
+        TextView headline = text(t(R.string.ui_091), 12, palette.text, true);
         trust.addView(headline);
-        TextView detail = text(t("Coordinates and settings stay on your device. No analytics and no account system.",
-                "Koordinaten und Einstellungen bleiben auf deinem Gerät. Keine Analysen und kein Kontosystem."),
+        TextView detail = text(t(R.string.ui_092),
                 10, palette.textDim, false);
         detail.setPadding(0, dp(4), 0, 0);
         trust.addView(detail);
@@ -1148,7 +1099,7 @@ public final class MainActivity extends Activity {
     private LinearLayout welcomeNavigationRow(String title, Runnable action) {
         LinearLayout row = welcomeRowHeader(title, "›");
         row.setBackground(GeoUi.surface(this, palette));
-        row.setContentDescription(title + ". " + t("Open", "Öffnen"));
+        row.setContentDescription(title + ". " + t(R.string.ui_093));
         row.setOnClickListener(view -> action.run());
         return row;
     }
@@ -1199,13 +1150,7 @@ public final class MainActivity extends Activity {
     }
 
     private String welcomeAboutText() {
-        return t(
-                "Transparent mock-location joystick for Android developer and emulator testing.\n\n"
-                        + "Local-first · No account · No ads · No analytics · No tracking\n"
-                        + "Coordinates and settings stay on your device.",
-                "Transparenter Mock-Standort-Joystick für Android-Entwicklung und Emulator-Tests.\n\n"
-                        + "Lokal · Kein Konto · Keine Werbung · Keine Analysen · Kein Tracking\n"
-                        + "Koordinaten und Einstellungen bleiben auf deinem Gerät.");
+        return t(R.string.ui_094);
     }
 
     private Button infoRow(String title, String subtitle, Runnable action) {
@@ -1240,7 +1185,7 @@ public final class MainActivity extends Activity {
         LinearLayout row = new LinearLayout(this);
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setMinimumHeight(dp(48));
-        row.setPadding(dp(12), 0, dp(12), 0);
+        row.setPadding(dp(12), dp(4), dp(12), dp(4));
         row.setBackground(GeoUi.surface(this, palette));
         row.setClickable(true);
         row.setFocusable(true);
@@ -1249,15 +1194,19 @@ public final class MainActivity extends Activity {
 
         TextView label = text(title, 13, palette.text, false);
         label.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-        label.setSingleLine(true);
-        row.addView(label, new LinearLayout.LayoutParams(
-                0, dp(48), 1f));
+        label.setSingleLine(false);
+        label.setMaxLines(2);
+        LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        labelParams.rightMargin = dp(8);
+        row.addView(label, labelParams);
 
         TextView state = text(value, 12, valueColor, true);
         state.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
         state.setSingleLine(true);
         row.addView(state, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, dp(48)));
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
 
         return row;
     }
@@ -1270,7 +1219,7 @@ public final class MainActivity extends Activity {
     private LinearLayout pageHeader(String title, Runnable backAction) {
         LinearLayout header = new LinearLayout(this);
         header.setGravity(Gravity.CENTER_VERTICAL);
-        Button back = GeoUi.iconButton(this, palette, "‹", t("Back", "Zurück"));
+        Button back = GeoUi.iconButton(this, palette, "‹", t(R.string.ui_095));
         back.setOnClickListener(view -> backAction.run());
         header.addView(back, new LinearLayout.LayoutParams(dp(48), dp(48)));
         TextView heading = text(title, 22, palette.text, true);
@@ -1281,30 +1230,40 @@ public final class MainActivity extends Activity {
     }
 
     private void chooseAppearance() {
-        String[] labels = new String[]{t("System default", "Systemstandard"), t("Light", "Hell"), t("Dark", "Dunkel")};
+        String[] labels = new String[]{t(R.string.ui_096), t(R.string.ui_097), t(R.string.ui_098)};
         String[] values = new String[]{GeoSettings.APPEARANCE_SYSTEM, GeoSettings.APPEARANCE_LIGHT, GeoSettings.APPEARANCE_DARK};
         appDialogBuilder()
-                .setTitle(t("Appearance", "Darstellung"))
+                .setTitle(t(R.string.ui_099))
                 .setSingleChoiceItems(labels, indexOf(values, settings.appearance()), (dialog, which) -> {
                     settings.setAppearance(values[which]);
                     dialog.dismiss();
                     refreshUiSettings();
                 })
-                .setNegativeButton(t("Cancel", "Abbrechen"), null)
+                .setNegativeButton(t(R.string.ui_100), null)
                 .show();
     }
 
     private void chooseLanguage() {
-        String[] labels = new String[]{"System default", "English", "Deutsch"};
-        String[] values = new String[]{GeoSettings.LANGUAGE_SYSTEM, GeoSettings.LANGUAGE_ENGLISH, GeoSettings.LANGUAGE_GERMAN};
+        String[] labels = new String[]{
+                t(R.string.language_system_default), t(R.string.language_english),
+                t(R.string.language_german), t(R.string.language_french),
+                t(R.string.language_spanish), t(R.string.language_italian),
+                t(R.string.language_dutch), t(R.string.language_danish),
+                t(R.string.language_swedish), t(R.string.language_norwegian_bokmal)};
+        String[] values = new String[]{
+                GeoSettings.LANGUAGE_SYSTEM, GeoSettings.LANGUAGE_ENGLISH,
+                GeoSettings.LANGUAGE_GERMAN, GeoSettings.LANGUAGE_FRENCH,
+                GeoSettings.LANGUAGE_SPANISH, GeoSettings.LANGUAGE_ITALIAN,
+                GeoSettings.LANGUAGE_DUTCH, GeoSettings.LANGUAGE_DANISH,
+                GeoSettings.LANGUAGE_SWEDISH, GeoSettings.LANGUAGE_NORWEGIAN_BOKMAL};
         appDialogBuilder()
-                .setTitle(t("Language", "Sprache"))
+                .setTitle(t(R.string.ui_101))
                 .setSingleChoiceItems(labels, indexOf(values, settings.language()), (dialog, which) -> {
                     settings.setLanguage(values[which]);
                     dialog.dismiss();
                     refreshUiSettings();
                 })
-                .setNegativeButton(t("Cancel", "Abbrechen"), null)
+                .setNegativeButton(t(R.string.ui_102), null)
                 .show();
     }
 
@@ -1343,16 +1302,23 @@ public final class MainActivity extends Activity {
 
     private String appearanceLabel() {
         String value = settings.appearance();
-        if (GeoSettings.APPEARANCE_DARK.equals(value)) return t("Dark", "Dunkel");
-        if (GeoSettings.APPEARANCE_LIGHT.equals(value)) return t("Light", "Hell");
-        return t("System", "System");
+        if (GeoSettings.APPEARANCE_DARK.equals(value)) return t(R.string.ui_103);
+        if (GeoSettings.APPEARANCE_LIGHT.equals(value)) return t(R.string.ui_104);
+        return t(R.string.ui_105);
     }
 
     private String languageLabel() {
         String value = settings.language();
-        if (GeoSettings.LANGUAGE_ENGLISH.equals(value)) return "English";
-        if (GeoSettings.LANGUAGE_GERMAN.equals(value)) return "Deutsch";
-        return t("System", "System");
+        if (GeoSettings.LANGUAGE_ENGLISH.equals(value)) return t(R.string.language_english);
+        if (GeoSettings.LANGUAGE_GERMAN.equals(value)) return t(R.string.language_german);
+        if (GeoSettings.LANGUAGE_FRENCH.equals(value)) return t(R.string.language_french);
+        if (GeoSettings.LANGUAGE_SPANISH.equals(value)) return t(R.string.language_spanish);
+        if (GeoSettings.LANGUAGE_ITALIAN.equals(value)) return t(R.string.language_italian);
+        if (GeoSettings.LANGUAGE_DUTCH.equals(value)) return t(R.string.language_dutch);
+        if (GeoSettings.LANGUAGE_DANISH.equals(value)) return t(R.string.language_danish);
+        if (GeoSettings.LANGUAGE_SWEDISH.equals(value)) return t(R.string.language_swedish);
+        if (GeoSettings.LANGUAGE_NORWEGIAN_BOKMAL.equals(value)) return t(R.string.language_norwegian_bokmal);
+        return t(R.string.language_system_default);
     }
 
     private void toggleRestoreLastPosition() {
@@ -1371,8 +1337,7 @@ public final class MainActivity extends Activity {
 
     private void resetOverlayPosition() {
         settings.resetOverlayPosition();
-        toast(t("Overlay position reset for next show",
-                "Overlay-Position für die nächste Anzeige zurückgesetzt"), false);
+        toast(t(R.string.ui_107), false);
     }
 
     private void toggleHighContrast() {
@@ -1384,16 +1349,16 @@ public final class MainActivity extends Activity {
         LinearLayout form = new LinearLayout(this);
         form.setOrientation(LinearLayout.VERTICAL);
         form.setPadding(dp(8), 0, dp(8), 0);
-        EditText name = textInput(t("Name", "Name"), settings.customSpeedName());
-        EditText speed = coordinateInput(t("Speed in m/s", "Geschwindigkeit in m/s"), settings.customSpeed());
+        EditText name = textInput(t(R.string.ui_108), settings.customSpeedName());
+        EditText speed = coordinateInput(t(R.string.ui_109), settings.customSpeed());
         form.addView(name, innerRow());
         form.addView(speed, innerRow());
 
         AlertDialog dialog = appDialogBuilder()
-                .setTitle(t("Custom speed", "Eigene Geschwindigkeit"))
+                .setTitle(t(R.string.ui_110))
                 .setView(form)
-                .setPositiveButton(t("Save", "Speichern"), null)
-                .setNegativeButton(t("Cancel", "Abbrechen"), null)
+                .setPositiveButton(t(R.string.ui_111), null)
+                .setNegativeButton(t(R.string.ui_112), null)
                 .create();
         dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(view -> {
@@ -1403,12 +1368,12 @@ public final class MainActivity extends Activity {
                             throw new NumberFormatException("speed");
                         }
                         String label = name.getText().toString().trim();
-                        if (label.isEmpty()) label = "Custom";
+                        if (label.isEmpty()) label = t(R.string.custom_speed_default);
                         settings.setCustomSpeed(label, value);
                         dialog.dismiss();
                         showSettingsPage();
                     } catch (NumberFormatException exception) {
-                        toast(t("Enter a valid speed", "Gib eine gültige Geschwindigkeit ein"), false);
+                        toast(t(R.string.ui_113), false);
                     }
                 }));
         dialog.show();
@@ -1416,12 +1381,12 @@ public final class MainActivity extends Activity {
 
     private void updateOverlaySizeLabel(TextView label, int sizePercent) {
         label.setText(String.format(Locale.US,
-                t("Overlay size: %d%%", "Overlay-Größe: %d%%"), sizePercent));
+                t(R.string.ui_114), sizePercent));
     }
 
     private void updateOpacityLabel(TextView label, int opacity) {
         label.setText(String.format(Locale.US,
-                t("Overlay opacity: %d%%", "Overlay-Deckkraft: %d%%"), opacity));
+                t(R.string.ui_115), opacity));
     }
 
     private void chooseFavoriteSlot() {
@@ -1429,12 +1394,12 @@ public final class MainActivity extends Activity {
         String[] slots = new String[GeoSettings.FAVORITE_COUNT];
         for (int i = 0; i < slots.length; i++) {
             GeoSettings.Favorite favorite = settings.favorite(i);
-            slots[i] = favorite == null ? t("Favorite ", "Favorit ") + (i + 1) : favorite.name;
+            slots[i] = favorite == null ? settings.text(R.string.ui_116, i + 1) : favorite.name;
         }
         appDialogBuilder()
-                .setTitle(t("Choose favorite slot", "Favoritenplatz wählen"))
+                .setTitle(t(R.string.ui_117))
                 .setItems(slots, (dialog, which) -> editFavorite(which, false))
-                .setNegativeButton(t("Cancel", "Abbrechen"), null)
+                .setNegativeButton(t(R.string.ui_118), null)
                 .show();
     }
 
@@ -1445,7 +1410,7 @@ public final class MainActivity extends Activity {
             return;
         }
         setCoordinates(favorite.latitude, favorite.longitude, favorite.altitude);
-        toast(t("Favorite loaded into coordinate fields", "Favorit in Koordinatenfelder geladen"), false);
+        toast(t(R.string.ui_119), false);
     }
 
     private void editFavorite(int slot, boolean useSaved) {
@@ -1454,26 +1419,26 @@ public final class MainActivity extends Activity {
         double latitude = useSaved && saved != null ? saved.latitude : safeLatitude();
         double longitude = useSaved && saved != null ? saved.longitude : safeLongitude();
         double altitude = useSaved && saved != null ? saved.altitude : safeAltitude();
-        String initialName = useSaved && saved != null ? saved.name : t("Favorite ", "Favorit ") + (slot + 1);
+        String initialName = useSaved && saved != null ? saved.name : settings.text(R.string.ui_120, slot + 1);
 
         LinearLayout form = new LinearLayout(this);
         form.setOrientation(LinearLayout.VERTICAL);
         form.setPadding(dp(8), 0, dp(8), 0);
-        EditText name = textInput(t("Favorite name", "Favoritenname"), initialName);
-        EditText lat = coordinateInput(t("Latitude", "Breitengrad"), latitude);
-        EditText lng = coordinateInput(t("Longitude", "Längengrad"), longitude);
-        EditText alt = coordinateInput(t("Altitude (m)", "Höhe (m)"), altitude);
+        EditText name = textInput(t(R.string.ui_121), initialName);
+        EditText lat = coordinateInput(t(R.string.ui_122), latitude);
+        EditText lng = coordinateInput(t(R.string.ui_123), longitude);
+        EditText alt = coordinateInput(t(R.string.ui_124), altitude);
         form.addView(name, innerRow());
         form.addView(lat, innerRow());
         form.addView(lng, innerRow());
         form.addView(alt, innerRow());
 
         AlertDialog dialog = appDialogBuilder()
-                .setTitle(t("Favorite ", "Favorit ") + (slot + 1))
+                .setTitle(settings.text(R.string.ui_125, slot + 1))
                 .setView(form)
-                .setPositiveButton(t("Save", "Speichern"), null)
-                .setNegativeButton(t("Cancel", "Abbrechen"), null)
-                .setNeutralButton(t("Clear", "Leeren"), null)
+                .setPositiveButton(t(R.string.ui_126), null)
+                .setNegativeButton(t(R.string.ui_127), null)
+                .setNeutralButton(t(R.string.ui_128), null)
                 .create();
         dialog.setOnShowListener(ignored -> {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
@@ -1485,12 +1450,12 @@ public final class MainActivity extends Activity {
                         throw new NumberFormatException("coordinates");
                     }
                     String favoriteName = name.getText().toString().trim();
-                    if (favoriteName.isEmpty()) favoriteName = t("Favorite ", "Favorit ") + (slot + 1);
+                    if (favoriteName.isEmpty()) favoriteName = settings.text(R.string.ui_129, slot + 1);
                     settings.saveFavorite(slot, favoriteName, favoriteLat, favoriteLng, favoriteAlt);
                     refreshFavoriteButtons();
                     dialog.dismiss();
                 } catch (NumberFormatException exception) {
-                    toast(t("Enter valid favorite coordinates", "Gib gültige Favoriten-Koordinaten ein"), false);
+                    toast(t(R.string.ui_130), false);
                 }
             });
             dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(view -> {
@@ -1507,16 +1472,16 @@ public final class MainActivity extends Activity {
             Button button = favoriteButtons[i];
             if (button == null) continue;
             GeoSettings.Favorite favorite = settings.favorite(i);
-            String name = favorite == null ? t("Fav ", "Fav ") + (i + 1) : favorite.name;
+            String name = favorite == null ? settings.text(R.string.ui_131, i + 1) : favorite.name;
             button.setText(name.length() > 13 ? name.substring(0, 13) : name);
             button.setContentDescription(favorite == null
-                    ? t("Empty favorite ", "Leerer Favorit ") + (i + 1)
+                    ? settings.text(R.string.ui_132, i + 1)
                     : favorite.name);
         }
     }
 
     private Button favoriteButton(int slot) {
-        Button button = GeoUi.button(this, palette, t("Fav ", "Fav ") + (slot + 1), false);
+        Button button = GeoUi.button(this, palette, settings.text(R.string.ui_133, slot + 1), false);
         button.setTextSize(11);
         button.setSingleLine(true);
         return button;
@@ -1536,12 +1501,12 @@ public final class MainActivity extends Activity {
     private void importFromClipboard() {
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         if (clipboard == null || !clipboard.hasPrimaryClip()) {
-            toast(t("Clipboard is empty", "Zwischenablage ist leer"), false);
+            toast(t(R.string.ui_134), false);
             return;
         }
         ClipData clip = clipboard.getPrimaryClip();
         if (clip == null || clip.getItemCount() == 0) {
-            toast(t("Clipboard is empty", "Zwischenablage ist leer"), false);
+            toast(t(R.string.ui_135), false);
             return;
         }
         CharSequence text = clip.getItemAt(0).coerceToText(this);
@@ -1561,29 +1526,26 @@ public final class MainActivity extends Activity {
 
     private void importLocationText(String value) {
         if (value == null || value.trim().isEmpty()) {
-            toast(t("No location link found", "Kein Standortlink gefunden"), false);
+            toast(t(R.string.ui_136), false);
             return;
         }
         int requestId = ++importRequestId;
-        toast(t("Reading location link…", "Standortlink wird gelesen…"), false);
+        toast(t(R.string.ui_137), false);
         new Thread(() -> {
             double[] coordinates = LocationLinkParser.resolveCoordinates(value);
             runOnUiThread(() -> {
                 if (requestId != importRequestId || isFinishing() || isDestroyed()) return;
                 if (coordinates == null) {
-                    toast(t("Could not extract coordinates from that link",
-                            "Aus diesem Link konnten keine Koordinaten gelesen werden"), true);
+                    toast(t(R.string.ui_138), true);
                     return;
                 }
                 if (!setHorizontalCoordinates(coordinates[0], coordinates[1])) {
-                    toast(t("The imported coordinates were invalid",
-                            "Die importierten Koordinaten waren ungültig"), true);
+                    toast(t(R.string.ui_139), true);
                     return;
                 }
                 toast(Double.isFinite(safeAltitude())
-                        ? t("Coordinates imported", "Koordinaten importiert")
-                        : t("Coordinates imported. Enter an altitude before starting.",
-                                "Koordinaten importiert. Gib vor dem Start eine Höhe ein."), true);
+                        ? t(R.string.ui_140)
+                        : t(R.string.ui_141), true);
             });
         }, "MapLinkResolver-" + requestId).start();
     }
@@ -1597,13 +1559,11 @@ public final class MainActivity extends Activity {
         }
         if (!isSelectedMockLocationApp()) {
             appDialogBuilder()
-                    .setTitle(t("Select GeoJoystick", "GeoJoystick auswählen"))
-                    .setMessage(t(
-                            "In Developer options, choose GeoJoystick under Select mock location app, then return here.",
-                            "Wähle in den Entwickleroptionen GeoJoystick unter Mock-Standort-App auswählen und kehre dann hierher zurück."))
-                    .setPositiveButton(t("Open settings", "Einstellungen öffnen"),
+                    .setTitle(t(R.string.ui_142))
+                    .setMessage(t(R.string.ui_143))
+                    .setPositiveButton(t(R.string.ui_144),
                             (dialog, which) -> openDeveloperSettings())
-                    .setNegativeButton(t("Cancel", "Abbrechen"),
+                    .setNegativeButton(t(R.string.ui_145),
                             (dialog, which) -> pendingStart = false)
                     .show();
             return;
@@ -1617,8 +1577,7 @@ public final class MainActivity extends Activity {
         double longitude = safeLongitude();
         double altitude = safeAltitude();
         if (!GeoSettings.validCoordinates(latitude, longitude, altitude)) {
-            toast(t("Enter valid latitude, longitude, and altitude",
-                    "Gib gültige Werte für Breitengrad, Längengrad und Höhe ein"), true);
+            toast(t(R.string.ui_146), true);
             return;
         }
         settings.saveManualCoordinates(latitude, longitude, altitude);
@@ -1630,10 +1589,10 @@ public final class MainActivity extends Activity {
                 .putExtra(MockLocationService.EXTRA_ALTITUDE, altitude);
         try {
             startForegroundService(intent);
-            toast(t("GeoJoystick start requested", "GeoJoystick-Start angefordert"), false);
+            toast(t(R.string.ui_147), false);
             scheduleStatusRefresh();
         } catch (RuntimeException exception) {
-            toast(t("GeoJoystick could not be started", "GeoJoystick konnte nicht gestartet werden"), true);
+            toast(t(R.string.ui_148), true);
             updateStatus();
         }
     }
@@ -1642,10 +1601,10 @@ public final class MainActivity extends Activity {
         Intent intent = new Intent(this, MockLocationService.class).setAction(MockLocationService.ACTION_STOP);
         try {
             startService(intent);
-            toast(t("GeoJoystick stop requested", "GeoJoystick-Stopp angefordert"), false);
+            toast(t(R.string.ui_149), false);
             scheduleStatusRefresh();
         } catch (RuntimeException exception) {
-            toast(t("GeoJoystick could not be stopped", "GeoJoystick konnte nicht gestoppt werden"), true);
+            toast(t(R.string.ui_150), true);
             updateStatus();
         }
     }
@@ -1663,16 +1622,16 @@ public final class MainActivity extends Activity {
         boolean overlayGranted = Settings.canDrawOverlays(this);
         boolean starting = MockLocationService.isSimulationStarting();
         boolean active = MockLocationService.isSimulationActive();
-        setStatus(mockStatus, mockSelected ? t("Selected", "Ausgewählt") : t("Not selected", "Nicht ausgewählt"),
+        setStatus(mockStatus, mockSelected ? t(R.string.ui_151) : t(R.string.ui_152),
                 mockSelected ? palette.success : palette.danger);
-        setStatus(overlayStatus, overlayGranted ? t("Granted", "Erteilt") : t("Not granted", "Nicht erteilt"),
+        setStatus(overlayStatus, overlayGranted ? t(R.string.ui_153) : t(R.string.ui_154),
                 overlayGranted ? palette.success : palette.danger);
         if (active) {
-            setStatus(simulationStatus, t("Active", "Aktiv"), palette.success);
+            setStatus(simulationStatus, t(R.string.ui_155), palette.success);
         } else if (starting) {
-            setStatus(simulationStatus, t("Starting", "Wird gestartet"), palette.warning);
+            setStatus(simulationStatus, t(R.string.ui_156), palette.warning);
         } else {
-            setStatus(simulationStatus, t("Inactive", "Inaktiv"), palette.accent);
+            setStatus(simulationStatus, t(R.string.ui_157), palette.accent);
         }
 
         if (simulationStartButton != null) {
@@ -1766,8 +1725,7 @@ public final class MainActivity extends Activity {
         double longitude = safeLongitude();
         double altitude = safeAltitude();
         if (GeoSettings.validCoordinates(latitude, longitude, altitude)) return true;
-        toast(t("Enter valid latitude, longitude, and altitude",
-                "Gib gültige Werte für Breitengrad, Längengrad und Höhe ein"), true);
+        toast(t(R.string.ui_158), true);
         return false;
     }
 
@@ -1897,7 +1855,7 @@ public final class MainActivity extends Activity {
         row.setGravity(Gravity.CENTER_VERTICAL);
         TextView name = text(label, 13, palette.text, false);
         name.setGravity(Gravity.CENTER_VERTICAL);
-        TextView value = text(t("Checking…", "Wird geprüft…"), 12, palette.textDim, true);
+        TextView value = text(t(R.string.ui_159), 12, palette.textDim, true);
         value.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
         row.addView(name, new LinearLayout.LayoutParams(0, dp(42), 1f));
         row.addView(value, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(42)));
@@ -1936,9 +1894,7 @@ public final class MainActivity extends Activity {
     }
 
     private LinearLayout.LayoutParams tileWeight() {
-        LinearLayout.LayoutParams params = GeoUi.weighted(this, 2);
-        params.height = dp(60);
-        return params;
+        return GeoUi.weighted(this, 2);
     }
 
     private AlertDialog.Builder appDialogBuilder() {
@@ -1947,34 +1903,11 @@ public final class MainActivity extends Activity {
     }
 
     private String changelogText() {
-        return t(
-                "• Redesigned Home, Settings, and overlay controls with clearer status and compact mode.\n"
-                        + "• Improved simulation recovery, restore-last-position, and invalid-input handling.\n"
-                        + "• Added onboarding plus About, Changelog, License & usage, and Sources screens.\n"
-                        + "• Expanded map-link parsing and map picker reliability.\n"
-                        + "• Improved accessibility, large-font behavior, and touch targets.\n"
-                        + "• Added the new GeoJoystick mascot/launcher identity and Android 16/API 36 back-navigation support.\n\n"
-                        + "0.1.3\n"
-                        + "• Dialogs now follow the selected dark theme.\n"
-                        + "• GeoJoystick now uses a dedicated icon in store listings.\n\n"
-                        + "0.1.0\n"
-                        + "• Initial public release with coordinate and altitude entry, map selection and link import, favorites, appearance and language settings, and floating joystick controls.",
-                "• Startseite, Einstellungen und Overlay-Steuerung wurden mit klarerem Status und besserem Kompaktmodus überarbeitet.\n"
-                        + "• Simulations-Wiederherstellung, letzte Position und Fehlerbehandlung wurden verbessert.\n"
-                        + "• Onboarding sowie Info-, Änderungsverlauf-, Lizenz- und Quellenansichten wurden ergänzt.\n"
-                        + "• Kartenlink-Import und Kartenwahl wurden robuster.\n"
-                        + "• Barrierefreiheit, große Schrift und Touch-Ziele wurden verbessert.\n"
-                        + "• Neues GeoJoystick-Maskottchen/App-Symbol und Android-16/API-36-Zurücknavigation.\n\n"
-                        + "0.1.3\n"
-                        + "• Dialoge folgen nun dem ausgewählten dunklen Design.\n"
-                        + "• GeoJoystick verwendet nun ein eigenes Symbol in Store-Einträgen.\n\n"
-                        + "0.1.0\n"
-                        + "• Erste öffentliche Version mit Koordinaten- und Höheneingabe, Kartenauswahl und Linkimport, Favoriten, Darstellungs- und Spracheinstellungen sowie schwebender Joystick-Steuerung.");
+        return t(R.string.ui_160);
     }
 
     private String supportDisclosureText() {
-        return t("Donations are entirely optional. They do not unlock features or provide any additional benefits.",
-                "Spenden sind vollständig freiwillig. Sie schalten keine Funktionen frei und bieten keinerlei zusätzliche Vorteile.");
+        return t(R.string.ui_161);
     }
 
     private String readAssetText(String name) {
@@ -1984,8 +1917,7 @@ public final class MainActivity extends Activity {
             String line;
             while ((line = reader.readLine()) != null) builder.append(line).append('\n');
         } catch (IOException exception) {
-            return t("License text is unavailable in this build.",
-                    "Der Lizenztext ist in diesem Build nicht verfügbar.");
+            return t(R.string.ui_162);
         }
         return builder.toString();
     }
@@ -2014,7 +1946,7 @@ public final class MainActivity extends Activity {
         try {
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
         } catch (RuntimeException exception) {
-            toast(t("No browser app available", "Keine Browser-App verfügbar"), false);
+            toast(t(R.string.ui_163), false);
         }
     }
 
@@ -2037,8 +1969,8 @@ public final class MainActivity extends Activity {
         Toast.makeText(this, value, longDuration ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT).show();
     }
 
-    private String t(String english, String germanText) {
-        return german ? germanText : english;
+    private String t(int resourceId) {
+        return settings.text(resourceId);
     }
 
     private int dp(int value) {

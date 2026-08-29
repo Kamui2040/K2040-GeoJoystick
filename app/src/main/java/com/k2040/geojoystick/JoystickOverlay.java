@@ -36,9 +36,6 @@ final class JoystickOverlay {
     private static final String PREF_OVERLAY_HIGH_CONTRAST = "overlay_high_contrast";
     private static final String PREF_CUSTOM_SPEED = "overlay_custom_speed";
     private static final String PREF_CUSTOM_SPEED_NAME = "overlay_custom_speed_name";
-    private static final String PREF_LANGUAGE = "app_language";
-    private static final String LANGUAGE_SYSTEM = "system";
-    private static final String LANGUAGE_GERMAN = "de";
 
     private static final String SPEED_WALK = "walk";
     private static final String SPEED_RUN = "run";
@@ -134,18 +131,19 @@ final class JoystickOverlay {
         dragHandle.setTextSize(13);
         dragHandle.setGravity(Gravity.CENTER_VERTICAL);
         dragHandle.setPadding(dp(4), 0, dp(6), 0);
-        dragHandle.setContentDescription(t("Move GeoJoystick overlay", "GeoJoystick-Overlay verschieben"));
+        dragHandle.setContentDescription(t(R.string.ui_178));
         dragHandle.setOnTouchListener(new DragListener());
         titleRow.addView(dragHandle, new LinearLayout.LayoutParams(0, dp(48), 1f));
 
         toggleModeButton = controlButton("−", 10);
-        toggleModeButton.setContentDescription(t("Switch to compact overlay", "Zum kompakten Overlay wechseln"));
+        toggleModeButton.setContentDescription(t(R.string.ui_179));
         toggleModeButton.setOnClickListener(view -> toggleOverlayMode());
         toggleModeButton.setOnTouchListener(new DragListener());
         titleRow.addView(toggleModeButton, new LinearLayout.LayoutParams(dp(48), dp(48)));
         root.addView(titleRow, new LinearLayout.LayoutParams(dp(200), dp(48)));
 
         joystickView = new JoystickView(context);
+        joystickView.setAccessibilityDescription(t(R.string.joystick_accessibility));
         joystickView.setHighContrast(highContrast);
         joystickView.setOverlayOpacity(overlayOpacityPercent);
         joystickView.setListener((east, north) -> {
@@ -163,10 +161,10 @@ final class JoystickOverlay {
 
         speedRow = new LinearLayout(context);
         speedRow.setGravity(Gravity.CENTER);
-        walkButton = iconButton(ICON_WALK, t("Walk speed", "Gehgeschwindigkeit"));
-        runButton = iconButton(ICON_RUN, t("Run speed", "Laufgeschwindigkeit"));
-        bikeButton = iconButton(ICON_BIKE, t("Bike speed", "Fahrradgeschwindigkeit"));
-        customButton = iconButton(ICON_GAUGE, t("Custom speed", "Eigene Geschwindigkeit"));
+        walkButton = iconButton(ICON_WALK, t(R.string.ui_180));
+        runButton = iconButton(ICON_RUN, t(R.string.ui_181));
+        bikeButton = iconButton(ICON_BIKE, t(R.string.ui_182));
+        customButton = iconButton(ICON_GAUGE, t(R.string.ui_183));
         walkButton.setOnClickListener(view -> setSpeed(SPEED_WALK));
         runButton.setOnClickListener(view -> setSpeed(SPEED_RUN));
         bikeButton.setOnClickListener(view -> setSpeed(SPEED_BIKE));
@@ -180,10 +178,10 @@ final class JoystickOverlay {
         controlRow = new LinearLayout(context);
         controlRow.setGravity(Gravity.CENTER);
         pauseButton = iconButton(ICON_PLAY_PAUSE,
-                t("Movement active; tap to pause", "Bewegung aktiv; zum Pausieren tippen"));
-        holdButton = iconButton(ICON_LOCK, t("Enable hold", "Halten aktivieren"));
+                t(R.string.ui_184));
+        holdButton = iconButton(ICON_LOCK, t(R.string.ui_185));
         stopButton = iconButton(ICON_STOP,
-                t("Stop GeoJoystick service and close overlay", "GeoJoystick-Dienst stoppen und Overlay schließen"));
+                t(R.string.ui_186));
         pauseButton.setOnClickListener(view -> togglePause());
         holdButton.setOnClickListener(view -> toggleHold());
         stopButton.setOnClickListener(view -> stopMovement());
@@ -242,6 +240,18 @@ final class JoystickOverlay {
         });
     }
 
+    void refreshLocalizedText() {
+        dragHandle.setContentDescription(t(R.string.ui_178));
+        joystickView.setAccessibilityDescription(t(R.string.joystick_accessibility));
+        walkButton.setContentDescription(t(R.string.ui_180));
+        runButton.setContentDescription(t(R.string.ui_181));
+        bikeButton.setContentDescription(t(R.string.ui_182));
+        stopButton.setContentDescription(t(R.string.ui_186));
+        updateSpeedButtonStates();
+        updateToggleStates();
+        applyOverlayMode();
+    }
+
     private void setSpeed(String kind) {
         selectedSpeedKind = kind;
         currentSpeed = speedForKind(kind);
@@ -285,8 +295,8 @@ final class JoystickOverlay {
         coordinateText.setVisibility(expanded);
         toggleModeButton.setText(compactMode ? "+" : "−");
         toggleModeButton.setContentDescription(compactMode
-                ? t("Switch to expanded overlay", "Zum erweiterten Overlay wechseln")
-                : t("Switch to compact overlay", "Zum kompakten Overlay wechseln"));
+                ? t(R.string.ui_187)
+                : t(R.string.ui_188));
         styleToggleButton();
 
         LinearLayout.LayoutParams toggleParams = (LinearLayout.LayoutParams) toggleModeButton.getLayoutParams();
@@ -345,24 +355,25 @@ final class JoystickOverlay {
         styleIconButton(runButton, SPEED_RUN.equals(selectedSpeedKind));
         styleIconButton(bikeButton, SPEED_BIKE.equals(selectedSpeedKind));
         styleIconButton(customButton, SPEED_CUSTOM.equals(selectedSpeedKind));
-        customButton.setContentDescription(t("Custom speed: ", "Eigene Geschwindigkeit: ") + customSpeedName());
+        customButton.setContentDescription(
+                new GeoSettings(context).text(R.string.ui_189, customSpeedName()));
     }
 
     private void updateToggleStates() {
         pauseButton.setContentDescription(paused
-                ? t("Movement paused; tap to resume", "Bewegung pausiert; zum Fortsetzen tippen")
-                : t("Movement active; tap to pause", "Bewegung aktiv; zum Pausieren tippen"));
+                ? t(R.string.ui_190)
+                : t(R.string.ui_191));
         styleIconButton(pauseButton, !paused);
         holdButton.setContentDescription(holdEnabled
-                ? t("Disable hold", "Halten deaktivieren")
-                : t("Enable hold", "Halten aktivieren"));
+                ? t(R.string.ui_192)
+                : t(R.string.ui_193));
         styleIconButton(holdButton, holdEnabled);
         styleIconButton(stopButton, false);
     }
 
     private void updateCoordinateText() {
         if (!Double.isFinite(currentLatitude) || !Double.isFinite(currentLongitude)) {
-            coordinateText.setText(t("Position unavailable", "Position nicht verfügbar"));
+            coordinateText.setText(t(R.string.ui_194));
             return;
         }
         coordinateText.setText(String.format(Locale.US,
@@ -405,15 +416,13 @@ final class JoystickOverlay {
     }
 
     private String customSpeedName() {
-        String name = preferences.getString(PREF_CUSTOM_SPEED_NAME, "Custom");
-        return name == null || name.trim().isEmpty() ? "Custom" : name.trim();
+        String fallback = new GeoSettings(context).text(R.string.custom_speed_default);
+        String name = preferences.getString(PREF_CUSTOM_SPEED_NAME, fallback);
+        return name == null || name.trim().isEmpty() ? fallback : name.trim();
     }
 
-    private String t(String english, String germanText) {
-        String language = preferences.getString(PREF_LANGUAGE, LANGUAGE_SYSTEM);
-        boolean german = LANGUAGE_GERMAN.equals(language)
-                || (LANGUAGE_SYSTEM.equals(language) && Locale.getDefault().getLanguage().equals("de"));
-        return german ? germanText : english;
+    private String t(int resourceId) {
+        return new GeoSettings(context).text(resourceId);
     }
 
     private boolean loadStyleSettings(boolean force) {
