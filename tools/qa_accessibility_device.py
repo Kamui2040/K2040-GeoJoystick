@@ -400,6 +400,28 @@ class SafeHarness(impl.Harness):
             or node.class_name.endswith("ImageView")
         )
 
+    @staticmethod
+    def _touch_bounds_are_scroll_clipped(
+        node: impl.UiNode,
+        app_nodes: list[impl.UiNode],
+    ) -> bool:
+        """UIAutomator clips descendants to ScrollView visible bounds."""
+        for ancestor in app_nodes:
+            if not impl.is_ancestor(ancestor.path, node.path):
+                continue
+            if not ancestor.class_name.endswith("ScrollView"):
+                continue
+            outer = ancestor.bounds
+            inner = node.bounds
+            if (
+                inner.left <= outer.left
+                or inner.top <= outer.top
+                or inner.right >= outer.right
+                or inner.bottom >= outer.bottom
+            ):
+                return True
+        return False
+
     def analyze(
         self,
         snap: impl.Snapshot,
@@ -452,7 +474,12 @@ class SafeHarness(impl.Harness):
             if self._touch_target_candidate(node):
                 width_dp = bounds.width / density_scale
                 height_dp = bounds.height / density_scale
-                if width_dp < 47.0 or height_dp < 47.0:
+                if (
+                    (width_dp < 47.0 or height_dp < 47.0)
+                    and not self._touch_bounds_are_scroll_clipped(
+                        node, app_nodes
+                    )
+                ):
                     self.findings.append(
                         impl.Finding(
                             scenario.key,
@@ -717,6 +744,39 @@ def adapter_self_test() -> None:
     assert not any(
         finding.code == "touch-target"
         and "Stop simulation" in finding.detail
+        for finding in harness.findings
+    )
+
+    harness.findings.clear()
+    scroll = impl.UiNode(
+        path=(0,),
+        text="",
+        desc="",
+        class_name="android.widget.ScrollView",
+        package=args.package,
+        clickable=False,
+        enabled=True,
+        bounds=impl.Bounds(0, 0, 1080, 2000),
+        child_count=1,
+    )
+    clipped_button = impl.UiNode(
+        path=(0, 0),
+        text="▶",
+        desc="Start simulation",
+        class_name="android.widget.Button",
+        package=args.package,
+        clickable=True,
+        enabled=True,
+        bounds=impl.Bounds(800, 1900, 944, 2000),
+        child_count=0,
+    )
+    harness.analyze(
+        impl.Snapshot(1080, 2400, 480, [scroll, clipped_button]),
+        scenario,
+        "main-status",
+    )
+    assert not any(
+        finding.code == "touch-target"
         for finding in harness.findings
     )
 

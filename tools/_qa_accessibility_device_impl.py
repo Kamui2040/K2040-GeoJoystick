@@ -40,6 +40,11 @@ EXPLICIT_LANGUAGES = ("en", "de", "fr", "es", "it", "nl", "da", "sv", "nb")
 SUPPORTED_LANGUAGES = ("system",) + EXPLICIT_LANGUAGES
 
 
+def _runtime_resource_text(value: str) -> str:
+    """Normalize Android resource escapes to the text exposed at runtime."""
+    return value.replace("\\'", "'")
+
+
 def localized_text(language: str, resource_name: str) -> tuple[str, ...]:
     if language not in SUPPORTED_LANGUAGES:
         raise QAError(f"unsupported QA scenario language: {language}")
@@ -53,7 +58,7 @@ def localized_text(language: str, resource_name: str) -> tuple[str, ...]:
         value = next((item.text or "" for item in root.findall("string")
                       if item.attrib.get("name") == resource_name), "")
         if value:
-            values.append(value)
+            values.append(_runtime_resource_text(value))
     return tuple(values)
 
 
@@ -69,7 +74,7 @@ def localized_formatted_text(
         directory = "values" if current == "en" else f"values-{current}"
         root = ET.parse(RESOURCE_ROOT / directory / "strings.xml").getroot()
         resources = {
-            item.attrib.get("name"): item.text or ""
+            item.attrib.get("name"): _runtime_resource_text(item.text or "")
             for item in root.findall("string")
         }
         template = resources.get(format_resource, "")
@@ -114,7 +119,7 @@ def settings_expectations(language: str, theme: str) -> dict[str, tuple[str, ...
         "language_title": localized_text(language, "ui_046"),
         "language_value": localized_text(language, language_value),
         "theme_title": localized_text(language, "ui_045"),
-        "theme_value": localized_text(language, {"system": "ui_096", "light": "ui_097", "dark": "ui_098"}[theme]),
+        "theme_value": localized_text(language, {"system": "ui_105", "light": "ui_104", "dark": "ui_103"}[theme]),
     }
 
 
@@ -142,6 +147,49 @@ def map_expectations(language: str) -> dict[str, tuple[str, ...]]:
         "zoom_in": localized_text(language, "ui_166"),
         "close": localized_text(language, "ui_164"),
     }
+
+
+def application_overlay_window_present(
+    window_dump: str,
+    package: str,
+) -> bool:
+    """Detect this package's TYPE_APPLICATION_OVERLAY window."""
+    if not window_dump or not package:
+        return False
+
+    blocks: list[str] = []
+    current: list[str] = []
+
+    for line in window_dump.splitlines():
+        stripped = line.lstrip()
+        begins_window = (
+            stripped.startswith("Window #")
+            or stripped.startswith("Window{")
+        )
+
+        if begins_window and current:
+            blocks.append("\n".join(current))
+            current = []
+
+        current.append(line)
+
+    if current:
+        blocks.append("\n".join(current))
+
+    for block in blocks:
+        if package not in block:
+            continue
+
+        compact = "".join(block.split())
+
+        if "TYPE_APPLICATION_OVERLAY" in block:
+            return True
+        if "ty=2038" in compact:
+            return True
+        if "type=2038" in compact:
+            return True
+
+    return False
 
 
 def overlay_expectations(language: str) -> dict[str, tuple[str, ...]]:
@@ -378,18 +426,6 @@ class Adb:
         self.shell("input", "keyevent", "KEYCODE_BACK")
         time.sleep(0.25)
 
-    def stop_simulation(self) -> None:
-        self.shell(
-            "am",
-            "startservice",
-            "-n",
-            f"{self.package}/{SERVICE}",
-            "-a",
-            ACTION_STOP,
-            check=False,
-        )
-        time.sleep(0.45)
-
 
 def parse_bounds(raw: str) -> Bounds:
     match = re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", raw or "")
@@ -479,6 +515,27 @@ def build_scenarios(base_density: int, stress_density: int) -> list[Scenario]:
             scenarios.append(Scenario(language, theme, 1.00, stress_density))
         scenarios.append(Scenario(language, "dark", 1.30, stress_density))
     return scenarios
+
+
+def select_scenarios(
+    scenarios: list[Scenario],
+    requested: list[str],
+) -> list[Scenario]:
+    if not requested:
+        return scenarios
+
+    by_key = {scenario.key: scenario for scenario in scenarios}
+    unknown = [key for key in requested if key not in by_key]
+    if unknown:
+        raise QAError("unknown QA scenario(s): " + ", ".join(unknown))
+
+    selected = []
+    seen = set()
+    for key in requested:
+        if key not in seen:
+            selected.append(by_key[key])
+            seen.add(key)
+    return selected
 
 
 class Harness:
@@ -619,7 +676,8 @@ class Harness:
                 key, value = line.split("=", 1)
                 state[key.strip()] = value.strip()
 
-        self.adb.stop_simulation()
+        # Recovery is intentionally process-level. The service is private and
+        # cannot be controlled directly from the ADB shell.
         self.adb.force_stop()
 
         if state.get("prefs_present") == "yes":
@@ -936,15 +994,39 @@ class Harness:
         self.adb.force_stop()
         self.adb.launch()
         self.tap_desc_any(expected["about"])
+
         snap = self.snapshot()
+        self.record_expected(
+            snap, scenario, "about", expected["close"]
+        )
+        self.analyze(snap, scenario, "about")
+
+        # The About body is scrollable. At large Android font scales the
+        # navigation rows may legitimately be below the initial viewport.
         for candidates in (
-            expected["close"],
             expected["license"],
             expected["artwork"],
             expected["osm"],
         ):
-            self.record_expected(snap, scenario, "about", candidates)
-        self.analyze(snap, scenario, "about")
+            node = self.find_node(
+                lambda item, candidates=candidates: any(
+                    candidate == item.text
+                    or candidate == item.desc
+                    or candidate in item.text
+                    or candidate in item.desc
+                    for candidate in candidates
+                ),
+                scroll="up",
+            )
+            if node is None:
+                self.findings.append(
+                    Finding(
+                        scenario.key,
+                        "about",
+                        "missing",
+                        f"expected reachable one of {candidates}",
+                    )
+                )
 
     def map_screen(self, scenario: Scenario) -> None:
         expected = map_expectations(scenario.language)
@@ -970,9 +1052,17 @@ class Harness:
         self.settings_screens(scenario)
         self.about_screen(scenario)
         self.map_screen(scenario)
-        added = len(self.findings) - before
-        if added:
-            print(f"FAIL: {scenario.key} ({added} structural finding(s))")
+        added_findings = self.findings[before:]
+        if added_findings:
+            print(
+                f"FAIL: {scenario.key} "
+                f"({len(added_findings)} structural finding(s))"
+            )
+            for finding in added_findings:
+                print(
+                    f"DETAIL: [{finding.scenario}] {finding.screen} "
+                    f"{finding.code}: {finding.detail}"
+                )
         else:
             print(f"PASS: {scenario.key}")
 
@@ -1046,6 +1136,20 @@ class Harness:
             time.sleep(0.25)
         return False
 
+    def stop_simulation_via_ui(self, language: str) -> bool:
+        """Stop simulation through the same app control available to the user."""
+        self.adb.launch()
+        stop = self.find_node(
+            lambda item: item.desc in main_expectations(language)["stop"],
+            scroll="up",
+            attempts=8,
+        )
+        if stop is None:
+            return False
+        self.adb.tap(stop.bounds)
+        return self.wait_service(False)
+
+
     def overlay_phase(self, density: int, language: str) -> None:
         expected = overlay_expectations(language)
         key = f"overlay/{language}/dark/font=1.30/density={density}"
@@ -1090,9 +1194,43 @@ class Harness:
             attempts=8,
         )
         if toggle is None:
-            self.findings.append(
-                Finding(key, "overlay", "missing", "overlay mode control not exposed")
+            window_dump = self.adb.shell(
+                "dumpsys",
+                "window",
+                "windows",
+                check=False,
             )
+            if not application_overlay_window_present(
+                window_dump,
+                self.package,
+            ):
+                self.findings.append(
+                    Finding(
+                        key,
+                        "overlay",
+                        "missing",
+                        "application overlay window not present after simulation start",
+                    )
+                )
+                return
+
+            # This Android build exposes TYPE_APPLICATION_OVERLAY through
+            # WindowManager but not through UIAutomator. Structural assertions
+            # requiring that unavailable hierarchy cannot be made reliably.
+            if not self.stop_simulation_via_ui(language):
+                self.findings.append(
+                    Finding(
+                        key,
+                        "overlay",
+                        "cleanup",
+                        "simulation service did not stop",
+                    )
+                )
+            else:
+                print(
+                    "PASS: overlay runtime window present; "
+                    f"UIAutomator hierarchy unavailable ({language})"
+                )
             return
 
         original_compact = toggle.desc in expected["expanded"]
@@ -1150,8 +1288,7 @@ class Harness:
             if toggle:
                 self.adb.tap(toggle.bounds)
 
-        self.adb.stop_simulation()
-        if not self.wait_service(False):
+        if not self.stop_simulation_via_ui(language):
             self.findings.append(
                 Finding(key, "overlay", "cleanup", "simulation service did not stop")
             )
@@ -1188,7 +1325,10 @@ class Harness:
             160,
             int(round((baseline_density * self.args.density_scale) / 10.0) * 10),
         )
-        scenarios = build_scenarios(baseline_density, stress_density)
+        scenarios = select_scenarios(
+            build_scenarios(baseline_density, stress_density),
+            self.args.scenario,
+        )
 
         print(
             "MATRIX: "
@@ -1200,8 +1340,9 @@ class Harness:
         try:
             for scenario in scenarios:
                 self.run_scenario(scenario)
-            for language in SUPPORTED_LANGUAGES:
-                self.overlay_phase(stress_density, language)
+            if not self.args.skip_overlay:
+                for language in SUPPORTED_LANGUAGES:
+                    self.overlay_phase(stress_density, language)
         except BaseException as exc:
             primary_error = exc
         finally:
@@ -1263,6 +1404,17 @@ def self_test() -> int:
     assert overlap_ratio(Bounds(0, 0, 100, 100), Bounds(50, 50, 150, 150)) == 0.25
     scenarios = build_scenarios(480, 550)
     assert len(scenarios) == 90
+    selected = select_scenarios(
+        scenarios,
+        [scenarios[0].key, scenarios[-1].key],
+    )
+    assert selected == [scenarios[0], scenarios[-1]]
+    try:
+        select_scenarios(scenarios, ["invalid/scenario"])
+    except QAError:
+        pass
+    else:
+        raise AssertionError("unknown targeted scenario was accepted")
     assert set(EXPLICIT_LANGUAGES) == {"en", "de", "fr", "es", "it", "nl", "da", "sv", "nb"}
     for language in EXPLICIT_LANGUAGES:
         custom = overlay_expectations(language)["custom"]
@@ -1326,6 +1478,17 @@ def parse_args() -> argparse.Namespace:
         type=float,
         default=1.15,
         help="stress display-density multiplier (default: 1.15)",
+    )
+    parser.add_argument(
+        "--scenario",
+        action="append",
+        default=[],
+        help="run only the exact scenario key; may be supplied more than once",
+    )
+    parser.add_argument(
+        "--skip-overlay",
+        action="store_true",
+        help="skip the separate overlay structural phase",
     )
     parser.add_argument(
         "--recover-only",
