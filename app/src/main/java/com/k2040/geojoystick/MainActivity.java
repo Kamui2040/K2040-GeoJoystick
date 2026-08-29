@@ -1244,18 +1244,15 @@ public final class MainActivity extends Activity {
     }
 
     private void chooseLanguage() {
-        String[] labels = new String[]{
-                t(R.string.language_system_default), t(R.string.language_english),
-                t(R.string.language_german), t(R.string.language_french),
-                t(R.string.language_spanish), t(R.string.language_italian),
-                t(R.string.language_dutch), t(R.string.language_danish),
-                t(R.string.language_swedish), t(R.string.language_norwegian_bokmal)};
-        String[] values = new String[]{
-                GeoSettings.LANGUAGE_SYSTEM, GeoSettings.LANGUAGE_ENGLISH,
-                GeoSettings.LANGUAGE_GERMAN, GeoSettings.LANGUAGE_FRENCH,
-                GeoSettings.LANGUAGE_SPANISH, GeoSettings.LANGUAGE_ITALIAN,
-                GeoSettings.LANGUAGE_DUTCH, GeoSettings.LANGUAGE_DANISH,
-                GeoSettings.LANGUAGE_SWEDISH, GeoSettings.LANGUAGE_NORWEGIAN_BOKMAL};
+        String[] values = GeoSettings.languageValues();
+        int[] labelResources = GeoSettings.languageLabelResources();
+        if (values.length != labelResources.length) {
+            throw new IllegalStateException("Language configuration mismatch");
+        }
+        String[] labels = new String[labelResources.length];
+        for (int index = 0; index < labelResources.length; index++) {
+            labels[index] = t(labelResources[index]);
+        }
         appDialogBuilder()
                 .setTitle(t(R.string.ui_101))
                 .setSingleChoiceItems(labels, indexOf(values, settings.language()), (dialog, which) -> {
@@ -1308,17 +1305,7 @@ public final class MainActivity extends Activity {
     }
 
     private String languageLabel() {
-        String value = settings.language();
-        if (GeoSettings.LANGUAGE_ENGLISH.equals(value)) return t(R.string.language_english);
-        if (GeoSettings.LANGUAGE_GERMAN.equals(value)) return t(R.string.language_german);
-        if (GeoSettings.LANGUAGE_FRENCH.equals(value)) return t(R.string.language_french);
-        if (GeoSettings.LANGUAGE_SPANISH.equals(value)) return t(R.string.language_spanish);
-        if (GeoSettings.LANGUAGE_ITALIAN.equals(value)) return t(R.string.language_italian);
-        if (GeoSettings.LANGUAGE_DUTCH.equals(value)) return t(R.string.language_dutch);
-        if (GeoSettings.LANGUAGE_DANISH.equals(value)) return t(R.string.language_danish);
-        if (GeoSettings.LANGUAGE_SWEDISH.equals(value)) return t(R.string.language_swedish);
-        if (GeoSettings.LANGUAGE_NORWEGIAN_BOKMAL.equals(value)) return t(R.string.language_norwegian_bokmal);
-        return t(R.string.language_system_default);
+        return t(GeoSettings.languageLabelResource(settings.language()));
     }
 
     private void toggleRestoreLastPosition() {

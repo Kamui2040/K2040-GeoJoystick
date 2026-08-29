@@ -36,7 +36,18 @@ UI_DUMP_PATH = "/data/local/tmp/geojoystick_issue10_ui.xml"
 SYNTHETIC_COORDS = ("12.345678", "45.678901", "42.0")
 ROOT = Path(__file__).resolve().parents[1]
 RESOURCE_ROOT = ROOT / "app/src/main/res"
-EXPLICIT_LANGUAGES = ("en", "de", "fr", "es", "it", "nl", "da", "sv", "nb")
+LANGUAGE_RESOURCE_NAMES = {
+    "en": "language_english",
+    "de": "language_german",
+    "fr": "language_french",
+    "es": "language_spanish",
+    "it": "language_italian",
+    "nl": "language_dutch",
+    "da": "language_danish",
+    "sv": "language_swedish",
+    "nb": "language_norwegian_bokmal",
+}
+EXPLICIT_LANGUAGES = tuple(LANGUAGE_RESOURCE_NAMES)
 SUPPORTED_LANGUAGES = ("system",) + EXPLICIT_LANGUAGES
 
 
@@ -106,12 +117,11 @@ def settings_expectations(language: str, theme: str) -> dict[str, tuple[str, ...
         raise QAError(f"unsupported QA scenario language: {language}")
     if theme not in {"system", "light", "dark"}:
         raise QAError(f"unsupported QA scenario theme: {theme}")
-    language_value = {
-        "system": "language_system_default", "en": "language_english",
-        "de": "language_german", "fr": "language_french", "es": "language_spanish",
-        "it": "language_italian", "nl": "language_dutch", "da": "language_danish",
-        "sv": "language_swedish", "nb": "language_norwegian_bokmal",
-    }[language]
+    language_value = (
+        "language_system_default"
+        if language == "system"
+        else LANGUAGE_RESOURCE_NAMES[language]
+    )
     return {
         "settings": localized_text(language, "ui_026"),
         "mock_location": localized_text(language, "ui_028"),
@@ -1415,6 +1425,7 @@ def self_test() -> int:
         pass
     else:
         raise AssertionError("unknown targeted scenario was accepted")
+    assert set(EXPLICIT_LANGUAGES) == set(LANGUAGE_RESOURCE_NAMES)
     assert set(EXPLICIT_LANGUAGES) == {"en", "de", "fr", "es", "it", "nl", "da", "sv", "nb"}
     for language in EXPLICIT_LANGUAGES:
         custom = overlay_expectations(language)["custom"]

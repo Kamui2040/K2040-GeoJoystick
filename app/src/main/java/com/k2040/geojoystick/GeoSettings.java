@@ -49,6 +49,33 @@ final class GeoSettings {
     static final String LANGUAGE_DANISH = "da";
     static final String LANGUAGE_SWEDISH = "sv";
     static final String LANGUAGE_NORWEGIAN_BOKMAL = "nb";
+
+    private static final String[] LANGUAGE_VALUES = new String[]{
+            LANGUAGE_SYSTEM,
+            LANGUAGE_ENGLISH,
+            LANGUAGE_GERMAN,
+            LANGUAGE_FRENCH,
+            LANGUAGE_SPANISH,
+            LANGUAGE_ITALIAN,
+            LANGUAGE_DUTCH,
+            LANGUAGE_DANISH,
+            LANGUAGE_SWEDISH,
+            LANGUAGE_NORWEGIAN_BOKMAL
+    };
+
+    private static final int[] LANGUAGE_LABEL_RESOURCES = new int[]{
+            R.string.language_system_default,
+            R.string.language_english,
+            R.string.language_german,
+            R.string.language_french,
+            R.string.language_spanish,
+            R.string.language_italian,
+            R.string.language_dutch,
+            R.string.language_danish,
+            R.string.language_swedish,
+            R.string.language_norwegian_bokmal
+    };
+
     static final int FAVORITE_COUNT = 5;
 
     static final class Favorite {
@@ -132,17 +159,26 @@ final class GeoSettings {
     }
 
     static boolean isSupportedLanguage(String value) {
-        return value != null && Arrays.asList(
-                LANGUAGE_SYSTEM,
-                LANGUAGE_ENGLISH,
-                LANGUAGE_GERMAN,
-                LANGUAGE_FRENCH,
-                LANGUAGE_SPANISH,
-                LANGUAGE_ITALIAN,
-                LANGUAGE_DUTCH,
-                LANGUAGE_DANISH,
-                LANGUAGE_SWEDISH,
-                LANGUAGE_NORWEGIAN_BOKMAL).contains(value);
+        return value != null && Arrays.asList(LANGUAGE_VALUES).contains(value);
+    }
+
+    static String[] languageValues() {
+        return LANGUAGE_VALUES.clone();
+    }
+
+    static int[] languageLabelResources() {
+        return LANGUAGE_LABEL_RESOURCES.clone();
+    }
+
+    static int languageLabelResource(String value) {
+        if (value != null) {
+            for (int index = 0; index < LANGUAGE_VALUES.length; index++) {
+                if (LANGUAGE_VALUES[index].equals(value)) {
+                    return LANGUAGE_LABEL_RESOURCES[index];
+                }
+            }
+        }
+        return R.string.language_system_default;
     }
 
     boolean welcomeAcknowledged() {
