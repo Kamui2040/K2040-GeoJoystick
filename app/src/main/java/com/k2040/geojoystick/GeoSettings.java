@@ -49,6 +49,8 @@ final class GeoSettings {
     static final String LANGUAGE_DANISH = "da";
     static final String LANGUAGE_SWEDISH = "sv";
     static final String LANGUAGE_NORWEGIAN_BOKMAL = "nb";
+    static final String LANGUAGE_POLISH = "pl";
+    static final String LANGUAGE_TURKISH = "tr";
 
     private static final String[] LANGUAGE_VALUES = new String[]{
             LANGUAGE_SYSTEM,
@@ -60,7 +62,9 @@ final class GeoSettings {
             LANGUAGE_DUTCH,
             LANGUAGE_DANISH,
             LANGUAGE_SWEDISH,
-            LANGUAGE_NORWEGIAN_BOKMAL
+            LANGUAGE_NORWEGIAN_BOKMAL,
+            LANGUAGE_POLISH,
+            LANGUAGE_TURKISH
     };
 
     private static final int[] LANGUAGE_LABEL_RESOURCES = new int[]{
@@ -73,7 +77,9 @@ final class GeoSettings {
             R.string.language_dutch,
             R.string.language_danish,
             R.string.language_swedish,
-            R.string.language_norwegian_bokmal
+            R.string.language_norwegian_bokmal,
+            R.string.language_polish,
+            R.string.language_turkish
     };
 
     static final int FAVORITE_COUNT = 5;

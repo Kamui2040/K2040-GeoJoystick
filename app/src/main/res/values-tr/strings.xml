@@ -1,0 +1,244 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">GeoJoystick</string>
+    <string name="ui_001">Harita geçerli koordinat döndürmedi</string>
+    <string name="ui_002">Harita geçersiz koordinatlar döndürdü</string>
+    <string name="ui_003">Konum seçildi. Başlatmadan önce rakım girin.</string>
+    <string name="ui_004">Durum</string>
+    <string name="ui_005">Sahte konum</string>
+    <string name="ui_006">Kaplama izni</string>
+    <string name="ui_007">Simülasyon</string>
+    <string name="ui_008">Durum daraltıldı. Genişletmek için dokunun</string>
+    <string name="ui_009">Durum genişletildi. Daraltmak için dokunun</string>
+    <string name="ui_010">Koordinatlar</string>
+    <string name="ui_011">Enlem</string>
+    <string name="ui_012">Boylam</string>
+    <string name="ui_013">Rakım (m)</string>
+    <string name="ui_014">Harita</string>
+    <string name="ui_015">Bağlantıyı yapıştır</string>
+    <string name="ui_016">Favori</string>
+    <string name="ui_017">Favoriler</string>
+    <string name="ui_018">Düzenlemek için dokunun · basılı tutun</string>
+    <string name="ui_019">Simülasyon</string>
+    <string name="ui_020">Simülasyonu başlat</string>
+    <string name="ui_021">Simülasyonu durdur</string>
+    <string name="ui_022">Açık kaynak · GPL-3.0-only · Önce yerel</string>
+    <string name="ui_023">GeoJoystick hakkında</string>
+    <string name="ui_024">Şeffaf sahte konum simülasyonu</string>
+    <string name="ui_025">Ayarlar</string>
+    <string name="ui_026">Ayarlar</string>
+    <string name="ui_027">Kurulum</string>
+    <string name="ui_028">Sahte konum</string>
+    <string name="ui_029">Seçildi</string>
+    <string name="ui_030">Seçilmedi</string>
+    <string name="ui_031">Kaplama izni</string>
+    <string name="ui_032">İzin verildi</string>
+    <string name="ui_033">İzin verilmedi</string>
+    <string name="ui_034">Kaplama konumunu sıfırla</string>
+    <string name="ui_035">Son konumu geri yükle</string>
+    <string name="ui_036">Açık</string>
+    <string name="ui_037">Kapalı</string>
+    <string name="ui_038">Davranış</string>
+    <string name="ui_039">Simülasyon hızı</string>
+    <string name="ui_040">Yüksek kontrastlı kaplama</string>
+    <string name="ui_041">Açık</string>
+    <string name="ui_042">Kapalı</string>
+    <string name="ui_043">Kaplama</string>
+    <string name="ui_044">Görünüm ve dil</string>
+    <string name="ui_045">Tema</string>
+    <string name="ui_046">Dil</string>
+    <string name="ui_047">K2040 avatarı</string>
+    <string name="ui_048">Hakkında sayfasını kapat</string>
+    <string name="ui_049">Android geliştirici ve emülatör testleri için şeffaf sahte konum joystick denetimi.</string>
+    <string name="ui_050">Yerel · önce çevrimdışı · hesap yok · reklam yok · analiz yok · izleme yok</string>
+    <string name="ui_051">Değişiklik günlüğü</string>
+    <string name="ui_052">Lisans ve kullanım</string>
+    <string name="ui_053">Kaynaklar</string>
+    <string name="ui_054">Ko-fi üzerinden destekle</string>
+    <string name="ui_055">Değişiklik günlüğü</string>
+    <string name="ui_056">Kapat</string>
+    <string name="ui_057">Değişiklik günlüğünü kapat</string>
+    <string name="ui_058">K2040 avatarı</string>
+    <string name="ui_059">Android geliştirici ve emülatör testleri için şeffaf sahte konum joystick denetimi. Yerel öncelikli; hesap, reklam, analiz veya izleme yok.</string>
+    <string name="ui_060">Uygulama kodu: GPL-3.0-only
+K2040 çizimleri: CC BY 4.0
+Harita verileri: © OpenStreetMap katkıda bulunanları · ODbL 1.0</string>
+    <string name="ui_061">Lisanslar: uygulama kodu GPL-3.0-only, K2040 çizimleri CC BY 4.0 ve OpenStreetMap ODbL 1.0. Lisans ayrıntılarını aç</string>
+    <string name="ui_062">Devam et</string>
+    <string name="ui_063">GeoJoystick uygulamasına devam et</string>
+    <string name="ui_064">Lisans ve kullanım</string>
+    <string name="ui_065">YEREL VERİ</string>
+    <string name="ui_066">Koordinatlar ve ayarlar bu cihazda kalır. Harita OpenStreetMap döşemelerini yalnızca açtığınızda alır; desteklenen bağlantı çözümleme sınırlı HTTPS istekleri kullanabilir. Hesap, analiz veya gizli yükleme yok.</string>
+    <string name="ui_067">LİSANSLAR</string>
+    <string name="ui_068">Güncel lisans ayrıntıları için bir girdiye dokunun.</string>
+    <string name="ui_069">Uygulama kodu GPL-3.0-only kapsamındadır. K2040 tarafından yazılan GPL kodu ayrıca bölüm 7(b) için ayrı bir atıf koşulu taşır. Özgün K2040 çizimleri CC BY 4.0 kapsamındadır. Üçüncü taraf materyaller kendi koşullarını korur.</string>
+    <string name="ui_070">Uygulama kodu · K2040 tarafından yazılan bölümler ayrıca §7(b) atıf şartını taşır</string>
+    <string name="ui_071">K2040 çizimleri · CC BY 4.0</string>
+    <string name="ui_072">Özgün K2040 ve arayüz çizimleri · atıf gerekli</string>
+    <string name="ui_073">Harita verileri · © OpenStreetMap katkıda bulunanları</string>
+    <string name="ui_074">Kapat</string>
+    <string name="ui_075">Birlikte gelen İngilizce GPL metni yetkili GPL metnidir. Özgün K2040 GPL kodu ayrıca “Copyright (c) 2026 K2040.” ifadesini gerektiren ayrı bölüm 7(b) atıf-koruma koşulunu taşır. GoGoGo türevi ve diğer üçüncü taraf materyaller kendi bildirimlerini korur.</string>
+    <string name="ui_076">Kapat</string>
+    <string name="ui_077">K2040 çizimleri · CC BY 4.0</string>
+    <string name="ui_078">K2040 tarafından hazırlanan ve proje kökeniyle belirtilen özgün çizimler ile arayüz çizimleri Creative Commons Attribution 4.0 International (CC BY 4.0) kapsamında lisanslanmıştır.
+
+Kapsanan çizimleri paylaşırken K2040 için atıf verin, CC BY 4.0 lisansını belirtin, makul olduğu yerde lisans bağlantısını ekleyin ve değişiklikleri belirtin. Üçüncü taraf ve üst proje varlıkları kapsam dışıdır ve kendi koşullarını korur.</string>
+    <string name="ui_079">Resmî lisansı aç</string>
+    <string name="ui_080">Kapat</string>
+    <string name="ui_081">GeoJoystick yerleşik haritası OpenStreetMap döşemelerini yalnızca harita kullanıldığında yükler. Harita verileri © OpenStreetMap katkıda bulunanları tarafından sağlanır ve Open Data Commons Open Database License (ODbL) 1.0 kapsamında sunulur.
+
+Harita görünür katkı atfını korur. Resmî OpenStreetMap telif ve lisans sayfasında güncel ayrıntılar ile döşeme hizmetine uygulanabilecek ek bildirimler bulunur.</string>
+    <string name="ui_082">Resmî ayrıntıları aç</string>
+    <string name="ui_083">Kapat</string>
+    <string name="ui_084">Kaynaklar</string>
+    <string name="ui_085">GeoJoystick tarafından doğrudan kullanılan veya temel alınan harici projeler ve materyaller.</string>
+    <string name="ui_086">Özgün üst proje · ZCShou ve katkıda bulunanlar</string>
+    <string name="ui_087">Harita döşemeleri ve verileri · © OpenStreetMap katkıda bulunanları</string>
+    <string name="ui_088">GeoJoystick, GoGoGo temel alınarak geliştirilmiş GPL-3.0-only türevidir. Sahte konum hizmeti ve joystick hareket tasarımı uyarlanmış ve önemli ölçüde sadeleştirilmiştir. GoGoGo türevi materyaller üst projenin GPLv3 atfını korur; K2040 §7(b) koşulu yalnızca K2040 tarafından yazılan GPL materyaline uygulanır. Tescilli Baidu SDK bileşenleri ve reklamlar dahil değildir.</string>
+    <string name="ui_089">Kapat</string>
+    <string name="ui_090">Aç</string>
+    <string name="ui_091">Yerel · Hesap yok · Gereksiz izleme yok</string>
+    <string name="ui_092">Koordinatlar ve ayarlar cihazınızda kalır. Analiz ve hesap sistemi yok.</string>
+    <string name="ui_093">Aç</string>
+    <string name="ui_094">Android geliştirici ve emülatör testleri için şeffaf sahte konum joystick denetimi.
+
+Önce yerel · Hesap yok · Reklam yok · Analiz yok · İzleme yok
+Koordinatlar ve ayarlar cihazınızda kalır.</string>
+    <string name="ui_095">Geri</string>
+    <string name="ui_096">Sistem varsayılanı</string>
+    <string name="ui_097">Açık</string>
+    <string name="ui_098">Koyu</string>
+    <string name="ui_099">Görünüm</string>
+    <string name="ui_100">İptal</string>
+    <string name="ui_101">Dil</string>
+    <string name="ui_102">İptal</string>
+    <string name="ui_103">Koyu</string>
+    <string name="ui_104">Açık</string>
+    <string name="ui_105">Sistem</string>
+    <string name="ui_106">Sistem</string>
+    <string name="ui_107">Kaplama konumu bir sonraki gösterimde sıfırlanacak</string>
+    <string name="ui_108">Ad</string>
+    <string name="ui_109">m/s cinsinden hız</string>
+    <string name="ui_110">Özel hız</string>
+    <string name="ui_111">Kaydet</string>
+    <string name="ui_112">İptal</string>
+    <string name="ui_113">Geçerli bir hız girin</string>
+    <string name="ui_114">Kaplama boyutu: %d%%</string>
+    <string name="ui_115">Kaplama opaklığı: %d%%</string>
+    <string name="ui_116">Favori %1$d</string>
+    <string name="ui_117">Favori yuvasını seç</string>
+    <string name="ui_118">İptal</string>
+    <string name="ui_119">Favori koordinat alanlarına yüklendi</string>
+    <string name="ui_120">Favori %1$d</string>
+    <string name="ui_121">Favori adı</string>
+    <string name="ui_122">Enlem</string>
+    <string name="ui_123">Boylam</string>
+    <string name="ui_124">Rakım (m)</string>
+    <string name="ui_125">Favori %1$d</string>
+    <string name="ui_126">Kaydet</string>
+    <string name="ui_127">İptal</string>
+    <string name="ui_128">Temizle</string>
+    <string name="ui_129">Favori %1$d</string>
+    <string name="ui_130">Geçerli favori koordinatları girin</string>
+    <string name="ui_131">Fv %1$d</string>
+    <string name="ui_132">Boş favori %1$d</string>
+    <string name="ui_133">Fv %1$d</string>
+    <string name="ui_134">Pano boş</string>
+    <string name="ui_135">Pano boş</string>
+    <string name="ui_136">Konum bağlantısı bulunamadı</string>
+    <string name="ui_137">Konum bağlantısı okunuyor…</string>
+    <string name="ui_138">Bu bağlantıdan koordinatlar çıkarılamadı</string>
+    <string name="ui_139">İçe aktarılan koordinatlar geçersizdi</string>
+    <string name="ui_140">Koordinatlar içe aktarıldı</string>
+    <string name="ui_141">Koordinatlar içe aktarıldı. Başlatmadan önce rakım girin.</string>
+    <string name="ui_142">GeoJoystick uygulamasını seç</string>
+    <string name="ui_143">Geliştirici seçeneklerinde Sahte konum uygulamasını seç bölümünden GeoJoystick uygulamasını seçin, ardından buraya dönün.</string>
+    <string name="ui_144">Ayarları aç</string>
+    <string name="ui_145">İptal</string>
+    <string name="ui_146">Geçerli enlem, boylam ve rakım girin</string>
+    <string name="ui_147">GeoJoystick başlatma istendi</string>
+    <string name="ui_148">GeoJoystick başlatılamadı</string>
+    <string name="ui_149">GeoJoystick durdurma istendi</string>
+    <string name="ui_150">GeoJoystick durdurulamadı</string>
+    <string name="ui_151">Seçildi</string>
+    <string name="ui_152">Seçilmedi</string>
+    <string name="ui_153">İzin verildi</string>
+    <string name="ui_154">İzin verilmedi</string>
+    <string name="ui_155">Etkin</string>
+    <string name="ui_156">Başlatılıyor</string>
+    <string name="ui_157">Etkin değil</string>
+    <string name="ui_158">Geçerli enlem, boylam ve rakım girin</string>
+    <string name="ui_159">Kontrol ediliyor…</string>
+    <string name="ui_160">• Ana ekran, Ayarlar ve kaplama denetimleri daha açık durum bilgisi ve kompakt mod için yeniden tasarlandı.
+• Simülasyon kurtarma, son konumu geri yükleme ve geçersiz giriş işleme geliştirildi.
+• İlk kullanım akışına ek olarak Hakkında, Değişiklik günlüğü, Lisans ve kullanım ve Kaynaklar ekranları eklendi.
+• Harita bağlantısı ayrıştırma ve harita seçicinin güvenilirliği geliştirildi.
+• Erişilebilirlik, büyük yazı tipi davranışı ve dokunma hedefleri iyileştirildi.
+• Yeni GeoJoystick maskotu ve başlatıcı kimliği ile Android 16/API 36 geri gezinme desteği eklendi.
+
+0.1.3
+• İletişim kutuları artık seçilen koyu temayı izler.
+• GeoJoystick artık mağaza listelerinde özel bir simge kullanır.
+
+0.1.0
+• Koordinat ve rakım girişi, harita seçimi ve bağlantı içe aktarma, favoriler, görünüm ve dil ayarları ve yüzen joystick denetimleriyle ilk genel sürüm.</string>
+    <string name="ui_161">Bağışlar tamamen isteğe bağlıdır. Özellik açmaz veya ek avantaj sağlamaz.</string>
+    <string name="ui_162">Lisans metni bu derlemede kullanılamıyor.</string>
+    <string name="ui_163">Kullanılabilir tarayıcı uygulaması yok</string>
+    <string name="ui_164">Harita seçimini iptal et</string>
+    <string name="ui_165">Konum seç</string>
+    <string name="ui_166">Konumu kullan</string>
+    <string name="ui_167">İşaretçiyi yerleştirmek için haritaya dokunun. Hiçbir konum otomatik olarak seçilmez.</string>
+    <string name="ui_168">Harita kullanılamıyor</string>
+    <string name="ui_169">Konum seçilmedi</string>
+    <string name="ui_170">%1$.6f, %2$.6f</string>
+    <string name="ui_171">Sahte konum hizmeti</string>
+    <string name="ui_172">Görünür sahte konum simülasyonunu etkin tutar.</string>
+    <string name="ui_173">Sahte konum simülasyonu etkin</string>
+    <string name="ui_174">Sahte konum simülasyonu başlatılıyor</string>
+    <string name="ui_175">Göster</string>
+    <string name="ui_176">Gizle</string>
+    <string name="ui_177">Durdur</string>
+    <string name="ui_178">GeoJoystick kaplamasını taşı</string>
+    <string name="ui_179">Kompakt kaplamaya geç</string>
+    <string name="ui_180">Yürüme hızı</string>
+    <string name="ui_181">Koşu hızı</string>
+    <string name="ui_182">Bisiklet hızı</string>
+    <string name="ui_183">Özel hız</string>
+    <string name="ui_184">Hareket etkin; duraklatmak için dokunun</string>
+    <string name="ui_185">Sabitlemeyi etkinleştir</string>
+    <string name="ui_186">GeoJoystick hizmetini durdur ve kaplamayı kapat</string>
+    <string name="ui_187">Genişletilmiş kaplamaya geç</string>
+    <string name="ui_188">Kompakt kaplamaya geç</string>
+    <string name="ui_189">Özel hız: %1$s</string>
+    <string name="ui_190">Hareket duraklatıldı; sürdürmek için dokunun</string>
+    <string name="ui_191">Hareket etkin; duraklatmak için dokunun</string>
+    <string name="ui_192">Sabitlemeyi devre dışı bırak</string>
+    <string name="ui_193">Sabitlemeyi etkinleştir</string>
+    <string name="ui_194">Konum kullanılamıyor</string>
+    <string name="map_instruction">İşaretçiyi yerleştirmek için haritaya dokunun. Kaydırmak için sürükleyin.</string>
+    <string name="map_zoom_in">Yakınlaştır</string>
+    <string name="map_zoom_out">Uzaklaştır</string>
+    <string name="language_system_default">Sistem varsayılanı</string>
+    <string name="language_english">English</string>
+    <string name="language_german">Deutsch</string>
+    <string name="language_french">Français</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_italian">Italiano</string>
+    <string name="language_dutch">Nederlands</string>
+    <string name="language_danish">Dansk</string>
+    <string name="language_swedish">Svenska</string>
+    <string name="language_norwegian_bokmal">Norsk bokmål</string>
+    <string name="language_polish">Polski</string>
+    <string name="language_turkish">Türkçe</string>
+    <string name="custom_speed_default">Özel</string>
+    <string name="favorite_default">Favori %1$d</string>
+    <string name="service_invalid_start">Koordinatlar geçersiz olduğu için GeoJoystick başlatılmadı.</string>
+    <string name="service_not_active">GeoJoystick etkin değil.</string>
+    <string name="service_coordinates_rejected">Yeni koordinatlar reddedildi.</string>
+    <string name="service_no_provider">Hiçbir sahte konum sağlayıcısı konumu kabul etmediği için GeoJoystick durduruldu.</string>
+    <string name="service_publish_failed">Sahte konum yayımlama başarısız olduğu için GeoJoystick durduruldu.</string>
+    <string name="service_cannot_publish">GeoJoystick sahte konum yayımlayamadı. Geliştirici Seçeneklerini kontrol edin ve sahte konum uygulaması olarak GeoJoystick uygulamasını seçin.</string>
+    <string name="service_cannot_start">GeoJoystick ön plan simülasyon hizmetini başlatamadı.</string>
+    <string name="joystick_accessibility">Hareket kumandası</string>
+</resources>

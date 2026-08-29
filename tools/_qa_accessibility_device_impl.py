@@ -46,6 +46,8 @@ LANGUAGE_RESOURCE_NAMES = {
     "da": "language_danish",
     "sv": "language_swedish",
     "nb": "language_norwegian_bokmal",
+    "pl": "language_polish",
+    "tr": "language_turkish",
 }
 EXPLICIT_LANGUAGES = tuple(LANGUAGE_RESOURCE_NAMES)
 SUPPORTED_LANGUAGES = ("system",) + EXPLICIT_LANGUAGES
@@ -786,9 +788,14 @@ class Harness:
         return node
 
     def set_language(self, language: str) -> None:
-        expected = settings_expectations(language, "system")
-        self.tap_desc_any(expected["language_title"], starts=True, scroll="up")
-        self.tap_text_any(expected["language_value"])
+        current = settings_expectations("system", "system")
+        target = settings_expectations(language, "system")
+        self.tap_desc_any(
+            current["language_title"],
+            starts=True,
+            scroll="up",
+        )
+        self.tap_text_any(target["language_value"], scroll="up")
         time.sleep(0.25)
 
     def set_theme(self, language: str, theme: str) -> None:
@@ -804,7 +811,7 @@ class Harness:
             raise QAError(
                 "first-run onboarding is unacknowledged; refusing to acknowledge it automatically"
             )
-        self.tap_desc_any(localized_text(language, "ui_026"))
+        self.tap_desc_any(localized_text("system", "ui_026"))
         self.set_language(language)
         self.set_theme(language, theme)
         self.adb.force_stop()
@@ -1413,7 +1420,7 @@ def self_test() -> int:
     assert not symbol_only("Map")
     assert overlap_ratio(Bounds(0, 0, 100, 100), Bounds(50, 50, 150, 150)) == 0.25
     scenarios = build_scenarios(480, 550)
-    assert len(scenarios) == 90
+    assert len(scenarios) == len(SUPPORTED_LANGUAGES) * 9
     selected = select_scenarios(
         scenarios,
         [scenarios[0].key, scenarios[-1].key],
@@ -1426,7 +1433,7 @@ def self_test() -> int:
     else:
         raise AssertionError("unknown targeted scenario was accepted")
     assert set(EXPLICIT_LANGUAGES) == set(LANGUAGE_RESOURCE_NAMES)
-    assert set(EXPLICIT_LANGUAGES) == {"en", "de", "fr", "es", "it", "nl", "da", "sv", "nb"}
+    assert set(EXPLICIT_LANGUAGES) == {"en", "de", "fr", "es", "it", "nl", "da", "sv", "nb", "pl", "tr"}
     for language in EXPLICIT_LANGUAGES:
         custom = overlay_expectations(language)["custom"]
         default = localized_text(language, "custom_speed_default")
@@ -1434,6 +1441,13 @@ def self_test() -> int:
         assert default[0] in custom[0]
         if language != "en":
             assert "Custom" not in custom[0]
+    settings_candidates = localized_text("system", "ui_026")
+    assert settings_candidates == tuple(
+        localized_text(language, "ui_026")[0]
+        for language in EXPLICIT_LANGUAGES
+    )
+    assert len(settings_candidates) == len(EXPLICIT_LANGUAGES)
+
     system_custom = overlay_expectations("system")["custom"]
     assert system_custom == tuple(
         overlay_expectations(language)["custom"][0]

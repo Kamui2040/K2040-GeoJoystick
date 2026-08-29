@@ -34,7 +34,6 @@ import android.view.WindowInsets;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -383,34 +382,40 @@ public final class MainActivity extends Activity {
 
         LinearLayout favoriteCard = card();
         LinearLayout favoriteHeader = new LinearLayout(this);
-        favoriteHeader.setGravity(Gravity.CENTER_VERTICAL);
+        favoriteHeader.setOrientation(LinearLayout.VERTICAL);
         TextView favoriteTitle = text(t(R.string.ui_017), 13, palette.text, true);
-        favoriteHeader.addView(favoriteTitle,
-                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        favoriteHeader.addView(favoriteTitle, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
         TextView favoriteHint = text(t(R.string.ui_018), 9, palette.textDim, false);
-        favoriteHeader.addView(favoriteHint);
+        favoriteHint.setPadding(0, dp(2), 0, 0);
+        favoriteHeader.addView(favoriteHint, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
         favoriteCard.addView(favoriteHeader, innerRow());
 
-        HorizontalScrollView scroller = new HorizontalScrollView(this);
-        scroller.setHorizontalScrollBarEnabled(false);
         LinearLayout favoriteRow = new LinearLayout(this);
         favoriteRow.setOrientation(LinearLayout.HORIZONTAL);
         favoriteRow.setPadding(0, dp(2), 0, 0);
         for (int slot = 0; slot < GeoSettings.FAVORITE_COUNT; slot++) {
             final int index = slot;
             Button button = favoriteButton(index);
+            button.setMinWidth(0);
+            button.setMinimumWidth(0);
+            button.setPadding(dp(6), dp(8), dp(6), dp(8));
             button.setOnClickListener(view -> applyFavorite(index));
             button.setOnLongClickListener(view -> {
                 editFavorite(index, true);
                 return true;
             });
             favoriteButtons[index] = button;
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(100), dp(52));
-            params.rightMargin = dp(6);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    0, dp(52), 1f);
+            if (slot > 0) params.leftMargin = dp(3);
+            if (slot + 1 < GeoSettings.FAVORITE_COUNT) params.rightMargin = dp(3);
             favoriteRow.addView(button, params);
         }
-        scroller.addView(favoriteRow);
-        favoriteCard.addView(scroller, innerRow());
+        favoriteCard.addView(favoriteRow, innerRow());
         root.addView(favoriteCard, margin(2, 4));
         refreshFavoriteButtons();
 
@@ -1471,6 +1476,8 @@ public final class MainActivity extends Activity {
         Button button = GeoUi.button(this, palette, settings.text(R.string.ui_133, slot + 1), false);
         button.setTextSize(11);
         button.setSingleLine(true);
+        button.setHorizontallyScrolling(false);
+        button.setEllipsize(android.text.TextUtils.TruncateAt.END);
         return button;
     }
 

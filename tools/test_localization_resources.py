@@ -14,7 +14,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 RES = ROOT / "app/src/main/res"
-LOCALES = ("de", "fr", "es", "it", "nl", "da", "sv", "nb")
+LOCALES = ("de", "fr", "es", "it", "nl", "da", "sv", "nb", "pl", "tr")
 REQUIRED_MAP_KEYS = {"map_instruction", "map_zoom_in", "map_zoom_out"}
 LANGUAGE_AUTONYMS = {
     "language_english": "English",
@@ -26,6 +26,8 @@ LANGUAGE_AUTONYMS = {
     "language_danish": "Dansk",
     "language_swedish": "Svenska",
     "language_norwegian_bokmal": "Norsk bokmål",
+    "language_polish": "Polski",
+    "language_turkish": "Türkçe",
 }
 FORMATTED_RESOURCES = {
     "ui_116", "ui_120", "ui_125", "ui_129", "ui_131", "ui_132", "ui_133", "ui_189",
@@ -57,8 +59,6 @@ def catalog(path: Path) -> dict[str, str]:
     raw = path.read_text(encoding="utf-8")
     if ZERO_WIDTH_SPACE in raw:
         raise AssertionError(f"zero width space in {path}")
-    if re.search(r"(?<!\\)'", raw):
-        raise AssertionError(f"unescaped apostrophe in {path}")
     try:
         root = ET.parse(path).getroot()
     except (OSError, ET.ParseError) as exc:
@@ -69,6 +69,10 @@ def catalog(path: Path) -> dict[str, str]:
     for item in root.findall("string"):
         name = item.attrib.get("name")
         value = item.text or ""
+        if re.search(r"(?<!\\)'", value):
+            raise AssertionError(
+                f"unescaped apostrophe for {name} in {path}"
+            )
         if unicodedata.normalize("NFC", value) != value:
             raise AssertionError(f"non-NFC Unicode text for {name} in {path}")
         if not name or name in result:
@@ -179,6 +183,7 @@ def main() -> int:
         "de": "LANGUAGE_GERMAN", "fr": "LANGUAGE_FRENCH", "es": "LANGUAGE_SPANISH",
         "it": "LANGUAGE_ITALIAN", "nl": "LANGUAGE_DUTCH", "da": "LANGUAGE_DANISH",
         "sv": "LANGUAGE_SWEDISH", "nb": "LANGUAGE_NORWEGIAN_BOKMAL",
+        "pl": "LANGUAGE_POLISH", "tr": "LANGUAGE_TURKISH",
     }
     for locale, constant in setting_constants.items():
         if constant not in settings_source:
@@ -236,6 +241,27 @@ def self_test() -> int:
             assert "zero width space" in str(exc)
         else:
             raise AssertionError("zero-width-space fixture falsely passed")
+
+        shutil.rmtree(copied / "values-fr")
+        shutil.copytree(RES / "values-fr", copied / "values-fr")
+        strings = copied / "values-fr/strings.xml"
+        strings.write_text(
+            strings.read_text(encoding="utf-8").replace(
+                "GeoJoystick",
+                "GeoJoystick's",
+                1,
+            ),
+            encoding="utf-8",
+        )
+        try:
+            validate(copied)
+        except AssertionError as exc:
+            assert "unescaped apostrophe for" in str(exc)
+        else:
+            raise AssertionError(
+                "unescaped-apostrophe fixture falsely passed"
+            )
+
         shutil.rmtree(copied / "values-fr")
         shutil.copytree(RES / "values-fr", copied / "values-fr")
         strings = copied / "values-fr/strings.xml"

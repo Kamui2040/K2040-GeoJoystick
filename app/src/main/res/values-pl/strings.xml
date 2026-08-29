@@ -1,0 +1,244 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">GeoJoystick</string>
+    <string name="ui_001">Mapa nie zwróciła prawidłowych współrzędnych</string>
+    <string name="ui_002">Mapa zwróciła nieprawidłowe współrzędne</string>
+    <string name="ui_003">Wybrano lokalizację. Przed uruchomieniem podaj wysokość.</string>
+    <string name="ui_004">Status</string>
+    <string name="ui_005">Pozorowana lokalizacja</string>
+    <string name="ui_006">Uprawnienie do nakładki</string>
+    <string name="ui_007">Symulacja</string>
+    <string name="ui_008">Status zwinięty. Dotknij, aby rozwinąć</string>
+    <string name="ui_009">Status rozwinięty. Dotknij, aby zwinąć</string>
+    <string name="ui_010">Współrzędne</string>
+    <string name="ui_011">Szerokość geograficzna</string>
+    <string name="ui_012">Długość geograficzna</string>
+    <string name="ui_013">Wysokość (m)</string>
+    <string name="ui_014">Mapa</string>
+    <string name="ui_015">Wklej link</string>
+    <string name="ui_016">Ulubiona</string>
+    <string name="ui_017">Ulubione</string>
+    <string name="ui_018">Dotknij · przytrzymaj, aby edytować</string>
+    <string name="ui_019">Symulacja</string>
+    <string name="ui_020">Uruchom symulację</string>
+    <string name="ui_021">Zatrzymaj symulację</string>
+    <string name="ui_022">Otwarte źródło · GPL-3.0-only · Najpierw lokalnie</string>
+    <string name="ui_023">O GeoJoystick</string>
+    <string name="ui_024">Przejrzysta symulacja pozorowanej lokalizacji</string>
+    <string name="ui_025">Ustawienia</string>
+    <string name="ui_026">Ustawienia</string>
+    <string name="ui_027">Konfiguracja</string>
+    <string name="ui_028">Pozorowana lokalizacja</string>
+    <string name="ui_029">Wybrano</string>
+    <string name="ui_030">Nie wybrano</string>
+    <string name="ui_031">Uprawnienie do nakładki</string>
+    <string name="ui_032">Przyznane</string>
+    <string name="ui_033">Nieprzyznane</string>
+    <string name="ui_034">Zresetuj pozycję nakładki</string>
+    <string name="ui_035">Przywróć ostatnią pozycję</string>
+    <string name="ui_036">Wł.</string>
+    <string name="ui_037">Wył.</string>
+    <string name="ui_038">Zachowanie</string>
+    <string name="ui_039">Prędkość symulacji</string>
+    <string name="ui_040">Nakładka o wysokim kontraście</string>
+    <string name="ui_041">Wł.</string>
+    <string name="ui_042">Wył.</string>
+    <string name="ui_043">Nakładka</string>
+    <string name="ui_044">Wygląd i język</string>
+    <string name="ui_045">Motyw</string>
+    <string name="ui_046">Język</string>
+    <string name="ui_047">Awatar K2040</string>
+    <string name="ui_048">Zamknij informacje</string>
+    <string name="ui_049">Przejrzysty joystick pozorowanej lokalizacji do testów programistycznych i emulatorów Androida.</string>
+    <string name="ui_050">Lokalnie · najpierw offline · bez konta · bez reklam · bez analityki · bez śledzenia</string>
+    <string name="ui_051">Historia zmian</string>
+    <string name="ui_052">Licencja i użytkowanie</string>
+    <string name="ui_053">Źródła</string>
+    <string name="ui_054">Wesprzyj na Ko-fi</string>
+    <string name="ui_055">Historia zmian</string>
+    <string name="ui_056">Zamknij</string>
+    <string name="ui_057">Zamknij historię zmian</string>
+    <string name="ui_058">Awatar K2040</string>
+    <string name="ui_059">Przejrzysty joystick pozorowanej lokalizacji do testów programistycznych i emulatorów Androida. Działa lokalnie, bez konta, reklam, analityki ani śledzenia.</string>
+    <string name="ui_060">Kod aplikacji: GPL-3.0-only
+Grafika K2040: CC BY 4.0
+Dane mapy: © współtwórcy OpenStreetMap · ODbL 1.0</string>
+    <string name="ui_061">Licencje: kod aplikacji GPL-3.0-only, grafika K2040 CC BY 4.0 oraz OpenStreetMap ODbL 1.0. Otwórz szczegóły licencji</string>
+    <string name="ui_062">Kontynuuj</string>
+    <string name="ui_063">Przejdź do GeoJoystick</string>
+    <string name="ui_064">Licencja i użytkowanie</string>
+    <string name="ui_065">DANE LOKALNE</string>
+    <string name="ui_066">Współrzędne i ustawienia pozostają na tym urządzeniu. Mapa pobiera kafelki OpenStreetMap tylko po jej otwarciu; obsługiwane linki mogą być rozwiązywane za pomocą ograniczonych żądań HTTPS. Bez konta, analityki ani ukrytego przesyłania danych.</string>
+    <string name="ui_067">LICENCJE</string>
+    <string name="ui_068">Dotknij wpisu, aby wyświetlić aktualne szczegóły licencji.</string>
+    <string name="ui_069">Kod aplikacji jest objęty GPL-3.0-only. Kod GPL autorstwa K2040 ma również oddzielny warunek atrybucji z sekcji 7(b). Oryginalna grafika K2040 jest objęta CC BY 4.0. Materiały stron trzecich zachowują własne warunki.</string>
+    <string name="ui_070">Kod aplikacji · części autorstwa K2040 mają również wymóg atrybucji §7(b)</string>
+    <string name="ui_071">Grafika K2040 · CC BY 4.0</string>
+    <string name="ui_072">Oryginalna grafika K2040 i grafika interfejsu · wymagane podanie autorstwa</string>
+    <string name="ui_073">Dane mapy · © współtwórcy OpenStreetMap</string>
+    <string name="ui_074">Zamknij</string>
+    <string name="ui_075">Dołączony angielski tekst GPL jest wiążącym tekstem GPL. Oryginalny kod GPL autorstwa K2040 ma również oddzielny warunek zachowania atrybucji z sekcji 7(b), wymagający „Copyright (c) 2026 K2040.”. Materiały pochodzące z GoGoGo i inne materiały stron trzecich zachowują własne informacje.</string>
+    <string name="ui_076">Zamknij</string>
+    <string name="ui_077">Grafika K2040 · CC BY 4.0</string>
+    <string name="ui_078">Oryginalna grafika i grafika interfejsu autorstwa K2040, wskazana przez pochodzenie projektu, jest objęta licencją Creative Commons Attribution 4.0 International (CC BY 4.0).
+
+Podczas udostępniania objętej nią grafiki podaj K2040 jako autora, wskaż CC BY 4.0, w miarę możliwości podaj link do licencji i zaznacz modyfikacje. Zasoby stron trzecich i projekty nadrzędne są wyłączone i zachowują własne warunki.</string>
+    <string name="ui_079">Otwórz oficjalną licencję</string>
+    <string name="ui_080">Zamknij</string>
+    <string name="ui_081">Wbudowana mapa GeoJoystick pobiera kafelki z OpenStreetMap tylko podczas korzystania z mapy. Dane mapy pochodzą od © współtwórców OpenStreetMap i są udostępniane na licencji Open Data Commons Open Database License (ODbL) 1.0.
+
+Mapa zachowuje widoczne oznaczenie współtwórców. Oficjalna strona praw autorskich i licencji OpenStreetMap zawiera aktualne szczegóły oraz dodatkowe informacje dotyczące usługi kafelków.</string>
+    <string name="ui_082">Otwórz oficjalne szczegóły</string>
+    <string name="ui_083">Zamknij</string>
+    <string name="ui_084">Źródła</string>
+    <string name="ui_085">Zewnętrzne projekty i materiały, na których GeoJoystick bazuje lub z których bezpośrednio korzysta.</string>
+    <string name="ui_086">Oryginalny projekt źródłowy · ZCShou i współtwórcy</string>
+    <string name="ui_087">Kafelki i dane mapy · © współtwórcy OpenStreetMap</string>
+    <string name="ui_088">GeoJoystick jest projektem pochodnym GPL-3.0-only opartym na rozwiązaniach GoGoGo. Usługa pozorowanej lokalizacji i sposób sterowania joystickiem zostały dostosowane i znacznie uproszczone. Materiały pochodzące z GoGoGo zachowują atrybucję wynikającą z GPLv3 projektu nadrzędnego; warunek K2040 §7(b) dotyczy wyłącznie materiałów GPL autorstwa K2040. Własnościowe składniki Baidu SDK i reklamy nie są dołączone.</string>
+    <string name="ui_089">Zamknij</string>
+    <string name="ui_090">Otwórz</string>
+    <string name="ui_091">Lokalnie · Bez konta · Bez zbędnego śledzenia</string>
+    <string name="ui_092">Współrzędne i ustawienia pozostają na urządzeniu. Bez analityki i bez systemu kont.</string>
+    <string name="ui_093">Otwórz</string>
+    <string name="ui_094">Przejrzysty joystick pozorowanej lokalizacji do testów programistycznych i emulatorów Androida.
+
+Najpierw lokalnie · Bez konta · Bez reklam · Bez analityki · Bez śledzenia
+Współrzędne i ustawienia pozostają na urządzeniu.</string>
+    <string name="ui_095">Wstecz</string>
+    <string name="ui_096">Domyślne ustawienie systemu</string>
+    <string name="ui_097">Jasny</string>
+    <string name="ui_098">Ciemny</string>
+    <string name="ui_099">Wygląd</string>
+    <string name="ui_100">Anuluj</string>
+    <string name="ui_101">Język</string>
+    <string name="ui_102">Anuluj</string>
+    <string name="ui_103">Ciemny</string>
+    <string name="ui_104">Jasny</string>
+    <string name="ui_105">Systemowy</string>
+    <string name="ui_106">Systemowy</string>
+    <string name="ui_107">Pozycja nakładki zostanie zresetowana przy następnym wyświetleniu</string>
+    <string name="ui_108">Nazwa</string>
+    <string name="ui_109">Prędkość w m/s</string>
+    <string name="ui_110">Własna prędkość</string>
+    <string name="ui_111">Zapisz</string>
+    <string name="ui_112">Anuluj</string>
+    <string name="ui_113">Wprowadź prawidłową prędkość</string>
+    <string name="ui_114">Rozmiar nakładki: %d%%</string>
+    <string name="ui_115">Krycie nakładki: %d%%</string>
+    <string name="ui_116">Ulubiona %1$d</string>
+    <string name="ui_117">Wybierz miejsce ulubionej</string>
+    <string name="ui_118">Anuluj</string>
+    <string name="ui_119">Ulubiona została wczytana do pól współrzędnych</string>
+    <string name="ui_120">Ulubiona %1$d</string>
+    <string name="ui_121">Nazwa ulubionej</string>
+    <string name="ui_122">Szerokość geograficzna</string>
+    <string name="ui_123">Długość geograficzna</string>
+    <string name="ui_124">Wysokość (m)</string>
+    <string name="ui_125">Ulubiona %1$d</string>
+    <string name="ui_126">Zapisz</string>
+    <string name="ui_127">Anuluj</string>
+    <string name="ui_128">Wyczyść</string>
+    <string name="ui_129">Ulubiona %1$d</string>
+    <string name="ui_130">Wprowadź prawidłowe współrzędne ulubionej</string>
+    <string name="ui_131">Ulub. %1$d</string>
+    <string name="ui_132">Pusta ulubiona %1$d</string>
+    <string name="ui_133">Ulub. %1$d</string>
+    <string name="ui_134">Schowek jest pusty</string>
+    <string name="ui_135">Schowek jest pusty</string>
+    <string name="ui_136">Nie znaleziono linku do lokalizacji</string>
+    <string name="ui_137">Odczytywanie linku do lokalizacji…</string>
+    <string name="ui_138">Nie udało się wyodrębnić współrzędnych z tego linku</string>
+    <string name="ui_139">Zaimportowane współrzędne są nieprawidłowe</string>
+    <string name="ui_140">Zaimportowano współrzędne</string>
+    <string name="ui_141">Zaimportowano współrzędne. Przed uruchomieniem podaj wysokość.</string>
+    <string name="ui_142">Wybierz GeoJoystick</string>
+    <string name="ui_143">W Opcjach programisty wybierz GeoJoystick w sekcji „Wybierz aplikację pozorowanej lokalizacji”, a następnie wróć tutaj.</string>
+    <string name="ui_144">Otwórz ustawienia</string>
+    <string name="ui_145">Anuluj</string>
+    <string name="ui_146">Wprowadź prawidłową szerokość, długość i wysokość</string>
+    <string name="ui_147">Zażądano uruchomienia GeoJoystick</string>
+    <string name="ui_148">Nie udało się uruchomić GeoJoystick</string>
+    <string name="ui_149">Zażądano zatrzymania GeoJoystick</string>
+    <string name="ui_150">Nie udało się zatrzymać GeoJoystick</string>
+    <string name="ui_151">Wybrano</string>
+    <string name="ui_152">Nie wybrano</string>
+    <string name="ui_153">Przyznane</string>
+    <string name="ui_154">Nieprzyznane</string>
+    <string name="ui_155">Aktywna</string>
+    <string name="ui_156">Uruchamianie</string>
+    <string name="ui_157">Nieaktywna</string>
+    <string name="ui_158">Wprowadź prawidłową szerokość, długość i wysokość</string>
+    <string name="ui_159">Sprawdzanie…</string>
+    <string name="ui_160">• Przeprojektowano ekran główny, ustawienia i elementy sterujące nakładki, zapewniając czytelniejszy status i tryb kompaktowy.
+• Ulepszono odzyskiwanie symulacji, przywracanie ostatniej pozycji i obsługę nieprawidłowych danych.
+• Dodano pierwsze uruchomienie oraz ekrany O aplikacji, Historia zmian, Licencja i użytkowanie oraz Źródła.
+• Rozszerzono analizę linków map i niezawodność wyboru na mapie.
+• Ulepszono dostępność, działanie z dużą czcionką i cele dotykowe.
+• Dodano nową maskotkę i ikonę GeoJoystick oraz obsługę nawigacji wstecz w Androidzie 16/API 36.
+
+0.1.3
+• Okna dialogowe są teraz zgodne z wybranym ciemnym motywem.
+• GeoJoystick używa teraz dedykowanej ikony w ofertach sklepów.
+
+0.1.0
+• Pierwsze publiczne wydanie z wprowadzaniem współrzędnych i wysokości, wyborem na mapie i importem linków, ulubionymi, ustawieniami wyglądu i języka oraz pływającym joystickiem.</string>
+    <string name="ui_161">Darowizny są całkowicie opcjonalne. Nie odblokowują funkcji ani nie zapewniają dodatkowych korzyści.</string>
+    <string name="ui_162">Tekst licencji jest niedostępny w tej kompilacji.</string>
+    <string name="ui_163">Brak dostępnej aplikacji przeglądarki</string>
+    <string name="ui_164">Anuluj wybór na mapie</string>
+    <string name="ui_165">Wybierz lokalizację</string>
+    <string name="ui_166">Użyj lokalizacji</string>
+    <string name="ui_167">Dotknij mapy, aby umieścić znacznik. Żadna lokalizacja nie jest wybierana automatycznie.</string>
+    <string name="ui_168">Mapa niedostępna</string>
+    <string name="ui_169">Nie wybrano lokalizacji</string>
+    <string name="ui_170">%1$.6f, %2$.6f</string>
+    <string name="ui_171">Usługa pozorowanej lokalizacji</string>
+    <string name="ui_172">Utrzymuje widoczną symulację pozorowanej lokalizacji jako aktywną.</string>
+    <string name="ui_173">Symulacja pozorowanej lokalizacji jest aktywna</string>
+    <string name="ui_174">Uruchamianie symulacji pozorowanej lokalizacji</string>
+    <string name="ui_175">Pokaż</string>
+    <string name="ui_176">Ukryj</string>
+    <string name="ui_177">Zatrzymaj</string>
+    <string name="ui_178">Przenieś nakładkę GeoJoystick</string>
+    <string name="ui_179">Przełącz na kompaktową nakładkę</string>
+    <string name="ui_180">Prędkość marszu</string>
+    <string name="ui_181">Prędkość biegu</string>
+    <string name="ui_182">Prędkość roweru</string>
+    <string name="ui_183">Własna prędkość</string>
+    <string name="ui_184">Ruch aktywny; dotknij, aby wstrzymać</string>
+    <string name="ui_185">Włącz blokadę</string>
+    <string name="ui_186">Zatrzymaj usługę GeoJoystick i zamknij nakładkę</string>
+    <string name="ui_187">Przełącz na rozszerzoną nakładkę</string>
+    <string name="ui_188">Przełącz na kompaktową nakładkę</string>
+    <string name="ui_189">Własna prędkość: %1$s</string>
+    <string name="ui_190">Ruch wstrzymany; dotknij, aby wznowić</string>
+    <string name="ui_191">Ruch aktywny; dotknij, aby wstrzymać</string>
+    <string name="ui_192">Wyłącz blokadę</string>
+    <string name="ui_193">Włącz blokadę</string>
+    <string name="ui_194">Pozycja niedostępna</string>
+    <string name="map_instruction">Dotknij mapy, aby umieścić znacznik. Przeciągnij, aby przesuwać mapę.</string>
+    <string name="map_zoom_in">Przybliż</string>
+    <string name="map_zoom_out">Oddal</string>
+    <string name="language_system_default">Domyślne ustawienie systemu</string>
+    <string name="language_english">English</string>
+    <string name="language_german">Deutsch</string>
+    <string name="language_french">Français</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_italian">Italiano</string>
+    <string name="language_dutch">Nederlands</string>
+    <string name="language_danish">Dansk</string>
+    <string name="language_swedish">Svenska</string>
+    <string name="language_norwegian_bokmal">Norsk bokmål</string>
+    <string name="language_polish">Polski</string>
+    <string name="language_turkish">Türkçe</string>
+    <string name="custom_speed_default">Niestandardowa</string>
+    <string name="favorite_default">Ulubiona %1$d</string>
+    <string name="service_invalid_start">GeoJoystick nie został uruchomiony, ponieważ współrzędne były nieprawidłowe.</string>
+    <string name="service_not_active">GeoJoystick nie jest aktywny.</string>
+    <string name="service_coordinates_rejected">Nowe współrzędne zostały odrzucone.</string>
+    <string name="service_no_provider">GeoJoystick został zatrzymany, ponieważ żaden dostawca pozorowanej lokalizacji nie zaakceptował pozycji.</string>
+    <string name="service_publish_failed">GeoJoystick został zatrzymany, ponieważ publikowanie pozorowanej lokalizacji nie powiodło się.</string>
+    <string name="service_cannot_publish">GeoJoystick nie może opublikować pozorowanej lokalizacji. Sprawdź Opcje programisty i wybierz GeoJoystick jako aplikację pozorowanej lokalizacji.</string>
+    <string name="service_cannot_start">GeoJoystick nie może uruchomić usługi symulacji na pierwszym planie.</string>
+    <string name="joystick_accessibility">Joystick ruchu</string>
+</resources>

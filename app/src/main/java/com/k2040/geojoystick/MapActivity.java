@@ -81,13 +81,16 @@ public final class MapActivity extends Activity {
         chrome.setClickable(false);
 
         LinearLayout toolbar = GeoUi.card(this, palette);
-        toolbar.setOrientation(LinearLayout.HORIZONTAL);
+        boolean stackedToolbar =
+                getResources().getConfiguration().fontScale > 1.10f
+                        || getResources().getConfiguration().screenWidthDp < 360;
+        toolbar.setOrientation(
+                stackedToolbar ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
         toolbar.setGravity(Gravity.CENTER_VERTICAL);
         toolbar.setElevation(dp(8));
 
         Button back = GeoUi.iconButton(this, palette, "‹", t(R.string.ui_164));
         back.setOnClickListener(view -> finish());
-        toolbar.addView(back, new LinearLayout.LayoutParams(dp(48), dp(48)));
 
         LinearLayout titleBlock = new LinearLayout(this);
         titleBlock.setOrientation(LinearLayout.VERTICAL);
@@ -95,16 +98,45 @@ public final class MapActivity extends Activity {
         TextView title = GeoUi.text(this, t(R.string.ui_165), 17, palette.text);
         title.setTypeface(Typeface.DEFAULT_BOLD);
         coordinateText = GeoUi.text(this, "", 11, palette.textDim);
-        coordinateText.setSingleLine(true);
+        coordinateText.setSingleLine(false);
+        coordinateText.setMaxLines(2);
         titleBlock.addView(title);
         titleBlock.addView(coordinateText);
-        toolbar.addView(titleBlock, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
         useButton = GeoUi.button(this, palette, t(R.string.ui_166), true);
         useButton.setEnabled(hasSelection);
         useButton.setAlpha(hasSelection ? 1f : 0.48f);
+        useButton.setSingleLine(false);
+        useButton.setMaxLines(2);
+        useButton.setHorizontallyScrolling(false);
+        useButton.setMinWidth(0);
+        useButton.setMinimumWidth(0);
         useButton.setOnClickListener(view -> returnSelection());
-        toolbar.addView(useButton, new LinearLayout.LayoutParams(dp(128), dp(48)));
+
+        if (stackedToolbar) {
+            LinearLayout titleRow = new LinearLayout(this);
+            titleRow.setOrientation(LinearLayout.HORIZONTAL);
+            titleRow.setGravity(Gravity.CENTER_VERTICAL);
+            titleRow.addView(back, new LinearLayout.LayoutParams(dp(48), dp(48)));
+            titleRow.addView(titleBlock, new LinearLayout.LayoutParams(
+                    0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            toolbar.addView(titleRow, new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+
+            LinearLayout.LayoutParams useParams = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            useParams.topMargin = dp(6);
+            toolbar.addView(useButton, useParams);
+        } else {
+            toolbar.addView(back, new LinearLayout.LayoutParams(dp(48), dp(48)));
+            toolbar.addView(titleBlock, new LinearLayout.LayoutParams(
+                    0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            toolbar.addView(useButton, new LinearLayout.LayoutParams(
+                    dp(128), ViewGroup.LayoutParams.WRAP_CONTENT));
+        }
+
         chrome.addView(toolbar, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));

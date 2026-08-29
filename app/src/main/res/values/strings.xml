@@ -229,6 +229,8 @@ Coordinates and settings stay on your device.</string>
     <string name="language_danish">Dansk</string>
     <string name="language_swedish">Svenska</string>
     <string name="language_norwegian_bokmal">Norsk bokmål</string>
+    <string name="language_polish">Polski</string>
+    <string name="language_turkish">Türkçe</string>
     <string name="custom_speed_default">Custom</string>
     <string name="favorite_default">Favorite %1$d</string>
     <string name="service_invalid_start">GeoJoystick did not start because the coordinates were invalid.</string>
