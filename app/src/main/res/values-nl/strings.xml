@@ -229,6 +229,8 @@ Coördinaten en instellingen blijven op uw apparaat staan.</string>
     <string name="language_danish">Dansk</string>
     <string name="language_swedish">Svenska</string>
     <string name="language_norwegian_bokmal">Norsk bokmål</string>
+    <string name="language_polish">Polski</string>
+    <string name="language_turkish">Türkçe</string>
     <string name="custom_speed_default">Aangepast</string>
     <string name="favorite_default">Favoriet %1$d</string>
     <string name="service_invalid_start">GeoJoystick startte niet omdat de coördinaten ongeldig waren.</string>

@@ -7,13 +7,14 @@ import re
 import shutil
 import sys
 import tempfile
+import unicodedata
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 RES = ROOT / "app/src/main/res"
-LOCALES = ("de", "fr", "es", "it", "nl", "da", "sv", "nb")
+LOCALES = ("de", "fr", "es", "it", "nl", "da", "sv", "nb", "pl", "tr")
 REQUIRED_MAP_KEYS = {"map_instruction", "map_zoom_in", "map_zoom_out"}
 LANGUAGE_AUTONYMS = {
     "language_english": "English",
@@ -25,6 +26,8 @@ LANGUAGE_AUTONYMS = {
     "language_danish": "Dansk",
     "language_swedish": "Svenska",
     "language_norwegian_bokmal": "Norsk bokmål",
+    "language_polish": "Polski",
+    "language_turkish": "Türkçe",
 }
 FORMATTED_RESOURCES = {
     "ui_116", "ui_120", "ui_125", "ui_129", "ui_131", "ui_132", "ui_133", "ui_189",
@@ -32,14 +35,30 @@ FORMATTED_RESOURCES = {
 SPDX_LICENSE_SUMMARY_RESOURCES = {"ui_022", "ui_060", "ui_061", "ui_069", "ui_088"}
 FORMAT = re.compile(r"%(?:\d+\$)?[-#+ 0,(]*\d*(?:\.\d+)?[a-zA-Z%]")
 ZERO_WIDTH_SPACE = "\u200b"
+LTR_BIDI_CONTROLS = frozenset(
+    "\u200e\u200f\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069"
+)
+PHASE2_REQUIRED_CHARACTERS = {
+    "pl": frozenset("ąćęłńóśźż"),
+    "tr": frozenset("çğıİöşü"),
+}
+PHASE2_MUST_TRANSLATE = frozenset({
+    "ui_026",  # Settings
+    "ui_045",  # Theme
+    "ui_046",  # Language
+    "ui_100",  # Cancel
+    "ui_111",  # Save
+    "ui_164",  # Cancel map selection
+    "ui_165",  # Choose location
+    "ui_178",  # Move overlay
+    "joystick_accessibility",
+})
 
 
 def catalog(path: Path) -> dict[str, str]:
     raw = path.read_text(encoding="utf-8")
     if ZERO_WIDTH_SPACE in raw:
         raise AssertionError(f"zero width space in {path}")
-    if re.search(r"(?<!\\)'", raw):
-        raise AssertionError(f"unescaped apostrophe in {path}")
     try:
         root = ET.parse(path).getroot()
     except (OSError, ET.ParseError) as exc:
@@ -50,6 +69,12 @@ def catalog(path: Path) -> dict[str, str]:
     for item in root.findall("string"):
         name = item.attrib.get("name")
         value = item.text or ""
+        if re.search(r"(?<!\\)'", value):
+            raise AssertionError(
+                f"unescaped apostrophe for {name} in {path}"
+            )
+        if unicodedata.normalize("NFC", value) != value:
+            raise AssertionError(f"non-NFC Unicode text for {name} in {path}")
         if not name or name in result:
             raise AssertionError(f"missing or duplicate resource name in {path}")
         if not value.strip():
@@ -67,6 +92,40 @@ def locale_directories(res_root: Path) -> set[str]:
         if re.fullmatch(r"[a-z]{2}(?:-r[A-Z]{2})?", qualifier):
             found.add(qualifier[:2])
     return found
+
+
+def validate_phase2_latin_quality(
+    locale: str,
+    target: dict[str, str],
+    english: dict[str, str],
+) -> None:
+    required = PHASE2_REQUIRED_CHARACTERS.get(locale)
+    if required is None:
+        return
+
+    corpus = "".join(target.values())
+    missing = sorted(required - set(corpus))
+    if missing:
+        raise AssertionError(
+            f"{locale} catalog is missing expected native characters: "
+            + "".join(missing)
+        )
+
+    unexpected_controls = sorted(set(corpus) & LTR_BIDI_CONTROLS)
+    if unexpected_controls:
+        encoded = ", ".join(
+            f"U+{ord(character):04X}"
+            for character in unexpected_controls
+        )
+        raise AssertionError(
+            f"{locale} catalog contains unexpected bidi controls: {encoded}"
+        )
+
+    for name in PHASE2_MUST_TRANSLATE:
+        if target.get(name) == english.get(name):
+            raise AssertionError(
+                f"{locale}/{name} still matches the English source"
+            )
 
 
 def validate(res_root: Path) -> None:
@@ -97,6 +156,7 @@ def validate(res_root: Path) -> None:
             raise AssertionError(f"{locale} key mismatch: missing={missing}, extra={extra}")
         if not REQUIRED_MAP_KEYS <= set(target):
             raise AssertionError(f"{locale} is missing bundled-map localization keys")
+        validate_phase2_latin_quality(locale, target, english)
         for name, autonym in LANGUAGE_AUTONYMS.items():
             if target.get(name) != autonym:
                 raise AssertionError(f"{locale}/{name} is not the required autonym")
@@ -123,6 +183,7 @@ def main() -> int:
         "de": "LANGUAGE_GERMAN", "fr": "LANGUAGE_FRENCH", "es": "LANGUAGE_SPANISH",
         "it": "LANGUAGE_ITALIAN", "nl": "LANGUAGE_DUTCH", "da": "LANGUAGE_DANISH",
         "sv": "LANGUAGE_SWEDISH", "nb": "LANGUAGE_NORWEGIAN_BOKMAL",
+        "pl": "LANGUAGE_POLISH", "tr": "LANGUAGE_TURKISH",
     }
     for locale, constant in setting_constants.items():
         if constant not in settings_source:
@@ -180,6 +241,27 @@ def self_test() -> int:
             assert "zero width space" in str(exc)
         else:
             raise AssertionError("zero-width-space fixture falsely passed")
+
+        shutil.rmtree(copied / "values-fr")
+        shutil.copytree(RES / "values-fr", copied / "values-fr")
+        strings = copied / "values-fr/strings.xml"
+        strings.write_text(
+            strings.read_text(encoding="utf-8").replace(
+                "GeoJoystick",
+                "GeoJoystick's",
+                1,
+            ),
+            encoding="utf-8",
+        )
+        try:
+            validate(copied)
+        except AssertionError as exc:
+            assert "unescaped apostrophe for" in str(exc)
+        else:
+            raise AssertionError(
+                "unescaped-apostrophe fixture falsely passed"
+            )
+
         shutil.rmtree(copied / "values-fr")
         shutil.copytree(RES / "values-fr", copied / "values-fr")
         strings = copied / "values-fr/strings.xml"
@@ -193,6 +275,60 @@ def self_test() -> int:
             assert "missing GPL-3.0-only" in str(exc)
         else:
             raise AssertionError("shortened-GPL fixture falsely passed")
+
+        shutil.rmtree(copied / "values-fr")
+        shutil.copytree(RES / "values-fr", copied / "values-fr")
+        strings = copied / "values-fr/strings.xml"
+        strings.write_text(
+            strings.read_text(encoding="utf-8").replace(
+                "GeoJoystick",
+                "Ge\u0301oJoystick",
+                1,
+            ),
+            encoding="utf-8",
+        )
+        try:
+            validate(copied)
+        except AssertionError as exc:
+            assert "non-NFC Unicode text" in str(exc)
+        else:
+            raise AssertionError("decomposed-Unicode fixture falsely passed")
+
+        quality_source = {
+            name: f"English {name}"
+            for name in PHASE2_MUST_TRANSLATE
+        }
+        quality_pl = {
+            name: f"Polski {name}"
+            for name in PHASE2_MUST_TRANSLATE
+        }
+        quality_pl["script_probe"] = "ąćęłńóśźż"
+        validate_phase2_latin_quality(
+            "pl", quality_pl, quality_source
+        )
+
+        quality_tr = {
+            name: f"Türkçe {name}"
+            for name in PHASE2_MUST_TRANSLATE
+        }
+        quality_tr["script_probe"] = "çğıİöşü"
+        validate_phase2_latin_quality(
+            "tr", quality_tr, quality_source
+        )
+
+        broken_tr = dict(quality_tr)
+        broken_tr["ui_026"] = quality_source["ui_026"]
+        try:
+            validate_phase2_latin_quality(
+                "tr", broken_tr, quality_source
+            )
+        except AssertionError as exc:
+            assert "still matches the English source" in str(exc)
+        else:
+            raise AssertionError(
+                "untranslated Phase 2 fixture falsely passed"
+            )
+
     print("Localization resource self-test: PASS")
     return 0
 

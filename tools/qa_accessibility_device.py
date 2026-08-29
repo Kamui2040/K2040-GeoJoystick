@@ -333,6 +333,32 @@ class SafeHarness(impl.Harness):
         return None
 
     @staticmethod
+    def _is_main_stop_control(node: impl.UiNode, language: str) -> bool:
+        expected = impl.main_expectations(language)["stop"]
+        return (
+            node.enabled
+            and (
+                node.desc in expected
+                or (
+                    node.class_name.endswith("Button")
+                    and node.text == "■"
+                )
+            )
+        )
+
+    def stop_simulation_via_ui(self, language: str) -> bool:
+        self.adb.launch()
+        stop = self.find_node_any_state(
+            lambda item: self._is_main_stop_control(item, language),
+            scroll="up",
+            attempts=10,
+        )
+        if stop is None:
+            return False
+        self.adb.tap(stop.bounds)
+        return self.wait_service(False)
+
+    @staticmethod
     def _subtree(
         nodes: list[impl.UiNode],
         root: impl.UiNode,
@@ -731,6 +757,20 @@ def adapter_self_test() -> None:
         bounds=impl.Bounds(150, 0, 294, 144),
         child_count=0,
     )
+    unlabeled_stop = impl.UiNode(
+        path=(0, 2),
+        text="■",
+        desc="",
+        class_name="android.widget.Button",
+        package=args.package,
+        clickable=True,
+        enabled=True,
+        bounds=impl.Bounds(300, 0, 444, 144),
+        child_count=0,
+    )
+    assert SafeHarness._is_main_stop_control(unlabeled_stop, "en")
+    assert not SafeHarness._is_main_stop_control(disabled_stop, "en")
+
     harness.analyze(
         impl.Snapshot(1080, 2400, 480, [about, disabled_stop]),
         scenario,
