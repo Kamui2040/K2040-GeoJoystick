@@ -1185,7 +1185,7 @@ public final class MainActivity extends Activity {
         LinearLayout row = new LinearLayout(this);
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setMinimumHeight(dp(48));
-        row.setPadding(dp(12), 0, dp(12), 0);
+        row.setPadding(dp(12), dp(4), dp(12), dp(4));
         row.setBackground(GeoUi.surface(this, palette));
         row.setClickable(true);
         row.setFocusable(true);
@@ -1194,15 +1194,19 @@ public final class MainActivity extends Activity {
 
         TextView label = text(title, 13, palette.text, false);
         label.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-        label.setSingleLine(true);
-        row.addView(label, new LinearLayout.LayoutParams(
-                0, dp(48), 1f));
+        label.setSingleLine(false);
+        label.setMaxLines(2);
+        LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        labelParams.rightMargin = dp(8);
+        row.addView(label, labelParams);
 
         TextView state = text(value, 12, valueColor, true);
         state.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
         state.setSingleLine(true);
         row.addView(state, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, dp(48)));
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
 
         return row;
     }
@@ -1890,9 +1894,7 @@ public final class MainActivity extends Activity {
     }
 
     private LinearLayout.LayoutParams tileWeight() {
-        LinearLayout.LayoutParams params = GeoUi.weighted(this, 2);
-        params.height = dp(60);
-        return params;
+        return GeoUi.weighted(this, 2);
     }
 
     private AlertDialog.Builder appDialogBuilder() {
