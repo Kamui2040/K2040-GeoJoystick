@@ -366,18 +366,28 @@ public final class MainActivity extends Activity {
         coordinates.addView(altitudeInput, innerRow());
         root.addView(coordinates, margin(2, 4));
 
+        boolean stackedQuickActions =
+                getResources().getConfiguration().fontScale > 1.10f
+                        || getResources().getConfiguration().screenWidthDp < 360;
         LinearLayout quick = new LinearLayout(this);
-        quick.setOrientation(LinearLayout.HORIZONTAL);
+        quick.setOrientation(
+                stackedQuickActions ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
         quick.setGravity(Gravity.CENTER);
-        Button map = actionTile("⌖", t(R.string.ui_014));
+        Button map = actionTile("⌖", t(R.string.ui_014), stackedQuickActions);
         map.setOnClickListener(view -> openMap());
-        Button paste = actionTile("↓", t(R.string.ui_015));
+        Button paste = actionTile("↓", t(R.string.ui_015), stackedQuickActions);
         paste.setOnClickListener(view -> importFromClipboard());
-        Button favorite = actionTile("☆", t(R.string.ui_016));
+        Button favorite = actionTile("☆", t(R.string.ui_016), stackedQuickActions);
         favorite.setOnClickListener(view -> chooseFavoriteSlot());
-        quick.addView(map, tileWeight());
-        quick.addView(paste, tileWeight());
-        quick.addView(favorite, tileWeight());
+        if (stackedQuickActions) {
+            quick.addView(map, stackedActionTileParams(false));
+            quick.addView(paste, stackedActionTileParams(true));
+            quick.addView(favorite, stackedActionTileParams(true));
+        } else {
+            quick.addView(map, tileWeight());
+            quick.addView(paste, tileWeight());
+            quick.addView(favorite, tileWeight());
+        }
         root.addView(quick, margin(1, 3));
 
         LinearLayout favoriteCard = card();
@@ -397,6 +407,8 @@ public final class MainActivity extends Activity {
         LinearLayout favoriteRow = new LinearLayout(this);
         favoriteRow.setOrientation(LinearLayout.HORIZONTAL);
         favoriteRow.setPadding(0, dp(2), 0, 0);
+        int favoriteSideMarginDp =
+                getResources().getConfiguration().screenWidthDp < 360 ? 1 : 3;
         for (int slot = 0; slot < GeoSettings.FAVORITE_COUNT; slot++) {
             final int index = slot;
             Button button = favoriteButton(index);
@@ -411,8 +423,10 @@ public final class MainActivity extends Activity {
             favoriteButtons[index] = button;
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     0, dp(52), 1f);
-            if (slot > 0) params.leftMargin = dp(3);
-            if (slot + 1 < GeoSettings.FAVORITE_COUNT) params.rightMargin = dp(3);
+            if (slot > 0) params.leftMargin = dp(favoriteSideMarginDp);
+            if (slot + 1 < GeoSettings.FAVORITE_COUNT) {
+                params.rightMargin = dp(favoriteSideMarginDp);
+            }
             favoriteRow.addView(button, params);
         }
         favoriteCard.addView(favoriteRow, innerRow());
@@ -1857,12 +1871,30 @@ public final class MainActivity extends Activity {
         return value;
     }
 
-    private Button actionTile(String symbol, String label) {
-        Button button = GeoUi.button(this, palette, symbol + "\n" + label, false);
+    private Button actionTile(
+            String symbol,
+            String label,
+            boolean stacked) {
+        Button button = GeoUi.button(
+                this,
+                palette,
+                stacked ? symbol + "  " + label : symbol + "\n" + label,
+                false);
         button.setTextSize(11);
+        button.setSingleLine(false);
+        button.setMaxLines(2);
+        button.setHorizontallyScrolling(false);
         button.setMinHeight(dp(58));
         button.setMinimumHeight(dp(58));
         return button;
+    }
+
+    private LinearLayout.LayoutParams stackedActionTileParams(boolean addTopMargin) {
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        if (addTopMargin) params.topMargin = dp(3);
+        return params;
     }
 
     private TextView section(String value) {

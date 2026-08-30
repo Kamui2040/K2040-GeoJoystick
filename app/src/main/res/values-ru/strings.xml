@@ -1,0 +1,246 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">GeoJoystick</string>
+    <string name="ui_001">Карта не вернула допустимые координаты</string>
+    <string name="ui_002">Карта вернула недопустимые координаты</string>
+    <string name="ui_003">Местоположение выбрано. Перед запуском укажите высоту.</string>
+    <string name="ui_004">Состояние</string>
+    <string name="ui_005">Фиктивное местоположение</string>
+    <string name="ui_006">Разрешение на оверлей</string>
+    <string name="ui_007">Симуляция</string>
+    <string name="ui_008">Состояние свернуто. Нажмите, чтобы развернуть</string>
+    <string name="ui_009">Состояние развернуто. Нажмите, чтобы свернуть</string>
+    <string name="ui_010">Координаты</string>
+    <string name="ui_011">Широта</string>
+    <string name="ui_012">Долгота</string>
+    <string name="ui_013">Высота (м)</string>
+    <string name="ui_014">Карта</string>
+    <string name="ui_015">Вставить ссылку</string>
+    <string name="ui_016">Избранное</string>
+    <string name="ui_017">Избранное</string>
+    <string name="ui_018">Нажмите · удерживайте для редактирования</string>
+    <string name="ui_019">Симуляция</string>
+    <string name="ui_020">Запустить симуляцию</string>
+    <string name="ui_021">Остановить симуляцию</string>
+    <string name="ui_022">Открытый код · GPL-3.0-only · Локальные данные</string>
+    <string name="ui_023">О GeoJoystick</string>
+    <string name="ui_024">Прозрачная симуляция фиктивного местоположения</string>
+    <string name="ui_025">Настройки</string>
+    <string name="ui_026">Настройки</string>
+    <string name="ui_027">Настройка</string>
+    <string name="ui_028">Фиктивное местоположение</string>
+    <string name="ui_029">Выбрано</string>
+    <string name="ui_030">Не выбрано</string>
+    <string name="ui_031">Разрешение на оверлей</string>
+    <string name="ui_032">Предоставлено</string>
+    <string name="ui_033">Не предоставлено</string>
+    <string name="ui_034">Сбросить позицию оверлея</string>
+    <string name="ui_035">Восстанавливать последнюю позицию</string>
+    <string name="ui_036">Вкл.</string>
+    <string name="ui_037">Выкл.</string>
+    <string name="ui_038">Поведение</string>
+    <string name="ui_039">Скорость симуляции</string>
+    <string name="ui_040">Высококонтрастный оверлей</string>
+    <string name="ui_041">Вкл.</string>
+    <string name="ui_042">Выкл.</string>
+    <string name="ui_043">Оверлей</string>
+    <string name="ui_044">Внешний вид и язык</string>
+    <string name="ui_045">Тема</string>
+    <string name="ui_046">Язык</string>
+    <string name="ui_047">Аватар K2040</string>
+    <string name="ui_048">Закрыть «О GeoJoystick»</string>
+    <string name="ui_049">Прозрачный джойстик фиктивного местоположения для тестирования Android-разработчиками и в эмуляторах.</string>
+    <string name="ui_050">Локально · сначала офлайн · без аккаунта · без рекламы · без аналитики · без отслеживания</string>
+    <string name="ui_051">Журнал изменений</string>
+    <string name="ui_052">Лицензия и использование</string>
+    <string name="ui_053">Источники</string>
+    <string name="ui_054">Поддержать на Ko-fi</string>
+    <string name="ui_055">Журнал изменений</string>
+    <string name="ui_056">Закрыть</string>
+    <string name="ui_057">Закрыть журнал изменений</string>
+    <string name="ui_058">Аватар K2040</string>
+    <string name="ui_059">Прозрачный джойстик фиктивного местоположения для тестирования Android-разработчиками и в эмуляторах. Локальные данные, без аккаунта, рекламы, аналитики или отслеживания.</string>
+    <string name="ui_060">Код приложения: GPL-3.0-only
+Графика K2040: CC BY 4.0
+Данные карты: © участники OpenStreetMap · ODbL 1.0</string>
+    <string name="ui_061">Лицензии: код приложения GPL-3.0-only, графика K2040 CC BY 4.0 и OpenStreetMap ODbL 1.0. Открыть сведения о лицензиях</string>
+    <string name="ui_062">Продолжить</string>
+    <string name="ui_063">Перейти к GeoJoystick</string>
+    <string name="ui_064">Лицензия и использование</string>
+    <string name="ui_065">ЛОКАЛЬНЫЕ ДАННЫЕ</string>
+    <string name="ui_066">Координаты и настройки остаются на этом устройстве. Карта загружает плитки OpenStreetMap только при открытии; обработка поддерживаемых ссылок может использовать ограниченные HTTPS-запросы. Без аккаунта, аналитики или скрытых загрузок.</string>
+    <string name="ui_067">ЛИЦЕНЗИИ</string>
+    <string name="ui_068">Нажмите на объект, чтобы открыть актуальные сведения о лицензии.</string>
+    <string name="ui_069">Код приложения лицензируется только по GPL-3.0-only. GPL-код, созданный K2040, также содержит отдельное условие атрибуции раздела 7(b). Оригинальная графика K2040 лицензируется по CC BY 4.0. Сторонние материалы сохраняют собственные условия.</string>
+    <string name="ui_070">Код приложения · части, созданные K2040, также имеют требование атрибуции §7(b)</string>
+    <string name="ui_071">Графика K2040 · CC BY 4.0</string>
+    <string name="ui_072">Оригинальная графика K2040 и графика интерфейса · требуется атрибуция</string>
+    <string name="ui_073">Данные карты · © участники OpenStreetMap</string>
+    <string name="ui_074">Закрыть</string>
+    <string name="ui_075">Встроенный английский текст GPL является авторитетным текстом GPL. Оригинальный GPL-код, созданный K2040, также содержит отдельное условие сохранения атрибуции раздела 7(b), требующее сохранять «Copyright (c) 2026 K2040.». Материалы, производные от GoGoGo, и другие сторонние материалы сохраняют свои уведомления.</string>
+    <string name="ui_076">Закрыть</string>
+    <string name="ui_077">Графика K2040 · CC BY 4.0</string>
+    <string name="ui_078">Оригинальная графика и графика интерфейса, созданные K2040 и определённые происхождением проекта, лицензируются по Creative Commons Attribution 4.0 International (CC BY 4.0).
+
+При распространении охватываемой лицензией графики укажите K2040, обозначьте CC BY 4.0, добавьте ссылку на лицензию, где это разумно возможно, и отметьте изменения. Сторонние и исходные ресурсы исключены и сохраняют собственные условия.</string>
+    <string name="ui_079">Открыть официальную лицензию</string>
+    <string name="ui_080">Закрыть</string>
+    <string name="ui_081">Встроенная карта GeoJoystick загружает плитки OpenStreetMap только при использовании карты. Данные карты: © участники OpenStreetMap; они доступны по Open Data Commons Open Database License (ODbL) 1.0.
+
+Карта сохраняет видимую атрибуцию участников. Официальная страница авторских прав и лицензирования OpenStreetMap содержит актуальные сведения и дополнительные уведомления, относящиеся к сервису плиток.</string>
+    <string name="ui_082">Открыть официальные сведения</string>
+    <string name="ui_083">Закрыть</string>
+    <string name="ui_084">Источники</string>
+    <string name="ui_085">Внешние проекты и материалы, на которых основан GeoJoystick или которые он использует напрямую.</string>
+    <string name="ui_086">Оригинальный исходный проект · ZCShou и участники</string>
+    <string name="ui_087">Плитки и данные карты · © участники OpenStreetMap</string>
+    <string name="ui_088">GeoJoystick — производный проект GPL-3.0-only, созданный с учётом GoGoGo. Сервис фиктивного местоположения и схема движения джойстика были адаптированы и существенно упрощены. Материалы, производные от GoGoGo, сохраняют исходную атрибуцию GPLv3; условие K2040 §7(b) применяется только к GPL-материалам, созданным K2040. Проприетарные компоненты Baidu SDK и реклама не включены.</string>
+    <string name="ui_089">Закрыть</string>
+    <string name="ui_090">Открыть</string>
+    <string name="ui_091">Локально · без аккаунта · без лишнего отслеживания</string>
+    <string name="ui_092">Координаты и настройки остаются на вашем устройстве. Без аналитики и без системы аккаунтов.</string>
+    <string name="ui_093">Открыть</string>
+    <string name="ui_094">Прозрачный джойстик фиктивного местоположения для тестирования Android-разработчиками и в эмуляторах.
+
+Локально · Без аккаунта · Без рекламы · Без аналитики · Без отслеживания
+Координаты и настройки остаются на вашем устройстве.</string>
+    <string name="ui_095">Назад</string>
+    <string name="ui_096">Системное значение</string>
+    <string name="ui_097">Светлая</string>
+    <string name="ui_098">Тёмная</string>
+    <string name="ui_099">Внешний вид</string>
+    <string name="ui_100">Отмена</string>
+    <string name="ui_101">Язык</string>
+    <string name="ui_102">Отмена</string>
+    <string name="ui_103">Тёмная</string>
+    <string name="ui_104">Светлая</string>
+    <string name="ui_105">Системная</string>
+    <string name="ui_106">Система</string>
+    <string name="ui_107">Позиция оверлея будет сброшена при следующем показе</string>
+    <string name="ui_108">Название</string>
+    <string name="ui_109">Скорость в м/с</string>
+    <string name="ui_110">Своя скорость</string>
+    <string name="ui_111">Сохранить</string>
+    <string name="ui_112">Отмена</string>
+    <string name="ui_113">Введите допустимую скорость</string>
+    <string name="ui_114">Размер оверлея: %d%%</string>
+    <string name="ui_115">Прозрачность оверлея: %d%%</string>
+    <string name="ui_116">Избранное %1$d</string>
+    <string name="ui_117">Выберите слот избранного</string>
+    <string name="ui_118">Отмена</string>
+    <string name="ui_119">Избранное загружено в поля координат</string>
+    <string name="ui_120">Избранное %1$d</string>
+    <string name="ui_121">Название избранного</string>
+    <string name="ui_122">Широта</string>
+    <string name="ui_123">Долгота</string>
+    <string name="ui_124">Высота (м)</string>
+    <string name="ui_125">Избранное %1$d</string>
+    <string name="ui_126">Сохранить</string>
+    <string name="ui_127">Отмена</string>
+    <string name="ui_128">Очистить</string>
+    <string name="ui_129">Избранное %1$d</string>
+    <string name="ui_130">Введите допустимые координаты избранного</string>
+    <string name="ui_131">Избр. %1$d</string>
+    <string name="ui_132">Пустое избранное %1$d</string>
+    <string name="ui_133">Избр. %1$d</string>
+    <string name="ui_134">Буфер обмена пуст</string>
+    <string name="ui_135">Буфер обмена пуст</string>
+    <string name="ui_136">Ссылка на местоположение не найдена</string>
+    <string name="ui_137">Чтение ссылки на местоположение…</string>
+    <string name="ui_138">Не удалось извлечь координаты из этой ссылки</string>
+    <string name="ui_139">Импортированные координаты недопустимы</string>
+    <string name="ui_140">Координаты импортированы</string>
+    <string name="ui_141">Координаты импортированы. Перед запуском укажите высоту.</string>
+    <string name="ui_142">Выберите GeoJoystick</string>
+    <string name="ui_143">В параметрах разработчика выберите GeoJoystick в пункте выбора приложения для фиктивного местоположения, затем вернитесь сюда.</string>
+    <string name="ui_144">Открыть настройки</string>
+    <string name="ui_145">Отмена</string>
+    <string name="ui_146">Введите допустимые широту, долготу и высоту</string>
+    <string name="ui_147">Запрос на запуск GeoJoystick отправлен</string>
+    <string name="ui_148">Не удалось запустить GeoJoystick</string>
+    <string name="ui_149">Запрос на остановку GeoJoystick отправлен</string>
+    <string name="ui_150">Не удалось остановить GeoJoystick</string>
+    <string name="ui_151">Выбрано</string>
+    <string name="ui_152">Не выбрано</string>
+    <string name="ui_153">Предоставлено</string>
+    <string name="ui_154">Не предоставлено</string>
+    <string name="ui_155">Активна</string>
+    <string name="ui_156">Запускается</string>
+    <string name="ui_157">Неактивна</string>
+    <string name="ui_158">Введите допустимые широту, долготу и высоту</string>
+    <string name="ui_159">Проверка…</string>
+    <string name="ui_160">• Обновлены главный экран, настройки и элементы управления оверлеем с более понятным состоянием и компактным режимом.
+• Улучшены восстановление симуляции, возврат к последней позиции и обработка недопустимого ввода.
+• Добавлены начальное знакомство, а также экраны «О GeoJoystick», «Журнал изменений», «Лицензия и использование» и «Источники».
+• Расширен разбор ссылок на карты и повышена надёжность выбора на карте.
+• Улучшены доступность, работа с крупным шрифтом и размеры областей касания.
+• Добавлены новый талисман/значок GeoJoystick и поддержка навигации назад в Android 16/API 36.
+
+0.1.3
+• Диалоги теперь соответствуют выбранной тёмной теме.
+• GeoJoystick теперь использует отдельный значок в списках магазинов.
+
+0.1.0
+• Первый публичный выпуск с вводом координат и высоты, выбором на карте и импортом ссылок, избранным, настройками внешнего вида и языка и плавающими элементами управления джойстиком.</string>
+    <string name="ui_161">Пожертвования полностью добровольны. Они не открывают функции и не дают дополнительных преимуществ.</string>
+    <string name="ui_162">Текст лицензии недоступен в этой сборке.</string>
+    <string name="ui_163">Нет доступного приложения браузера</string>
+    <string name="ui_164">Отменить выбор на карте</string>
+    <string name="ui_165">Выберите местоположение</string>
+    <string name="ui_166">Использовать местоположение</string>
+    <string name="ui_167">Нажмите на карту, чтобы поставить маркер. Местоположение не выбирается автоматически.</string>
+    <string name="ui_168">Карта недоступна</string>
+    <string name="ui_169">Местоположение не выбрано</string>
+    <string name="ui_170">%1$.6f, %2$.6f</string>
+    <string name="ui_171">Сервис фиктивного местоположения</string>
+    <string name="ui_172">Поддерживает видимую симуляцию фиктивного местоположения активной.</string>
+    <string name="ui_173">Симуляция фиктивного местоположения активна</string>
+    <string name="ui_174">Запуск симуляции фиктивного местоположения</string>
+    <string name="ui_175">Показать</string>
+    <string name="ui_176">Скрыть</string>
+    <string name="ui_177">Остановить</string>
+    <string name="ui_178">Переместить оверлей GeoJoystick</string>
+    <string name="ui_179">Перейти к компактному оверлею</string>
+    <string name="ui_180">Скорость ходьбы</string>
+    <string name="ui_181">Скорость бега</string>
+    <string name="ui_182">Скорость велосипеда</string>
+    <string name="ui_183">Своя скорость</string>
+    <string name="ui_184">Движение активно; нажмите, чтобы приостановить</string>
+    <string name="ui_185">Включить удержание</string>
+    <string name="ui_186">Остановить сервис GeoJoystick и закрыть оверлей</string>
+    <string name="ui_187">Перейти к развёрнутому оверлею</string>
+    <string name="ui_188">Перейти к компактному оверлею</string>
+    <string name="ui_189">Своя скорость: %1$s</string>
+    <string name="ui_190">Движение приостановлено; нажмите, чтобы продолжить</string>
+    <string name="ui_191">Движение активно; нажмите, чтобы приостановить</string>
+    <string name="ui_192">Отключить удержание</string>
+    <string name="ui_193">Включить удержание</string>
+    <string name="ui_194">Позиция недоступна</string>
+    <string name="map_instruction">Нажмите на карту, чтобы поставить маркер. Перетаскивайте для перемещения.</string>
+    <string name="map_zoom_in">Увеличить масштаб</string>
+    <string name="map_zoom_out">Уменьшить масштаб</string>
+    <string name="language_system_default">System default</string>
+    <string name="language_english">English</string>
+    <string name="language_german">Deutsch</string>
+    <string name="language_french">Français</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_italian">Italiano</string>
+    <string name="language_dutch">Nederlands</string>
+    <string name="language_danish">Dansk</string>
+    <string name="language_swedish">Svenska</string>
+    <string name="language_norwegian_bokmal">Norsk bokmål</string>
+    <string name="language_polish">Polski</string>
+    <string name="language_turkish">Türkçe</string>
+    <string name="language_ukrainian">Українська</string>
+    <string name="language_russian">Русский</string>
+    <string name="custom_speed_default">Своя</string>
+    <string name="favorite_default">Избранное %1$d</string>
+    <string name="service_invalid_start">GeoJoystick не запущен, потому что координаты недопустимы.</string>
+    <string name="service_not_active">GeoJoystick неактивен.</string>
+    <string name="service_coordinates_rejected">Новые координаты отклонены.</string>
+    <string name="service_no_provider">GeoJoystick остановлен, потому что ни один поставщик фиктивного местоположения не принял позицию.</string>
+    <string name="service_publish_failed">GeoJoystick остановлен из-за ошибки публикации фиктивного местоположения.</string>
+    <string name="service_cannot_publish">GeoJoystick не смог опубликовать фиктивное местоположение. Проверьте параметры разработчика и выберите GeoJoystick как приложение фиктивного местоположения.</string>
+    <string name="service_cannot_start">GeoJoystick не смог запустить фоновый сервис симуляции.</string>
+    <string name="joystick_accessibility">Джойстик движения</string>
+</resources>

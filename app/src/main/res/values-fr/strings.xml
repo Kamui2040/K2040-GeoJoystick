@@ -231,6 +231,8 @@ Les coordonnées et les paramètres restent sur votre appareil.</string>
     <string name="language_norwegian_bokmal">Norsk bokmål</string>
     <string name="language_polish">Polski</string>
     <string name="language_turkish">Türkçe</string>
+    <string name="language_ukrainian">Українська</string>
+    <string name="language_russian">Русский</string>
     <string name="custom_speed_default">Personnalisé</string>
     <string name="favorite_default">Favoris %1$d</string>
     <string name="service_invalid_start">GeoJoystick n\'a pas démarré car les coordonnées n\'étaient pas valides.</string>
