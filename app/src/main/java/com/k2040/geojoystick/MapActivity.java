@@ -81,11 +81,6 @@ public final class MapActivity extends Activity {
         chrome.setClickable(false);
 
         LinearLayout toolbar = GeoUi.card(this, palette);
-        boolean stackedToolbar =
-                getResources().getConfiguration().fontScale > 1.10f
-                        || getResources().getConfiguration().screenWidthDp < 360;
-        toolbar.setOrientation(
-                stackedToolbar ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
         toolbar.setGravity(Gravity.CENTER_VERTICAL);
         toolbar.setElevation(dp(8));
 
@@ -103,7 +98,8 @@ public final class MapActivity extends Activity {
         titleBlock.addView(title);
         titleBlock.addView(coordinateText);
 
-        useButton = GeoUi.button(this, palette, t(R.string.ui_166), true);
+        String useLabel = t(R.string.ui_166);
+        useButton = GeoUi.button(this, palette, useLabel, true);
         useButton.setEnabled(hasSelection);
         useButton.setAlpha(hasSelection ? 1f : 0.48f);
         useButton.setSingleLine(false);
@@ -112,6 +108,10 @@ public final class MapActivity extends Activity {
         useButton.setMinWidth(0);
         useButton.setMinimumWidth(0);
         useButton.setOnClickListener(view -> returnSelection());
+
+        boolean stackedToolbar = shouldStackToolbar(useButton, useLabel);
+        toolbar.setOrientation(
+                stackedToolbar ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
 
         if (stackedToolbar) {
             LinearLayout titleRow = new LinearLayout(this);
@@ -385,6 +385,26 @@ public final class MapActivity extends Activity {
 
     private String t(int resourceId) {
         return new GeoSettings(this).text(resourceId);
+    }
+
+    private boolean shouldStackToolbar(Button actionButton, String actionLabel) {
+        Configuration configuration = getResources().getConfiguration();
+        if (configuration.fontScale > 1.10f || configuration.screenWidthDp < 360) {
+            return true;
+        }
+
+        float lineWidth = dp(104);
+        float longestWord = 0f;
+        String trimmed = actionLabel == null ? "" : actionLabel.trim();
+        if (!trimmed.isEmpty()) {
+            for (String word : trimmed.split("\\s+")) {
+                longestWord = Math.max(
+                        longestWord,
+                        actionButton.getPaint().measureText(word));
+            }
+        }
+        float fullWidth = actionButton.getPaint().measureText(trimmed);
+        return longestWord > lineWidth || fullWidth > lineWidth * 2f;
     }
 
     private int dp(int value) {
