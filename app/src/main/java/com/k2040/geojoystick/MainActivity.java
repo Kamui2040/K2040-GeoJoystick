@@ -652,7 +652,7 @@ public final class MainActivity extends Activity {
         identity.setGravity(Gravity.CENTER_VERTICAL);
 
         ImageView avatar = new ImageView(this);
-        avatar.setImageResource(R.drawable.k2040_about_avatar);
+        avatar.setImageResource(R.drawable.k2040_avatar);
         avatar.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         avatar.setContentDescription(t(R.string.ui_047));
         identity.addView(avatar, new LinearLayout.LayoutParams(dp(68), dp(68)));

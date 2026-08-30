@@ -29,7 +29,7 @@ import capture_store_screenshots as core
 
 PACKAGE = core.PACKAGE
 PREFS_PATH = core.PREFS_PATH
-BACKUP_PATH = "cache/geojoystick_issue12_overlay_prefs_backup.xml"
+BACKUP_PATH = "cache/geojoystick_store_overlay_prefs_backup.xml"
 NEUTRAL_ACTIVITY = ".NeutralCaptureActivity"
 OVERLAY_PROVENANCE = "overlay-screenshot-provenance.json"
 OVERLAY_FILENAME = "05-overlay.png"
@@ -318,7 +318,7 @@ def capture_command(args: argparse.Namespace) -> int:
     if not adb.run_as_probe(f"test -f {PREFS_PATH}"):
         raise OverlayCaptureError("GeoJoystick preference file is unavailable")
     if adb.run_as_probe(f"test -e {BACKUP_PATH}"):
-        raise OverlayCaptureError("stale Issue #12 overlay preference backup exists")
+        raise OverlayCaptureError("stale store-overlay preference backup exists")
 
     version_name, version_code = core.app_version(adb)
     if version_name != base.get("version_name") or version_code != base.get("version_code"):

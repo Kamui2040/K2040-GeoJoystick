@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Capture the complete sanitized GeoJoystick store screenshot bundle.
 
-This is the maintainer-facing orchestration entrypoint for Issue #12. It runs the
+This is the maintainer-facing orchestration entrypoint for store screenshot QA. It runs the
 normal localized app capture and the real expanded-overlay capture into a private
 temporary staging directory, validates both provenance manifests and all ten PNGs,
 and publishes the requested output directory only after the complete bundle passes.
