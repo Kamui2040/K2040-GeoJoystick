@@ -1,6 +1,6 @@
 # Project Context
 
-Updated: 2026-08-25
+Updated: 2026-08-30
 
 ## Purpose
 
@@ -65,7 +65,9 @@ Public builds must remain reproducible from public source without private infras
 
 ## Current development
 
-Additional UI localization is being developed for a future release.
+Development `main` contains the expanded UI language set documented in `README.md`, including localization through Ukrainian and Russian, plus responsive layout fixes needed for longer and enlarged text. These changes are development state only and are not part of the v0.1.4 release.
+
+Further localization may continue on focused development branches. Public documentation should describe merged behavior only; private release planning remains outside the repository.
 
 Normal public issues and pull requests may track technical bugs, compatibility work, localization expansion, reproducibility improvements, and other contributor-relevant changes.
 

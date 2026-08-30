@@ -33,8 +33,8 @@ PACKAGE = "com.k2040.geojoystick"
 MAIN_ACTIVITY = ".MainActivity"
 MAP_ACTIVITY = ".MapActivity"
 PREFS_PATH = "shared_prefs/geojoystick.xml"
-BACKUP_PATH = "cache/geojoystick_issue12_prefs_backup.xml"
-UI_DUMP_PATH = "/data/local/tmp/geojoystick_issue12_ui.xml"
+BACKUP_PATH = "cache/geojoystick_store_capture_prefs_backup.xml"
+UI_DUMP_PATH = "/data/local/tmp/geojoystick_store_capture_ui.xml"
 
 SYNTHETIC_LATITUDE = 51.234567
 SYNTHETIC_LONGITUDE = 10.123456
@@ -604,7 +604,7 @@ def capture_command(args: argparse.Namespace) -> int:
     if not adb.run_as_probe(f"test -f {PREFS_PATH}"):
         raise CaptureError("GeoJoystick preference file is unavailable")
     if adb.run_as_probe(f"test -e {BACKUP_PATH}"):
-        raise CaptureError("stale Issue #12 preference backup exists")
+        raise CaptureError("stale store-screenshot preference backup exists")
 
     version_name, version_code = app_version(adb)
     original_font_scale = adb.shell("settings", "get", "system", "font_scale") or "1.0"
@@ -683,7 +683,7 @@ def capture_command(args: argparse.Namespace) -> int:
                 raise CaptureError("simulation became active during screenshot capture")
             adb.launch()
             if adb.run_as_probe(f"test -e {BACKUP_PATH}"):
-                raise CaptureError("Issue #12 preference backup residue remains")
+                raise CaptureError("store-screenshot preference backup residue remains")
             print("PASS: original app preferences restored byte-for-byte")
             print(f"PASS: font scale restored to {original_font_scale}")
             print("PASS: simulation remained inactive")
