@@ -26,6 +26,7 @@ GeoJoystick is an open-source Android mock-location utility for emulator and dev
 - Keep Linux, macOS, and Windows build instructions contributor-facing and machine-independent.
 - Before a change is considered complete, inspect the changed-file scope and run applicable tests, lint, build checks, and `git diff --check`.
 - Keep source, build, runtime/device, signing, reproducibility, and publication evidence distinct.
+- If an automated Android runtime-state detector disagrees with verified known-active manual behavior, treat the detector as invalid evidence. Stop detector retries, remove superseded detector logic, and report the affected automated gate as requiring manual acceptance unless a reliable app-owned debug interface exists.
 - Do not claim installation, physical-device behavior, signing, reproducibility, or release readiness without corresponding evidence.
 
 ## Contributions

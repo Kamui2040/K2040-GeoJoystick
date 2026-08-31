@@ -1,0 +1,249 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">GeoJoystick</string>
+    <string name="ui_001">地圖未傳回有效座標</string>
+    <string name="ui_002">地圖傳回了無效座標</string>
+    <string name="ui_003">已選擇位置。請在開始前輸入海拔。</string>
+    <string name="ui_004">狀態</string>
+    <string name="ui_005">模擬位置</string>
+    <string name="ui_006">懸浮視窗權限</string>
+    <string name="ui_007">模擬</string>
+    <string name="ui_008">狀態已收合。點按以展開</string>
+    <string name="ui_009">狀態已展開。點按以收合</string>
+    <string name="ui_010">座標</string>
+    <string name="ui_011">緯度</string>
+    <string name="ui_012">經度</string>
+    <string name="ui_013">海拔 (m)</string>
+    <string name="ui_014">地圖</string>
+    <string name="ui_015">貼上連結</string>
+    <string name="ui_016">收藏</string>
+    <string name="ui_017">收藏</string>
+    <string name="ui_018">點按 · 長按以編輯</string>
+    <string name="ui_019">模擬</string>
+    <string name="ui_020">開始模擬</string>
+    <string name="ui_021">停止模擬</string>
+    <string name="ui_022">開放原始碼 · GPL-3.0-only · 本機優先</string>
+    <string name="ui_023">關於 GeoJoystick</string>
+    <string name="ui_024">透明的模擬位置功能</string>
+    <string name="ui_025">設定</string>
+    <string name="ui_026">設定</string>
+    <string name="ui_027">設定</string>
+    <string name="ui_028">模擬位置</string>
+    <string name="ui_029">已選擇</string>
+    <string name="ui_030">未選擇</string>
+    <string name="ui_031">懸浮視窗權限</string>
+    <string name="ui_032">已授予</string>
+    <string name="ui_033">未授予</string>
+    <string name="ui_034">重設懸浮視窗位置</string>
+    <string name="ui_035">還原上次位置</string>
+    <string name="ui_036">開啟</string>
+    <string name="ui_037">關閉</string>
+    <string name="ui_038">行為</string>
+    <string name="ui_039">模擬速度</string>
+    <string name="ui_040">高對比懸浮視窗</string>
+    <string name="ui_041">開啟</string>
+    <string name="ui_042">關閉</string>
+    <string name="ui_043">懸浮視窗</string>
+    <string name="ui_044">外觀與語言</string>
+    <string name="ui_045">主題</string>
+    <string name="ui_046">語言</string>
+    <string name="ui_047">K2040 頭像</string>
+    <string name="ui_048">關閉關於</string>
+    <string name="ui_049">供 Android 開發人員與模擬器測試使用的透明模擬位置搖桿。</string>
+    <string name="ui_050">本機 · 離線優先 · 無帳號 · 無廣告 · 無分析 · 無追蹤</string>
+    <string name="ui_051">更新記錄</string>
+    <string name="ui_052">授權與使用</string>
+    <string name="ui_053">來源</string>
+    <string name="ui_054">在 Ko-fi 上支持</string>
+    <string name="ui_055">更新記錄</string>
+    <string name="ui_056">關閉</string>
+    <string name="ui_057">關閉更新記錄</string>
+    <string name="ui_058">K2040 頭像</string>
+    <string name="ui_059">供 Android 開發人員與模擬器測試使用的透明模擬位置搖桿。本機優先，沒有帳號、廣告、分析或追蹤。</string>
+    <string name="ui_060">應用程式碼：GPL-3.0-only
+K2040 美術素材：CC BY 4.0
+地圖資料：© OpenStreetMap contributors · ODbL 1.0</string>
+    <string name="ui_061">授權：應用程式碼 GPL-3.0-only、K2040 美術素材 CC BY 4.0、OpenStreetMap ODbL 1.0。開啟授權詳細資料</string>
+    <string name="ui_062">繼續</string>
+    <string name="ui_063">繼續前往 GeoJoystick</string>
+    <string name="ui_064">授權與使用</string>
+    <string name="ui_065">本機資料</string>
+    <string name="ui_066">座標與設定會保留在此裝置上。只有在開啟地圖時才會取得 OpenStreetMap 圖磚；解析支援的連結時可能使用受限的 HTTPS 要求。沒有帳號、分析或隱藏上傳。</string>
+    <string name="ui_067">授權</string>
+    <string name="ui_068">點按項目以查看維護中的授權詳細資料。</string>
+    <string name="ui_069">應用程式碼採用 GPL-3.0-only。K2040 撰寫的 GPL 程式碼另附獨立的第 7(b) 節署名條款。K2040 原創美術素材採用 CC BY 4.0。第三方材料保留其各自條款。</string>
+    <string name="ui_070">應用程式碼 · K2040 撰寫部分另附 §7(b) 署名</string>
+    <string name="ui_071">K2040 美術素材 · CC BY 4.0</string>
+    <string name="ui_072">K2040 原創美術素材與 UI 美術素材 · 需要署名</string>
+    <string name="ui_073">地圖資料 · © OpenStreetMap contributors</string>
+    <string name="ui_074">關閉</string>
+    <string name="ui_075">隨附的英文 GPL 文字是具權威性的 GPL 文字。K2040 原創 GPL 程式碼另附獨立的第 7(b) 節署名保留條款，要求保留 “Copyright (c) 2026 K2040.”。源自 GoGoGo 的材料與其他第三方材料保留其各自聲明。</string>
+    <string name="ui_076">關閉</string>
+    <string name="ui_077">K2040 美術素材 · CC BY 4.0</string>
+    <string name="ui_078">由 K2040 創作並在專案來源資訊中標明的原創美術素材與 UI 美術素材，採用 Creative Commons Attribution 4.0 International (CC BY 4.0) 授權。
+
+分享受此授權涵蓋的美術素材時，請註明 K2040、標示 CC BY 4.0，在合理可行時提供授權連結，並說明是否有修改。第三方與上游素材不包含在內，並保留其各自條款。</string>
+    <string name="ui_079">開啟官方授權</string>
+    <string name="ui_080">關閉</string>
+    <string name="ui_081">GeoJoystick 的內建地圖只會在使用地圖時載入 OpenStreetMap 圖磚。地圖資料 © OpenStreetMap contributors，並依 Open Data Commons Open Database License (ODbL) 1.0 提供。
+
+地圖會持續顯示貢獻者署名。OpenStreetMap 官方版權與授權頁面包含維護中的詳細資料，以及適用於圖磚服務的其他聲明。</string>
+    <string name="ui_082">開啟官方詳細資料</string>
+    <string name="ui_083">關閉</string>
+    <string name="ui_084">來源</string>
+    <string name="ui_085">GeoJoystick 直接建立於其上或直接使用的外部專案與材料。</string>
+    <string name="ui_086">原始上游專案 · ZCShou 與貢獻者</string>
+    <string name="ui_087">地圖圖磚與資料 · © OpenStreetMap contributors</string>
+    <string name="ui_088">GeoJoystick 是受 GoGoGo 啟發的 GPL-3.0-only 衍生專案。其模擬位置服務與搖桿移動設計經過改編並大幅簡化。源自 GoGoGo 的材料保留上游 GPLv3 署名；K2040 §7(b) 條款僅適用於 K2040 撰寫的 GPL 材料。不包含專有 Baidu SDK 元件與廣告。</string>
+    <string name="ui_089">關閉</string>
+    <string name="ui_090">開啟</string>
+    <string name="ui_091">本機 · 無帳號 · 無不必要追蹤</string>
+    <string name="ui_092">座標與設定保留在你的裝置上。沒有分析功能，也沒有帳號系統。</string>
+    <string name="ui_093">開啟</string>
+    <string name="ui_094">供 Android 開發人員與模擬器測試使用的透明模擬位置搖桿。
+
+本機優先 · 無帳號 · 無廣告 · 無分析 · 無追蹤
+座標與設定保留在你的裝置上。</string>
+    <string name="ui_095">返回</string>
+    <string name="ui_096">系統預設</string>
+    <string name="ui_097">淺色</string>
+    <string name="ui_098">深色</string>
+    <string name="ui_099">外觀</string>
+    <string name="ui_100">取消</string>
+    <string name="ui_101">語言</string>
+    <string name="ui_102">取消</string>
+    <string name="ui_103">深色</string>
+    <string name="ui_104">淺色</string>
+    <string name="ui_105">系統</string>
+    <string name="ui_106">系統</string>
+    <string name="ui_107">下次顯示時將重設懸浮視窗位置</string>
+    <string name="ui_108">名稱</string>
+    <string name="ui_109">速度 (m/s)</string>
+    <string name="ui_110">自訂速度</string>
+    <string name="ui_111">儲存</string>
+    <string name="ui_112">取消</string>
+    <string name="ui_113">請輸入有效速度</string>
+    <string name="ui_114">懸浮視窗大小：%d%%</string>
+    <string name="ui_115">懸浮視窗不透明度：%d%%</string>
+    <string name="ui_116">收藏 %1$d</string>
+    <string name="ui_117">選擇收藏欄位</string>
+    <string name="ui_118">取消</string>
+    <string name="ui_119">已將收藏載入座標欄位</string>
+    <string name="ui_120">收藏 %1$d</string>
+    <string name="ui_121">收藏名稱</string>
+    <string name="ui_122">緯度</string>
+    <string name="ui_123">經度</string>
+    <string name="ui_124">海拔 (m)</string>
+    <string name="ui_125">收藏 %1$d</string>
+    <string name="ui_126">儲存</string>
+    <string name="ui_127">取消</string>
+    <string name="ui_128">清除</string>
+    <string name="ui_129">收藏 %1$d</string>
+    <string name="ui_130">請輸入有效的收藏座標</string>
+    <string name="ui_131">收藏 %1$d</string>
+    <string name="ui_132">空白收藏 %1$d</string>
+    <string name="ui_133">收藏 %1$d</string>
+    <string name="ui_134">剪貼簿是空的</string>
+    <string name="ui_135">剪貼簿是空的</string>
+    <string name="ui_136">找不到位置連結</string>
+    <string name="ui_137">正在讀取位置連結…</string>
+    <string name="ui_138">無法從該連結擷取座標</string>
+    <string name="ui_139">匯入的座標無效</string>
+    <string name="ui_140">已匯入座標</string>
+    <string name="ui_141">已匯入座標。請在開始前輸入海拔。</string>
+    <string name="ui_142">選擇 GeoJoystick</string>
+    <string name="ui_143">在開發人員選項中，於「選取模擬位置資訊應用程式」下選擇 GeoJoystick，然後返回此處。</string>
+    <string name="ui_144">開啟設定</string>
+    <string name="ui_145">取消</string>
+    <string name="ui_146">請輸入有效的緯度、經度與海拔</string>
+    <string name="ui_147">已要求啟動 GeoJoystick</string>
+    <string name="ui_148">無法啟動 GeoJoystick</string>
+    <string name="ui_149">已要求停止 GeoJoystick</string>
+    <string name="ui_150">無法停止 GeoJoystick</string>
+    <string name="ui_151">已選擇</string>
+    <string name="ui_152">未選擇</string>
+    <string name="ui_153">已授予</string>
+    <string name="ui_154">未授予</string>
+    <string name="ui_155">作用中</string>
+    <string name="ui_156">正在啟動</string>
+    <string name="ui_157">未作用</string>
+    <string name="ui_158">請輸入有效的緯度、經度與海拔</string>
+    <string name="ui_159">正在檢查…</string>
+    <string name="ui_160">• 重新設計首頁、設定與懸浮視窗控制項，讓狀態與精簡模式更清楚。
+• 改善模擬復原、還原上次位置與無效輸入處理。
+• 新增導覽流程，以及關於、更新記錄、授權與使用、來源頁面。
+• 擴充地圖連結解析並提升地圖選擇器可靠性。
+• 改善無障礙、大字體行為與觸控目標。
+• 新增 GeoJoystick 吉祥物/啟動器識別，並支援 Android 16/API 36 返回導覽。
+
+0.1.3
+• 對話框現在會跟隨所選深色主題。
+• GeoJoystick 現在會在商店列表中使用專用圖示。
+
+0.1.0
+• 首個公開版本，包含座標與海拔輸入、地圖選擇與連結匯入、收藏、外觀與語言設定，以及懸浮搖桿控制項。</string>
+    <string name="ui_161">捐款完全自願。不會解鎖功能，也不會提供任何額外權益。</string>
+    <string name="ui_162">此版本中沒有可用的授權文字。</string>
+    <string name="ui_163">沒有可用的瀏覽器應用程式</string>
+    <string name="ui_164">取消地圖選擇</string>
+    <string name="ui_165">選擇位置</string>
+    <string name="ui_166">使用位置</string>
+    <string name="ui_167">點按地圖以放置標記。不會自動選擇位置。</string>
+    <string name="ui_168">地圖無法使用</string>
+    <string name="ui_169">未選擇位置</string>
+    <string name="ui_170">%1$.6f, %2$.6f</string>
+    <string name="ui_171">模擬位置服務</string>
+    <string name="ui_172">讓可見的模擬位置功能維持作用中。</string>
+    <string name="ui_173">模擬位置功能作用中</string>
+    <string name="ui_174">正在啟動模擬位置功能</string>
+    <string name="ui_175">顯示</string>
+    <string name="ui_176">隱藏</string>
+    <string name="ui_177">停止</string>
+    <string name="ui_178">移動 GeoJoystick 懸浮視窗</string>
+    <string name="ui_179">切換到精簡懸浮視窗</string>
+    <string name="ui_180">步行速度</string>
+    <string name="ui_181">跑步速度</string>
+    <string name="ui_182">騎乘速度</string>
+    <string name="ui_183">自訂速度</string>
+    <string name="ui_184">移動已啟用；點按以暫停</string>
+    <string name="ui_185">啟用保持</string>
+    <string name="ui_186">停止 GeoJoystick 服務並關閉懸浮視窗</string>
+    <string name="ui_187">切換到展開懸浮視窗</string>
+    <string name="ui_188">切換到精簡懸浮視窗</string>
+    <string name="ui_189">自訂速度：%1$s</string>
+    <string name="ui_190">移動已暫停；點按以繼續</string>
+    <string name="ui_191">移動已啟用；點按以暫停</string>
+    <string name="ui_192">停用保持</string>
+    <string name="ui_193">啟用保持</string>
+    <string name="ui_194">位置無法使用</string>
+    <string name="map_instruction">點按地圖以放置標記。拖曳以平移。</string>
+    <string name="map_zoom_in">放大</string>
+    <string name="map_zoom_out">縮小</string>
+    <string name="language_system_default">系統預設</string>
+    <string name="language_english">English</string>
+    <string name="language_german">Deutsch</string>
+    <string name="language_french">Français</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_italian">Italiano</string>
+    <string name="language_dutch">Nederlands</string>
+    <string name="language_danish">Dansk</string>
+    <string name="language_swedish">Svenska</string>
+    <string name="language_norwegian_bokmal">Norsk bokmål</string>
+    <string name="language_polish">Polski</string>
+    <string name="language_turkish">Türkçe</string>
+    <string name="language_ukrainian">Українська</string>
+    <string name="language_russian">Русский</string>
+    <string name="language_korean">한국어</string>
+    <string name="language_chinese_simplified">简体中文</string>
+    <string name="language_chinese_traditional">繁體中文</string>
+    <string name="custom_speed_default">自訂</string>
+    <string name="favorite_default">收藏 %1$d</string>
+    <string name="service_invalid_start">因座標無效，GeoJoystick 未啟動。</string>
+    <string name="service_not_active">GeoJoystick 目前未作用。</string>
+    <string name="service_coordinates_rejected">新的座標遭到拒絕。</string>
+    <string name="service_no_provider">因沒有模擬位置提供者接受此位置，GeoJoystick 已停止。</string>
+    <string name="service_publish_failed">因發布模擬位置失敗，GeoJoystick 已停止。</string>
+    <string name="service_cannot_publish">GeoJoystick 無法發布模擬位置。請檢查開發人員選項，並將 GeoJoystick 選為模擬位置應用程式。</string>
+    <string name="service_cannot_start">GeoJoystick 無法啟動其前景模擬服務。</string>
+    <string name="joystick_accessibility">移動搖桿</string>
+</resources>

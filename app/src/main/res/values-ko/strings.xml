@@ -1,0 +1,249 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">GeoJoystick</string>
+    <string name="ui_001">지도에서 유효한 좌표를 반환하지 않았습니다</string>
+    <string name="ui_002">지도에서 잘못된 좌표를 반환했습니다</string>
+    <string name="ui_003">위치를 선택했습니다. 시작하기 전에 고도를 입력하세요.</string>
+    <string name="ui_004">상태</string>
+    <string name="ui_005">모의 위치</string>
+    <string name="ui_006">오버레이 권한</string>
+    <string name="ui_007">시뮬레이션</string>
+    <string name="ui_008">상태가 접혀 있습니다. 탭하여 펼치기</string>
+    <string name="ui_009">상태가 펼쳐져 있습니다. 탭하여 접기</string>
+    <string name="ui_010">좌표</string>
+    <string name="ui_011">위도</string>
+    <string name="ui_012">경도</string>
+    <string name="ui_013">고도 (m)</string>
+    <string name="ui_014">지도</string>
+    <string name="ui_015">링크 붙여넣기</string>
+    <string name="ui_016">즐겨찾기</string>
+    <string name="ui_017">즐겨찾기</string>
+    <string name="ui_018">탭 · 길게 눌러 편집</string>
+    <string name="ui_019">시뮬레이션</string>
+    <string name="ui_020">시뮬레이션 시작</string>
+    <string name="ui_021">시뮬레이션 중지</string>
+    <string name="ui_022">오픈 소스 · GPL-3.0-only · 로컬 우선</string>
+    <string name="ui_023">GeoJoystick 정보</string>
+    <string name="ui_024">투명한 모의 위치 시뮬레이션</string>
+    <string name="ui_025">설정</string>
+    <string name="ui_026">설정</string>
+    <string name="ui_027">설정</string>
+    <string name="ui_028">모의 위치</string>
+    <string name="ui_029">선택됨</string>
+    <string name="ui_030">선택되지 않음</string>
+    <string name="ui_031">오버레이 권한</string>
+    <string name="ui_032">허용됨</string>
+    <string name="ui_033">허용되지 않음</string>
+    <string name="ui_034">오버레이 위치 재설정</string>
+    <string name="ui_035">마지막 위치 복원</string>
+    <string name="ui_036">켜짐</string>
+    <string name="ui_037">꺼짐</string>
+    <string name="ui_038">동작</string>
+    <string name="ui_039">시뮬레이션 속도</string>
+    <string name="ui_040">고대비 오버레이</string>
+    <string name="ui_041">켜짐</string>
+    <string name="ui_042">꺼짐</string>
+    <string name="ui_043">오버레이</string>
+    <string name="ui_044">모양 및 언어</string>
+    <string name="ui_045">테마</string>
+    <string name="ui_046">언어</string>
+    <string name="ui_047">K2040 아바타</string>
+    <string name="ui_048">정보 닫기</string>
+    <string name="ui_049">Android 개발자 및 에뮬레이터 테스트용 투명한 모의 위치 조이스틱입니다.</string>
+    <string name="ui_050">로컬 · 오프라인 우선 · 계정 없음 · 광고 없음 · 분석 없음 · 추적 없음</string>
+    <string name="ui_051">변경 기록</string>
+    <string name="ui_052">라이선스 및 사용</string>
+    <string name="ui_053">소스</string>
+    <string name="ui_054">Ko-fi에서 후원</string>
+    <string name="ui_055">변경 기록</string>
+    <string name="ui_056">닫기</string>
+    <string name="ui_057">변경 기록 닫기</string>
+    <string name="ui_058">K2040 아바타</string>
+    <string name="ui_059">Android 개발자 및 에뮬레이터 테스트용 투명한 모의 위치 조이스틱입니다. 로컬 우선이며 계정, 광고, 분석 또는 추적이 없습니다.</string>
+    <string name="ui_060">앱 코드: GPL-3.0-only
+K2040 아트워크: CC BY 4.0
+지도 데이터: © OpenStreetMap contributors · ODbL 1.0</string>
+    <string name="ui_061">라이선스: 앱 코드 GPL-3.0-only, K2040 아트워크 CC BY 4.0, OpenStreetMap ODbL 1.0. 라이선스 세부 정보 열기</string>
+    <string name="ui_062">계속</string>
+    <string name="ui_063">GeoJoystick로 계속</string>
+    <string name="ui_064">라이선스 및 사용</string>
+    <string name="ui_065">로컬 데이터</string>
+    <string name="ui_066">좌표와 설정은 이 기기에 유지됩니다. 지도는 열었을 때만 OpenStreetMap 타일을 가져오며, 지원되는 링크 확인에는 제한된 HTTPS 요청을 사용할 수 있습니다. 계정, 분석 또는 숨겨진 업로드는 없습니다.</string>
+    <string name="ui_067">라이선스</string>
+    <string name="ui_068">유지 관리되는 라이선스 세부 정보를 보려면 항목을 탭하세요.</string>
+    <string name="ui_069">애플리케이션 코드는 GPL-3.0-only입니다. K2040이 작성한 GPL 코드에는 별도의 7(b)절 저작자 표시 조건도 적용됩니다. K2040 원본 아트워크는 CC BY 4.0입니다. 타사 자료에는 각자의 조건이 적용됩니다.</string>
+    <string name="ui_070">애플리케이션 코드 · K2040 작성 부분에는 §7(b) 저작자 표시도 적용</string>
+    <string name="ui_071">K2040 아트워크 · CC BY 4.0</string>
+    <string name="ui_072">K2040 원본 아트워크 및 UI 아트워크 · 저작자 표시 필요</string>
+    <string name="ui_073">지도 데이터 · © OpenStreetMap contributors</string>
+    <string name="ui_074">닫기</string>
+    <string name="ui_075">번들에 포함된 영문 GPL 텍스트가 권위 있는 GPL 텍스트입니다. K2040이 작성한 원본 GPL 코드에는 “Copyright (c) 2026 K2040.” 표시를 보존하도록 요구하는 별도의 7(b)절 조건도 적용됩니다. GoGoGo에서 파생된 자료와 기타 타사 자료는 각자의 고지를 유지합니다.</string>
+    <string name="ui_076">닫기</string>
+    <string name="ui_077">K2040 아트워크 · CC BY 4.0</string>
+    <string name="ui_078">K2040이 작성하고 프로젝트 출처 정보로 식별되는 원본 아트워크와 UI 아트워크는 Creative Commons Attribution 4.0 International (CC BY 4.0) 라이선스로 제공됩니다.
+
+해당 아트워크를 공유할 때는 K2040을 표시하고, CC BY 4.0을 명시하며, 합리적으로 가능한 경우 라이선스 링크를 제공하고 수정 여부를 표시하세요. 타사 및 업스트림 자산은 제외되며 각자의 조건이 적용됩니다.</string>
+    <string name="ui_079">공식 라이선스 열기</string>
+    <string name="ui_080">닫기</string>
+    <string name="ui_081">GeoJoystick의 내장 지도는 지도를 사용할 때만 OpenStreetMap 타일을 불러옵니다. 지도 데이터는 © OpenStreetMap contributors이며 Open Data Commons Open Database License (ODbL) 1.0에 따라 제공됩니다.
+
+지도에는 기여자 표시가 계속 보입니다. 공식 OpenStreetMap 저작권 및 라이선스 페이지에는 유지 관리되는 세부 정보와 타일 서비스에 적용되는 추가 고지가 포함되어 있습니다.</string>
+    <string name="ui_082">공식 세부 정보 열기</string>
+    <string name="ui_083">닫기</string>
+    <string name="ui_084">소스</string>
+    <string name="ui_085">GeoJoystick가 직접 기반으로 하거나 사용하는 외부 프로젝트와 자료입니다.</string>
+    <string name="ui_086">원본 업스트림 프로젝트 · ZCShou 및 기여자</string>
+    <string name="ui_087">지도 타일 및 데이터 · © OpenStreetMap contributors</string>
+    <string name="ui_088">GeoJoystick는 GoGoGo를 참고한 GPL-3.0-only 파생 프로젝트입니다. 모의 위치 서비스와 조이스틱 이동 설계는 조정되고 크게 단순화되었습니다. GoGoGo 파생 자료에는 업스트림 GPLv3 저작자 표시가 유지되며, K2040 §7(b) 조건은 K2040이 작성한 GPL 자료에만 적용됩니다. 독점 Baidu SDK 구성 요소와 광고는 포함되지 않습니다.</string>
+    <string name="ui_089">닫기</string>
+    <string name="ui_090">열기</string>
+    <string name="ui_091">로컬 · 계정 없음 · 불필요한 추적 없음</string>
+    <string name="ui_092">좌표와 설정은 기기에 유지됩니다. 분석 기능과 계정 시스템이 없습니다.</string>
+    <string name="ui_093">열기</string>
+    <string name="ui_094">Android 개발자 및 에뮬레이터 테스트용 투명한 모의 위치 조이스틱입니다.
+
+로컬 우선 · 계정 없음 · 광고 없음 · 분석 없음 · 추적 없음
+좌표와 설정은 기기에 유지됩니다.</string>
+    <string name="ui_095">뒤로</string>
+    <string name="ui_096">시스템 기본값</string>
+    <string name="ui_097">라이트</string>
+    <string name="ui_098">다크</string>
+    <string name="ui_099">모양</string>
+    <string name="ui_100">취소</string>
+    <string name="ui_101">언어</string>
+    <string name="ui_102">취소</string>
+    <string name="ui_103">다크</string>
+    <string name="ui_104">라이트</string>
+    <string name="ui_105">시스템</string>
+    <string name="ui_106">시스템</string>
+    <string name="ui_107">다음 표시 시 오버레이 위치가 재설정됩니다</string>
+    <string name="ui_108">이름</string>
+    <string name="ui_109">속도 (m/s)</string>
+    <string name="ui_110">사용자 지정 속도</string>
+    <string name="ui_111">저장</string>
+    <string name="ui_112">취소</string>
+    <string name="ui_113">유효한 속도를 입력하세요</string>
+    <string name="ui_114">오버레이 크기: %d%%</string>
+    <string name="ui_115">오버레이 불투명도: %d%%</string>
+    <string name="ui_116">즐겨찾기 %1$d</string>
+    <string name="ui_117">즐겨찾기 슬롯 선택</string>
+    <string name="ui_118">취소</string>
+    <string name="ui_119">즐겨찾기를 좌표 필드에 불러왔습니다</string>
+    <string name="ui_120">즐겨찾기 %1$d</string>
+    <string name="ui_121">즐겨찾기 이름</string>
+    <string name="ui_122">위도</string>
+    <string name="ui_123">경도</string>
+    <string name="ui_124">고도 (m)</string>
+    <string name="ui_125">즐겨찾기 %1$d</string>
+    <string name="ui_126">저장</string>
+    <string name="ui_127">취소</string>
+    <string name="ui_128">지우기</string>
+    <string name="ui_129">즐겨찾기 %1$d</string>
+    <string name="ui_130">유효한 즐겨찾기 좌표를 입력하세요</string>
+    <string name="ui_131">즐겨찾기 %1$d</string>
+    <string name="ui_132">빈 즐겨찾기 %1$d</string>
+    <string name="ui_133">즐겨찾기 %1$d</string>
+    <string name="ui_134">클립보드가 비어 있습니다</string>
+    <string name="ui_135">클립보드가 비어 있습니다</string>
+    <string name="ui_136">위치 링크를 찾지 못했습니다</string>
+    <string name="ui_137">위치 링크 읽는 중…</string>
+    <string name="ui_138">해당 링크에서 좌표를 추출할 수 없습니다</string>
+    <string name="ui_139">가져온 좌표가 잘못되었습니다</string>
+    <string name="ui_140">좌표를 가져왔습니다</string>
+    <string name="ui_141">좌표를 가져왔습니다. 시작하기 전에 고도를 입력하세요.</string>
+    <string name="ui_142">GeoJoystick 선택</string>
+    <string name="ui_143">개발자 옵션의 모의 위치 앱 선택에서 GeoJoystick를 선택한 다음 여기로 돌아오세요.</string>
+    <string name="ui_144">설정 열기</string>
+    <string name="ui_145">취소</string>
+    <string name="ui_146">유효한 위도, 경도 및 고도를 입력하세요</string>
+    <string name="ui_147">GeoJoystick 시작을 요청했습니다</string>
+    <string name="ui_148">GeoJoystick를 시작할 수 없습니다</string>
+    <string name="ui_149">GeoJoystick 중지를 요청했습니다</string>
+    <string name="ui_150">GeoJoystick를 중지할 수 없습니다</string>
+    <string name="ui_151">선택됨</string>
+    <string name="ui_152">선택되지 않음</string>
+    <string name="ui_153">허용됨</string>
+    <string name="ui_154">허용되지 않음</string>
+    <string name="ui_155">활성</string>
+    <string name="ui_156">시작 중</string>
+    <string name="ui_157">비활성</string>
+    <string name="ui_158">유효한 위도, 경도 및 고도를 입력하세요</string>
+    <string name="ui_159">확인 중…</string>
+    <string name="ui_160">• 상태와 컴팩트 모드가 더 명확하도록 홈, 설정 및 오버레이 컨트롤을 새롭게 디자인했습니다.
+• 시뮬레이션 복구, 마지막 위치 복원 및 잘못된 입력 처리를 개선했습니다.
+• 온보딩과 정보, 변경 기록, 라이선스 및 사용, 소스 화면을 추가했습니다.
+• 지도 링크 분석과 지도 선택기의 안정성을 개선했습니다.
+• 접근성, 큰 글꼴 동작 및 터치 영역을 개선했습니다.
+• 새로운 GeoJoystick 마스코트/런처 아이덴티티와 Android 16/API 36 뒤로 탐색 지원을 추가했습니다.
+
+0.1.3
+• 이제 대화상자가 선택한 다크 테마를 따릅니다.
+• 이제 GeoJoystick는 스토어 목록에서 전용 아이콘을 사용합니다.
+
+0.1.0
+• 좌표 및 고도 입력, 지도 선택 및 링크 가져오기, 즐겨찾기, 모양 및 언어 설정, 플로팅 조이스틱 컨트롤을 제공한 첫 공개 릴리스입니다.</string>
+    <string name="ui_161">후원은 전적으로 선택 사항입니다. 기능을 잠금 해제하거나 추가 혜택을 제공하지 않습니다.</string>
+    <string name="ui_162">이 빌드에서는 라이선스 텍스트를 사용할 수 없습니다.</string>
+    <string name="ui_163">사용 가능한 브라우저 앱이 없습니다</string>
+    <string name="ui_164">지도 선택 취소</string>
+    <string name="ui_165">위치 선택</string>
+    <string name="ui_166">위치 사용</string>
+    <string name="ui_167">지도를 탭하여 마커를 배치하세요. 위치는 자동으로 선택되지 않습니다.</string>
+    <string name="ui_168">지도를 사용할 수 없습니다</string>
+    <string name="ui_169">선택된 위치 없음</string>
+    <string name="ui_170">%1$.6f, %2$.6f</string>
+    <string name="ui_171">모의 위치 서비스</string>
+    <string name="ui_172">표시되는 모의 위치 시뮬레이션을 활성 상태로 유지합니다.</string>
+    <string name="ui_173">모의 위치 시뮬레이션 활성</string>
+    <string name="ui_174">모의 위치 시뮬레이션 시작 중</string>
+    <string name="ui_175">표시</string>
+    <string name="ui_176">숨기기</string>
+    <string name="ui_177">중지</string>
+    <string name="ui_178">GeoJoystick 오버레이 이동</string>
+    <string name="ui_179">컴팩트 오버레이로 전환</string>
+    <string name="ui_180">걷기 속도</string>
+    <string name="ui_181">달리기 속도</string>
+    <string name="ui_182">자전거 속도</string>
+    <string name="ui_183">사용자 지정 속도</string>
+    <string name="ui_184">이동 활성; 탭하여 일시정지</string>
+    <string name="ui_185">고정 활성화</string>
+    <string name="ui_186">GeoJoystick 서비스를 중지하고 오버레이 닫기</string>
+    <string name="ui_187">확장 오버레이로 전환</string>
+    <string name="ui_188">컴팩트 오버레이로 전환</string>
+    <string name="ui_189">사용자 지정 속도: %1$s</string>
+    <string name="ui_190">이동 일시정지됨; 탭하여 다시 시작</string>
+    <string name="ui_191">이동 활성; 탭하여 일시정지</string>
+    <string name="ui_192">고정 비활성화</string>
+    <string name="ui_193">고정 활성화</string>
+    <string name="ui_194">위치를 사용할 수 없습니다</string>
+    <string name="map_instruction">지도를 탭하여 마커를 배치하세요. 드래그하여 이동하세요.</string>
+    <string name="map_zoom_in">확대</string>
+    <string name="map_zoom_out">축소</string>
+    <string name="language_system_default">시스템 기본값</string>
+    <string name="language_english">English</string>
+    <string name="language_german">Deutsch</string>
+    <string name="language_french">Français</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_italian">Italiano</string>
+    <string name="language_dutch">Nederlands</string>
+    <string name="language_danish">Dansk</string>
+    <string name="language_swedish">Svenska</string>
+    <string name="language_norwegian_bokmal">Norsk bokmål</string>
+    <string name="language_polish">Polski</string>
+    <string name="language_turkish">Türkçe</string>
+    <string name="language_ukrainian">Українська</string>
+    <string name="language_russian">Русский</string>
+    <string name="language_korean">한국어</string>
+    <string name="language_chinese_simplified">简体中文</string>
+    <string name="language_chinese_traditional">繁體中文</string>
+    <string name="custom_speed_default">사용자 지정</string>
+    <string name="favorite_default">즐겨찾기 %1$d</string>
+    <string name="service_invalid_start">좌표가 잘못되어 GeoJoystick가 시작되지 않았습니다.</string>
+    <string name="service_not_active">GeoJoystick가 활성 상태가 아닙니다.</string>
+    <string name="service_coordinates_rejected">새 좌표가 거부되었습니다.</string>
+    <string name="service_no_provider">모의 위치 제공자가 위치를 허용하지 않아 GeoJoystick가 중지되었습니다.</string>
+    <string name="service_publish_failed">모의 위치 게시에 실패하여 GeoJoystick가 중지되었습니다.</string>
+    <string name="service_cannot_publish">GeoJoystick가 모의 위치를 게시할 수 없습니다. 개발자 옵션을 확인하고 GeoJoystick를 모의 위치 앱으로 선택하세요.</string>
+    <string name="service_cannot_start">GeoJoystick가 포그라운드 시뮬레이션 서비스를 시작할 수 없습니다.</string>
+    <string name="joystick_accessibility">이동 조이스틱</string>
+</resources>

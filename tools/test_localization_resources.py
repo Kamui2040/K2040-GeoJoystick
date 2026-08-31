@@ -14,7 +14,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 RES = ROOT / "app/src/main/res"
-LOCALES = ("de", "fr", "es", "it", "nl", "da", "sv", "nb", "pl", "tr", "uk", "ru")
+LOCALE_DIRECTORIES = {
+    "de": "de", "fr": "fr", "es": "es", "it": "it", "nl": "nl",
+    "da": "da", "sv": "sv", "nb": "nb", "pl": "pl", "tr": "tr",
+    "uk": "uk", "ru": "ru", "ko": "ko",
+    "zh-CN": "zh-rCN", "zh-TW": "zh-rTW",
+}
+LOCALES = tuple(LOCALE_DIRECTORIES)
 REQUIRED_MAP_KEYS = {"map_instruction", "map_zoom_in", "map_zoom_out"}
 LANGUAGE_AUTONYMS = {
     "language_english": "English",
@@ -30,6 +36,9 @@ LANGUAGE_AUTONYMS = {
     "language_turkish": "Türkçe",
     "language_ukrainian": "Українська",
     "language_russian": "Русский",
+    "language_korean": "한국어",
+    "language_chinese_simplified": "简体中文",
+    "language_chinese_traditional": "繁體中文",
 }
 FORMATTED_RESOURCES = {
     "ui_116", "ui_120", "ui_125", "ui_129", "ui_131", "ui_132", "ui_133", "ui_189",
@@ -47,6 +56,11 @@ PHASE2_REQUIRED_CHARACTERS = {
 PHASE3_REQUIRED_CHARACTERS = {
     "uk": frozenset("іїєґ"),
     "ru": frozenset("ыэёъ"),
+}
+PHASE4_REQUIRED_CHARACTERS = {
+    "ko": frozenset("한국어설정저장"),
+    "zh-CN": frozenset("简体设置保存导"),
+    "zh-TW": frozenset("繁體設定儲存匯"),
 }
 PHASE2_MUST_TRANSLATE = frozenset({
     "ui_026",  # Settings
@@ -92,12 +106,22 @@ def catalog(path: Path) -> dict[str, str]:
 def locale_directories(res_root: Path) -> set[str]:
     found: set[str] = set()
     for directory in res_root.iterdir():
-        if not directory.is_dir() or not directory.name.startswith("values-"):
+        if not directory.is_dir():
             continue
-        qualifier = directory.name[len("values-"):].split("-")[0]
-        if re.fullmatch(r"[a-z]{2}(?:-r[A-Z]{2})?", qualifier):
-            found.add(qualifier[:2])
+        match = re.fullmatch(
+            r"values-([a-z]{2})(?:-r([A-Z]{2}))?",
+            directory.name,
+        )
+        if not match:
+            continue
+        language, region = match.groups()
+        found.add(f"{language}-{region}" if region else language)
     return found
+
+
+def locale_catalog_path(res_root: Path, locale: str) -> Path:
+    qualifier = LOCALE_DIRECTORIES[locale]
+    return res_root / f"values-{qualifier}/strings.xml"
 
 
 def validate_phase2_latin_quality(
@@ -162,6 +186,38 @@ def validate_phase3_cyrillic_quality(
                 f"{locale}/{name} still matches the English source"
             )
 
+def validate_phase4_cjk_quality(
+    locale: str,
+    target: dict[str, str],
+    english: dict[str, str],
+) -> None:
+    required = PHASE4_REQUIRED_CHARACTERS.get(locale)
+    if required is None:
+        return
+    corpus = "".join(target.values())
+    missing = sorted(required - set(corpus))
+    if missing:
+        raise AssertionError(
+            f"{locale} catalog is missing expected CJK characters: "
+            + "".join(missing)
+        )
+    unexpected_controls = sorted(set(corpus) & LTR_BIDI_CONTROLS)
+    if unexpected_controls:
+        encoded = ", ".join(f"U+{ord(c):04X}" for c in unexpected_controls)
+        raise AssertionError(
+            f"{locale} catalog contains unexpected bidi controls: {encoded}"
+        )
+    for name in PHASE2_MUST_TRANSLATE:
+        if target.get(name) == english.get(name):
+            raise AssertionError(
+                f"{locale}/{name} still matches the English source"
+            )
+    if locale == "ko" and re.search(r"[가-힣]", corpus) is None:
+        raise AssertionError("ko catalog contains no Hangul syllables")
+    if locale.startswith("zh-") and re.search(r"[㐀-鿿]", corpus) is None:
+        raise AssertionError(f"{locale} catalog contains no CJK ideographs")
+
+
 def validate(res_root: Path) -> None:
     actual_locales = locale_directories(res_root)
     expected_locales = set(LOCALES)
@@ -181,7 +237,7 @@ def validate(res_root: Path) -> None:
     if not REQUIRED_MAP_KEYS <= set(english):
         raise AssertionError("English catalog is missing bundled-map localization keys")
     for locale in LOCALES:
-        target = catalog(res_root / f"values-{locale}/strings.xml")
+        target = catalog(locale_catalog_path(res_root, locale))
         if target == english:
             raise AssertionError(f"{locale} catalog is an exact English copy")
         if set(target) != set(english):
@@ -192,6 +248,7 @@ def validate(res_root: Path) -> None:
             raise AssertionError(f"{locale} is missing bundled-map localization keys")
         validate_phase2_latin_quality(locale, target, english)
         validate_phase3_cyrillic_quality(locale, target, english)
+        validate_phase4_cjk_quality(locale, target, english)
         for name, autonym in LANGUAGE_AUTONYMS.items():
             if target.get(name) != autonym:
                 raise AssertionError(f"{locale}/{name} is not the required autonym")
@@ -220,6 +277,8 @@ def main() -> int:
         "sv": "LANGUAGE_SWEDISH", "nb": "LANGUAGE_NORWEGIAN_BOKMAL",
         "pl": "LANGUAGE_POLISH", "tr": "LANGUAGE_TURKISH",
         "uk": "LANGUAGE_UKRAINIAN", "ru": "LANGUAGE_RUSSIAN",
+        "ko": "LANGUAGE_KOREAN", "zh-CN": "LANGUAGE_CHINESE_SIMPLIFIED",
+        "zh-TW": "LANGUAGE_CHINESE_TRADITIONAL",
     }
     for locale, constant in setting_constants.items():
         if constant not in settings_source:
@@ -257,6 +316,14 @@ def self_test() -> int:
         else:
             raise AssertionError("unexpected locale fixture falsely passed")
         shutil.rmtree(copied / "values-pt")
+        shutil.copytree(copied / "values-zh-rTW", copied / "values-zh-rHK")
+        try:
+            validate(copied)
+        except AssertionError as exc:
+            assert "unexpected locale directories" in str(exc)
+        else:
+            raise AssertionError("unexpected Chinese region fixture falsely passed")
+        shutil.rmtree(copied / "values-zh-rHK")
         shutil.copytree(copied / "values", copied / "values-fr", dirs_exist_ok=True)
         try:
             validate(copied)
@@ -369,6 +436,46 @@ def self_test() -> int:
         validate_phase3_cyrillic_quality(
             "ru", quality_ru, quality_source
         )
+
+        quality_ko = {
+            name: f"한국어 설정 저장 {name}"
+            for name in PHASE2_MUST_TRANSLATE
+        }
+        quality_ko["script_probe"] = "한국어설정저장"
+        validate_phase4_cjk_quality(
+            "ko", quality_ko, quality_source
+        )
+
+        quality_zh_cn = {
+            name: f"简体中文 设置 保存 导入 {name}"
+            for name in PHASE2_MUST_TRANSLATE
+        }
+        quality_zh_cn["script_probe"] = "简体设置保存导"
+        validate_phase4_cjk_quality(
+            "zh-CN", quality_zh_cn, quality_source
+        )
+
+        quality_zh_tw = {
+            name: f"繁體中文 設定 儲存 匯入 {name}"
+            for name in PHASE2_MUST_TRANSLATE
+        }
+        quality_zh_tw["script_probe"] = "繁體設定儲存匯"
+        validate_phase4_cjk_quality(
+            "zh-TW", quality_zh_tw, quality_source
+        )
+
+        broken_zh_cn = dict(quality_zh_cn)
+        broken_zh_cn["ui_026"] = quality_source["ui_026"]
+        try:
+            validate_phase4_cjk_quality(
+                "zh-CN", broken_zh_cn, quality_source
+            )
+        except AssertionError as exc:
+            assert "still matches the English source" in str(exc)
+        else:
+            raise AssertionError(
+                "untranslated Phase 4 fixture falsely passed"
+            )
 
         broken_tr = dict(quality_tr)
         broken_tr["ui_026"] = quality_source["ui_026"]

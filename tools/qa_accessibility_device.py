@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Safe entrypoint for the GeoJoystick Issue #10 device-QA harness.
+"""Safe entrypoint for the GeoJoystick device-QA harness.
 
 The matrix keeps private device identity out of Git, preserves/restores the
 complete app preference file plus font/display settings, and configures only
@@ -919,7 +919,7 @@ def adapter_self_test() -> None:
     assert any(node.text == "GeoJoystick" for node in dump_snapshot.nodes)
     assert dump_harness.adb.removed
 
-    print("GeoJoystick Issue #10 safe-adapter self-test: PASS")
+    print("GeoJoystick safe-adapter self-test: PASS")
 
 
 impl.Adb = SafeAdb
