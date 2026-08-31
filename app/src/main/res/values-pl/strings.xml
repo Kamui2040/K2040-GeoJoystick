@@ -247,4 +247,14 @@ Współrzędne i ustawienia pozostają na urządzeniu.</string>
     <string name="service_cannot_publish">GeoJoystick nie może opublikować pozorowanej lokalizacji. Sprawdź Opcje programisty i wybierz GeoJoystick jako aplikację pozorowanej lokalizacji.</string>
     <string name="service_cannot_start">GeoJoystick nie może uruchomić usługi symulacji na pierwszym planie.</string>
     <string name="joystick_accessibility">Joystick ruchu</string>
+    <string name="place_search_hint">Szukaj miejsca lub adresu</string>
+    <string name="place_search_action">Szukaj</string>
+    <string name="place_search_empty">Wpisz miejsce lub adres.</string>
+    <string name="place_search_unavailable">Wyszukiwanie miejsc jest niedostępne na tym urządzeniu.</string>
+    <string name="place_search_no_result">Nie znaleziono pasującego miejsca ani adresu.</string>
+    <string name="place_search_ambiguous">Znaleziono wiele wyników. Doprecyzuj wyszukiwanie.</string>
+    <string name="place_search_invalid">Wyszukiwanie zwróciło nieprawidłową lokalizację. Mapa nie została zmieniona.</string>
+    <string name="place_search_failed">Wyszukiwanie miejsca nie powiodło się. Mapa nie została zmieniona.</string>
+    <string name="place_search_disclosure">Wyszukiwanie uruchamia się tylko po stuknięciu Szukaj i może korzystać z usługi geokodowania oraz sieci urządzenia.</string>
+    <string name="place_search_searching">Wyszukiwanie…</string>
 </resources>

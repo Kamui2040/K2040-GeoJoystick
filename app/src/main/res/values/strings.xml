@@ -247,4 +247,14 @@ Coordinates and settings stay on your device.</string>
     <string name="service_cannot_publish">GeoJoystick could not publish a mock location. Check Developer Options and select GeoJoystick as the mock-location app.</string>
     <string name="service_cannot_start">GeoJoystick could not start its foreground simulation service.</string>
     <string name="joystick_accessibility">Movement joystick</string>
+    <string name="place_search_hint">Search place or address</string>
+    <string name="place_search_action">Search</string>
+    <string name="place_search_empty">Enter a place or address.</string>
+    <string name="place_search_unavailable">Place search is unavailable on this device.</string>
+    <string name="place_search_no_result">No matching place or address found.</string>
+    <string name="place_search_ambiguous">Multiple matches found. Refine your search.</string>
+    <string name="place_search_invalid">Search returned an invalid location. The map was not changed.</string>
+    <string name="place_search_failed">Place search failed. The map was not changed.</string>
+    <string name="place_search_disclosure">Search runs only when you tap Search and may use your device\'s geocoding service and network.</string>
+    <string name="place_search_searching">Searching…</string>
 </resources>

@@ -8,6 +8,9 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.location.Address;
+import android.text.InputFilter;
+import android.text.InputType;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +18,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
+import android.view.inputmethod.EditorInfo;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -22,6 +26,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -32,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Locale;
 
 import org.json.JSONObject;
@@ -56,6 +62,11 @@ public final class MapActivity extends Activity {
     private boolean hasSelection;
     private TextView coordinateText;
     private Button useButton;
+    private EditText searchInput;
+    private Button searchButton;
+    private TextView searchStatus;
+    private boolean searchInFlight;
+    private boolean mapReady;
     private WebView webView;
     private GeoUi.Palette palette;
     private GeoSettings settings;
@@ -160,6 +171,75 @@ public final class MapActivity extends Activity {
         hintParams.topMargin = dp(8);
         chrome.addView(hint, hintParams);
 
+        LinearLayout searchPanel = GeoUi.card(this, palette);
+        searchPanel.setClickable(true);
+        searchPanel.setElevation(dp(8));
+
+        searchInput = new EditText(this);
+        searchInput.setHint(t(R.string.place_search_hint));
+        searchInput.setTextColor(palette.text);
+        searchInput.setHintTextColor(palette.textDim);
+        searchInput.setTextSize(14);
+        searchInput.setSingleLine(true);
+        searchInput.setInputType(
+                InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_POSTAL_ADDRESS);
+        searchInput.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
+        searchInput.setTextDirection(View.TEXT_DIRECTION_FIRST_STRONG);
+        searchInput.setLayoutDirection(settings.layoutDirection());
+        searchInput.setMinHeight(dp(48));
+        searchInput.setMinimumHeight(dp(48));
+        searchInput.setPadding(dp(12), dp(8), dp(12), dp(8));
+        searchInput.setBackground(GeoUi.input(this, palette));
+        searchInput.setFilters(new InputFilter[]{
+                new InputFilter.LengthFilter(PlaceSearchValidator.MAX_QUERY_CHARS)
+        });
+        searchInput.setOnEditorActionListener((view, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                submitPlaceSearch();
+                return true;
+            }
+            return false;
+        });
+        searchPanel.addView(searchInput, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        searchButton = GeoUi.button(
+                this,
+                palette,
+                t(R.string.place_search_action),
+                true);
+        searchButton.setOnClickListener(view -> submitPlaceSearch());
+        LinearLayout.LayoutParams searchButtonParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        searchButtonParams.topMargin = dp(6);
+        searchPanel.addView(searchButton, searchButtonParams);
+
+        TextView searchDisclosure = GeoUi.text(
+                this,
+                t(R.string.place_search_disclosure),
+                10,
+                palette.textDim);
+        searchDisclosure.setPadding(dp(2), dp(7), dp(2), 0);
+        searchPanel.addView(searchDisclosure, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        searchStatus = GeoUi.text(this, "", 11, palette.warning);
+        searchStatus.setPadding(dp(2), dp(6), dp(2), 0);
+        searchStatus.setVisibility(View.GONE);
+        searchPanel.addView(searchStatus, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        LinearLayout.LayoutParams searchPanelParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        searchPanelParams.topMargin = dp(8);
+        chrome.addView(searchPanel, searchPanelParams);
+        updateSearchControls();
+
         FrameLayout.LayoutParams chromeParams = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -170,6 +250,168 @@ public final class MapActivity extends Activity {
         setContentView(stage);
         applySystemBarInsets(stage);
         loadBundledMap();
+    }
+
+    private void submitPlaceSearch() {
+        if (searchInFlight || !mapReady) {
+            return;
+        }
+
+        String query = PlaceSearchValidator.sanitizeQuery(
+                searchInput == null ? null : searchInput.getText().toString());
+        if (query == null) {
+            showSearchStatus(R.string.place_search_empty, palette.warning);
+            return;
+        }
+
+        if (!PlaceSearchGeocoder.isAvailable()) {
+            showSearchStatus(R.string.place_search_unavailable, palette.warning);
+            return;
+        }
+
+        setSearchInFlight(true);
+        showSearchStatus(R.string.place_search_searching, palette.textDim);
+
+        Locale locale = Locale.forLanguageTag(settings.resolvedLanguage());
+        PlaceSearchGeocoder.search(
+                this,
+                locale,
+                query,
+                new PlaceSearchGeocoder.Callback() {
+                    @Override
+                    public void onResults(List<Address> addresses) {
+                        runOnUiThread(() -> handlePlaceSearchResults(addresses));
+                    }
+
+                    @Override
+                    public void onFailure() {
+                        runOnUiThread(() -> {
+                            if (isFinishing() || isDestroyed()) {
+                                return;
+                            }
+                            setSearchInFlight(false);
+                            showSearchStatus(
+                                    R.string.place_search_failed,
+                                    palette.danger);
+                        });
+                    }
+                });
+    }
+
+    private void handlePlaceSearchResults(List<Address> addresses) {
+        if (isFinishing() || isDestroyed()) {
+            return;
+        }
+
+        int size = addresses == null ? 0 : addresses.size();
+        double[][] candidates = new double[size][];
+        for (int index = 0; index < size; index++) {
+            Address address = addresses.get(index);
+            candidates[index] = address == null
+                    || !address.hasLatitude()
+                    || !address.hasLongitude()
+                    ? null
+                    : new double[]{address.getLatitude(), address.getLongitude()};
+        }
+
+        PlaceSearchValidator.Resolution resolution =
+                PlaceSearchValidator.resolve(candidates);
+        if (resolution.status == PlaceSearchValidator.STATUS_NO_RESULT) {
+            setSearchInFlight(false);
+            showSearchStatus(R.string.place_search_no_result, palette.warning);
+            return;
+        }
+        if (resolution.status == PlaceSearchValidator.STATUS_AMBIGUOUS) {
+            setSearchInFlight(false);
+            showSearchStatus(R.string.place_search_ambiguous, palette.warning);
+            return;
+        }
+        if (resolution.status != PlaceSearchValidator.STATUS_SUCCESS) {
+            setSearchInFlight(false);
+            showSearchStatus(R.string.place_search_invalid, palette.danger);
+            return;
+        }
+
+        applyPlaceSearchResult(resolution.latitude, resolution.longitude);
+    }
+
+    private void applyPlaceSearchResult(double latitude, double longitude) {
+        if (!PlaceSearchValidator.validLatitude(latitude)
+                || !PlaceSearchValidator.validLongitude(longitude)
+                || webView == null
+                || !mapReady) {
+            setSearchInFlight(false);
+            showSearchStatus(R.string.place_search_invalid, palette.danger);
+            return;
+        }
+
+        String script = String.format(
+                Locale.US,
+                "(function(){"
+                        + "if(window.GeoMap&&typeof window.GeoMap.setLocation==='function'){"
+                        + "window.GeoMap.setLocation(%.8f,%.8f,15);"
+                        + "return true;"
+                        + "}"
+                        + "return false;"
+                        + "})()",
+                latitude,
+                longitude);
+        webView.evaluateJavascript(script, value -> {
+            if (isFinishing() || isDestroyed()) {
+                return;
+            }
+            boolean applied = "true".equals(value);
+            if (applied) {
+                selectedLatitude = latitude;
+                selectedLongitude = longitude;
+                hasSelection = true;
+                setUseButtonEnabled(true);
+                updateCoordinateText();
+                clearSearchStatus();
+            } else {
+                showSearchStatus(R.string.place_search_failed, palette.danger);
+            }
+            setSearchInFlight(false);
+        });
+    }
+
+    private void setSearchInFlight(boolean busy) {
+        searchInFlight = busy;
+        updateSearchControls();
+        if (searchButton != null) {
+            searchButton.setText(t(busy
+                    ? R.string.place_search_searching
+                    : R.string.place_search_action));
+        }
+    }
+
+    private void updateSearchControls() {
+        boolean enabled = mapReady && !searchInFlight;
+        if (searchInput != null) {
+            searchInput.setEnabled(enabled);
+            searchInput.setAlpha(enabled ? 1f : 0.6f);
+        }
+        if (searchButton != null) {
+            searchButton.setEnabled(enabled);
+            searchButton.setAlpha(enabled ? 1f : 0.48f);
+        }
+    }
+
+    private void showSearchStatus(int resourceId, int color) {
+        if (searchStatus == null) {
+            return;
+        }
+        searchStatus.setText(t(resourceId));
+        searchStatus.setTextColor(color);
+        searchStatus.setVisibility(View.VISIBLE);
+    }
+
+    private void clearSearchStatus() {
+        if (searchStatus == null) {
+            return;
+        }
+        searchStatus.setText("");
+        searchStatus.setVisibility(View.GONE);
     }
 
     private void restoreInitialSelection(Bundle savedInstanceState, Intent launchIntent) {
@@ -246,6 +488,8 @@ public final class MapActivity extends Activity {
                     StandardCharsets.UTF_8.name(),
                     null);
         } catch (IOException exception) {
+            mapReady = false;
+            updateSearchControls();
             coordinateText.setText(t(R.string.ui_168));
             setUseButtonEnabled(false);
         }
@@ -487,6 +731,8 @@ public final class MapActivity extends Activity {
             super.onPageFinished(view, url);
             if (isAllowedInternalPage(Uri.parse(url))) {
                 localizeBundledMap(view);
+                mapReady = true;
+                updateSearchControls();
             }
         }
     }

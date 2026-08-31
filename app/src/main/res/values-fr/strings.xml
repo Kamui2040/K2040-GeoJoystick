@@ -247,4 +247,14 @@ Les coordonnées et les paramètres restent sur votre appareil.</string>
     <string name="service_cannot_publish">GeoJoystick n\'a pas pu publier une position simulée. Vérifiez les options du développeur et sélectionnez GeoJoystick comme application de position simulée.</string>
     <string name="service_cannot_start">GeoJoystick n\'a pas pu démarrer son service de simulation au premier plan.</string>
     <string name="joystick_accessibility">Joystick de déplacement</string>
+    <string name="place_search_hint">Rechercher un lieu ou une adresse</string>
+    <string name="place_search_action">Rechercher</string>
+    <string name="place_search_empty">Saisissez un lieu ou une adresse.</string>
+    <string name="place_search_unavailable">La recherche de lieux n’est pas disponible sur cet appareil.</string>
+    <string name="place_search_no_result">Aucun lieu ni aucune adresse correspondante n’a été trouvé.</string>
+    <string name="place_search_ambiguous">Plusieurs résultats ont été trouvés. Précisez votre recherche.</string>
+    <string name="place_search_invalid">La recherche a renvoyé un emplacement non valide. La carte n’a pas été modifiée.</string>
+    <string name="place_search_failed">La recherche de lieux a échoué. La carte n’a pas été modifiée.</string>
+    <string name="place_search_disclosure">La recherche s’exécute uniquement lorsque vous touchez Rechercher et peut utiliser le service de géocodage et le réseau de votre appareil.</string>
+    <string name="place_search_searching">Recherche…</string>
 </resources>

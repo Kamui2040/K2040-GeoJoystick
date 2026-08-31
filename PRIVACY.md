@@ -33,6 +33,12 @@ Opening the built-in map picker downloads map tiles from OpenStreetMap. These re
 
 https://osmfoundation.org/wiki/Privacy_Policy
 
+### Place and address search
+
+The map picker includes an optional place/address search. GeoJoystick sends the query to Android's geocoding implementation only when you submit the search; it does not send requests while you type. Depending on the device and installed system components, that geocoding implementation may use a network service and may expose the submitted query, the device's IP address, and standard request metadata to that service.
+
+GeoJoystick does not operate the geocoding service and does not receive the submitted query. If no geocoder is available, no result is returned, multiple distinct matches are returned, the result is invalid, or the geocoding request fails, GeoJoystick leaves the current map selection unchanged.
+
 ### Map-link import
 
 When a user imports or shares a map link, GeoJoystick first attempts to extract coordinates locally. If the text contains a web link that cannot be resolved locally, the app may contact that link, follow redirects, and read a limited response in order to extract coordinates. The destination website may receive normal connection information, including the device's IP address and standard request metadata, and handles that information under its own privacy policy.

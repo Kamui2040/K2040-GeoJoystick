@@ -247,4 +247,14 @@ Coördinaten en instellingen blijven op uw apparaat staan.</string>
     <string name="service_cannot_publish">GeoJoystick kon geen gesimuleerde locatie publiceren. Controleer de ontwikkelaarsopties en selecteer GeoJoystick als app voor gesimuleerde locatie.</string>
     <string name="service_cannot_start">GeoJoystick kon zijn voorgrondsimulatieservice niet starten.</string>
     <string name="joystick_accessibility">Bewegingsjoystick</string>
+    <string name="place_search_hint">Plaats of adres zoeken</string>
+    <string name="place_search_action">Zoeken</string>
+    <string name="place_search_empty">Voer een plaats of adres in.</string>
+    <string name="place_search_unavailable">Plaats zoeken is niet beschikbaar op dit apparaat.</string>
+    <string name="place_search_no_result">Geen overeenkomende plaats of adres gevonden.</string>
+    <string name="place_search_ambiguous">Meerdere resultaten gevonden. Verfijn je zoekopdracht.</string>
+    <string name="place_search_invalid">De zoekopdracht gaf een ongeldige locatie terug. De kaart is niet gewijzigd.</string>
+    <string name="place_search_failed">Plaats zoeken is mislukt. De kaart is niet gewijzigd.</string>
+    <string name="place_search_disclosure">Zoeken wordt alleen uitgevoerd wanneer je op Zoeken tikt en kan de geocoderingsservice en het netwerk van je apparaat gebruiken.</string>
+    <string name="place_search_searching">Zoeken…</string>
 </resources>

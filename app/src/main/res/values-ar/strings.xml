@@ -247,4 +247,14 @@
     <string name="service_cannot_publish">تعذّر على GeoJoystick نشر موقع وهمي. تحقّق من خيارات المطوّر وحدد GeoJoystick كتطبيق الموقع الوهمي.</string>
     <string name="service_cannot_start">تعذّر على GeoJoystick بدء خدمة المحاكاة في المقدمة.</string>
     <string name="joystick_accessibility">عصا تحكم الحركة</string>
+    <string name="place_search_hint">البحث عن مكان أو عنوان</string>
+    <string name="place_search_action">بحث</string>
+    <string name="place_search_empty">أدخل مكانًا أو عنوانًا.</string>
+    <string name="place_search_unavailable">البحث عن الأماكن غير متاح على هذا الجهاز.</string>
+    <string name="place_search_no_result">لم يتم العثور على مكان أو عنوان مطابق.</string>
+    <string name="place_search_ambiguous">تم العثور على عدة نتائج. حدّد البحث أكثر.</string>
+    <string name="place_search_invalid">أعاد البحث موقعًا غير صالح. لم تتغير الخريطة.</string>
+    <string name="place_search_failed">فشل البحث عن المكان. لم تتغير الخريطة.</string>
+    <string name="place_search_disclosure">يعمل البحث فقط عند الضغط على «بحث» وقد يستخدم خدمة الترميز الجغرافي والشبكة على جهازك.</string>
+    <string name="place_search_searching">جارٍ البحث…</string>
 </resources>
