@@ -35,6 +35,7 @@ GeoJoystick is an open-source Android mock-location utility for emulator and dev
 
 - Keep `main` stable and prefer focused, reviewable changes.
 - Multi-touch map gestures must derive every rendered center from one stable geographic pinch anchor and the live gesture midpoint. Do not repeatedly re-anchor from center state already mutated by asynchronous pointer events.
+- Immediately before any GitHub issue or pull-request comment, review, metadata change, close, or merge mutation, verify the exact target number, title, state, base/head where applicable, and that it belongs to the current work unit. Do not mutate historical items while switching tools or testing an action.
 - Do not probe repository write capability with placeholder mutations. Verify tool capability and repository state through discovery or read-only operations before any public or tracked write.
 - Preflight generated handoff scripts by compiling the exact final file text. Avoid nesting the same triple-quote delimiter when embedding code or fixtures.
 - Do not create placeholder GitHub issues or pull requests as an intermediate tooling step. Prepare the complete intended title and scope before creating the public item.
