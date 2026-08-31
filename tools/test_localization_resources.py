@@ -18,7 +18,7 @@ LOCALE_DIRECTORIES = {
     "de": "de", "fr": "fr", "es": "es", "it": "it", "nl": "nl",
     "da": "da", "sv": "sv", "nb": "nb", "pl": "pl", "tr": "tr",
     "uk": "uk", "ru": "ru", "ko": "ko",
-    "zh-CN": "zh-rCN", "zh-TW": "zh-rTW",
+    "zh-CN": "zh-rCN", "zh-TW": "zh-rTW", "ar": "ar",
 }
 LOCALES = tuple(LOCALE_DIRECTORIES)
 REQUIRED_MAP_KEYS = {"map_instruction", "map_zoom_in", "map_zoom_out"}
@@ -39,6 +39,7 @@ LANGUAGE_AUTONYMS = {
     "language_korean": "한국어",
     "language_chinese_simplified": "简体中文",
     "language_chinese_traditional": "繁體中文",
+    "language_arabic": "العربية",
 }
 FORMATTED_RESOURCES = {
     "ui_116", "ui_120", "ui_125", "ui_129", "ui_131", "ui_132", "ui_133", "ui_189",
@@ -61,6 +62,9 @@ PHASE4_REQUIRED_CHARACTERS = {
     "ko": frozenset("한국어설정저장"),
     "zh-CN": frozenset("简体设置保存导"),
     "zh-TW": frozenset("繁體設定儲存匯"),
+}
+PHASE5_REQUIRED_CHARACTERS = {
+    "ar": frozenset("العربيةإعدادحفظموقع"),
 }
 PHASE2_MUST_TRANSLATE = frozenset({
     "ui_026",  # Settings
@@ -218,6 +222,40 @@ def validate_phase4_cjk_quality(
         raise AssertionError(f"{locale} catalog contains no CJK ideographs")
 
 
+
+def validate_phase5_arabic_quality(
+    locale: str,
+    target: dict[str, str],
+    english: dict[str, str],
+) -> None:
+    required = PHASE5_REQUIRED_CHARACTERS.get(locale)
+    if required is None:
+        return
+    corpus = "".join(target.values())
+    missing = sorted(required - set(corpus))
+    if missing:
+        raise AssertionError(
+            f"{locale} catalog is missing expected Arabic characters: "
+            + "".join(missing)
+        )
+    unexpected_controls = sorted(set(corpus) & LTR_BIDI_CONTROLS)
+    if unexpected_controls:
+        encoded = ", ".join(
+            f"U+{ord(character):04X}"
+            for character in unexpected_controls
+        )
+        raise AssertionError(
+            f"{locale} catalog contains unexpected bidi controls: {encoded}"
+        )
+    for name in PHASE2_MUST_TRANSLATE:
+        if target.get(name) == english.get(name):
+            raise AssertionError(
+                f"{locale}/{name} still matches the English source"
+            )
+    if re.search(r"[؀-ۿ]", corpus) is None:
+        raise AssertionError("ar catalog contains no Arabic script")
+
+
 def validate(res_root: Path) -> None:
     actual_locales = locale_directories(res_root)
     expected_locales = set(LOCALES)
@@ -249,6 +287,7 @@ def validate(res_root: Path) -> None:
         validate_phase2_latin_quality(locale, target, english)
         validate_phase3_cyrillic_quality(locale, target, english)
         validate_phase4_cjk_quality(locale, target, english)
+        validate_phase5_arabic_quality(locale, target, english)
         for name, autonym in LANGUAGE_AUTONYMS.items():
             if target.get(name) != autonym:
                 raise AssertionError(f"{locale}/{name} is not the required autonym")
@@ -279,6 +318,7 @@ def main() -> int:
         "uk": "LANGUAGE_UKRAINIAN", "ru": "LANGUAGE_RUSSIAN",
         "ko": "LANGUAGE_KOREAN", "zh-CN": "LANGUAGE_CHINESE_SIMPLIFIED",
         "zh-TW": "LANGUAGE_CHINESE_TRADITIONAL",
+        "ar": "LANGUAGE_ARABIC",
     }
     for locale, constant in setting_constants.items():
         if constant not in settings_source:
@@ -298,6 +338,35 @@ def main() -> int:
         encoding="utf-8")
     if '"Movement joystick"' in joystick_source:
         raise AssertionError("JoystickView still hard-codes English accessibility text")
+
+    manifest_source = (ROOT / "app/src/main/AndroidManifest.xml").read_text(encoding="utf-8")
+    if 'android:supportsRtl="true"' not in manifest_source:
+        raise AssertionError("Android manifest does not enable RTL support")
+
+    for required in ("LANGUAGE_ARABIC", "TextUtils.getLayoutDirectionFromLocale", "boolean isRtl()"):
+        if required not in settings_source:
+            raise AssertionError(f"GeoSettings Arabic/RTL support is missing {required}")
+
+    rtl_sources = {
+        "MainActivity": (ROOT / "app/src/main/java/com/k2040/geojoystick/MainActivity.java").read_text(encoding="utf-8"),
+        "MapActivity": (ROOT / "app/src/main/java/com/k2040/geojoystick/MapActivity.java").read_text(encoding="utf-8"),
+        "JoystickOverlay": (ROOT / "app/src/main/java/com/k2040/geojoystick/JoystickOverlay.java").read_text(encoding="utf-8"),
+    }
+    required_contracts = {
+        "MainActivity": ("setLayoutDirection(settings.layoutDirection())", "ContextThemeWrapper", "setPaddingRelative", "setMarginEnd", "View.TEXT_DIRECTION_LTR", "forwardChevron()", "backChevron()"),
+        "MapActivity": ("document.documentElement.dir=localized.direction", "setLayoutDirection(settings.layoutDirection())", "View.TEXT_DIRECTION_LTR", "backChevron()"),
+        "JoystickOverlay": ("root.setLayoutDirection(settings.layoutDirection())", "View.TEXT_DIRECTION_LTR", "setMarginStart", "setMarginEnd"),
+    }
+    for label, required_values in required_contracts.items():
+        for required in required_values:
+            if required not in rtl_sources[label]:
+                raise AssertionError(f"{label} RTL support is missing {required}")
+
+    map_html = (ROOT / "app/src/main/assets/map.html").read_text(encoding="utf-8")
+    for required in ('dir="ltr"', "inset-inline-end", "unicode-bidi: isolate"):
+        if required not in map_html:
+            raise AssertionError(f"bundled map RTL support is missing {required}")
+
     print(f"Localization resource test: PASS ({len(english)} keys × {len(LOCALES)} locales)")
     return 0
 
@@ -463,6 +532,31 @@ def self_test() -> int:
         validate_phase4_cjk_quality(
             "zh-TW", quality_zh_tw, quality_source
         )
+
+        quality_ar = {
+            name: f"العربية إعداد حفظ موقع {name}"
+            for name in PHASE2_MUST_TRANSLATE
+        }
+        quality_ar["script_probe"] = "العربيةإعدادحفظموقع"
+        validate_phase5_arabic_quality("ar", quality_ar, quality_source)
+
+        broken_ar = dict(quality_ar)
+        broken_ar["ui_026"] = quality_source["ui_026"]
+        try:
+            validate_phase5_arabic_quality("ar", broken_ar, quality_source)
+        except AssertionError as exc:
+            assert "still matches the English source" in str(exc)
+        else:
+            raise AssertionError("untranslated Phase 5 fixture falsely passed")
+
+        broken_ar_control = dict(quality_ar)
+        broken_ar_control["ui_026"] += "\u200f"
+        try:
+            validate_phase5_arabic_quality("ar", broken_ar_control, quality_source)
+        except AssertionError as exc:
+            assert "unexpected bidi controls" in str(exc)
+        else:
+            raise AssertionError("Arabic bidi-control fixture falsely passed")
 
         broken_zh_cn = dict(quality_zh_cn)
         broken_zh_cn["ui_026"] = quality_source["ui_026"]

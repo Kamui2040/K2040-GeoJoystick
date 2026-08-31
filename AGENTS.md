@@ -32,6 +32,7 @@ GeoJoystick is an open-source Android mock-location utility for emulator and dev
 ## Contributions
 
 - Keep `main` stable and prefer focused, reviewable changes.
+- When a script intentionally switches the current worktree to another branch, capture the validation baseline after that switch or compare stable worktree topology. Do not require a pre-switch `git worktree list --porcelain` snapshot to remain byte-identical after the intended branch change.
 - Preserve GPL-3.0-only licensing and required third-party attribution and provenance.
 - Do not commit generated APK/AAB files, local build caches, signing material, or machine-specific configuration.
 - Normal public issues and pull requests may document bugs, implementation work, compatibility changes, localization targets, and other contributor-relevant technical plans.

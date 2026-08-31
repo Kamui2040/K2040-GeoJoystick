@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GeoJoystick</string>
+    <string name="ui_001">لم تُرجع الخريطة إحداثيات صالحة</string>
+    <string name="ui_002">أرجعت الخريطة إحداثيات غير صالحة</string>
+    <string name="ui_003">تم تحديد الموقع. أدخل الارتفاع قبل البدء.</string>
+    <string name="ui_004">الحالة</string>
+    <string name="ui_005">الموقع الوهمي</string>
+    <string name="ui_006">إذن العرض فوق التطبيقات</string>
+    <string name="ui_007">المحاكاة</string>
+    <string name="ui_008">قسم الحالة مطوي. انقر للتوسيع</string>
+    <string name="ui_009">قسم الحالة موسّع. انقر للطي</string>
+    <string name="ui_010">الإحداثيات</string>
+    <string name="ui_011">خط العرض</string>
+    <string name="ui_012">خط الطول</string>
+    <string name="ui_013">الارتفاع (م)</string>
+    <string name="ui_014">الخريطة</string>
+    <string name="ui_015">لصق رابط</string>
+    <string name="ui_016">مفضلة</string>
+    <string name="ui_017">المفضلات</string>
+    <string name="ui_018">انقر · اضغط مطولًا للتعديل</string>
+    <string name="ui_019">المحاكاة</string>
+    <string name="ui_020">بدء المحاكاة</string>
+    <string name="ui_021">إيقاف المحاكاة</string>
+    <string name="ui_022">مفتوح المصدر · GPL-3.0-only · محلي أولًا</string>
+    <string name="ui_023">حول GeoJoystick</string>
+    <string name="ui_024">محاكاة شفافة للموقع الوهمي</string>
+    <string name="ui_025">الإعدادات</string>
+    <string name="ui_026">الإعدادات</string>
+    <string name="ui_027">الإعداد الأولي</string>
+    <string name="ui_028">الموقع الوهمي</string>
+    <string name="ui_029">محدّد</string>
+    <string name="ui_030">غير محدّد</string>
+    <string name="ui_031">إذن العرض فوق التطبيقات</string>
+    <string name="ui_032">ممنوح</string>
+    <string name="ui_033">غير ممنوح</string>
+    <string name="ui_034">إعادة ضبط موضع النافذة العائمة</string>
+    <string name="ui_035">استعادة آخر موضع</string>
+    <string name="ui_036">مفعّل</string>
+    <string name="ui_037">معطّل</string>
+    <string name="ui_038">السلوك</string>
+    <string name="ui_039">سرعة المحاكاة</string>
+    <string name="ui_040">نافذة عائمة عالية التباين</string>
+    <string name="ui_041">مفعّل</string>
+    <string name="ui_042">معطّل</string>
+    <string name="ui_043">النافذة العائمة</string>
+    <string name="ui_044">المظهر واللغة</string>
+    <string name="ui_045">السمة</string>
+    <string name="ui_046">اللغة</string>
+    <string name="ui_047">صورة K2040 الرمزية</string>
+    <string name="ui_048">إغلاق صفحة حول</string>
+    <string name="ui_049">عصا تحكم شفافة للموقع الوهمي لاختبارات مطوري Android والمحاكيات.</string>
+    <string name="ui_050">محلي · يعمل دون اتصال أولًا · بلا حساب · بلا إعلانات · بلا تحليلات · بلا تتبّع</string>
+    <string name="ui_051">سجل التغييرات</string>
+    <string name="ui_052">الترخيص والاستخدام</string>
+    <string name="ui_053">المصادر</string>
+    <string name="ui_054">الدعم عبر Ko-fi</string>
+    <string name="ui_055">سجل التغييرات</string>
+    <string name="ui_056">إغلاق</string>
+    <string name="ui_057">إغلاق سجل التغييرات</string>
+    <string name="ui_058">صورة K2040 الرمزية</string>
+    <string name="ui_059">عصا تحكم شفافة للموقع الوهمي لاختبارات مطوري Android والمحاكيات. محلية أولًا، بلا حساب أو إعلانات أو تحليلات أو تتبّع.</string>
+    <string name="ui_060">رمز التطبيق: GPL-3.0-only
+رسومات K2040: CC BY 4.0
+بيانات الخريطة: © مساهمو OpenStreetMap · ODbL 1.0</string>
+    <string name="ui_061">التراخيص: رمز التطبيق GPL-3.0-only، ورسومات K2040 وفق CC BY 4.0، وOpenStreetMap وفق ODbL 1.0. افتح تفاصيل التراخيص</string>
+    <string name="ui_062">متابعة</string>
+    <string name="ui_063">المتابعة إلى GeoJoystick</string>
+    <string name="ui_064">الترخيص والاستخدام</string>
+    <string name="ui_065">البيانات المحلية</string>
+    <string name="ui_066">تبقى الإحداثيات والإعدادات على هذا الجهاز. لا تجلب الخريطة مربعات OpenStreetMap إلا عند فتحها؛ وقد يستخدم تحليل الروابط المدعومة طلبات HTTPS محدودة. لا حسابات ولا تحليلات ولا عمليات رفع مخفية.</string>
+    <string name="ui_067">التراخيص</string>
+    <string name="ui_068">انقر على أي بند لعرض تفاصيل الترخيص المعتمدة.</string>
+    <string name="ui_069">رمز التطبيق مرخّص وفق GPL-3.0-only. ويحمل رمز GPL الذي ألّفه K2040 أيضًا شرط إسناد منفصلًا بموجب القسم 7(b). أما رسومات K2040 الأصلية فمرخّصة وفق CC BY 4.0. وتحتفظ مواد الجهات الخارجية بشروطها الخاصة.</string>
+    <string name="ui_070">رمز التطبيق · تخضع الأجزاء التي ألّفها K2040 أيضًا لإسناد §7(b)</string>
+    <string name="ui_071">رسومات K2040 · CC BY 4.0</string>
+    <string name="ui_072">رسومات K2040 الأصلية ورسومات الواجهة · الإسناد مطلوب</string>
+    <string name="ui_073">بيانات الخريطة · © مساهمو OpenStreetMap</string>
+    <string name="ui_074">إغلاق</string>
+    <string name="ui_075">نص GPL الإنجليزي المضمّن هو النص المعتمد لرخصة GPL. ويحمل رمز GPL الأصلي الذي ألّفه K2040 أيضًا شرطًا منفصلًا لحفظ الإسناد بموجب القسم 7(b)، ويتطلب الإبقاء على “Copyright (c) 2026 K2040.” وتحتفظ المواد المشتقة من GoGoGo وغيرها من مواد الجهات الخارجية بإشعاراتها الخاصة.</string>
+    <string name="ui_076">إغلاق</string>
+    <string name="ui_077">رسومات K2040 · CC BY 4.0</string>
+    <string name="ui_078">الرسومات الأصلية ورسومات الواجهة التي ألّفها K2040 والمحددة في توثيق مصدر المشروع مرخّصة بموجب رخصة المشاع الإبداعي نَسب المُصنَّف 4.0 دولي (CC BY 4.0).
+
+عند مشاركة الرسومات المشمولة، انسبها إلى K2040، وحدد CC BY 4.0، وأضف رابطًا إلى الرخصة متى كان ذلك ممكنًا بصورة معقولة، واذكر أي تعديلات. لا تشمل هذه الرخصة أصول الجهات الخارجية والمشروعات الأصلية، وتبقى شروطها الخاصة سارية.</string>
+    <string name="ui_079">فتح الرخصة الرسمية</string>
+    <string name="ui_080">إغلاق</string>
+    <string name="ui_081">لا تحمّل خريطة GeoJoystick المضمّنة مربعات OpenStreetMap إلا عند استخدام الخريطة. بيانات الخريطة © مساهمو OpenStreetMap ومتاحة بموجب رخصة قاعدة البيانات المفتوحة Open Data Commons (ODbL) 1.0.
+
+تحافظ الخريطة على إسناد المساهمين بصورة ظاهرة. وتحتوي صفحة حقوق النشر والترخيص الرسمية لـ OpenStreetMap على التفاصيل المعتمدة وأي إشعارات إضافية تنطبق على خدمة المربعات.</string>
+    <string name="ui_082">فتح التفاصيل الرسمية</string>
+    <string name="ui_083">إغلاق</string>
+    <string name="ui_084">المصادر</string>
+    <string name="ui_085">المشروعات والمواد الخارجية التي يعتمد عليها GeoJoystick أو يستخدمها مباشرة.</string>
+    <string name="ui_086">المشروع الأصلي · ZCShou والمساهمون</string>
+    <string name="ui_087">مربعات الخريطة وبياناتها · © مساهمو OpenStreetMap</string>
+    <string name="ui_088">GeoJoystick عمل مشتق مرخّص وفق GPL-3.0-only ومستند إلى GoGoGo. وقد عُدّلت خدمة الموقع الوهمي وتصميم حركة عصا التحكم وبُسّطا بدرجة كبيرة. تحتفظ المواد المشتقة من GoGoGo بإسناد GPLv3 الأصلي؛ ولا ينطبق شرط K2040 بموجب §7(b) إلا على مواد GPL التي ألّفها K2040. لا يتضمن التطبيق مكوّنات Baidu SDK الاحتكارية ولا الإعلانات.</string>
+    <string name="ui_089">إغلاق</string>
+    <string name="ui_090">فتح</string>
+    <string name="ui_091">محلي · بلا حساب · بلا تتبّع غير ضروري</string>
+    <string name="ui_092">تبقى الإحداثيات والإعدادات على جهازك. لا تحليلات ولا نظام حسابات.</string>
+    <string name="ui_093">فتح</string>
+    <string name="ui_094">عصا تحكم شفافة للموقع الوهمي لاختبارات مطوري Android والمحاكيات.
+
+محلي أولًا · بلا حساب · بلا إعلانات · بلا تحليلات · بلا تتبّع
+تبقى الإحداثيات والإعدادات على جهازك.</string>
+    <string name="ui_095">رجوع</string>
+    <string name="ui_096">إعداد النظام الافتراضي</string>
+    <string name="ui_097">فاتح</string>
+    <string name="ui_098">داكن</string>
+    <string name="ui_099">المظهر</string>
+    <string name="ui_100">إلغاء</string>
+    <string name="ui_101">اللغة</string>
+    <string name="ui_102">إلغاء</string>
+    <string name="ui_103">داكن</string>
+    <string name="ui_104">فاتح</string>
+    <string name="ui_105">النظام</string>
+    <string name="ui_106">النظام</string>
+    <string name="ui_107">سيُعاد ضبط موضع النافذة العائمة عند عرضها في المرة التالية</string>
+    <string name="ui_108">الاسم</string>
+    <string name="ui_109">السرعة بوحدة م/ث</string>
+    <string name="ui_110">سرعة مخصّصة</string>
+    <string name="ui_111">حفظ</string>
+    <string name="ui_112">إلغاء</string>
+    <string name="ui_113">أدخل سرعة صالحة</string>
+    <string name="ui_114">حجم النافذة العائمة: %d%%</string>
+    <string name="ui_115">عتامة النافذة العائمة: %d%%</string>
+    <string name="ui_116">المفضلة %1$d</string>
+    <string name="ui_117">اختر خانة مفضلة</string>
+    <string name="ui_118">إلغاء</string>
+    <string name="ui_119">تم تحميل المفضلة في حقول الإحداثيات</string>
+    <string name="ui_120">المفضلة %1$d</string>
+    <string name="ui_121">اسم المفضلة</string>
+    <string name="ui_122">خط العرض</string>
+    <string name="ui_123">خط الطول</string>
+    <string name="ui_124">الارتفاع (م)</string>
+    <string name="ui_125">المفضلة %1$d</string>
+    <string name="ui_126">حفظ</string>
+    <string name="ui_127">إلغاء</string>
+    <string name="ui_128">مسح</string>
+    <string name="ui_129">المفضلة %1$d</string>
+    <string name="ui_130">أدخل إحداثيات صالحة للمفضلة</string>
+    <string name="ui_131">مفضلة %1$d</string>
+    <string name="ui_132">المفضلة %1$d فارغة</string>
+    <string name="ui_133">مفضلة %1$d</string>
+    <string name="ui_134">الحافظة فارغة</string>
+    <string name="ui_135">الحافظة فارغة</string>
+    <string name="ui_136">لم يُعثر على رابط موقع</string>
+    <string name="ui_137">جارٍ قراءة رابط الموقع…</string>
+    <string name="ui_138">تعذّر استخراج الإحداثيات من هذا الرابط</string>
+    <string name="ui_139">الإحداثيات المستوردة غير صالحة</string>
+    <string name="ui_140">تم استيراد الإحداثيات</string>
+    <string name="ui_141">تم استيراد الإحداثيات. أدخل الارتفاع قبل البدء.</string>
+    <string name="ui_142">تحديد GeoJoystick</string>
+    <string name="ui_143">في خيارات المطوّر، اختر GeoJoystick ضمن «تحديد تطبيق الموقع الوهمي»، ثم ارجع إلى هنا.</string>
+    <string name="ui_144">فتح الإعدادات</string>
+    <string name="ui_145">إلغاء</string>
+    <string name="ui_146">أدخل خط عرض وخط طول وارتفاعًا صالحًا</string>
+    <string name="ui_147">طُلب بدء GeoJoystick</string>
+    <string name="ui_148">تعذّر بدء GeoJoystick</string>
+    <string name="ui_149">طُلب إيقاف GeoJoystick</string>
+    <string name="ui_150">تعذّر إيقاف GeoJoystick</string>
+    <string name="ui_151">محدّد</string>
+    <string name="ui_152">غير محدّد</string>
+    <string name="ui_153">ممنوح</string>
+    <string name="ui_154">غير ممنوح</string>
+    <string name="ui_155">نشطة</string>
+    <string name="ui_156">قيد البدء</string>
+    <string name="ui_157">غير نشطة</string>
+    <string name="ui_158">أدخل خط عرض وخط طول وارتفاعًا صالحًا</string>
+    <string name="ui_159">جارٍ التحقق…</string>
+    <string name="ui_160">• أُعيد تصميم الصفحة الرئيسية والإعدادات وعناصر تحكم النافذة العائمة مع حالة أوضح ووضع مدمج.
+• حُسّنت استعادة المحاكاة واستعادة آخر موضع ومعالجة الإدخال غير الصالح.
+• أُضيف الإعداد الأولي وصفحات حول وسجل التغييرات والترخيص والاستخدام والمصادر.
+• وُسّع تحليل روابط الخرائط وتحسّنت موثوقية منتقي الخريطة.
+• حُسّنت إمكانية الوصول وسلوك الخط الكبير وأهداف اللمس.
+• أُضيفت هوية التميمة والمشغّل الجديدة لـ GeoJoystick ودعم التنقل للخلف في Android 16/API 36.
+
+0.1.3
+• تتبع مربعات الحوار الآن السمة الداكنة المحددة.
+• يستخدم GeoJoystick الآن أيقونة مخصصة في قوائم المتاجر.
+
+0.1.0
+• الإصدار العام الأول مع إدخال الإحداثيات والارتفاع، وتحديد الموقع من الخريطة، واستيراد الروابط، والمفضلات، وإعدادات المظهر واللغة، وعناصر تحكم عصا التحكم العائمة.</string>
+    <string name="ui_161">التبرعات اختيارية بالكامل. ولا تفتح ميزات ولا تمنح أي مزايا إضافية.</string>
+    <string name="ui_162">نص الترخيص غير متاح في هذه البنية.</string>
+    <string name="ui_163">لا يتوفر تطبيق متصفح</string>
+    <string name="ui_164">إلغاء تحديد الموقع على الخريطة</string>
+    <string name="ui_165">اختر موقعًا</string>
+    <string name="ui_166">استخدام الموقع</string>
+    <string name="ui_167">انقر على الخريطة لوضع العلامة. لا يُحدّد أي موقع تلقائيًا.</string>
+    <string name="ui_168">الخريطة غير متاحة</string>
+    <string name="ui_169">لم يُحدّد موقع</string>
+    <string name="ui_170">%1$.6f, %2$.6f</string>
+    <string name="ui_171">خدمة الموقع الوهمي</string>
+    <string name="ui_172">تحافظ على استمرار محاكاة الموقع الوهمي الظاهرة.</string>
+    <string name="ui_173">محاكاة الموقع الوهمي نشطة</string>
+    <string name="ui_174">جارٍ بدء محاكاة الموقع الوهمي</string>
+    <string name="ui_175">إظهار</string>
+    <string name="ui_176">إخفاء</string>
+    <string name="ui_177">إيقاف</string>
+    <string name="ui_178">حرّك نافذة GeoJoystick العائمة</string>
+    <string name="ui_179">التبديل إلى النافذة العائمة المدمجة</string>
+    <string name="ui_180">سرعة المشي</string>
+    <string name="ui_181">سرعة الجري</string>
+    <string name="ui_182">سرعة الدراجة</string>
+    <string name="ui_183">سرعة مخصّصة</string>
+    <string name="ui_184">الحركة نشطة؛ انقر للإيقاف المؤقت</string>
+    <string name="ui_185">تفعيل التثبيت</string>
+    <string name="ui_186">إيقاف خدمة GeoJoystick وإغلاق النافذة العائمة</string>
+    <string name="ui_187">التبديل إلى النافذة العائمة الموسّعة</string>
+    <string name="ui_188">التبديل إلى النافذة العائمة المدمجة</string>
+    <string name="ui_189">السرعة المخصّصة: %1$s</string>
+    <string name="ui_190">الحركة متوقفة مؤقتًا؛ انقر للاستئناف</string>
+    <string name="ui_191">الحركة نشطة؛ انقر للإيقاف المؤقت</string>
+    <string name="ui_192">تعطيل التثبيت</string>
+    <string name="ui_193">تفعيل التثبيت</string>
+    <string name="ui_194">الموضع غير متاح</string>
+    <string name="map_instruction">انقر على الخريطة لوضع العلامة. اسحب للتحريك.</string>
+    <string name="map_zoom_in">تكبير</string>
+    <string name="map_zoom_out">تصغير</string>
+    <string name="language_system_default">إعداد النظام الافتراضي</string>
+    <string name="language_english">English</string>
+    <string name="language_german">Deutsch</string>
+    <string name="language_french">Français</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_italian">Italiano</string>
+    <string name="language_dutch">Nederlands</string>
+    <string name="language_danish">Dansk</string>
+    <string name="language_swedish">Svenska</string>
+    <string name="language_norwegian_bokmal">Norsk bokmål</string>
+    <string name="language_polish">Polski</string>
+    <string name="language_turkish">Türkçe</string>
+    <string name="language_ukrainian">Українська</string>
+    <string name="language_russian">Русский</string>
+    <string name="language_korean">한국어</string>
+    <string name="language_chinese_simplified">简体中文</string>
+    <string name="language_chinese_traditional">繁體中文</string>
+    <string name="language_arabic">العربية</string>
+    <string name="custom_speed_default">مخصّصة</string>
+    <string name="favorite_default">المفضلة %1$d</string>
+    <string name="service_invalid_start">لم يبدأ GeoJoystick لأن الإحداثيات غير صالحة.</string>
+    <string name="service_not_active">GeoJoystick غير نشط.</string>
+    <string name="service_coordinates_rejected">رُفضت الإحداثيات الجديدة.</string>
+    <string name="service_no_provider">توقف GeoJoystick لعدم قبول أي موفّر موقع وهمي للموضع.</string>
+    <string name="service_publish_failed">توقف GeoJoystick بسبب فشل نشر الموقع الوهمي.</string>
+    <string name="service_cannot_publish">تعذّر على GeoJoystick نشر موقع وهمي. تحقّق من خيارات المطوّر وحدد GeoJoystick كتطبيق الموقع الوهمي.</string>
+    <string name="service_cannot_start">تعذّر على GeoJoystick بدء خدمة المحاكاة في المقدمة.</string>
+    <string name="joystick_accessibility">عصا تحكم الحركة</string>
+</resources>

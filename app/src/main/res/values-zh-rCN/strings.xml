@@ -236,6 +236,7 @@ K2040 美术素材：CC BY 4.0
     <string name="language_korean">한국어</string>
     <string name="language_chinese_simplified">简体中文</string>
     <string name="language_chinese_traditional">繁體中文</string>
+    <string name="language_arabic">العربية</string>
     <string name="custom_speed_default">自定义</string>
     <string name="favorite_default">收藏 %1$d</string>
     <string name="service_invalid_start">由于坐标无效，GeoJoystick 未启动。</string>

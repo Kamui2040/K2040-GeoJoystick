@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
@@ -72,11 +72,12 @@
             color: white;
             font-size: 14px;
             pointer-events: none;
+            text-align: start;
         }
         #zoom {
             position: absolute;
             z-index: 1000;
-            right: 12px;
+            inset-inline-end: 12px;
             bottom: 12px;
             display: flex;
             flex-direction: column;
@@ -94,12 +95,14 @@
         #attribution {
             position: absolute;
             z-index: 1000;
-            right: 8px;
+            inset-inline-end: 8px;
             bottom: 0;
             padding: 2px 5px;
             background: rgba(255,255,255,.82);
             color: #263238;
             font-size: 11px;
+            direction: ltr;
+            unicode-bidi: isolate;
         }
     </style>
 </head>

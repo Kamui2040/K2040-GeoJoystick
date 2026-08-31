@@ -56,6 +56,7 @@ final class JoystickOverlay {
     private final Context context;
     private final Listener listener;
     private final WindowManager windowManager;
+    private final GeoSettings settings;
     private final SharedPreferences preferences;
     private final WindowManager.LayoutParams params;
     private final LinearLayout root;
@@ -97,7 +98,8 @@ final class JoystickOverlay {
         this.context = context;
         this.listener = listener;
         windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        preferences = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        settings = new GeoSettings(context);
+        preferences = settings.raw();
         loadStyleSettings(true);
 
         params = new WindowManager.LayoutParams(
@@ -117,6 +119,7 @@ final class JoystickOverlay {
         currentSpeed = speedForKind(selectedSpeedKind);
 
         root = new LinearLayout(context);
+        root.setLayoutDirection(settings.layoutDirection());
         root.setOrientation(LinearLayout.VERTICAL);
         root.setGravity(Gravity.CENTER_HORIZONTAL);
         root.setPadding(dp(6), dp(6), dp(6), dp(8));
@@ -130,7 +133,7 @@ final class JoystickOverlay {
         dragHandle.setTextColor(colorText);
         dragHandle.setTextSize(13);
         dragHandle.setGravity(Gravity.CENTER_VERTICAL);
-        dragHandle.setPadding(dp(4), 0, dp(6), 0);
+        dragHandle.setPaddingRelative(dp(4), 0, dp(6), 0);
         dragHandle.setContentDescription(t(R.string.ui_178));
         dragHandle.setOnTouchListener(new DragListener());
         titleRow.addView(dragHandle, new LinearLayout.LayoutParams(0, dp(48), 1f));
@@ -194,6 +197,8 @@ final class JoystickOverlay {
         coordinateText.setTextColor(colorTextDim);
         coordinateText.setTextSize(10);
         coordinateText.setGravity(Gravity.CENTER);
+        coordinateText.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        coordinateText.setTextDirection(View.TEXT_DIRECTION_LTR);
         coordinateText.setSingleLine(true);
         coordinateText.setPadding(dp(3), dp(2), dp(3), 0);
         root.addView(coordinateText, new LinearLayout.LayoutParams(dp(200), dp(28)));
@@ -241,6 +246,7 @@ final class JoystickOverlay {
     }
 
     void refreshLocalizedText() {
+        root.setLayoutDirection(settings.layoutDirection());
         dragHandle.setContentDescription(t(R.string.ui_178));
         joystickView.setAccessibilityDescription(t(R.string.joystick_accessibility));
         walkButton.setContentDescription(t(R.string.ui_180));
@@ -356,7 +362,7 @@ final class JoystickOverlay {
         styleIconButton(bikeButton, SPEED_BIKE.equals(selectedSpeedKind));
         styleIconButton(customButton, SPEED_CUSTOM.equals(selectedSpeedKind));
         customButton.setContentDescription(
-                new GeoSettings(context).text(R.string.ui_189, customSpeedName()));
+                settings.text(R.string.ui_189, customSpeedName()));
     }
 
     private void updateToggleStates() {
@@ -416,13 +422,13 @@ final class JoystickOverlay {
     }
 
     private String customSpeedName() {
-        String fallback = new GeoSettings(context).text(R.string.custom_speed_default);
+        String fallback = settings.text(R.string.custom_speed_default);
         String name = preferences.getString(PREF_CUSTOM_SPEED_NAME, fallback);
         return name == null || name.trim().isEmpty() ? fallback : name.trim();
     }
 
     private String t(int resourceId) {
-        return new GeoSettings(context).text(resourceId);
+        return settings.text(resourceId);
     }
 
     private boolean loadStyleSettings(boolean force) {
@@ -491,15 +497,15 @@ final class JoystickOverlay {
 
     private void addIconButton(LinearLayout row, Button button) {
         LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(dp(48), dp(48));
-        buttonParams.leftMargin = dp(1);
-        buttonParams.rightMargin = dp(1);
+        buttonParams.setMarginStart(dp(1));
+        buttonParams.setMarginEnd(dp(1));
         row.addView(button, buttonParams);
     }
 
     private void addControlButton(LinearLayout row, Button button) {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(48), dp(48));
-        params.leftMargin = dp(4);
-        params.rightMargin = dp(4);
+        params.setMarginStart(dp(4));
+        params.setMarginEnd(dp(4));
         row.addView(button, params);
     }
 

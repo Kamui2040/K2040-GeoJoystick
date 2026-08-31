@@ -236,6 +236,7 @@ K2040 아트워크: CC BY 4.0
     <string name="language_korean">한국어</string>
     <string name="language_chinese_simplified">简体中文</string>
     <string name="language_chinese_traditional">繁體中文</string>
+    <string name="language_arabic">العربية</string>
     <string name="custom_speed_default">사용자 지정</string>
     <string name="favorite_default">즐겨찾기 %1$d</string>
     <string name="service_invalid_start">좌표가 잘못되어 GeoJoystick가 시작되지 않았습니다.</string>
