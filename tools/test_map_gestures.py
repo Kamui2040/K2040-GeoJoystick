@@ -13,6 +13,7 @@ TILE_SIZE = 256
 MIN_ZOOM = 2
 MAX_ZOOM = 19
 MAX_LATITUDE = 85.05112878
+PINCH_ZOOM_THRESHOLD = 1.18
 
 
 def clamp(value: float, minimum: float, maximum: float) -> float:
@@ -86,6 +87,31 @@ def assert_close(first: float, second: float, tolerance: float = 1e-9) -> None:
         raise AssertionError(f"{first!r} != {second!r}")
 
 
+def pinch_zoom_steps(scale: float) -> int:
+    if not math.isfinite(scale) or scale <= 0:
+        return 0
+    logarithmic = math.log(scale) / math.log(PINCH_ZOOM_THRESHOLD)
+    return (
+        math.floor(logarithmic + 1e-9)
+        if logarithmic >= 0
+        else math.ceil(logarithmic - 1e-9)
+    )
+
+
+def center_for_anchor(
+    anchor: tuple[float, float],
+    zoom: int,
+    width: float,
+    height: float,
+    midpoint: tuple[float, float],
+) -> tuple[float, float]:
+    world_x, world_y = lat_lng_to_world(anchor[0], anchor[1], zoom)
+    return (
+        world_x - midpoint[0] + width / 2,
+        world_y - midpoint[1] + height / 2,
+    )
+
+
 def test_zoom_anchor() -> None:
     width, height = 1080.0, 2200.0
     center = lat_lng_to_world(48.137154, 11.576124, 8)
@@ -110,6 +136,62 @@ def test_zoom_anchor() -> None:
         assert_close(before[1], after_out[1])
 
 
+def test_pinch_anchor_invariant() -> None:
+    width, height = 1080.0, 2200.0
+    start_zoom = 9
+    initial_center = lat_lng_to_world(48.137154, 11.576124, start_zoom)
+    start_midpoint = (325.0, 640.0)
+    anchor = screen_to_lat_lng(
+        initial_center,
+        start_zoom,
+        width,
+        height,
+        *start_midpoint,
+    )
+
+    # Model asynchronous pointer delivery: the midpoint can shift temporarily
+    # when one finger's move is observed before the other finger's move.
+    samples = (
+        ((345.0, 640.0), 1.08),
+        ((325.0, 640.0), 1.19),
+        ((300.0, 620.0), 1.42),
+        ((350.0, 665.0), 0.82),
+    )
+    for midpoint, scale in samples:
+        target_zoom = int(
+            clamp(
+                start_zoom + pinch_zoom_steps(scale),
+                MIN_ZOOM,
+                MAX_ZOOM,
+            )
+        )
+        center = center_for_anchor(
+            anchor,
+            target_zoom,
+            width,
+            height,
+            midpoint,
+        )
+        observed = screen_to_lat_lng(
+            center,
+            target_zoom,
+            width,
+            height,
+            *midpoint,
+        )
+        assert_close(anchor[0], observed[0])
+        assert_close(anchor[1], observed[1])
+
+
+def test_pinch_thresholds() -> None:
+    assert pinch_zoom_steps(1.17) == 0
+    assert pinch_zoom_steps(1.18) == 1
+    assert pinch_zoom_steps(1.18 ** 2) == 2
+    assert pinch_zoom_steps(0.86) == 0
+    assert pinch_zoom_steps(1 / 1.18) == -1
+    assert pinch_zoom_steps(1 / (1.18 ** 2)) == -2
+
+
 def test_zoom_bounds() -> None:
     center = (1000.0, 1000.0)
     unchanged_min, min_zoom = zoom_around(
@@ -130,9 +212,13 @@ def test_source_contract() -> None:
     required = (
         "touch-action: none;",
         "const activePointers = new Map();",
-        "const pinchZoomThreshold = 1.35;",
+        "const pinchZoomThreshold = 1.18;",
         "function beginPinch()",
-        "function resetPinchBaseline()",
+        "let pinchStartDistance = 0;",
+        "let pinchStartZoom = zoom;",
+        "let pinchAnchor = {lat: 0, lng: 0};",
+        "function pinchZoomSteps(scale)",
+        "pinchAnchor = screenToLatLng(midpoint.x, midpoint.y);",
         "function zoomAround(screenX, screenY, requestedZoom)",
         "function updatePinch()",
         "function finishPointer(event, cancelled)",
@@ -153,6 +239,10 @@ def test_source_contract() -> None:
             raise AssertionError(f"map gesture source is missing {token!r}")
 
     forbidden = (
+        "pinchCenter",
+        "pinchMidpoint",
+        "pinchDistance",
+        "resetPinchBaseline",
         "let dragging = false;",
         "if (!dragging)",
         "dragging = true;",
@@ -165,6 +255,8 @@ def test_source_contract() -> None:
 
 def main() -> int:
     test_zoom_anchor()
+    test_pinch_anchor_invariant()
+    test_pinch_thresholds()
     test_zoom_bounds()
     test_source_contract()
     print("Map gesture regression test: PASS")

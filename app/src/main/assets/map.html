@@ -148,7 +148,7 @@
         ? latLngToWorld(markerLat, markerLng, zoom)
         : {x: scaleFor(zoom) / 2, y: scaleFor(zoom) / 2};
     const activePointers = new Map();
-    const pinchZoomThreshold = 1.35;
+    const pinchZoomThreshold = 1.18;
     let dragPointerId = null;
     let dragStartX = 0;
     let dragStartY = 0;
@@ -157,9 +157,9 @@
     let moved = false;
     let pinching = false;
     let gestureHadPinch = false;
-    let pinchDistance = 0;
-    let pinchMidpoint = {x: 0, y: 0};
-    let pinchCenter = {x: 0, y: 0};
+    let pinchStartDistance = 0;
+    let pinchStartZoom = zoom;
+    let pinchAnchor = {lat: 0, lng: 0};
 
     function clamp(value, min, max) {
         return Math.max(min, Math.min(max, value));
@@ -315,25 +315,32 @@
         moved = Boolean(suppressTap);
     }
 
-    function resetPinchBaseline() {
-        const points = firstTwoPointerPoints();
-        if (!points) {
-            return false;
-        }
-        pinchDistance = Math.max(1, pointerDistance(points[0], points[1]));
-        pinchMidpoint = pointerMidpoint(points[0], points[1]);
-        pinchCenter = {x: center.x, y: center.y};
-        return true;
-    }
-
     function beginPinch() {
-        if (activePointers.size < 2 || !resetPinchBaseline()) {
+        const points = firstTwoPointerPoints();
+        if (activePointers.size < 2 || !points) {
             return;
         }
+        const midpoint = pointerMidpoint(points[0], points[1]);
+        pinchStartDistance = Math.max(
+            1,
+            pointerDistance(points[0], points[1])
+        );
+        pinchStartZoom = zoom;
+        pinchAnchor = screenToLatLng(midpoint.x, midpoint.y);
         pinching = true;
         gestureHadPinch = true;
         moved = true;
         dragPointerId = null;
+    }
+
+    function pinchZoomSteps(scale) {
+        if (!Number.isFinite(scale) || scale <= 0) {
+            return 0;
+        }
+        const logarithmic = Math.log(scale) / Math.log(pinchZoomThreshold);
+        return logarithmic >= 0
+            ? Math.floor(logarithmic + 1e-9)
+            : Math.ceil(logarithmic - 1e-9);
     }
 
     function zoomAround(screenX, screenY, requestedZoom) {
@@ -361,7 +368,7 @@
 
     function updatePinch() {
         const points = firstTwoPointerPoints();
-        if (!points) {
+        if (!points || pinchStartDistance <= 0) {
             return;
         }
 
@@ -370,20 +377,29 @@
             1,
             pointerDistance(points[0], points[1])
         );
+        const scale = currentDistance / pinchStartDistance;
+        const targetZoom = clamp(
+            pinchStartZoom + pinchZoomSteps(scale),
+            minZoom,
+            maxZoom
+        );
 
-        center.x = pinchCenter.x - (currentMidpoint.x - pinchMidpoint.x);
-        center.y = pinchCenter.y - (currentMidpoint.y - pinchMidpoint.y);
-
-        const ratio = currentDistance / pinchDistance;
-        if (ratio >= pinchZoomThreshold) {
-            zoomAround(currentMidpoint.x, currentMidpoint.y, zoom + 1);
-            resetPinchBaseline();
-        } else if (ratio <= 1 / pinchZoomThreshold) {
-            zoomAround(currentMidpoint.x, currentMidpoint.y, zoom - 1);
-            resetPinchBaseline();
-        } else {
-            render();
+        if (targetZoom !== zoom) {
+            zoom = targetZoom;
+            tileNodes.forEach(node => node.remove());
+            tileNodes.clear();
         }
+
+        const anchorWorld = latLngToWorld(
+            pinchAnchor.lat,
+            pinchAnchor.lng,
+            zoom
+        );
+        center = {
+            x: anchorWorld.x - currentMidpoint.x + width / 2,
+            y: anchorWorld.y - currentMidpoint.y + height / 2
+        };
+        render();
     }
 
     map.addEventListener("pointerdown", function (event) {
@@ -485,7 +501,7 @@
 
         pinching = false;
         dragPointerId = null;
-        pinchDistance = 0;
+        pinchStartDistance = 0;
 
         if (shouldPlaceMarker) {
             const value = screenToLatLng(point.x, point.y);
