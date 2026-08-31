@@ -26,6 +26,7 @@ GeoJoystick is an open-source Android mock-location utility for emulator and dev
 - Keep Linux, macOS, and Windows build instructions contributor-facing and machine-independent.
 - Before a change is considered complete, inspect the changed-file scope and run applicable tests, lint, build checks, and `git diff --check`.
 - Generated Android string resources must escape ASCII apostrophes using Android resource syntax, preserve NFC Unicode, and pass `tools/test_localization_resources.py` before build or commit gates.
+- For device QA that changes network state, verify the effective transport state after mutation before judging offline behavior. A successful `svc`/settings command or a single settings key is not proof that all active network transports are disabled; if true offline state cannot be verified, treat the offline gate as pending rather than as an app failure.
 - Keep source, build, runtime/device, signing, reproducibility, and publication evidence distinct.
 - If an automated Android runtime-state detector disagrees with verified known-active manual behavior, treat the detector as invalid evidence. Stop detector retries, remove superseded detector logic, and report the affected automated gate as requiring manual acceptance unless a reliable app-owned debug interface exists.
 - In RTL layouts, do not manually invert text glyphs that Android mirrors automatically. Validate directional controls and isolate mixed-direction numeric and legal tokens on a real RTL surface before acceptance.
