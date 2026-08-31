@@ -53,6 +53,7 @@ LANGUAGE_RESOURCE_NAMES = {
     "ko": "language_korean",
     "zh-CN": "language_chinese_simplified",
     "zh-TW": "language_chinese_traditional",
+    "ar": "language_arabic",
 }
 EXPLICIT_LANGUAGES = tuple(LANGUAGE_RESOURCE_NAMES)
 SUPPORTED_LANGUAGES = ("system",) + EXPLICIT_LANGUAGES

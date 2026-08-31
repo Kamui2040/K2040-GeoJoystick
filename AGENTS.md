@@ -27,11 +27,14 @@ GeoJoystick is an open-source Android mock-location utility for emulator and dev
 - Before a change is considered complete, inspect the changed-file scope and run applicable tests, lint, build checks, and `git diff --check`.
 - Keep source, build, runtime/device, signing, reproducibility, and publication evidence distinct.
 - If an automated Android runtime-state detector disagrees with verified known-active manual behavior, treat the detector as invalid evidence. Stop detector retries, remove superseded detector logic, and report the affected automated gate as requiring manual acceptance unless a reliable app-owned debug interface exists.
+- In RTL layouts, do not manually invert text glyphs that Android mirrors automatically. Validate directional controls and isolate mixed-direction numeric and legal tokens on a real RTL surface before acceptance.
 - Do not claim installation, physical-device behavior, signing, reproducibility, or release readiness without corresponding evidence.
 
 ## Contributions
 
 - Keep `main` stable and prefer focused, reviewable changes.
+- When a script intentionally switches the current worktree to another branch, capture the validation baseline after that switch or compare stable worktree topology. Do not require a pre-switch `git worktree list --porcelain` snapshot to remain byte-identical after the intended branch change.
+- When a script intentionally creates a commit, do not require the current worktree's porcelain HEAD field to remain byte-identical. Validate stable worktree topology and unrelated worktrees separately, and verify the current worktree against the expected new commit.
 - Preserve GPL-3.0-only licensing and required third-party attribution and provenance.
 - Do not commit generated APK/AAB files, local build caches, signing material, or machine-specific configuration.
 - Normal public issues and pull requests may document bugs, implementation work, compatibility changes, localization targets, and other contributor-relevant technical plans.

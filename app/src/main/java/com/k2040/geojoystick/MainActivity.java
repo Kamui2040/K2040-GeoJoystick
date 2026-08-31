@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -26,7 +27,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 import android.provider.Settings;
+import android.text.BidiFormatter;
 import android.text.InputType;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +50,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class MainActivity extends Activity {
     private static final int REQUEST_MAP = 1001;
@@ -57,6 +62,8 @@ public final class MainActivity extends Activity {
     private static final String STATE_DRAFT_LONGITUDE = "draft_longitude";
     private static final String STATE_DRAFT_ALTITUDE = "draft_altitude";
     private static final String STATE_INCOMING_INTENT_CONSUMED = "incoming_intent_consumed";
+    private static final Pattern LTR_LICENSE_SECTION =
+            Pattern.compile("§?7\\(b\\)");
 
     private GeoSettings settings;
     private GeoUi.Palette palette;
@@ -289,6 +296,7 @@ public final class MainActivity extends Activity {
 
     private void loadUiSettings() {
         palette = new GeoUi.Palette(settings.isDark());
+        getWindow().getDecorView().setLayoutDirection(settings.layoutDirection());
         getWindow().setStatusBarColor(palette.background);
         getWindow().setNavigationBarColor(palette.background);
     }
@@ -423,9 +431,9 @@ public final class MainActivity extends Activity {
             favoriteButtons[index] = button;
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     0, dp(52), 1f);
-            if (slot > 0) params.leftMargin = dp(favoriteSideMarginDp);
+            if (slot > 0) params.setMarginStart(dp(favoriteSideMarginDp));
             if (slot + 1 < GeoSettings.FAVORITE_COUNT) {
-                params.rightMargin = dp(favoriteSideMarginDp);
+                params.setMarginEnd(dp(favoriteSideMarginDp));
             }
             favoriteRow.addView(button, params);
         }
@@ -443,7 +451,7 @@ public final class MainActivity extends Activity {
                 13, palette.text, true);
         simulationTitle.setGravity(Gravity.CENTER_VERTICAL);
         simulationTitle.setIncludeFontPadding(false);
-        simulationTitle.setPadding(0, 0, dp(8), 0);
+        simulationTitle.setPaddingRelative(0, 0, dp(8), 0);
         simulationRow.addView(simulationTitle, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, dp(48)));
 
@@ -466,14 +474,14 @@ public final class MainActivity extends Activity {
 
         LinearLayout.LayoutParams simulationButtonParams =
                 new LinearLayout.LayoutParams(dp(48), dp(48));
-        simulationButtonParams.leftMargin = dp(2);
-        simulationButtonParams.rightMargin = dp(2);
+        simulationButtonParams.setMarginStart(dp(2));
+        simulationButtonParams.setMarginEnd(dp(2));
         simulationRow.addView(simulationStartButton, simulationButtonParams);
 
         LinearLayout.LayoutParams stopButtonParams =
                 new LinearLayout.LayoutParams(dp(48), dp(48));
-        stopButtonParams.leftMargin = dp(2);
-        stopButtonParams.rightMargin = dp(2);
+        stopButtonParams.setMarginStart(dp(2));
+        stopButtonParams.setMarginEnd(dp(2));
         simulationRow.addView(simulationStopButton, stopButtonParams);
 
         simulationCard.addView(simulationRow, new LinearLayout.LayoutParams(
@@ -503,7 +511,7 @@ public final class MainActivity extends Activity {
 
         LinearLayout titles = new LinearLayout(this);
         titles.setOrientation(LinearLayout.VERTICAL);
-        titles.setPadding(dp(10), 0, 0, 0);
+        titles.setPaddingRelative(dp(10), 0, 0, 0);
         titles.addView(text("GeoJoystick", 20, palette.text, true));
         titles.addView(text(t(R.string.ui_024), 9, palette.textDim, false));
         header.addView(titles,
@@ -547,7 +555,7 @@ public final class MainActivity extends Activity {
 
         setup.addView(settingRow(
                 t(R.string.ui_034),
-                "›",
+                forwardChevron(),
                 this::resetOverlayPosition), innerRow());
 
         boolean restoreEnabled = settings.restoreLastPosition();
@@ -883,6 +891,9 @@ public final class MainActivity extends Activity {
         ScrollView scroller = new ScrollView(this);
         scroller.setOverScrollMode(View.OVER_SCROLL_NEVER);
         TextView license = text(reflowLicenseText(readAssetText("LICENSE")), 11, palette.text, false);
+        license.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        license.setTextDirection(View.TEXT_DIRECTION_LTR);
+        license.setGravity(Gravity.START);
         license.setTextIsSelectable(true);
         license.setLineSpacing(0, 1.08f);
         license.setPadding(dp(4), dp(2), dp(4), dp(4));
@@ -1010,6 +1021,7 @@ public final class MainActivity extends Activity {
 
     private FrameLayout modalStage() {
         FrameLayout stage = new FrameLayout(this);
+        stage.setLayoutDirection(settings.layoutDirection());
         stage.setBackgroundColor(palette.background);
         stage.setClickable(true);
         stage.setFocusable(true);
@@ -1077,7 +1089,7 @@ public final class MainActivity extends Activity {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(dp(12), dp(8), dp(8), dp(8));
+        row.setPaddingRelative(dp(12), dp(8), dp(8), dp(8));
         row.setMinimumHeight(dp(56));
         row.setBackground(GeoUi.surface(this, palette));
         row.setClickable(true);
@@ -1094,7 +1106,7 @@ public final class MainActivity extends Activity {
         row.addView(labels, new LinearLayout.LayoutParams(
                 0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        TextView chevron = text("›", 20, palette.textDim, true);
+        TextView chevron = text(forwardChevron(), 20, palette.textDim, true);
         chevron.setGravity(Gravity.CENTER);
         chevron.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         row.addView(chevron, new LinearLayout.LayoutParams(dp(28), dp(40)));
@@ -1116,7 +1128,7 @@ public final class MainActivity extends Activity {
     }
 
     private LinearLayout welcomeNavigationRow(String title, Runnable action) {
-        LinearLayout row = welcomeRowHeader(title, "›");
+        LinearLayout row = welcomeRowHeader(title, forwardChevron());
         row.setBackground(GeoUi.surface(this, palette));
         row.setContentDescription(title + ". " + t(R.string.ui_093));
         row.setOnClickListener(view -> action.run());
@@ -1127,7 +1139,7 @@ public final class MainActivity extends Activity {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(dp(16), 0, dp(10), 0);
+        row.setPaddingRelative(dp(16), 0, dp(10), 0);
         row.setMinimumHeight(dp(48));
         row.setClickable(true);
         row.setFocusable(true);
@@ -1173,7 +1185,7 @@ public final class MainActivity extends Activity {
     }
 
     private Button infoRow(String title, String subtitle, Runnable action) {
-        Button row = GeoUi.button(this, palette, rowText(title, subtitle, "›"), false);
+        Button row = GeoUi.button(this, palette, rowText(title, subtitle, forwardChevron()), false);
         row.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         row.setTextSize(12);
         row.setOnClickListener(view -> action.run());
@@ -1217,7 +1229,7 @@ public final class MainActivity extends Activity {
         label.setMaxLines(2);
         LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(
                 0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        labelParams.rightMargin = dp(8);
+        labelParams.setMarginEnd(dp(8));
         row.addView(label, labelParams);
 
         TextView state = text(value, 12, valueColor, true);
@@ -1238,11 +1250,11 @@ public final class MainActivity extends Activity {
     private LinearLayout pageHeader(String title, Runnable backAction) {
         LinearLayout header = new LinearLayout(this);
         header.setGravity(Gravity.CENTER_VERTICAL);
-        Button back = GeoUi.iconButton(this, palette, "‹", t(R.string.ui_095));
+        Button back = GeoUi.iconButton(this, palette, backChevron(), t(R.string.ui_095));
         back.setOnClickListener(view -> backAction.run());
         header.addView(back, new LinearLayout.LayoutParams(dp(48), dp(48)));
         TextView heading = text(title, 22, palette.text, true);
-        heading.setPadding(dp(10), 0, 0, 0);
+        heading.setPaddingRelative(dp(10), 0, 0, 0);
         header.addView(heading,
                 new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         return header;
@@ -1386,13 +1398,19 @@ public final class MainActivity extends Activity {
     }
 
     private void updateOverlaySizeLabel(TextView label, int sizePercent) {
-        label.setText(String.format(Locale.US,
-                t(R.string.ui_114), sizePercent));
+        label.setText(formatPercentLabel(R.string.ui_114, sizePercent));
     }
 
     private void updateOpacityLabel(TextView label, int opacity) {
-        label.setText(String.format(Locale.US,
-                t(R.string.ui_115), opacity));
+        label.setText(formatPercentLabel(R.string.ui_115, opacity));
+    }
+
+    private String formatPercentLabel(int resourceId, int value) {
+        String formatted = String.format(Locale.US, t(resourceId), value);
+        if (!settings.isRtl()) return formatted;
+        String token = String.format(Locale.US, "%d%%", value);
+        String isolated = BidiFormatter.getInstance(true).unicodeWrap(token);
+        return formatted.replace(token, isolated);
     }
 
     private void chooseFavoriteSlot() {
@@ -1811,6 +1829,9 @@ public final class MainActivity extends Activity {
 
     private EditText coordinateInput(String hint, double value) {
         EditText input = textInput(hint, format(value));
+        input.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        input.setTextDirection(View.TEXT_DIRECTION_LTR);
+        input.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
         input.setSelectAllOnFocus(true);
         input.setInputType(InputType.TYPE_CLASS_NUMBER
                 | InputType.TYPE_NUMBER_FLAG_DECIMAL
@@ -1834,6 +1855,7 @@ public final class MainActivity extends Activity {
 
     private ScrollView pageScroll() {
         ScrollView page = new ScrollView(this);
+        page.setLayoutDirection(settings.layoutDirection());
         page.setFillViewport(true);
         page.setClipToPadding(false);
         page.setBackgroundColor(palette.background);
@@ -1842,8 +1864,9 @@ public final class MainActivity extends Activity {
 
     private LinearLayout pageRoot() {
         LinearLayout root = new LinearLayout(this);
+        root.setLayoutDirection(settings.layoutDirection());
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(dp(16), dp(10), dp(16), dp(18));
+        root.setPaddingRelative(dp(16), dp(10), dp(16), dp(18));
         root.setBackgroundColor(palette.background);
         return root;
     }
@@ -1902,9 +1925,23 @@ public final class MainActivity extends Activity {
     }
 
     private TextView text(String value, int size, int color, boolean bold) {
-        TextView text = GeoUi.text(this, value, size, color);
+        TextView text = GeoUi.text(this, isolateMixedDirectionText(value), size, color);
         if (bold) text.setTypeface(Typeface.DEFAULT_BOLD);
         return text;
+    }
+
+    private String isolateMixedDirectionText(String value) {
+        if (!settings.isRtl() || value == null || value.isEmpty()) return value;
+        Matcher matcher = LTR_LICENSE_SECTION.matcher(value);
+        StringBuffer output = new StringBuffer();
+        BidiFormatter formatter = BidiFormatter.getInstance(true);
+        while (matcher.find()) {
+            matcher.appendReplacement(
+                    output,
+                    Matcher.quoteReplacement(formatter.unicodeWrap(matcher.group())));
+        }
+        matcher.appendTail(output);
+        return output.toString();
     }
 
     private LinearLayout.LayoutParams innerRow() {
@@ -1923,9 +1960,29 @@ public final class MainActivity extends Activity {
         return GeoUi.weighted(this, 2);
     }
 
+    private String forwardChevron() {
+        // Android mirrors this bidi-mirrored glyph with the RTL layout.
+        return "›";
+    }
+
+    private String backChevron() {
+        // Android mirrors this bidi-mirrored glyph with the RTL layout.
+        return "‹";
+    }
+
     private AlertDialog.Builder appDialogBuilder() {
-        return new AlertDialog.Builder(this,
-                settings.isDark() ? R.style.AppDialogThemeDark : R.style.AppDialogThemeLight);
+        int theme = settings.isDark()
+                ? R.style.AppDialogThemeDark
+                : R.style.AppDialogThemeLight;
+        ContextThemeWrapper dialogContext =
+                new ContextThemeWrapper(this, theme);
+        Configuration override =
+                new Configuration(getResources().getConfiguration());
+        override.setLayoutDirection(settings.isRtl()
+                ? Locale.forLanguageTag(GeoSettings.LANGUAGE_ARABIC)
+                : Locale.ENGLISH);
+        dialogContext.applyOverrideConfiguration(override);
+        return new AlertDialog.Builder(dialogContext);
     }
 
     private String changelogText() {

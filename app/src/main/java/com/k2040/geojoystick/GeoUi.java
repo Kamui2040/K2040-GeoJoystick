@@ -124,14 +124,16 @@ final class GeoUi {
         text.setText(value);
         text.setTextSize(sizeSp);
         text.setTextColor(color);
+        text.setTextDirection(View.TEXT_DIRECTION_FIRST_STRONG);
         return text;
     }
 
     static TextView sectionLabel(Context context, Palette palette, String value) {
         TextView label = text(context, value, 12, palette.textDim);
         label.setTypeface(Typeface.DEFAULT_BOLD);
-        label.setAllCaps(true);
-        label.setLetterSpacing(0.08f);
+        boolean rtl = new GeoSettings(context).isRtl();
+        label.setAllCaps(!rtl);
+        label.setLetterSpacing(rtl ? 0.0f : 0.08f);
         label.setPadding(dp(context, 2), dp(context, 4), dp(context, 2), dp(context, 3));
         return label;
     }
@@ -181,8 +183,8 @@ final class GeoUi {
                 0,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 1f);
-        params.leftMargin = dp(context, horizontalMarginDp);
-        params.rightMargin = dp(context, horizontalMarginDp);
+        params.setMarginStart(dp(context, horizontalMarginDp));
+        params.setMarginEnd(dp(context, horizontalMarginDp));
         return params;
     }
 

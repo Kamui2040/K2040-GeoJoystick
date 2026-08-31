@@ -9,6 +9,8 @@ package com.k2040.geojoystick;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.text.TextUtils;
+import android.view.View;
 
 import java.util.Arrays;
 
@@ -56,6 +58,7 @@ final class GeoSettings {
     static final String LANGUAGE_KOREAN = "ko";
     static final String LANGUAGE_CHINESE_SIMPLIFIED = "zh-CN";
     static final String LANGUAGE_CHINESE_TRADITIONAL = "zh-TW";
+    static final String LANGUAGE_ARABIC = "ar";
 
     private static final String[] LANGUAGE_VALUES = new String[]{
             LANGUAGE_SYSTEM,
@@ -74,7 +77,8 @@ final class GeoSettings {
             LANGUAGE_RUSSIAN,
             LANGUAGE_KOREAN,
             LANGUAGE_CHINESE_SIMPLIFIED,
-            LANGUAGE_CHINESE_TRADITIONAL
+            LANGUAGE_CHINESE_TRADITIONAL,
+            LANGUAGE_ARABIC
     };
 
     private static final int[] LANGUAGE_LABEL_RESOURCES = new int[]{
@@ -94,7 +98,8 @@ final class GeoSettings {
             R.string.language_russian,
             R.string.language_korean,
             R.string.language_chinese_simplified,
-            R.string.language_chinese_traditional
+            R.string.language_chinese_traditional,
+            R.string.language_arabic
     };
 
     static final int FAVORITE_COUNT = 5;
@@ -177,6 +182,19 @@ final class GeoSettings {
     String resolvedLanguage() {
         String language = language();
         return LANGUAGE_SYSTEM.equals(language) ? Locale.getDefault().getLanguage() : language;
+    }
+
+    int layoutDirection() {
+        String language = language();
+        if (LANGUAGE_SYSTEM.equals(language)) {
+            return context.getResources().getConfiguration().getLayoutDirection();
+        }
+        return TextUtils.getLayoutDirectionFromLocale(
+                Locale.forLanguageTag(language));
+    }
+
+    boolean isRtl() {
+        return layoutDirection() == View.LAYOUT_DIRECTION_RTL;
     }
 
     static boolean isSupportedLanguage(String value) {

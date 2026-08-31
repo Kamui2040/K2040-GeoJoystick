@@ -58,15 +58,18 @@ public final class MapActivity extends Activity {
     private Button useButton;
     private WebView webView;
     private GeoUi.Palette palette;
+    private GeoSettings settings;
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        settings = new GeoSettings(this);
         loadUiSettings();
         restoreInitialSelection(savedInstanceState, getIntent());
 
         FrameLayout stage = new FrameLayout(this);
+        stage.setLayoutDirection(settings.layoutDirection());
         stage.setBackgroundColor(palette.background);
 
         webView = new WebView(this);
@@ -84,15 +87,17 @@ public final class MapActivity extends Activity {
         toolbar.setGravity(Gravity.CENTER_VERTICAL);
         toolbar.setElevation(dp(8));
 
-        Button back = GeoUi.iconButton(this, palette, "‹", t(R.string.ui_164));
+        Button back = GeoUi.iconButton(this, palette, backChevron(), t(R.string.ui_164));
         back.setOnClickListener(view -> finish());
 
         LinearLayout titleBlock = new LinearLayout(this);
         titleBlock.setOrientation(LinearLayout.VERTICAL);
-        titleBlock.setPadding(dp(10), 0, dp(10), 0);
+        titleBlock.setPaddingRelative(dp(10), 0, dp(10), 0);
         TextView title = GeoUi.text(this, t(R.string.ui_165), 17, palette.text);
         title.setTypeface(Typeface.DEFAULT_BOLD);
         coordinateText = GeoUi.text(this, "", 11, palette.textDim);
+        coordinateText.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        coordinateText.setTextDirection(View.TEXT_DIRECTION_LTR);
         coordinateText.setSingleLine(false);
         coordinateText.setMaxLines(2);
         titleBlock.addView(title);
@@ -249,17 +254,20 @@ public final class MapActivity extends Activity {
     private void localizeBundledMap(WebView view) {
         GeoSettings localeSettings = new GeoSettings(this);
         String language = localeSettings.resolvedLanguage();
+        String direction = localeSettings.isRtl() ? "rtl" : "ltr";
         String title = t(R.string.ui_165);
         String message = t(R.string.map_instruction);
         String zoomIn = t(R.string.map_zoom_in);
         String zoomOut = t(R.string.map_zoom_out);
         String script = "(function(){"
                 + "var localized={language:" + JSONObject.quote(language)
+                + ",direction:" + JSONObject.quote(direction)
                 + ",title:" + JSONObject.quote(title)
                 + ",message:" + JSONObject.quote(message)
                 + ",zoomIn:" + JSONObject.quote(zoomIn)
                 + ",zoomOut:" + JSONObject.quote(zoomOut) + "};"
                 + "document.documentElement.lang=localized.language;"
+                + "document.documentElement.dir=localized.direction;"
                 + "document.title=localized.title;"
                 + "var message=document.getElementById('message');"
                 + "if(message){message.textContent=localized.message;}"
@@ -307,11 +315,12 @@ public final class MapActivity extends Activity {
     }
 
     private void loadUiSettings() {
-        SharedPreferences preferences = getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        SharedPreferences preferences = settings.raw();
         String appearance = preferences.getString(PREF_APPEARANCE, APPEARANCE_SYSTEM);
         boolean dark = APPEARANCE_DARK.equals(appearance)
                 || (APPEARANCE_SYSTEM.equals(appearance) && isSystemDarkMode());
         palette = new GeoUi.Palette(dark);
+        getWindow().getDecorView().setLayoutDirection(settings.layoutDirection());
         getWindow().setStatusBarColor(palette.background);
         getWindow().setNavigationBarColor(palette.background);
     }
@@ -383,8 +392,13 @@ public final class MapActivity extends Activity {
         view.requestApplyInsets();
     }
 
+    private String backChevron() {
+        // Android mirrors this bidi-mirrored glyph with the RTL layout.
+        return "‹";
+    }
+
     private String t(int resourceId) {
-        return new GeoSettings(this).text(resourceId);
+        return settings.text(resourceId);
     }
 
     private boolean shouldStackToolbar(Button actionButton, String actionLabel) {
