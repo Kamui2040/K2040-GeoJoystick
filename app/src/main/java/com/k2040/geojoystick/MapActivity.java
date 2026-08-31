@@ -393,7 +393,8 @@ public final class MapActivity extends Activity {
     }
 
     private String backChevron() {
-        return settings.isRtl() ? "›" : "‹";
+        // Android mirrors this bidi-mirrored glyph with the RTL layout.
+        return "‹";
     }
 
     private String t(int resourceId) {

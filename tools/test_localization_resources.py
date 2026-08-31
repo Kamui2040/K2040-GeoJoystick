@@ -353,7 +353,7 @@ def main() -> int:
         "JoystickOverlay": (ROOT / "app/src/main/java/com/k2040/geojoystick/JoystickOverlay.java").read_text(encoding="utf-8"),
     }
     required_contracts = {
-        "MainActivity": ("setLayoutDirection(settings.layoutDirection())", "ContextThemeWrapper", "setPaddingRelative", "setMarginEnd", "View.TEXT_DIRECTION_LTR", "forwardChevron()", "backChevron()"),
+        "MainActivity": ("setLayoutDirection(settings.layoutDirection())", "ContextThemeWrapper", "setPaddingRelative", "setMarginEnd", "View.TEXT_DIRECTION_LTR", "forwardChevron()", "backChevron()", "BidiFormatter.getInstance(true).unicodeWrap", "LTR_LICENSE_SECTION", "formatPercentLabel"),
         "MapActivity": ("document.documentElement.dir=localized.direction", "setLayoutDirection(settings.layoutDirection())", "View.TEXT_DIRECTION_LTR", "backChevron()"),
         "JoystickOverlay": ("root.setLayoutDirection(settings.layoutDirection())", "View.TEXT_DIRECTION_LTR", "setMarginStart", "setMarginEnd"),
     }
@@ -361,6 +361,21 @@ def main() -> int:
         for required in required_values:
             if required not in rtl_sources[label]:
                 raise AssertionError(f"{label} RTL support is missing {required}")
+
+    main_source = rtl_sources["MainActivity"]
+    map_source = rtl_sources["MapActivity"]
+    if 'return settings.isRtl() ? "‹" : "›";' in main_source \
+            or 'return settings.isRtl() ? "›" : "‹";' in main_source:
+        raise AssertionError("MainActivity manually double-mirrors chevrons")
+    if 'return settings.isRtl() ? "›" : "‹";' in map_source:
+        raise AssertionError("MapActivity manually double-mirrors its back chevron")
+    for required in ('return "›";', 'return "‹";'):
+        if required not in main_source:
+            raise AssertionError(
+                f"MainActivity automatic chevron contract is missing {required}"
+            )
+    if 'return "‹";' not in map_source:
+        raise AssertionError("MapActivity automatic back-chevron contract is missing")
 
     map_html = (ROOT / "app/src/main/assets/map.html").read_text(encoding="utf-8")
     for required in ('dir="ltr"', "inset-inline-end", "unicode-bidi: isolate"):

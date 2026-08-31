@@ -27,6 +27,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 import android.provider.Settings;
+import android.text.BidiFormatter;
 import android.text.InputType;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
@@ -49,6 +50,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class MainActivity extends Activity {
     private static final int REQUEST_MAP = 1001;
@@ -59,6 +62,8 @@ public final class MainActivity extends Activity {
     private static final String STATE_DRAFT_LONGITUDE = "draft_longitude";
     private static final String STATE_DRAFT_ALTITUDE = "draft_altitude";
     private static final String STATE_INCOMING_INTENT_CONSUMED = "incoming_intent_consumed";
+    private static final Pattern LTR_LICENSE_SECTION =
+            Pattern.compile("§?7\\(b\\)");
 
     private GeoSettings settings;
     private GeoUi.Palette palette;
@@ -1393,13 +1398,19 @@ public final class MainActivity extends Activity {
     }
 
     private void updateOverlaySizeLabel(TextView label, int sizePercent) {
-        label.setText(String.format(Locale.US,
-                t(R.string.ui_114), sizePercent));
+        label.setText(formatPercentLabel(R.string.ui_114, sizePercent));
     }
 
     private void updateOpacityLabel(TextView label, int opacity) {
-        label.setText(String.format(Locale.US,
-                t(R.string.ui_115), opacity));
+        label.setText(formatPercentLabel(R.string.ui_115, opacity));
+    }
+
+    private String formatPercentLabel(int resourceId, int value) {
+        String formatted = String.format(Locale.US, t(resourceId), value);
+        if (!settings.isRtl()) return formatted;
+        String token = String.format(Locale.US, "%d%%", value);
+        String isolated = BidiFormatter.getInstance(true).unicodeWrap(token);
+        return formatted.replace(token, isolated);
     }
 
     private void chooseFavoriteSlot() {
@@ -1914,9 +1925,23 @@ public final class MainActivity extends Activity {
     }
 
     private TextView text(String value, int size, int color, boolean bold) {
-        TextView text = GeoUi.text(this, value, size, color);
+        TextView text = GeoUi.text(this, isolateMixedDirectionText(value), size, color);
         if (bold) text.setTypeface(Typeface.DEFAULT_BOLD);
         return text;
+    }
+
+    private String isolateMixedDirectionText(String value) {
+        if (!settings.isRtl() || value == null || value.isEmpty()) return value;
+        Matcher matcher = LTR_LICENSE_SECTION.matcher(value);
+        StringBuffer output = new StringBuffer();
+        BidiFormatter formatter = BidiFormatter.getInstance(true);
+        while (matcher.find()) {
+            matcher.appendReplacement(
+                    output,
+                    Matcher.quoteReplacement(formatter.unicodeWrap(matcher.group())));
+        }
+        matcher.appendTail(output);
+        return output.toString();
     }
 
     private LinearLayout.LayoutParams innerRow() {
@@ -1936,11 +1961,13 @@ public final class MainActivity extends Activity {
     }
 
     private String forwardChevron() {
-        return settings.isRtl() ? "‹" : "›";
+        // Android mirrors this bidi-mirrored glyph with the RTL layout.
+        return "›";
     }
 
     private String backChevron() {
-        return settings.isRtl() ? "›" : "‹";
+        // Android mirrors this bidi-mirrored glyph with the RTL layout.
+        return "‹";
     }
 
     private AlertDialog.Builder appDialogBuilder() {
