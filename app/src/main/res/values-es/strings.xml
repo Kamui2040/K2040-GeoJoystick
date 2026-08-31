@@ -247,4 +247,14 @@ Las coordenadas y la configuración permanecen en su dispositivo.</string>
     <string name="service_cannot_publish">GeoJoystick no pudo publicar una ubicación simulada. Comprueba las Opciones de desarrollador y selecciona GeoJoystick como aplicación de ubicación simulada.</string>
     <string name="service_cannot_start">GeoJoystick no pudo iniciar su servicio de simulación en primer plano.</string>
     <string name="joystick_accessibility">Joystick de movimiento</string>
+    <string name="place_search_hint">Buscar lugar o dirección</string>
+    <string name="place_search_action">Buscar</string>
+    <string name="place_search_empty">Introduce un lugar o una dirección.</string>
+    <string name="place_search_unavailable">La búsqueda de lugares no está disponible en este dispositivo.</string>
+    <string name="place_search_no_result">No se encontró ningún lugar ni dirección coincidente.</string>
+    <string name="place_search_ambiguous">Se encontraron varios resultados. Refina la búsqueda.</string>
+    <string name="place_search_invalid">La búsqueda devolvió una ubicación no válida. El mapa no se modificó.</string>
+    <string name="place_search_failed">La búsqueda de lugares falló. El mapa no se modificó.</string>
+    <string name="place_search_disclosure">La búsqueda solo se ejecuta al tocar Buscar y puede usar el servicio de geocodificación y la red del dispositivo.</string>
+    <string name="place_search_searching">Buscando…</string>
 </resources>

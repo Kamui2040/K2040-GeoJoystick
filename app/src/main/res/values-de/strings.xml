@@ -247,4 +247,14 @@ Koordinaten und Einstellungen bleiben auf deinem Gerät.</string>
     <string name="service_cannot_publish">GeoJoystick konnte keinen Mock-Standort veröffentlichen. Prüfe die Entwickleroptionen und wähle GeoJoystick als Mock-Standort-App.</string>
     <string name="service_cannot_start">GeoJoystick konnte den Vordergrunddienst für die Simulation nicht starten.</string>
     <string name="joystick_accessibility">Bewegungs-Joystick</string>
+    <string name="place_search_hint">Ort oder Adresse suchen</string>
+    <string name="place_search_action">Suchen</string>
+    <string name="place_search_empty">Gib einen Ort oder eine Adresse ein.</string>
+    <string name="place_search_unavailable">Die Ortssuche ist auf diesem Gerät nicht verfügbar.</string>
+    <string name="place_search_no_result">Kein passender Ort bzw. keine passende Adresse gefunden.</string>
+    <string name="place_search_ambiguous">Mehrere Treffer gefunden. Verfeinere deine Suche.</string>
+    <string name="place_search_invalid">Die Suche hat einen ungültigen Standort zurückgegeben. Die Karte wurde nicht geändert.</string>
+    <string name="place_search_failed">Die Ortssuche ist fehlgeschlagen. Die Karte wurde nicht geändert.</string>
+    <string name="place_search_disclosure">Die Suche wird nur ausgeführt, wenn du auf „Suchen“ tippst, und kann den Geokodierungsdienst und das Netzwerk deines Geräts verwenden.</string>
+    <string name="place_search_searching">Suche…</string>
 </resources>

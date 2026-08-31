@@ -247,4 +247,14 @@ Koordinater og indstillinger forbliver på din enhed.</string>
     <string name="service_cannot_publish">GeoJoystick kunne ikke publicere en simuleret placering. Tjek Udviklerindstillinger, og vælg GeoJoystick som app til simuleret placering.</string>
     <string name="service_cannot_start">GeoJoystick kunne ikke starte sin forgrundssimuleringstjeneste.</string>
     <string name="joystick_accessibility">Bevægelsesjoystick</string>
+    <string name="place_search_hint">Søg efter sted eller adresse</string>
+    <string name="place_search_action">Søg</string>
+    <string name="place_search_empty">Indtast et sted eller en adresse.</string>
+    <string name="place_search_unavailable">Stedsøgning er ikke tilgængelig på denne enhed.</string>
+    <string name="place_search_no_result">Der blev ikke fundet et matchende sted eller en adresse.</string>
+    <string name="place_search_ambiguous">Der blev fundet flere resultater. Præciser din søgning.</string>
+    <string name="place_search_invalid">Søgningen returnerede en ugyldig placering. Kortet blev ikke ændret.</string>
+    <string name="place_search_failed">Stedsøgningen mislykkedes. Kortet blev ikke ændret.</string>
+    <string name="place_search_disclosure">Søgning kører kun, når du trykker på Søg, og kan bruge enhedens geokodningstjeneste og netværk.</string>
+    <string name="place_search_searching">Søger…</string>
 </resources>

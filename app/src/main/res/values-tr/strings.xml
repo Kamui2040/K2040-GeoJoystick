@@ -247,4 +247,14 @@ Koordinatlar ve ayarlar cihazınızda kalır.</string>
     <string name="service_cannot_publish">GeoJoystick sahte konum yayımlayamadı. Geliştirici Seçeneklerini kontrol edin ve sahte konum uygulaması olarak GeoJoystick uygulamasını seçin.</string>
     <string name="service_cannot_start">GeoJoystick ön plan simülasyon hizmetini başlatamadı.</string>
     <string name="joystick_accessibility">Hareket kumandası</string>
+    <string name="place_search_hint">Yer veya adres ara</string>
+    <string name="place_search_action">Ara</string>
+    <string name="place_search_empty">Bir yer veya adres girin.</string>
+    <string name="place_search_unavailable">Yer arama bu cihazda kullanılamıyor.</string>
+    <string name="place_search_no_result">Eşleşen yer veya adres bulunamadı.</string>
+    <string name="place_search_ambiguous">Birden fazla eşleşme bulundu. Aramanızı daraltın.</string>
+    <string name="place_search_invalid">Arama geçersiz bir konum döndürdü. Harita değiştirilmedi.</string>
+    <string name="place_search_failed">Yer arama başarısız oldu. Harita değiştirilmedi.</string>
+    <string name="place_search_disclosure">Arama yalnızca Ara’ya dokunduğunuzda çalışır ve cihazınızın coğrafi kodlama hizmetini ve ağını kullanabilir.</string>
+    <string name="place_search_searching">Aranıyor…</string>
 </resources>

@@ -247,4 +247,14 @@ K2040 美術素材：CC BY 4.0
     <string name="service_cannot_publish">GeoJoystick 無法發布模擬位置。請檢查開發人員選項，並將 GeoJoystick 選為模擬位置應用程式。</string>
     <string name="service_cannot_start">GeoJoystick 無法啟動其前景模擬服務。</string>
     <string name="joystick_accessibility">移動搖桿</string>
+    <string name="place_search_hint">搜尋地點或地址</string>
+    <string name="place_search_action">搜尋</string>
+    <string name="place_search_empty">請輸入地點或地址。</string>
+    <string name="place_search_unavailable">此裝置無法使用地點搜尋。</string>
+    <string name="place_search_no_result">找不到符合的地點或地址。</string>
+    <string name="place_search_ambiguous">找到多個符合項目。請縮小搜尋範圍。</string>
+    <string name="place_search_invalid">搜尋傳回了無效位置。地圖未變更。</string>
+    <string name="place_search_failed">地點搜尋失敗。地圖未變更。</string>
+    <string name="place_search_disclosure">只有在您點按「搜尋」時才會執行搜尋，並且可能使用裝置的地理編碼服務和網路。</string>
+    <string name="place_search_searching">正在搜尋…</string>
 </resources>

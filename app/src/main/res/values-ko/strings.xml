@@ -247,4 +247,14 @@ K2040 아트워크: CC BY 4.0
     <string name="service_cannot_publish">GeoJoystick가 모의 위치를 게시할 수 없습니다. 개발자 옵션을 확인하고 GeoJoystick를 모의 위치 앱으로 선택하세요.</string>
     <string name="service_cannot_start">GeoJoystick가 포그라운드 시뮬레이션 서비스를 시작할 수 없습니다.</string>
     <string name="joystick_accessibility">이동 조이스틱</string>
+    <string name="place_search_hint">장소 또는 주소 검색</string>
+    <string name="place_search_action">검색</string>
+    <string name="place_search_empty">장소 또는 주소를 입력하세요.</string>
+    <string name="place_search_unavailable">이 기기에서는 장소 검색을 사용할 수 없습니다.</string>
+    <string name="place_search_no_result">일치하는 장소나 주소를 찾지 못했습니다.</string>
+    <string name="place_search_ambiguous">여러 결과가 있습니다. 검색어를 더 구체적으로 입력하세요.</string>
+    <string name="place_search_invalid">검색에서 잘못된 위치가 반환되었습니다. 지도는 변경되지 않았습니다.</string>
+    <string name="place_search_failed">장소 검색에 실패했습니다. 지도는 변경되지 않았습니다.</string>
+    <string name="place_search_disclosure">검색은 검색 버튼을 눌렀을 때만 실행되며 기기의 지오코딩 서비스와 네트워크를 사용할 수 있습니다.</string>
+    <string name="place_search_searching">검색 중…</string>
 </resources>

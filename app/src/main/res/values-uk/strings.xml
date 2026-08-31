@@ -247,4 +247,14 @@
     <string name="service_cannot_publish">GeoJoystick не зміг опублікувати фіктивне місцезнаходження. Перевірте параметри розробника та виберіть GeoJoystick як застосунок фіктивного місцезнаходження.</string>
     <string name="service_cannot_start">GeoJoystick не зміг запустити фоновий сервіс симуляції.</string>
     <string name="joystick_accessibility">Джойстик руху</string>
+    <string name="place_search_hint">Пошук місця або адреси</string>
+    <string name="place_search_action">Шукати</string>
+    <string name="place_search_empty">Введіть місце або адресу.</string>
+    <string name="place_search_unavailable">Пошук місць недоступний на цьому пристрої.</string>
+    <string name="place_search_no_result">Відповідного місця або адреси не знайдено.</string>
+    <string name="place_search_ambiguous">Знайдено кілька збігів. Уточніть пошук.</string>
+    <string name="place_search_invalid">Пошук повернув недійсне місцезнаходження. Карту не змінено.</string>
+    <string name="place_search_failed">Не вдалося виконати пошук місця. Карту не змінено.</string>
+    <string name="place_search_disclosure">Пошук виконується лише після натискання «Шукати» й може використовувати службу геокодування та мережу пристрою.</string>
+    <string name="place_search_searching">Пошук…</string>
 </resources>
