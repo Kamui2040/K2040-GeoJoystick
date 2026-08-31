@@ -160,6 +160,7 @@
     let pinchStartDistance = 0;
     let pinchStartZoom = zoom;
     let pinchAnchor = {lat: 0, lng: 0};
+    let pinchStartMidpoint = {x: 0, y: 0};
 
     function clamp(value, min, max) {
         return Math.max(min, Math.min(max, value));
@@ -327,6 +328,7 @@
         );
         pinchStartZoom = zoom;
         pinchAnchor = screenToLatLng(midpoint.x, midpoint.y);
+        pinchStartMidpoint = {x: midpoint.x, y: midpoint.y};
         pinching = true;
         gestureHadPinch = true;
         moved = true;
@@ -372,7 +374,6 @@
             return;
         }
 
-        const currentMidpoint = pointerMidpoint(points[0], points[1]);
         const currentDistance = Math.max(
             1,
             pointerDistance(points[0], points[1])
@@ -396,8 +397,8 @@
             zoom
         );
         center = {
-            x: anchorWorld.x - currentMidpoint.x + width / 2,
-            y: anchorWorld.y - currentMidpoint.y + height / 2
+            x: anchorWorld.x - pinchStartMidpoint.x + width / 2,
+            y: anchorWorld.y - pinchStartMidpoint.y + height / 2
         };
         render();
     }

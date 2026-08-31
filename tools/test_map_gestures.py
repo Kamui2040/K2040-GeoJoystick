@@ -149,15 +149,16 @@ def test_pinch_anchor_invariant() -> None:
         *start_midpoint,
     )
 
-    # Model asynchronous pointer delivery: the midpoint can shift temporarily
-    # when one finger's move is observed before the other finger's move.
+    # Live midpoint jitter is deliberately ignored during the pinch. The
+    # geographic focus remains at the fixed screen-space midpoint captured
+    # when the two-finger gesture began.
     samples = (
         ((345.0, 640.0), 1.08),
         ((325.0, 640.0), 1.19),
         ((300.0, 620.0), 1.42),
         ((350.0, 665.0), 0.82),
     )
-    for midpoint, scale in samples:
+    for _live_midpoint, scale in samples:
         target_zoom = int(
             clamp(
                 start_zoom + pinch_zoom_steps(scale),
@@ -170,14 +171,14 @@ def test_pinch_anchor_invariant() -> None:
             target_zoom,
             width,
             height,
-            midpoint,
+            start_midpoint,
         )
         observed = screen_to_lat_lng(
             center,
             target_zoom,
             width,
             height,
-            *midpoint,
+            *start_midpoint,
         )
         assert_close(anchor[0], observed[0])
         assert_close(anchor[1], observed[1])
@@ -217,6 +218,8 @@ def test_source_contract() -> None:
         "let pinchStartDistance = 0;",
         "let pinchStartZoom = zoom;",
         "let pinchAnchor = {lat: 0, lng: 0};",
+        "let pinchStartMidpoint = {x: 0, y: 0};",
+        "pinchStartMidpoint = {x: midpoint.x, y: midpoint.y};",
         "function pinchZoomSteps(scale)",
         "pinchAnchor = screenToLatLng(midpoint.x, midpoint.y);",
         "function zoomAround(screenX, screenY, requestedZoom)",
@@ -243,6 +246,8 @@ def test_source_contract() -> None:
         "pinchMidpoint",
         "pinchDistance",
         "resetPinchBaseline",
+        "x: anchorWorld.x - currentMidpoint.x + width / 2",
+        "y: anchorWorld.y - currentMidpoint.y + height / 2",
         "let dragging = false;",
         "if (!dragging)",
         "dragging = true;",
