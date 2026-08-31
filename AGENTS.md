@@ -38,6 +38,7 @@ GeoJoystick is an open-source Android mock-location utility for emulator and dev
 - Keep `main` stable and prefer focused, reviewable changes.
 - Multi-touch map gestures must derive every rendered center from one stable geographic pinch anchor and the live gesture midpoint. Do not repeatedly re-anchor from center state already mutated by asynchronous pointer events.
 - Immediately before any GitHub issue or pull-request comment, review, metadata change, close, or merge mutation, verify the exact target number, title, state, base/head where applicable, and that it belongs to the current work unit. Do not mutate historical items while switching tools or testing an action.
+- Before any GitHub write, verify that the operation type itself exactly matches the intended resource mutation. Commenting, assignment, issue metadata, pull-request metadata, review, close, and merge operations are not interchangeable; if the exact operation is unavailable or unclear, stop and resolve that mismatch instead of substituting another write.
 - Do not probe repository write capability with placeholder mutations. Verify tool capability and repository state through discovery or read-only operations before any public or tracked write.
 - Preflight generated handoff scripts by compiling the exact final file text. Avoid nesting the same triple-quote delimiter when embedding code or fixtures.
 - Assistant-generated mutation handoffs must complete semantic preflight before the first repository write, arm rollback before that write, and parse fixed-column Git porcelain output without trimming leading whitespace.
@@ -47,5 +48,5 @@ GeoJoystick is an open-source Android mock-location utility for emulator and dev
 - When a script intentionally creates a commit, do not require the current worktree's porcelain HEAD field to remain byte-identical. Validate stable worktree topology and unrelated worktrees separately, and verify the current worktree against the expected new commit.
 - Preserve GPL-3.0-only licensing and required third-party attribution and provenance.
 - Do not commit generated APK/AAB files, local build caches, signing material, or machine-specific configuration.
-- Normal public issues and pull requests may document bugs, implementation work, compatibility changes, localization targets, and other contributor-relevant technical plans.
+- Normal public issues and pull requests may document bugs, implementation work, compatibility changes, localization targets, and other contributor-relevant changes.
 - Keep public documentation focused on information useful to users and contributors.
