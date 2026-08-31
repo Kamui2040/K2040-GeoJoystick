@@ -147,12 +147,19 @@
     let center = hasMarker
         ? latLngToWorld(markerLat, markerLng, zoom)
         : {x: scaleFor(zoom) / 2, y: scaleFor(zoom) / 2};
-    let dragging = false;
+    const activePointers = new Map();
+    const pinchZoomThreshold = 1.18;
+    let dragPointerId = null;
     let dragStartX = 0;
     let dragStartY = 0;
     let dragCenterX = 0;
     let dragCenterY = 0;
     let moved = false;
+    let pinching = false;
+    let gestureHadPinch = false;
+    let pinchStartDistance = 0;
+    let pinchStartZoom = zoom;
+    let pinchAnchor = {lat: 0, lng: 0};
 
     function clamp(value, min, max) {
         return Math.max(min, Math.min(max, value));
@@ -269,38 +276,181 @@
         );
     }
 
-    function zoomBy(delta) {
-        const old = zoom;
-        zoom = clamp(zoom + delta, minZoom, maxZoom);
-        if (zoom === old) {
+    function pointerPoint(event) {
+        const rect = map.getBoundingClientRect();
+        return {
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top
+        };
+    }
+
+    function pointerDistance(first, second) {
+        return Math.hypot(second.x - first.x, second.y - first.y);
+    }
+
+    function pointerMidpoint(first, second) {
+        return {
+            x: (first.x + second.x) / 2,
+            y: (first.y + second.y) / 2
+        };
+    }
+
+    function firstTwoPointerPoints() {
+        const values = activePointers.values();
+        const first = values.next();
+        const second = values.next();
+        if (first.done || second.done) {
+            return null;
+        }
+        return [first.value, second.value];
+    }
+
+    function beginDrag(pointerId, point, suppressTap) {
+        pinching = false;
+        dragPointerId = pointerId;
+        dragStartX = point.x;
+        dragStartY = point.y;
+        dragCenterX = center.x;
+        dragCenterY = center.y;
+        moved = Boolean(suppressTap);
+    }
+
+    function beginPinch() {
+        const points = firstTwoPointerPoints();
+        if (activePointers.size < 2 || !points) {
             return;
         }
-        const scaleChange = Math.pow(2, zoom - old);
+        const midpoint = pointerMidpoint(points[0], points[1]);
+        pinchStartDistance = Math.max(
+            1,
+            pointerDistance(points[0], points[1])
+        );
+        pinchStartZoom = zoom;
+        pinchAnchor = screenToLatLng(midpoint.x, midpoint.y);
+        pinching = true;
+        gestureHadPinch = true;
+        moved = true;
+        dragPointerId = null;
+    }
+
+    function pinchZoomSteps(scale) {
+        if (!Number.isFinite(scale) || scale <= 0) {
+            return 0;
+        }
+        const logarithmic = Math.log(scale) / Math.log(pinchZoomThreshold);
+        return logarithmic >= 0
+            ? Math.floor(logarithmic + 1e-9)
+            : Math.ceil(logarithmic - 1e-9);
+    }
+
+    function zoomAround(screenX, screenY, requestedZoom) {
+        const targetZoom = clamp(Math.round(requestedZoom), minZoom, maxZoom);
+        if (targetZoom === zoom) {
+            return false;
+        }
+
+        const anchor = screenToLatLng(screenX, screenY);
+        zoom = targetZoom;
+        const anchorWorld = latLngToWorld(anchor.lat, anchor.lng, zoom);
         center = {
-            x: center.x * scaleChange,
-            y: center.y * scaleChange
+            x: anchorWorld.x - screenX + width / 2,
+            y: anchorWorld.y - screenY + height / 2
         };
         tileNodes.forEach(node => node.remove());
         tileNodes.clear();
         render();
+        return true;
+    }
+
+    function zoomBy(delta) {
+        return zoomAround(width / 2, height / 2, zoom + delta);
+    }
+
+    function updatePinch() {
+        const points = firstTwoPointerPoints();
+        if (!points || pinchStartDistance <= 0) {
+            return;
+        }
+
+        const currentMidpoint = pointerMidpoint(points[0], points[1]);
+        const currentDistance = Math.max(
+            1,
+            pointerDistance(points[0], points[1])
+        );
+        const scale = currentDistance / pinchStartDistance;
+        const targetZoom = clamp(
+            pinchStartZoom + pinchZoomSteps(scale),
+            minZoom,
+            maxZoom
+        );
+
+        if (targetZoom !== zoom) {
+            zoom = targetZoom;
+            tileNodes.forEach(node => node.remove());
+            tileNodes.clear();
+        }
+
+        const anchorWorld = latLngToWorld(
+            pinchAnchor.lat,
+            pinchAnchor.lng,
+            zoom
+        );
+        center = {
+            x: anchorWorld.x - currentMidpoint.x + width / 2,
+            y: anchorWorld.y - currentMidpoint.y + height / 2
+        };
+        render();
     }
 
     map.addEventListener("pointerdown", function (event) {
-        dragging = true;
-        moved = false;
-        dragStartX = event.clientX;
-        dragStartY = event.clientY;
-        dragCenterX = center.x;
-        dragCenterY = center.y;
-        map.setPointerCapture(event.pointerId);
+        if (event.pointerType === "mouse" && event.button !== 0) {
+            return;
+        }
+        event.preventDefault();
+
+        if (activePointers.size === 0) {
+            gestureHadPinch = false;
+            moved = false;
+        }
+
+        const point = pointerPoint(event);
+        activePointers.set(event.pointerId, point);
+        try {
+            map.setPointerCapture(event.pointerId);
+        } catch (ignored) {
+            // The pointer can still be tracked without explicit capture.
+        }
+
+        if (activePointers.size === 1) {
+            beginDrag(event.pointerId, point, false);
+        } else {
+            beginPinch();
+        }
     });
 
     map.addEventListener("pointermove", function (event) {
-        if (!dragging) {
+        if (!activePointers.has(event.pointerId)) {
             return;
         }
-        const dx = event.clientX - dragStartX;
-        const dy = event.clientY - dragStartY;
+        event.preventDefault();
+
+        const point = pointerPoint(event);
+        activePointers.set(event.pointerId, point);
+
+        if (activePointers.size >= 2) {
+            if (!pinching) {
+                beginPinch();
+            }
+            updatePinch();
+            return;
+        }
+
+        if (pinching || dragPointerId !== event.pointerId) {
+            return;
+        }
+
+        const dx = point.x - dragStartX;
+        const dy = point.y - dragStartY;
         if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
             moved = true;
         }
@@ -309,15 +459,72 @@
         render();
     });
 
-    map.addEventListener("pointerup", function (event) {
-        if (!dragging) {
+    function finishPointer(event, cancelled) {
+        if (!activePointers.has(event.pointerId)) {
             return;
         }
-        dragging = false;
-        if (!moved) {
-            const rect = map.getBoundingClientRect();
-            const value = screenToLatLng(event.clientX - rect.left, event.clientY - rect.top);
+
+        const point = pointerPoint(event);
+        activePointers.set(event.pointerId, point);
+        const wasPinching = pinching
+                || activePointers.size > 1
+                || gestureHadPinch;
+        activePointers.delete(event.pointerId);
+
+        try {
+            if (map.hasPointerCapture(event.pointerId)) {
+                map.releasePointerCapture(event.pointerId);
+            }
+        } catch (ignored) {
+            // Pointer teardown remains safe if capture was already released.
+        }
+
+        if (activePointers.size >= 2) {
+            beginPinch();
+            return;
+        }
+
+        if (activePointers.size === 1) {
+            const remaining = activePointers.entries().next().value;
+            beginDrag(remaining[0], remaining[1], wasPinching);
+            if (wasPinching) {
+                gestureHadPinch = true;
+            }
+            return;
+        }
+
+        const shouldPlaceMarker = !cancelled
+                && !gestureHadPinch
+                && !wasPinching
+                && dragPointerId === event.pointerId
+                && !moved;
+
+        pinching = false;
+        dragPointerId = null;
+        pinchStartDistance = 0;
+
+        if (shouldPlaceMarker) {
+            const value = screenToLatLng(point.x, point.y);
             setMarker(value.lat, value.lng, true);
+        }
+
+        gestureHadPinch = false;
+        moved = false;
+    }
+
+    map.addEventListener("pointerup", function (event) {
+        event.preventDefault();
+        finishPointer(event, false);
+    });
+
+    map.addEventListener("pointercancel", function (event) {
+        event.preventDefault();
+        finishPointer(event, true);
+    });
+
+    map.addEventListener("lostpointercapture", function (event) {
+        if (activePointers.has(event.pointerId)) {
+            finishPointer(event, true);
         }
     });
 

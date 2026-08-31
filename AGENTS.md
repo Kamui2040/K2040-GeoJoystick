@@ -28,11 +28,16 @@ GeoJoystick is an open-source Android mock-location utility for emulator and dev
 - Keep source, build, runtime/device, signing, reproducibility, and publication evidence distinct.
 - If an automated Android runtime-state detector disagrees with verified known-active manual behavior, treat the detector as invalid evidence. Stop detector retries, remove superseded detector logic, and report the affected automated gate as requiring manual acceptance unless a reliable app-owned debug interface exists.
 - In RTL layouts, do not manually invert text glyphs that Android mirrors automatically. Validate directional controls and isolate mixed-direction numeric and legal tokens on a real RTL surface before acceptance.
+- For manual pinch QA, judge anchoring only against the exact geographic point under the midpoint between the two active touches. A nearby off-centre landmark or the screen-centred `+`/`−` controls are not valid anchor references.
 - Do not claim installation, physical-device behavior, signing, reproducibility, or release readiness without corresponding evidence.
 
 ## Contributions
 
 - Keep `main` stable and prefer focused, reviewable changes.
+- Multi-touch map gestures must derive every rendered center from one stable geographic pinch anchor and the live gesture midpoint. Do not repeatedly re-anchor from center state already mutated by asynchronous pointer events.
+- Immediately before any GitHub issue or pull-request comment, review, metadata change, close, or merge mutation, verify the exact target number, title, state, base/head where applicable, and that it belongs to the current work unit. Do not mutate historical items while switching tools or testing an action.
+- Do not probe repository write capability with placeholder mutations. Verify tool capability and repository state through discovery or read-only operations before any public or tracked write.
+- Preflight generated handoff scripts by compiling the exact final file text. Avoid nesting the same triple-quote delimiter when embedding code or fixtures.
 - Do not create placeholder GitHub issues or pull requests as an intermediate tooling step. Prepare the complete intended title and scope before creating the public item.
 - After a GitHub contents-API commit advances a branch, refetch each later target file from that branch before the next update instead of reusing an earlier blob SHA.
 - When a script intentionally switches the current worktree to another branch, capture the validation baseline after that switch or compare stable worktree topology. Do not require a pre-switch `git worktree list --porcelain` snapshot to remain byte-identical after the intended branch change.
