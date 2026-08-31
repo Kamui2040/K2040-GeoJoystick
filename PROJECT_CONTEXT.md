@@ -65,9 +65,9 @@ Public builds must remain reproducible from public source without private infras
 
 ## Current development
 
-Development `main` contains the expanded UI language set documented in `README.md`, including localization through Korean, Simplified Chinese, and Traditional Chinese, plus responsive layout fixes needed for longer and enlarged text. These changes are development state only and are not part of the v0.1.4 release.
+Development `main` contains the expanded UI language set documented in `README.md`, including Arabic with right-to-left layout support, Korean, Simplified Chinese, and Traditional Chinese, plus responsive layout fixes needed for longer and enlarged text. These changes are development state only and are not part of the v0.1.4 release.
 
-Arabic localization and dedicated right-to-left layout QA are the current focused development work, tracked in issue #57. Public documentation should describe merged behavior only; private release planning remains outside the repository.
+Pinch-to-zoom for the bundled map is the current focused development work, tracked in issue #60. Public documentation should describe merged behavior only; private release planning remains outside the repository.
 
 Normal public issues and pull requests may track technical bugs, compatibility work, localization expansion, reproducibility improvements, and other contributor-relevant changes.
 
