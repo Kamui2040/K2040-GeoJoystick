@@ -25,6 +25,7 @@ GeoJoystick is an open-source Android mock-location utility for emulator and dev
 - Use the repository build/bootstrap tooling; do not require a globally installed Gradle.
 - Keep Linux, macOS, and Windows build instructions contributor-facing and machine-independent.
 - Before a change is considered complete, inspect the changed-file scope and run applicable tests, lint, build checks, and `git diff --check`.
+- Validation harnesses must verify configuration semantics rather than formatting-specific literals. For Gradle version gates, parse or syntax-tolerantly match `versionCode` and `versionName`; equivalent quote or whitespace styles must not be treated as a version change.
 - Generated Android string resources must escape ASCII apostrophes using Android resource syntax, preserve NFC Unicode, and pass `tools/test_localization_resources.py` before build or commit gates.
 - For device QA that changes network state, verify the effective transport state after mutation before judging offline behavior. A successful `svc`/settings command or a single settings key is not proof that all active network transports are disabled; if true offline state cannot be verified, treat the offline gate as pending rather than as an app failure.
 - Keep source, build, runtime/device, signing, reproducibility, and publication evidence distinct.
