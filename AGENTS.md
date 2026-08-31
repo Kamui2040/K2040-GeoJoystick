@@ -33,6 +33,7 @@ GeoJoystick is an open-source Android mock-location utility for emulator and dev
 ## Contributions
 
 - Keep `main` stable and prefer focused, reviewable changes.
+- Do not create placeholder GitHub issues or pull requests as an intermediate tooling step. Prepare the complete intended title and scope before creating the public item.
 - When a script intentionally switches the current worktree to another branch, capture the validation baseline after that switch or compare stable worktree topology. Do not require a pre-switch `git worktree list --porcelain` snapshot to remain byte-identical after the intended branch change.
 - When a script intentionally creates a commit, do not require the current worktree's porcelain HEAD field to remain byte-identical. Validate stable worktree topology and unrelated worktrees separately, and verify the current worktree against the expected new commit.
 - Preserve GPL-3.0-only licensing and required third-party attribution and provenance.
