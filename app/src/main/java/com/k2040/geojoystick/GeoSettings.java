@@ -53,6 +53,9 @@ final class GeoSettings {
     static final String LANGUAGE_TURKISH = "tr";
     static final String LANGUAGE_UKRAINIAN = "uk";
     static final String LANGUAGE_RUSSIAN = "ru";
+    static final String LANGUAGE_KOREAN = "ko";
+    static final String LANGUAGE_CHINESE_SIMPLIFIED = "zh-CN";
+    static final String LANGUAGE_CHINESE_TRADITIONAL = "zh-TW";
 
     private static final String[] LANGUAGE_VALUES = new String[]{
             LANGUAGE_SYSTEM,
@@ -68,7 +71,10 @@ final class GeoSettings {
             LANGUAGE_POLISH,
             LANGUAGE_TURKISH,
             LANGUAGE_UKRAINIAN,
-            LANGUAGE_RUSSIAN
+            LANGUAGE_RUSSIAN,
+            LANGUAGE_KOREAN,
+            LANGUAGE_CHINESE_SIMPLIFIED,
+            LANGUAGE_CHINESE_TRADITIONAL
     };
 
     private static final int[] LANGUAGE_LABEL_RESOURCES = new int[]{
@@ -85,7 +91,10 @@ final class GeoSettings {
             R.string.language_polish,
             R.string.language_turkish,
             R.string.language_ukrainian,
-            R.string.language_russian
+            R.string.language_russian,
+            R.string.language_korean,
+            R.string.language_chinese_simplified,
+            R.string.language_chinese_traditional
     };
 
     static final int FAVORITE_COUNT = 5;
