@@ -65,9 +65,9 @@ Public builds must remain reproducible from public source without private infras
 
 ## Current development
 
-Development `main` contains the expanded UI language set documented in `README.md`, including Arabic with right-to-left layout support, Korean, Simplified Chinese, and Traditional Chinese, plus responsive layout fixes needed for longer and enlarged text. It also includes two-finger pinch-to-zoom in the bundled map picker. These changes are development state only and are not part of the v0.1.4 release.
+Development `main` now contains the complete planned v0.1.5 feature set: the expanded UI language set documented in `README.md`, including Arabic with right-to-left layout support, Korean, Simplified Chinese, and Traditional Chinese; responsive layout fixes needed for longer and enlarged text; two-finger pinch-to-zoom in the bundled map picker; and optional explicit-submit place/address search that fails closed and leaves manual map/coordinate selection available when geocoding is unavailable.
 
-Explicit-submit place and address search is the current focused development work, tracked in issue #64. Search must remain optional and fail closed; manual coordinates and map picking must continue to work when geocoding is unavailable. Public documentation should describe merged behavior only; private release planning remains outside the repository.
+Integrated v0.1.5 QA and release-readiness validation is the current focused work, tracked in issue #68. The canonical production release remains v0.1.4 until the complete merged development state passes the integrated functional, visual, reproducibility, F-Droid compatibility, privacy, licence/provenance, and cleanup gates. Production signing, tagging, publication, and store/F-Droid submission are separate explicit-approval actions.
 
 Normal public issues and pull requests may track technical bugs, compatibility work, localization expansion, reproducibility improvements, and other contributor-relevant changes.
 
