@@ -169,7 +169,15 @@ Koordinater og innstillinger forblir på enheten din.</string>
     <string name="ui_157">Inaktiv</string>
     <string name="ui_158">Angi gyldig breddegrad, lengdegrad og høyde</string>
     <string name="ui_159">Sjekker …</string>
-    <string name="ui_160">• Startsiden, Innstillinger og overleggskontrollene er redesignet med tydeligere status og kompakt modus.
+    <string name="ui_160">0.1.5
+• La til 15 flere grensesnittspråk, blant annet arabisk med RTL, koreansk, forenklet kinesisk og tradisjonell kinesisk.
+• La til zoom med tofingerklyp i kartvelgeren.
+• La til valgfritt eksplisitt steds-/adressesøk; forespørsler sendes bare ved innsending, og feil lar gjeldende valg være uendret.
+• Forbedret oppsett for lange tekster, større tekst, smale bredder og oversettelser.
+• Manuelle koordinater og kartvalg er fortsatt tilgjengelige når geokoding er utilgjengelig eller frakoblet.
+
+0.1.4
+• Startsiden, Innstillinger og overleggskontrollene er redesignet med tydeligere status og kompakt modus.
 • Gjenoppretting av simuleringen, siste posisjon og håndtering av ugyldige inndata er forbedret.
 • Introduksjon samt skjermene Om, Endringslogg, Lisens og bruk og Kilder er lagt til.
 • Behandling av kartlenker og kartvelgerens pålitelighet er forbedret.

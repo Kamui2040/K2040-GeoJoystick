@@ -169,7 +169,15 @@ Coördinaten en instellingen blijven op uw apparaat staan.</string>
     <string name="ui_157">Inactief</string>
     <string name="ui_158">Voer een geldige breedtegraad, lengtegraad en hoogte in</string>
     <string name="ui_159">Bezig met controleren…</string>
-    <string name="ui_160">• Bediening op het startscherm, in Instellingen en in de overlay vernieuwd, met duidelijkere status en compacte modus.
+    <string name="ui_160">0.1.5
+• 15 extra interfacetalen toegevoegd, waaronder Arabisch met RTL, Koreaans, vereenvoudigd Chinees en traditioneel Chinees.
+• Zoomen met twee vingers toegevoegd aan de kaartkiezer.
+• Optionele expliciete plaats-/adreszoekfunctie toegevoegd; verzoeken worden alleen na verzenden uitgevoerd en fouten laten de huidige selectie ongewijzigd.
+• Lay-outs voor lange tekst, grotere tekst, smalle breedtes en vertalingen verbeterd.
+• Handmatige coördinaten en kaartselectie blijven beschikbaar als geocodering niet beschikbaar is of offline is.
+
+0.1.4
+• Bediening op het startscherm, in Instellingen en in de overlay vernieuwd, met duidelijkere status en compacte modus.
 • Herstel van de simulatie, herstel van de laatste positie en afhandeling van ongeldige invoer verbeterd.
 • Introductie en de schermen Over, Wijzigingslog, Licentie en gebruik en Bronnen toegevoegd.
 • Verwerking van kaartlinks en betrouwbaarheid van de kaartkiezer verbeterd.

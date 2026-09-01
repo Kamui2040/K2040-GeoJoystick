@@ -169,7 +169,15 @@ Współrzędne i ustawienia pozostają na urządzeniu.</string>
     <string name="ui_157">Nieaktywna</string>
     <string name="ui_158">Wprowadź prawidłową szerokość, długość i wysokość</string>
     <string name="ui_159">Sprawdzanie…</string>
-    <string name="ui_160">• Przeprojektowano ekran główny, ustawienia i elementy sterujące nakładki, zapewniając czytelniejszy status i tryb kompaktowy.
+    <string name="ui_160">0.1.5
+• Dodano 15 kolejnych języków interfejsu, w tym arabski RTL, koreański, chiński uproszczony i chiński tradycyjny.
+• Dodano powiększanie mapy gestem szczypania dwoma palcami.
+• Dodano opcjonalne jawne wyszukiwanie miejsc/adresów; żądania są wysyłane dopiero po zatwierdzeniu, a błędy nie zmieniają bieżącego wyboru.
+• Ulepszono układy dla długich tekstów, powiększonego tekstu, wąskich szerokości i tłumaczeń.
+• Ręczne współrzędne i wybór na mapie pozostają dostępne, gdy geokodowanie jest niedostępne lub urządzenie jest offline.
+
+0.1.4
+• Przeprojektowano ekran główny, ustawienia i elementy sterujące nakładki, zapewniając czytelniejszy status i tryb kompaktowy.
 • Ulepszono odzyskiwanie symulacji, przywracanie ostatniej pozycji i obsługę nieprawidłowych danych.
 • Dodano pierwsze uruchomienie oraz ekrany O aplikacji, Historia zmian, Licencja i użytkowanie oraz Źródła.
 • Rozszerzono analizę linków map i niezawodność wyboru na mapie.

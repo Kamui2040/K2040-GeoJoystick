@@ -1,0 +1,4 @@
+- Added 15 additional UI languages, including Arabic RTL, Korean, and Chinese.
+- Added two-finger pinch-to-zoom in the map picker.
+- Added optional explicit place/address search with fail-closed error handling.
+- Improved enlarged-text, narrow-width, and localized layouts.

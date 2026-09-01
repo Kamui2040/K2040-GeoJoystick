@@ -169,7 +169,15 @@ Las coordenadas y la configuración permanecen en su dispositivo.</string>
     <string name="ui_157">Inactivo</string>
     <string name="ui_158">Introduce latitud, longitud y altitud válidas</string>
     <string name="ui_159">Comprobando…</string>
-    <string name="ui_160">• Inicio, Ajustes y controles de superposición rediseñados con un estado más claro y un modo compacto.
+    <string name="ui_160">0.1.5
+• Se añadieron 15 idiomas de interfaz más, incluidos árabe RTL, coreano, chino simplificado y chino tradicional.
+• Se añadió zoom con gesto de pellizco de dos dedos en el mapa.
+• Se añadió búsqueda opcional y explícita de lugares/direcciones; las solicitudes solo se envían al confirmar y los errores no cambian la selección actual.
+• Se mejoraron los diseños para textos largos, texto ampliado, anchos reducidos y traducciones.
+• Las coordenadas manuales y la selección en el mapa siguen disponibles si la geocodificación no está disponible o no hay conexión.
+
+0.1.4
+• Inicio, Ajustes y controles de superposición rediseñados con un estado más claro y un modo compacto.
 • Mejorados la recuperación de la simulación, la restauración de la última posición y el manejo de datos no válidos.
 • Añadidas la introducción inicial y las pantallas Acerca de, Registro de cambios, Licencia y uso y Fuentes.
 • Mejorados el análisis de enlaces de mapas y la fiabilidad del selector de mapas.

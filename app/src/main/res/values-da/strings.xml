@@ -169,7 +169,15 @@ Koordinater og indstillinger forbliver på din enhed.</string>
     <string name="ui_157">Inaktiv</string>
     <string name="ui_158">Indtast gyldig breddegrad, længdegrad og højde</string>
     <string name="ui_159">Tjekker...</string>
-    <string name="ui_160">• Startside, Indstillinger og overlejringskontroller redesignet med tydeligere status og kompakt tilstand.
+    <string name="ui_160">0.1.5
+• Tilføjet 15 ekstra grænsefladesprog, herunder arabisk med RTL, koreansk, forenklet kinesisk og traditionelt kinesisk.
+• Tilføjet zoom med to fingre i kortvælgeren.
+• Tilføjet valgfri eksplicit sted-/adressesøgning; forespørgsler sendes kun ved indsendelse, og fejl ændrer ikke den aktuelle markering.
+• Forbedret layout til lange tekster, større tekst, smalle bredder og oversættelser.
+• Manuelle koordinater og kortvalg er stadig tilgængelige, når geokodning er utilgængelig eller offline.
+
+0.1.4
+• Startside, Indstillinger og overlejringskontroller redesignet med tydeligere status og kompakt tilstand.
 • Gendannelse af simulering, sidste position og håndtering af ugyldige indtastninger forbedret.
 • Introduktion samt skærmene Om, Ændringslog, Licens og brug og Kilder tilføjet.
 • Behandling af kortlinks og kortvælgerens pålidelighed forbedret.

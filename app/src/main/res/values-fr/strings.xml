@@ -169,7 +169,15 @@ Les coordonnées et les paramètres restent sur votre appareil.</string>
     <string name="ui_157">Inactif</string>
     <string name="ui_158">Entrez une latitude, une longitude et une altitude valides</string>
     <string name="ui_159">Vérification…</string>
-    <string name="ui_160">• Accueil, Paramètres et commandes de superposition repensés avec un état plus clair et un mode compact.
+    <string name="ui_160">0.1.5
+• Ajout de 15 langues d’interface supplémentaires, dont l’arabe RTL, le coréen, le chinois simplifié et le chinois traditionnel.
+• Ajout du zoom par pincement à deux doigts dans la carte.
+• Ajout d’une recherche explicite facultative de lieu/adresse ; les requêtes ne partent qu’après validation et les erreurs ne modifient pas la sélection actuelle.
+• Amélioration des mises en page pour les textes longs, le texte agrandi, les faibles largeurs et les traductions.
+• Les coordonnées manuelles et la sélection sur la carte restent disponibles si le géocodage est indisponible ou hors ligne.
+
+0.1.4
+• Accueil, Paramètres et commandes de superposition repensés avec un état plus clair et un mode compact.
 • Amélioration de la récupération de simulation, de la restauration de la dernière position et de la gestion des entrées invalides.
 • Ajout des écrans d\'intégration et À propos, Journal des modifications, Licence et utilisation et Sources.
 • Analyse étendue des liens de carte et fiabilité du sélecteur de carte.

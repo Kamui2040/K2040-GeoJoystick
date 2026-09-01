@@ -169,7 +169,15 @@ Coordinates and settings stay on your device.</string>
     <string name="ui_157">Inactive</string>
     <string name="ui_158">Enter valid latitude, longitude, and altitude</string>
     <string name="ui_159">Checking…</string>
-    <string name="ui_160">• Redesigned Home, Settings, and overlay controls with clearer status and compact mode.
+    <string name="ui_160">0.1.5
+• Added 15 more UI languages, including Arabic RTL, Korean, Simplified Chinese, and Traditional Chinese.
+• Added two-finger pinch-to-zoom in the map picker.
+• Added optional explicit place/address search; requests run only when submitted and failures leave the current selection unchanged.
+• Improved long-text, enlarged-text, narrow-width, and localized layouts.
+• Manual coordinates and map picking remain available when geocoding is unavailable or offline.
+
+0.1.4
+• Redesigned Home, Settings, and overlay controls with clearer status and compact mode.
 • Improved simulation recovery, restore-last-position, and invalid-input handling.
 • Added onboarding plus About, Changelog, License &amp; usage, and Sources screens.
 • Expanded map-link parsing and map picker reliability.

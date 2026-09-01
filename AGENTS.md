@@ -44,6 +44,7 @@ GeoJoystick is an open-source Android mock-location utility for emulator and dev
 - Do not probe repository write capability with placeholder mutations. Verify tool capability and repository state through discovery or read-only operations before any public or tracked write.
 - Preflight generated handoff scripts by compiling the exact final file text. Avoid nesting the same triple-quote delimiter when embedding code or fixtures.
 - Assistant-generated mutation handoffs must complete semantic preflight before the first repository write, arm rollback before that write, and parse fixed-column Git porcelain output without trimming leading whitespace.
+- When a validator runs against a shadow or synthetic repository tree, include every repository file and dependency that validator reads. Missing harness fixtures or dependencies are harness failures and must not be reported as product validation failures.
 - Top-level script wrappers must not convert successful `SystemExit(0)` into a failure. Prefer `raise SystemExit(main())` without an enclosing `BaseException` catch, or catch `Exception`; if `SystemExit` must be intercepted, preserve exit code 0 as success.
 - Do not create placeholder GitHub issues or pull requests as an intermediate tooling step. Prepare the complete intended title and scope before creating the public item.
 - After a GitHub contents-API commit advances a branch, refetch each later target file from that branch before the next update instead of reusing an earlier blob SHA.

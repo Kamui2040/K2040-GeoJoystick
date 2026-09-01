@@ -169,7 +169,15 @@ Koordinatlar ve ayarlar cihazınızda kalır.</string>
     <string name="ui_157">Etkin değil</string>
     <string name="ui_158">Geçerli enlem, boylam ve rakım girin</string>
     <string name="ui_159">Kontrol ediliyor…</string>
-    <string name="ui_160">• Ana ekran, Ayarlar ve kaplama denetimleri daha açık durum bilgisi ve kompakt mod için yeniden tasarlandı.
+    <string name="ui_160">0.1.5
+• Arapça RTL, Korece, Basitleştirilmiş Çince ve Geleneksel Çince dahil 15 ek arayüz dili eklendi.
+• Harita seçiciye iki parmakla yakınlaştırma eklendi.
+• İsteğe bağlı açık yer/adres araması eklendi; istekler yalnızca gönderildiğinde yapılır ve hatalar mevcut seçimi değiştirmez.
+• Uzun metin, büyütülmüş metin, dar genişlik ve yerelleştirilmiş düzenler iyileştirildi.
+• Coğrafi kodlama kullanılamadığında veya çevrimdışıyken elle koordinat girişi ve harita seçimi kullanılmaya devam eder.
+
+0.1.4
+• Ana ekran, Ayarlar ve kaplama denetimleri daha açık durum bilgisi ve kompakt mod için yeniden tasarlandı.
 • Simülasyon kurtarma, son konumu geri yükleme ve geçersiz giriş işleme geliştirildi.
 • İlk kullanım akışına ek olarak Hakkında, Değişiklik günlüğü, Lisans ve kullanım ve Kaynaklar ekranları eklendi.
 • Harita bağlantısı ayrıştırma ve harita seçicinin güvenilirliği geliştirildi.
