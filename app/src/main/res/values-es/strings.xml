@@ -169,27 +169,7 @@ Las coordenadas y la configuración permanecen en su dispositivo.</string>
     <string name="ui_157">Inactivo</string>
     <string name="ui_158">Introduce latitud, longitud y altitud válidas</string>
     <string name="ui_159">Comprobando…</string>
-    <string name="ui_160">0.1.5
-• Se añadieron 15 idiomas de interfaz más, incluidos árabe RTL, coreano, chino simplificado y chino tradicional.
-• Se añadió zoom con gesto de pellizco de dos dedos en el mapa.
-• Se añadió búsqueda opcional y explícita de lugares/direcciones; las solicitudes solo se envían al confirmar y los errores no cambian la selección actual.
-• Se mejoraron los diseños para textos largos, texto ampliado, anchos reducidos y traducciones.
-• Las coordenadas manuales y la selección en el mapa siguen disponibles si la geocodificación no está disponible o no hay conexión.
-
-0.1.4
-• Inicio, Ajustes y controles de superposición rediseñados con un estado más claro y un modo compacto.
-• Mejorados la recuperación de la simulación, la restauración de la última posición y el manejo de datos no válidos.
-• Añadidas la introducción inicial y las pantallas Acerca de, Registro de cambios, Licencia y uso y Fuentes.
-• Mejorados el análisis de enlaces de mapas y la fiabilidad del selector de mapas.
-• Mejoradas la accesibilidad, la compatibilidad con texto grande y las áreas táctiles.
-• Añadidas la nueva mascota e identidad de GeoJoystick y la compatibilidad con la navegación Atrás de Android 16/API 36.
-
-0.1.3
-• Los cuadros de diálogo ahora siguen el tema oscuro seleccionado.
-• GeoJoystick ahora usa un icono dedicado en los listados de tiendas.
-
-0.1.0
-• Primera versión pública con entrada de coordenadas y altitud, selección de mapas e importación de enlaces, favoritos, ajustes de apariencia e idioma y controles de joystick flotantes.</string>
+    <string name="ui_160">0.1.5\n• Se añadieron 15 idiomas de interfaz más, incluidos árabe RTL, coreano, chino simplificado y chino tradicional.\n• Se añadió zoom con gesto de pellizco de dos dedos en el mapa.\n• Se añadió búsqueda opcional y explícita de lugares/direcciones; las solicitudes solo se envían al confirmar y los errores no cambian la selección actual.\n• Se mejoraron los diseños para textos largos, texto ampliado, anchos reducidos y traducciones.\n• Las coordenadas manuales y la selección en el mapa siguen disponibles si la geocodificación no está disponible o no hay conexión.\n\n0.1.4\n• Inicio, Ajustes y controles de superposición rediseñados con un estado más claro y un modo compacto.\n• Mejorados la recuperación de la simulación, la restauración de la última posición y el manejo de datos no válidos.\n• Añadidas la introducción inicial y las pantallas Acerca de, Registro de cambios, Licencia y uso y Fuentes.\n• Mejorados el análisis de enlaces de mapas y la fiabilidad del selector de mapas.\n• Mejoradas la accesibilidad, la compatibilidad con texto grande y las áreas táctiles.\n• Añadidas la nueva mascota e identidad de GeoJoystick y la compatibilidad con la navegación Atrás de Android 16/API 36.\n\n0.1.3\n• Los cuadros de diálogo ahora siguen el tema oscuro seleccionado.\n• GeoJoystick ahora usa un icono dedicado en los listados de tiendas.\n\n0.1.0\n• Primera versión pública con entrada de coordenadas y altitud, selección de mapas e importación de enlaces, favoritos, ajustes de apariencia e idioma y controles de joystick flotantes.</string>
     <string name="ui_161">Las donaciones son completamente opcionales. No desbloquean funciones ni brindan ningún beneficio adicional.</string>
     <string name="ui_162">El texto de la licencia no está disponible en esta compilación.</string>
     <string name="ui_163">No hay ninguna aplicación de navegador disponible</string>

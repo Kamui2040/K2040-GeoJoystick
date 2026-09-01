@@ -169,27 +169,7 @@ Współrzędne i ustawienia pozostają na urządzeniu.</string>
     <string name="ui_157">Nieaktywna</string>
     <string name="ui_158">Wprowadź prawidłową szerokość, długość i wysokość</string>
     <string name="ui_159">Sprawdzanie…</string>
-    <string name="ui_160">0.1.5
-• Dodano 15 kolejnych języków interfejsu, w tym arabski RTL, koreański, chiński uproszczony i chiński tradycyjny.
-• Dodano powiększanie mapy gestem szczypania dwoma palcami.
-• Dodano opcjonalne jawne wyszukiwanie miejsc/adresów; żądania są wysyłane dopiero po zatwierdzeniu, a błędy nie zmieniają bieżącego wyboru.
-• Ulepszono układy dla długich tekstów, powiększonego tekstu, wąskich szerokości i tłumaczeń.
-• Ręczne współrzędne i wybór na mapie pozostają dostępne, gdy geokodowanie jest niedostępne lub urządzenie jest offline.
-
-0.1.4
-• Przeprojektowano ekran główny, ustawienia i elementy sterujące nakładki, zapewniając czytelniejszy status i tryb kompaktowy.
-• Ulepszono odzyskiwanie symulacji, przywracanie ostatniej pozycji i obsługę nieprawidłowych danych.
-• Dodano pierwsze uruchomienie oraz ekrany O aplikacji, Historia zmian, Licencja i użytkowanie oraz Źródła.
-• Rozszerzono analizę linków map i niezawodność wyboru na mapie.
-• Ulepszono dostępność, działanie z dużą czcionką i cele dotykowe.
-• Dodano nową maskotkę i ikonę GeoJoystick oraz obsługę nawigacji wstecz w Androidzie 16/API 36.
-
-0.1.3
-• Okna dialogowe są teraz zgodne z wybranym ciemnym motywem.
-• GeoJoystick używa teraz dedykowanej ikony w ofertach sklepów.
-
-0.1.0
-• Pierwsze publiczne wydanie z wprowadzaniem współrzędnych i wysokości, wyborem na mapie i importem linków, ulubionymi, ustawieniami wyglądu i języka oraz pływającym joystickiem.</string>
+    <string name="ui_160">0.1.5\n• Dodano 15 kolejnych języków interfejsu, w tym arabski RTL, koreański, chiński uproszczony i chiński tradycyjny.\n• Dodano powiększanie mapy gestem szczypania dwoma palcami.\n• Dodano opcjonalne jawne wyszukiwanie miejsc/adresów; żądania są wysyłane dopiero po zatwierdzeniu, a błędy nie zmieniają bieżącego wyboru.\n• Ulepszono układy dla długich tekstów, powiększonego tekstu, wąskich szerokości i tłumaczeń.\n• Ręczne współrzędne i wybór na mapie pozostają dostępne, gdy geokodowanie jest niedostępne lub urządzenie jest offline.\n\n0.1.4\n• Przeprojektowano ekran główny, ustawienia i elementy sterujące nakładki, zapewniając czytelniejszy status i tryb kompaktowy.\n• Ulepszono odzyskiwanie symulacji, przywracanie ostatniej pozycji i obsługę nieprawidłowych danych.\n• Dodano pierwsze uruchomienie oraz ekrany O aplikacji, Historia zmian, Licencja i użytkowanie oraz Źródła.\n• Rozszerzono analizę linków map i niezawodność wyboru na mapie.\n• Ulepszono dostępność, działanie z dużą czcionką i cele dotykowe.\n• Dodano nową maskotkę i ikonę GeoJoystick oraz obsługę nawigacji wstecz w Androidzie 16/API 36.\n\n0.1.3\n• Okna dialogowe są teraz zgodne z wybranym ciemnym motywem.\n• GeoJoystick używa teraz dedykowanej ikony w ofertach sklepów.\n\n0.1.0\n• Pierwsze publiczne wydanie z wprowadzaniem współrzędnych i wysokości, wyborem na mapie i importem linków, ulubionymi, ustawieniami wyglądu i języka oraz pływającym joystickiem.</string>
     <string name="ui_161">Darowizny są całkowicie opcjonalne. Nie odblokowują funkcji ani nie zapewniają dodatkowych korzyści.</string>
     <string name="ui_162">Tekst licencji jest niedostępny w tej kompilacji.</string>
     <string name="ui_163">Brak dostępnej aplikacji przeglądarki</string>

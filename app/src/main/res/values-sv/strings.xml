@@ -169,27 +169,7 @@ Koordinater och inställningar finns kvar på din enhet.</string>
     <string name="ui_157">Inaktiv</string>
     <string name="ui_158">Ange giltig latitud, longitud och höjd</string>
     <string name="ui_159">Kontrollerar…</string>
-    <string name="ui_160">0.1.5
-• Lade till 15 fler gränssnittsspråk, bland annat arabiska med RTL, koreanska, förenklad kinesiska och traditionell kinesiska.
-• Lade till tvåfingersnypning för zoom i kartväljaren.
-• Lade till valfri uttrycklig plats-/adressökning; förfrågningar skickas bara vid sökning och fel lämnar det aktuella valet oförändrat.
-• Förbättrade layouter för långa texter, större text, smala bredder och översättningar.
-• Manuella koordinater och kartval är fortfarande tillgängliga när geokodning saknas eller är offline.
-
-0.1.4
-• Kontrollerna för startsidan, Inställningar och överlägget har gjorts om med tydligare status och kompakt läge.
-• Återställning av simuleringen, senaste position och hantering av ogiltiga indata har förbättrats.
-• Introduktion samt skärmarna Om, Ändringslogg, Licens och användning och Källor har lagts till.
-• Hantering av kartlänkar och kartväljarens tillförlitlighet har förbättrats.
-• Tillgänglighet, stöd för stor text och beröringsytor har förbättrats.
-• En ny GeoJoystick-maskot och appidentitet har lagts till tillsammans med stöd för bakåtnavigering i Android 16/API 36.
-
-0.1.3
-• Dialogrutor följer nu det valda mörka temat.
-• GeoJoystick använder nu en särskild ikon i butikslistorna.
-
-0.1.0
-• Första offentliga versionen med inmatning av koordinater och höjd, kartval och länkimport, favoriter, inställningar för utseende och språk samt flytande joystick-kontroller.</string>
+    <string name="ui_160">0.1.5\n• Lade till 15 fler gränssnittsspråk, bland annat arabiska med RTL, koreanska, förenklad kinesiska och traditionell kinesiska.\n• Lade till tvåfingersnypning för zoom i kartväljaren.\n• Lade till valfri uttrycklig plats-/adressökning; förfrågningar skickas bara vid sökning och fel lämnar det aktuella valet oförändrat.\n• Förbättrade layouter för långa texter, större text, smala bredder och översättningar.\n• Manuella koordinater och kartval är fortfarande tillgängliga när geokodning saknas eller är offline.\n\n0.1.4\n• Kontrollerna för startsidan, Inställningar och överlägget har gjorts om med tydligare status och kompakt läge.\n• Återställning av simuleringen, senaste position och hantering av ogiltiga indata har förbättrats.\n• Introduktion samt skärmarna Om, Ändringslogg, Licens och användning och Källor har lagts till.\n• Hantering av kartlänkar och kartväljarens tillförlitlighet har förbättrats.\n• Tillgänglighet, stöd för stor text och beröringsytor har förbättrats.\n• En ny GeoJoystick-maskot och appidentitet har lagts till tillsammans med stöd för bakåtnavigering i Android 16/API 36.\n\n0.1.3\n• Dialogrutor följer nu det valda mörka temat.\n• GeoJoystick använder nu en särskild ikon i butikslistorna.\n\n0.1.0\n• Första offentliga versionen med inmatning av koordinater och höjd, kartval och länkimport, favoriter, inställningar för utseende och språk samt flytande joystick-kontroller.</string>
     <string name="ui_161">Donationer är helt frivilliga. De låser inte upp funktioner eller ger några ytterligare fördelar.</string>
     <string name="ui_162">Licenstexten är inte tillgänglig i den här versionen.</string>
     <string name="ui_163">Ingen webbläsarapp tillgänglig</string>

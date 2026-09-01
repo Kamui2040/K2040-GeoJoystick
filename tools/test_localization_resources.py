@@ -44,6 +44,7 @@ LANGUAGE_AUTONYMS = {
 FORMATTED_RESOURCES = {
     "ui_116", "ui_120", "ui_125", "ui_129", "ui_131", "ui_132", "ui_133", "ui_189",
 }
+EXPLICIT_NEWLINE_RESOURCES = {"ui_160"}
 SPDX_LICENSE_SUMMARY_RESOURCES = {"ui_022", "ui_060", "ui_061", "ui_069", "ui_088"}
 FORMAT = re.compile(r"%(?:\d+\$)?[-#+ 0,(]*\d*(?:\.\d+)?[a-zA-Z%]")
 ZERO_WIDTH_SPACE = "\u200b"
@@ -93,6 +94,15 @@ def catalog(path: Path) -> dict[str, str]:
     for item in root.findall("string"):
         name = item.attrib.get("name")
         value = item.text or ""
+        if name in EXPLICIT_NEWLINE_RESOURCES:
+            if "\n" in value or "\r" in value:
+                raise AssertionError(
+                    f"literal XML line break for {name} in {path}; use explicit \\n escapes"
+                )
+            if "\\n" not in value:
+                raise AssertionError(
+                    f"missing explicit \\n escape for multiline resource {name} in {path}"
+                )
         if re.search(r"(?<!\\)'", value):
             raise AssertionError(
                 f"unescaped apostrophe for {name} in {path}"

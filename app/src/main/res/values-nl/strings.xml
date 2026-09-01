@@ -169,27 +169,7 @@ Coördinaten en instellingen blijven op uw apparaat staan.</string>
     <string name="ui_157">Inactief</string>
     <string name="ui_158">Voer een geldige breedtegraad, lengtegraad en hoogte in</string>
     <string name="ui_159">Bezig met controleren…</string>
-    <string name="ui_160">0.1.5
-• 15 extra interfacetalen toegevoegd, waaronder Arabisch met RTL, Koreaans, vereenvoudigd Chinees en traditioneel Chinees.
-• Zoomen met twee vingers toegevoegd aan de kaartkiezer.
-• Optionele expliciete plaats-/adreszoekfunctie toegevoegd; verzoeken worden alleen na verzenden uitgevoerd en fouten laten de huidige selectie ongewijzigd.
-• Lay-outs voor lange tekst, grotere tekst, smalle breedtes en vertalingen verbeterd.
-• Handmatige coördinaten en kaartselectie blijven beschikbaar als geocodering niet beschikbaar is of offline is.
-
-0.1.4
-• Bediening op het startscherm, in Instellingen en in de overlay vernieuwd, met duidelijkere status en compacte modus.
-• Herstel van de simulatie, herstel van de laatste positie en afhandeling van ongeldige invoer verbeterd.
-• Introductie en de schermen Over, Wijzigingslog, Licentie en gebruik en Bronnen toegevoegd.
-• Verwerking van kaartlinks en betrouwbaarheid van de kaartkiezer verbeterd.
-• Toegankelijkheid, ondersteuning voor grote tekst en aanraakdoelen verbeterd.
-• Nieuwe GeoJoystick-mascotte en app-identiteit toegevoegd, met ondersteuning voor terugnavigatie in Android 16/API 36.
-
-0.1.3
-• Dialogen volgen nu het geselecteerde donkere thema.
-• GeoJoystick gebruikt nu een speciaal pictogram in winkelvermeldingen.
-
-0.1.0
-• Eerste publieke release met invoer van coördinaten en hoogte, kaartselectie en import van links, favorieten, uiterlijk- en taalinstellingen en zwevende joystickbediening.</string>
+    <string name="ui_160">0.1.5\n• 15 extra interfacetalen toegevoegd, waaronder Arabisch met RTL, Koreaans, vereenvoudigd Chinees en traditioneel Chinees.\n• Zoomen met twee vingers toegevoegd aan de kaartkiezer.\n• Optionele expliciete plaats-/adreszoekfunctie toegevoegd; verzoeken worden alleen na verzenden uitgevoerd en fouten laten de huidige selectie ongewijzigd.\n• Lay-outs voor lange tekst, grotere tekst, smalle breedtes en vertalingen verbeterd.\n• Handmatige coördinaten en kaartselectie blijven beschikbaar als geocodering niet beschikbaar is of offline is.\n\n0.1.4\n• Bediening op het startscherm, in Instellingen en in de overlay vernieuwd, met duidelijkere status en compacte modus.\n• Herstel van de simulatie, herstel van de laatste positie en afhandeling van ongeldige invoer verbeterd.\n• Introductie en de schermen Over, Wijzigingslog, Licentie en gebruik en Bronnen toegevoegd.\n• Verwerking van kaartlinks en betrouwbaarheid van de kaartkiezer verbeterd.\n• Toegankelijkheid, ondersteuning voor grote tekst en aanraakdoelen verbeterd.\n• Nieuwe GeoJoystick-mascotte en app-identiteit toegevoegd, met ondersteuning voor terugnavigatie in Android 16/API 36.\n\n0.1.3\n• Dialogen volgen nu het geselecteerde donkere thema.\n• GeoJoystick gebruikt nu een speciaal pictogram in winkelvermeldingen.\n\n0.1.0\n• Eerste publieke release met invoer van coördinaten en hoogte, kaartselectie en import van links, favorieten, uiterlijk- en taalinstellingen en zwevende joystickbediening.</string>
     <string name="ui_161">Donaties zijn geheel optioneel. Ze ontgrendelen geen functies en bieden geen extra voordelen.</string>
     <string name="ui_162">Licentietekst is niet beschikbaar in deze build.</string>
     <string name="ui_163">Geen browser-app beschikbaar</string>
