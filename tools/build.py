@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import os
 import platform
@@ -203,27 +204,44 @@ def write_local_properties(sdk: Path) -> None:
     (ROOT / "local.properties").write_text(f"sdk.dir={value}\n", encoding="utf-8")
 
 
-def run_build(gradle: Path, java_home: Path) -> Path:
+def run_build(gradle: Path, java_home: Path, variant: str) -> Path:
     environment = os.environ.copy()
     environment["JAVA_HOME"] = str(java_home)
+    task = "assembleDebug" if variant == "debug" else "assembleRelease"
     command = [
         str(gradle),
         "--no-daemon",
         "clean",
-        "assembleDebug",
+        task,
     ]
     print("Running:", " ".join(command))
     subprocess.run(command, cwd=ROOT, env=environment, check=True)
-    apk = ROOT / "app" / "build" / "outputs" / "apk" / "debug" / "app-debug.apk"
+    if variant == "debug":
+        apk = ROOT / "app" / "build" / "outputs" / "apk" / "debug" / "app-debug.apk"
+    else:
+        apk = (
+            ROOT
+            / "app"
+            / "build"
+            / "outputs"
+            / "apk"
+            / "release"
+            / "app-release-unsigned.apk"
+        )
     if not apk.exists():
         fail(f"Build completed but APK was not found: {apk}")
     return apk
 
 
-def publish(apk: Path) -> None:
+def publish(apk: Path, variant: str) -> None:
     dist = ROOT / "dist"
     dist.mkdir(exist_ok=True)
-    output = dist / "GeoJoystick-debug.apk"
+    output_name = (
+        "GeoJoystick-debug.apk"
+        if variant == "debug"
+        else "GeoJoystick-release-unsigned.apk"
+    )
+    output = dist / output_name
     shutil.copy2(apk, output)
     digest = hashlib.sha256(output.read_bytes()).hexdigest()
     (dist / "SHA256SUMS.txt").write_text(f"{digest}  {output.name}\n", encoding="utf-8")
@@ -231,7 +249,21 @@ def publish(apk: Path) -> None:
     print(f"SHA-256: {digest}")
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Bootstrap the maintained toolchain and build GeoJoystick."
+    )
+    parser.add_argument(
+        "--variant",
+        choices=("debug", "release"),
+        default="debug",
+        help="Build the debug APK (default) or unsigned release APK.",
+    )
+    return parser.parse_args()
+
+
 def main() -> None:
+    args = parse_args()
     if platform.system() not in {"Windows", "Linux", "Darwin"}:
         fail(f"Unsupported platform: {platform.system()}")
     java_home = find_java_home()
@@ -239,8 +271,8 @@ def main() -> None:
     resolve_sdk_components(sdk, java_home)
     write_local_properties(sdk)
     gradle = ensure_gradle()
-    apk = run_build(gradle, java_home)
-    publish(apk)
+    apk = run_build(gradle, java_home, args.variant)
+    publish(apk, args.variant)
 
 
 if __name__ == "__main__":

@@ -169,19 +169,7 @@ Les coordonnées et les paramètres restent sur votre appareil.</string>
     <string name="ui_157">Inactif</string>
     <string name="ui_158">Entrez une latitude, une longitude et une altitude valides</string>
     <string name="ui_159">Vérification…</string>
-    <string name="ui_160">• Accueil, Paramètres et commandes de superposition repensés avec un état plus clair et un mode compact.
-• Amélioration de la récupération de simulation, de la restauration de la dernière position et de la gestion des entrées invalides.
-• Ajout des écrans d\'intégration et À propos, Journal des modifications, Licence et utilisation et Sources.
-• Analyse étendue des liens de carte et fiabilité du sélecteur de carte.
-• Amélioration de l\'accessibilité, du comportement des polices de grande taille et des cibles tactiles.
-• Ajout de la nouvelle identité de mascotte/lanceur GeoJoystick et de la prise en charge de la navigation arrière Android 16/API 36.
-
-0.1.3
-• Les boîtes de dialogue suivent désormais le thème sombre sélectionné.
-• GeoJoystick utilise désormais une icône dédiée dans les listes de magasins.
-
-0.1.0
-• Première version publique avec saisie des coordonnées et de l\'altitude, sélection de cartes et importation de liens, favoris, paramètres d\'apparence et de langue, et commandes par joystick flottant.</string>
+    <string name="ui_160">0.1.5\n• Ajout de 15 langues d’interface supplémentaires, dont l’arabe RTL, le coréen, le chinois simplifié et le chinois traditionnel.\n• Ajout du zoom par pincement à deux doigts dans la carte.\n• Ajout d’une recherche explicite facultative de lieu/adresse ; les requêtes ne partent qu’après validation et les erreurs ne modifient pas la sélection actuelle.\n• Amélioration des mises en page pour les textes longs, le texte agrandi, les faibles largeurs et les traductions.\n• Les coordonnées manuelles et la sélection sur la carte restent disponibles si le géocodage est indisponible ou hors ligne.\n\n0.1.4\n• Accueil, Paramètres et commandes de superposition repensés avec un état plus clair et un mode compact.\n• Amélioration de la récupération de simulation, de la restauration de la dernière position et de la gestion des entrées invalides.\n• Ajout des écrans d\'intégration et À propos, Journal des modifications, Licence et utilisation et Sources.\n• Analyse étendue des liens de carte et fiabilité du sélecteur de carte.\n• Amélioration de l\'accessibilité, du comportement des polices de grande taille et des cibles tactiles.\n• Ajout de la nouvelle identité de mascotte/lanceur GeoJoystick et de la prise en charge de la navigation arrière Android 16/API 36.\n\n0.1.3\n• Les boîtes de dialogue suivent désormais le thème sombre sélectionné.\n• GeoJoystick utilise désormais une icône dédiée dans les listes de magasins.\n\n0.1.0\n• Première version publique avec saisie des coordonnées et de l\'altitude, sélection de cartes et importation de liens, favoris, paramètres d\'apparence et de langue, et commandes par joystick flottant.</string>
     <string name="ui_161">Les dons sont entièrement facultatifs. Ils ne débloquent pas de fonctionnalités et n’offrent aucun avantage supplémentaire.</string>
     <string name="ui_162">Le texte de la licence n\'est pas disponible dans cette version.</string>
     <string name="ui_163">Aucune application de navigateur disponible</string>

@@ -1,0 +1,4 @@
+- 15 zusätzliche UI-Sprachen ergänzt, darunter Arabisch mit RTL, Koreanisch und Chinesisch.
+- Zwei-Finger-Zoom in der Kartenwahl ergänzt.
+- Optionale explizite Orts-/Adresssuche mit sicherer Fehlerbehandlung ergänzt.
+- Layouts für große Schrift, schmale Breiten und Lokalisierung verbessert.

@@ -169,19 +169,7 @@ Koordinaten und Einstellungen bleiben auf deinem Gerät.</string>
     <string name="ui_157">Inaktiv</string>
     <string name="ui_158">Gib gültige Werte für Breitengrad, Längengrad und Höhe ein</string>
     <string name="ui_159">Wird geprüft…</string>
-    <string name="ui_160">• Startseite, Einstellungen und Overlay-Steuerung wurden mit klarerem Status und besserem Kompaktmodus überarbeitet.
-• Simulations-Wiederherstellung, letzte Position und Fehlerbehandlung wurden verbessert.
-• Onboarding sowie Info-, Änderungsverlauf-, Lizenz- und Quellenansichten wurden ergänzt.
-• Kartenlink-Import und Kartenwahl wurden robuster.
-• Barrierefreiheit, große Schrift und Touch-Ziele wurden verbessert.
-• Neues GeoJoystick-Maskottchen/App-Symbol und Android-16/API-36-Zurücknavigation.
-
-0.1.3
-• Dialoge folgen nun dem ausgewählten dunklen Design.
-• GeoJoystick verwendet nun ein eigenes Symbol in Store-Einträgen.
-
-0.1.0
-• Erste öffentliche Version mit Koordinaten- und Höheneingabe, Kartenauswahl und Linkimport, Favoriten, Darstellungs- und Spracheinstellungen sowie schwebender Joystick-Steuerung.</string>
+    <string name="ui_160">0.1.5\n• 15 weitere UI-Sprachen ergänzt, darunter Arabisch mit RTL, Koreanisch sowie vereinfachtes und traditionelles Chinesisch.\n• Zwei-Finger-Zoom in der Kartenwahl ergänzt.\n• Optionale explizite Orts-/Adresssuche ergänzt; Anfragen erfolgen nur nach dem Absenden und Fehler lassen die aktuelle Auswahl unverändert.\n• Layouts für lange Texte, große Schrift, schmale Breiten und Lokalisierungen verbessert.\n• Manuelle Koordinaten und Kartenwahl bleiben verfügbar, wenn Geocodierung nicht verfügbar oder offline ist.\n\n0.1.4\n• Startseite, Einstellungen und Overlay-Steuerung wurden mit klarerem Status und besserem Kompaktmodus überarbeitet.\n• Simulations-Wiederherstellung, letzte Position und Fehlerbehandlung wurden verbessert.\n• Onboarding sowie Info-, Änderungsverlauf-, Lizenz- und Quellenansichten wurden ergänzt.\n• Kartenlink-Import und Kartenwahl wurden robuster.\n• Barrierefreiheit, große Schrift und Touch-Ziele wurden verbessert.\n• Neues GeoJoystick-Maskottchen/App-Symbol und Android-16/API-36-Zurücknavigation.\n\n0.1.3\n• Dialoge folgen nun dem ausgewählten dunklen Design.\n• GeoJoystick verwendet nun ein eigenes Symbol in Store-Einträgen.\n\n0.1.0\n• Erste öffentliche Version mit Koordinaten- und Höheneingabe, Kartenauswahl und Linkimport, Favoriten, Darstellungs- und Spracheinstellungen sowie schwebender Joystick-Steuerung.</string>
     <string name="ui_161">Spenden sind vollständig freiwillig. Sie schalten keine Funktionen frei und bieten keinerlei zusätzliche Vorteile.</string>
     <string name="ui_162">Der Lizenztext ist in diesem Build nicht verfügbar.</string>
     <string name="ui_163">Keine Browser-App verfügbar</string>

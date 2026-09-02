@@ -169,19 +169,7 @@ Le coordinate e le impostazioni rimangono sul tuo dispositivo.</string>
     <string name="ui_157">Inattivo</string>
     <string name="ui_158">Inserisci latitudine, longitudine e altitudine valide</string>
     <string name="ui_159">Verifica in corso…</string>
-    <string name="ui_160">• Schermata principale, Impostazioni e controlli in sovrapposizione riprogettati con uno stato più chiaro e una modalità compatta.
-• Migliorati il ripristino della simulazione, il recupero dell\'ultima posizione e la gestione dei dati non validi.
-• Aggiunte l\'introduzione iniziale e le schermate Informazioni, Registro delle modifiche, Licenza e utilizzo e Fonti.
-• Migliorati l\'analisi dei collegamenti delle mappe e l\'affidabilità del selettore della mappa.
-• Migliorati accessibilità, supporto ai caratteri grandi e aree di tocco.
-• Aggiunte la nuova mascotte e identità dell\'app GeoJoystick e il supporto alla navigazione indietro di Android 16/API 36.
-
-0.1.3
-• Le finestre di dialogo ora seguono il tema scuro selezionato.
-• GeoJoystick ora utilizza un\'icona dedicata negli elenchi degli store.
-
-0.1.0
-• Prima versione pubblica con inserimento di coordinate e altitudine, selezione della mappa e importazione di collegamenti, preferiti, impostazioni di aspetto e lingua e controlli joystick mobili.</string>
+    <string name="ui_160">0.1.5\n• Aggiunte altre 15 lingue dell’interfaccia, tra cui arabo RTL, coreano, cinese semplificato e cinese tradizionale.\n• Aggiunto lo zoom con gesto a due dita nella mappa.\n• Aggiunta la ricerca facoltativa ed esplicita di luoghi/indirizzi; le richieste partono solo dopo l’invio e gli errori non modificano la selezione corrente.\n• Migliorati i layout per testi lunghi, testo ingrandito, larghezze ridotte e traduzioni.\n• Le coordinate manuali e la selezione sulla mappa restano disponibili se la geocodifica non è disponibile o si è offline.\n\n0.1.4\n• Schermata principale, Impostazioni e controlli in sovrapposizione riprogettati con uno stato più chiaro e una modalità compatta.\n• Migliorati il ripristino della simulazione, il recupero dell\'ultima posizione e la gestione dei dati non validi.\n• Aggiunte l\'introduzione iniziale e le schermate Informazioni, Registro delle modifiche, Licenza e utilizzo e Fonti.\n• Migliorati l\'analisi dei collegamenti delle mappe e l\'affidabilità del selettore della mappa.\n• Migliorati accessibilità, supporto ai caratteri grandi e aree di tocco.\n• Aggiunte la nuova mascotte e identità dell\'app GeoJoystick e il supporto alla navigazione indietro di Android 16/API 36.\n\n0.1.3\n• Le finestre di dialogo ora seguono il tema scuro selezionato.\n• GeoJoystick ora utilizza un\'icona dedicata negli elenchi degli store.\n\n0.1.0\n• Prima versione pubblica con inserimento di coordinate e altitudine, selezione della mappa e importazione di collegamenti, preferiti, impostazioni di aspetto e lingua e controlli joystick mobili.</string>
     <string name="ui_161">Le donazioni sono del tutto facoltative. Non sbloccano funzionalità né forniscono vantaggi aggiuntivi.</string>
     <string name="ui_162">Il testo della licenza non è disponibile in questa build.</string>
     <string name="ui_163">Nessuna app browser disponibile</string>
