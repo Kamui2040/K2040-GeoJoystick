@@ -12,26 +12,26 @@ The app remains ad-free, account-free, analytics-free, tracking-free, subscripti
 
 ## Current canonical release
 
-The current canonical production release is **GeoJoystick v0.1.4 (`versionCode 104`)**.
+The current canonical production release is **GeoJoystick v0.1.5 (`versionCode 105`)**.
 
-- Tag: `v0.1.4`
-- Release source commit: `0c3ae37501660300e4f23c45aeb07cffb68e62f9`
-- APK: `GeoJoystick-v0.1.4.apk`
-- APK SHA-256: `2f6ce92f8b3bbe33dde16e1aef0254a35c939a5382ac108d1a580a0eb05c83d0`
+- Tag: `v0.1.5`
+- Release source commit: `05762c49662ed4f280e3f42ebcfc7e25d1a2a5d5`
+- APK: `GeoJoystick-v0.1.5.apk`
+- APK SHA-256: `f8aa3edde469941993450511c1996501f782aeca7f6b6ee17cb5a4498859f2c0`
 
 GitHub Releases is the authoritative source for published developer APKs and release notes.
 
-GeoJoystick v0.1.4 has also been published on ONE Store: https://m.onestore.net/en-us/apps/appsDetail?prodId=0001008367
-
-Availability may vary by supported region or distribution channel.
+Downstream stores and F-Droid may update on a different schedule from the canonical GitHub release.
 
 ## Accepted product state
 
-v0.1.4 includes:
+v0.1.5 includes:
 
 - strict latitude, longitude, and altitude validation
 - built-in OpenStreetMap picker
 - supported map-link coordinate import
+- optional explicit-submit place/address search with fail-closed handling
+- two-finger pinch-to-zoom in the map picker
 - floating joystick with expanded and compact layouts
 - walk, run, bike-style, and custom speed presets
 - hold, pause, hide, and stop controls
@@ -40,7 +40,8 @@ v0.1.4 includes:
 - five named favorite-location slots
 - overlay opacity, high-contrast controls, and reset-position action
 - System/Light/Dark appearance
-- System/English/German language selection
+- System plus English, German, French, Spanish, Italian, Dutch, Danish, Swedish, Norwegian Bokmål, Polish, Turkish, Ukrainian, Russian, Korean, Simplified Chinese, Traditional Chinese, and Arabic UI languages
+- responsive fixes for enlarged text, narrow layouts, and localized content
 - first-run onboarding
 - About, Changelog, License & usage, and Sources information
 - Android 16 / API 36 compatibility
@@ -65,11 +66,11 @@ Public builds must remain reproducible from public source without private infras
 
 ## Current development
 
-Development `main` now contains the complete planned v0.1.5 feature set: the expanded UI language set documented in `README.md`, including Arabic with right-to-left layout support, Korean, Simplified Chinese, and Traditional Chinese; responsive layout fixes needed for longer and enlarged text; two-finger pinch-to-zoom in the bundled map picker; and optional explicit-submit place/address search that fails closed and leaves manual map/coordinate selection available when geocoding is unavailable.
+GeoJoystick v0.1.5 is published on GitHub from the exact frozen source commit `05762c49662ed4f280e3f42ebcfc7e25d1a2a5d5`.
 
-The exact v0.1.5 release-candidate source is frozen on `main` at `05762c49662ed4f280e3f42ebcfc7e25d1a2a5d5` with version `0.1.5` / versionCode `105`. The reproducible unsigned release APK SHA-256 is `2b170f39504f4cae64eb4bda2b519615f2cf3bae929c32cc9c97921bffd54991`. Integrated host and physical API 36 QA passed on the corresponding release-candidate state, and unsigned reproducibility plus F-Droid developer-binary signature-copy compatibility are now verified. With Android SDK Build-Tools 35.0.0, the developer APK must be signed from that exact unsigned layout using `apksigner --alignment-preserved` with v1=false, v2=true, v3=true, and v4=false; default signing rewrites ZIP alignment extra fields and can break byte-for-byte signature-copy reconstruction.
+The reproducible unsigned release APK SHA-256 is `2b170f39504f4cae64eb4bda2b519615f2cf3bae929c32cc9c97921bffd54991`. Integrated host and physical API 36 QA passed on the corresponding release-candidate state. The production APK uses the same signing certificate as v0.1.4, is signed with v1=false, v2=true, v3=true, v4=false and `--alignment-preserved`, and passes byte-for-byte F-Droid signature-copy reconstruction with `apksigcopier` 1.1.1.
 
-The canonical production release remains v0.1.4 until production signing, tagging, publication, and store/F-Droid submission are explicitly approved and completed. Those publication actions remain separate from the completed v0.1.5 release-readiness gates tracked in issue #68.
+The `v0.1.5` tag is public and points to the frozen release source, so the existing F-Droid tag-based update path has been triggered. F-Droid publication and other storefront updates remain downstream distribution state and may appear later.
 
 Normal public issues and pull requests may track technical bugs, compatibility work, localization expansion, reproducibility improvements, and other contributor-relevant changes.
 
