@@ -26,15 +26,16 @@ CurrentVersion: 0.1.4
 CurrentVersionCode: 104
 ```
 
-Production metadata in `fdroid/fdroiddata` is authoritative for the current build recipe and publication state.
+The public `v0.1.5` tag now points to the verified v0.1.5 release source, so the existing tag-based update path has been triggered. Production metadata in `fdroid/fdroiddata` remains authoritative and may continue to show v0.1.4 until F-Droid processes the update.
 
 ## Current canonical source and APK
 
-GeoJoystick v0.1.4 uses:
+GeoJoystick v0.1.5 uses:
 
-- source commit: `0c3ae37501660300e4f23c45aeb07cffb68e62f9`
-- APK: `GeoJoystick-v0.1.4.apk`
-- APK SHA-256: `2f6ce92f8b3bbe33dde16e1aef0254a35c939a5382ac108d1a580a0eb05c83d0`
+- source commit: `05762c49662ed4f280e3f42ebcfc7e25d1a2a5d5`
+- APK: `GeoJoystick-v0.1.5.apk`
+- APK SHA-256: `f8aa3edde469941993450511c1996501f782aeca7f6b6ee17cb5a4498859f2c0`
+- reproducible unsigned APK SHA-256: `2b170f39504f4cae64eb4bda2b519615f2cf3bae929c32cc9c97921bffd54991`
 
 ## Reproducibility requirements
 
