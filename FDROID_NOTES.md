@@ -44,6 +44,7 @@ For releases intended for F-Droid developer-binary verification:
 - use the maintained JDK, Gradle, Android Gradle Plugin, SDK Platform, and Build-Tools versions;
 - avoid environment-dependent build inputs;
 - compare unsigned outputs before signing;
+- with Android SDK Build-Tools 35.0.0, sign the exact reproducible unsigned APK using `apksigner --alignment-preserved` so signing does not rewrite ZIP alignment extra fields;
 - do not transform an unsigned APK after the reproducible build unless the corresponding developer APK is produced from that exact transformed layout;
 - verify the F-Droid signature-copy path against the intended developer APK.
 
@@ -54,6 +55,12 @@ During v0.1.4 reproducibility work, an additional metadata-side APK realignment 
 The technical requirement is that the unsigned APK used for comparison retain the byte layout expected by the corresponding signed developer APK. Any additional post-build APK transformation therefore requires its own reproducibility proof.
 
 This finding concerns build reproducibility only and does not change GeoJoystick runtime behavior.
+
+## Build-Tools 35 signing compatibility finding
+
+During v0.1.5 release-candidate verification, default `apksigner` from Android SDK Build-Tools 35.0.0 rewrote Android ZIP alignment extra fields on stored APK entries. The APK entry payloads remained identical, but F-Droid-style signature-copy reconstruction was not byte-for-byte identical.
+
+Signing the exact frozen unsigned APK with `apksigner --alignment-preserved` kept the pre-sign ZIP local records byte-identical. `apksigcopier` 1.1.1 then reconstructed the signed APK byte-for-byte and its unsigned comparison passed. This requirement affects developer signing only; it does not change application source, the reproducible unsigned build, runtime behavior, or the F-Droid build recipe.
 
 ## Store metadata safety
 
