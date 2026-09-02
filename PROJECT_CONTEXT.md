@@ -1,6 +1,6 @@
 # Project Context
 
-Updated: 2026-08-31
+Updated: 2026-09-02
 
 ## Purpose
 
@@ -67,7 +67,9 @@ Public builds must remain reproducible from public source without private infras
 
 Development `main` now contains the complete planned v0.1.5 feature set: the expanded UI language set documented in `README.md`, including Arabic with right-to-left layout support, Korean, Simplified Chinese, and Traditional Chinese; responsive layout fixes needed for longer and enlarged text; two-finger pinch-to-zoom in the bundled map picker; and optional explicit-submit place/address search that fails closed and leaves manual map/coordinate selection available when geocoding is unavailable.
 
-Integrated v0.1.5 QA and release-readiness validation is the current focused work, tracked in issue #68. The canonical production release remains v0.1.4 until the complete merged development state passes the integrated functional, visual, reproducibility, F-Droid compatibility, privacy, licence/provenance, and cleanup gates. Production signing, tagging, publication, and store/F-Droid submission are separate explicit-approval actions.
+The exact v0.1.5 release-candidate source is frozen on `main` at `05762c49662ed4f280e3f42ebcfc7e25d1a2a5d5` with version `0.1.5` / versionCode `105`. The reproducible unsigned release APK SHA-256 is `2b170f39504f4cae64eb4bda2b519615f2cf3bae929c32cc9c97921bffd54991`. Integrated host and physical API 36 QA passed on the corresponding release-candidate state, and unsigned reproducibility plus F-Droid developer-binary signature-copy compatibility are now verified. With Android SDK Build-Tools 35.0.0, the developer APK must be signed from that exact unsigned layout using `apksigner --alignment-preserved`; default signing rewrites ZIP alignment extra fields and breaks byte-for-byte signature-copy reconstruction.
+
+The canonical production release remains v0.1.4 until production signing, tagging, publication, and store/F-Droid submission are explicitly approved and completed. Those publication actions remain separate from the completed v0.1.5 release-readiness gates tracked in issue #68.
 
 Normal public issues and pull requests may track technical bugs, compatibility work, localization expansion, reproducibility improvements, and other contributor-relevant changes.
 
