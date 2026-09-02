@@ -26,10 +26,10 @@ It uses Android's standard mock-location provider flow, shows a small floating j
 
 ## Current release
 
-The current canonical release is **GeoJoystick v0.1.4** (`versionCode 104`).
+The current canonical release is **GeoJoystick v0.1.5** (`versionCode 105`).
 
-- Release: https://github.com/Kamui2040/K2040-GeoJoystick/releases/tag/v0.1.4
-- APK: https://github.com/Kamui2040/K2040-GeoJoystick/releases/download/v0.1.4/GeoJoystick-v0.1.4.apk
+- Release: https://github.com/Kamui2040/K2040-GeoJoystick/releases/tag/v0.1.5
+- APK: https://github.com/Kamui2040/K2040-GeoJoystick/releases/download/v0.1.5/GeoJoystick-v0.1.5.apk
 
 GitHub Releases is the authoritative source for published release notes and developer-signed APKs. Development `main` may contain later documentation or store-metadata changes that are not a new runtime release.
 
