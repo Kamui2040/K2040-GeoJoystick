@@ -44,7 +44,7 @@ For releases intended for F-Droid developer-binary verification:
 - use the maintained JDK, Gradle, Android Gradle Plugin, SDK Platform, and Build-Tools versions;
 - avoid environment-dependent build inputs;
 - compare unsigned outputs before signing;
-- with Android SDK Build-Tools 35.0.0, sign the exact reproducible unsigned APK using `apksigner --alignment-preserved` so signing does not rewrite ZIP alignment extra fields;
+- with Android SDK Build-Tools 35.0.0, sign the exact reproducible unsigned APK using `apksigner --alignment-preserved --v1-signing-enabled false --v2-signing-enabled true --v3-signing-enabled true --v4-signing-enabled false`; do not rely on signing-scheme defaults;
 - do not transform an unsigned APK after the reproducible build unless the corresponding developer APK is produced from that exact transformed layout;
 - verify the F-Droid signature-copy path against the intended developer APK.
 
@@ -60,7 +60,7 @@ This finding concerns build reproducibility only and does not change GeoJoystick
 
 During v0.1.5 release-candidate verification, default `apksigner` from Android SDK Build-Tools 35.0.0 rewrote Android ZIP alignment extra fields on stored APK entries. The APK entry payloads remained identical, but F-Droid-style signature-copy reconstruction was not byte-for-byte identical.
 
-Signing the exact frozen unsigned APK with `apksigner --alignment-preserved` kept the pre-sign ZIP local records byte-identical. `apksigcopier` 1.1.1 then reconstructed the signed APK byte-for-byte and its unsigned comparison passed. This requirement affects developer signing only; it does not change application source, the reproducible unsigned build, runtime behavior, or the F-Droid build recipe.
+Signing the exact frozen unsigned APK with `apksigner --alignment-preserved` kept the pre-sign ZIP local records byte-identical. `apksigcopier` 1.1.1 then reconstructed the signed APK byte-for-byte and its unsigned comparison passed. GeoJoystick also pins v1=false, v2=true, v3=true, and v4=false for the developer APK so later `apksigner` defaults cannot silently change the release signature set. This requirement affects developer signing only; it does not change application source, the reproducible unsigned build, runtime behavior, or the F-Droid build recipe.
 
 ## Store metadata safety
 
