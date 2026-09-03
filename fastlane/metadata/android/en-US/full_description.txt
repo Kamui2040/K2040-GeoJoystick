@@ -1,7 +1,11 @@
 GeoJoystick is an open-source Android mock-location joystick for emulator and developer testing.
 
-It uses Android's standard mock-location provider flow and provides a small floating overlay for moving a mock location without repeatedly switching back to the main app. It does not try to hide or bypass Android mock-location status.
+It uses Android's standard mock-location provider flow and manual Developer Options selection. A floating overlay lets you move a user-selected mock location without repeatedly switching back to the main app. GeoJoystick does not try to hide or bypass Android mock-location status.
 
-Features include manual coordinate entry, an OpenStreetMap-based picker, map-link coordinate import, compact and expanded overlay modes, favorite locations, speed presets, custom speed, light and dark themes, and English/German language support.
+Choose a simulated location by entering coordinates, tapping the OpenStreetMap-based picker, importing a supported map link, or optionally submitting a place/address search. The map supports drag-to-pan and two-finger pinch-to-zoom. Invalid, ambiguous, unsupported, or failed external input leaves the current selection unchanged.
 
-GeoJoystick has no ads, accounts, subscriptions, analytics, billing, or built-in updater.
+The floating joystick has compact and expanded layouts, walk/run/bike-style and custom speed presets, pause/hold/hide/stop controls, adjustable size and opacity, high-contrast mode, favorites, and optional restore-last-position behavior.
+
+GeoJoystick supports System/Light/Dark appearance and 17 UI languages: English, German, French, Spanish, Italian, Dutch, Danish, Swedish, Norwegian Bokmål, Polish, Turkish, Ukrainian, Russian, Korean, Simplified Chinese, Traditional Chinese, and Arabic.
+
+Network use is optional and tied to explicit features such as OpenStreetMap tiles, submitted device geocoding, and supported map-link resolution. GeoJoystick has no ads, accounts, subscriptions, analytics, tracking, billing, or built-in updater.
