@@ -21,9 +21,9 @@ GeoJoystick is an open-source Android mock-location utility for emulator and dev
 
 ## Build and validation
 
-- JDK 17 and Android SDK Platform 36 are the current build baseline.
-- Use the repository build/bootstrap tooling; do not require a globally installed Gradle.
-- Keep Linux, macOS, and Windows build instructions contributor-facing and machine-independent.
+- Maintainer validation and mutation run on Linux/Bazzite.
+- Use `python3 tools/build.py` as the maintained build entry point. Do not require a Gradle-wrapper workflow or globally installed Gradle.
+- The current pinned baseline is JDK 17, Android SDK Platform 36, Android SDK Build-Tools 35.0.0, Gradle 8.13, and Android Gradle Plugin 8.12.3. Public build instructions must match the maintained pinned tooling and remain machine-independent.
 - Before a change is considered complete, inspect the changed-file scope and run applicable tests, lint, build checks, and `git diff --check`.
 - Validation harnesses must verify configuration semantics rather than formatting-specific literals. For Gradle version gates, parse or syntax-tolerantly match `versionCode` and `versionName`; equivalent quote or whitespace styles must not be treated as a version change.
 - When using `grep -E` or `git grep -E`, use POSIX extended regular-expression syntax only. PCRE-only constructs such as non-capturing groups require an explicitly compatible regex engine and must not be passed to an ERE command.
@@ -64,3 +64,13 @@ GeoJoystick is an open-source Android mock-location utility for emulator and dev
 - Do not commit generated APK/AAB files, local build caches, signing material, or machine-specific configuration.
 - Normal public issues and pull requests may document bugs, implementation work, compatibility changes, localization targets, and other contributor-relevant changes.
 - Keep public documentation focused on information useful to users and contributors.
+
+## Documentation ownership
+
+- `README.md` owns user-facing and contributor-facing project usage/build guidance.
+- `PROJECT_CONTEXT.md` owns concise current product, release-baseline, architecture, and material open-work state. Keep validation chronology and store-by-store rollout history elsewhere.
+- `AGENTS.md` owns durable repository rules and repeatable failure-prevention guidance.
+- `FDROID_NOTES.md` owns F-Droid and reproducibility-specific requirements; production `fdroiddata` remains authoritative for downstream F-Droid metadata.
+- `NOTICE.md` owns licence provenance and attribution scope; `PRIVACY.md` owns current privacy and network disclosure.
+- Historical changelogs, releases, issues, pull requests, and audit/failure records are evidence. Do not rewrite history merely to make it look current.
+- Avoid duplicating volatile downstream-store state across repository documents. Link to the authoritative downstream source or describe the state as independently managed instead.
