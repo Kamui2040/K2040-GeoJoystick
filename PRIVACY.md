@@ -1,6 +1,7 @@
 # Privacy Policy
 
-**Effective date:** 14 July 2026  
+**Effective date:** 14 July 2026
+
 **Last updated:** 3 September 2026
 
 GeoJoystick is an open-source Android mock-location utility intended for emulator, development, and testing use.
