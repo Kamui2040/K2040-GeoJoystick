@@ -24,7 +24,7 @@ GeoJoystick is a GPL-3.0-only derivative work informed by the open-source projec
 - Baseline inspected: `de0d596190c57b8ca71481f60ce6b9e50af5107f`
 - Upstream licence: GNU GPLv3
 
-The mock-location service and joystick movement design were adapted and substantially simplified. This version removes the Baidu SDK and related native binaries, advertising is not present, and no proprietary premium entitlement is bypassed.
+The mock-location service and joystick movement design were adapted and substantially simplified. GeoJoystick does not include the upstream Baidu SDK or related native binaries, does not include advertising, and does not require a proprietary runtime component for its core mock-location functionality.
 
 GoGoGo-derived material retains its upstream GPLv3 licence and attribution. The K2040 section 7(b) term is not imposed on upstream material for which K2040 does not control the relevant copyright.
 
@@ -34,17 +34,17 @@ Original artwork and UI artwork authored by K2040 and for which K2040 can grant 
 
 When sharing covered K2040 artwork, provide attribution to **K2040**, identify `CC BY 4.0`, link to the licence where reasonably practicable, and indicate modifications as required by CC BY 4.0.
 
-The bundled K2040 avatar at `app/src/main/res/drawable-nodpi/k2040_avatar.png` and the About-page copy at `app/src/main/res/drawable-nodpi/k2040_about_avatar.png` both preserve the same user-approved 512 × 512 PNG source artwork unchanged and are covered by the K2040 CC BY 4.0 artwork licence described above.
+The bundled K2040 avatar is stored at `app/src/main/res/drawable-nodpi/k2040_avatar.png`. The same resource is reused where the avatar is shown in the app, including the About interface. It is covered by the K2040 CC BY 4.0 artwork licence described above.
 
-The GeoJoystick mascot at `app/src/main/res/drawable-nodpi/geojoystick_mascot.png` is the Issue #22 user-approved waving gecko-and-joystick project artwork. The repository copy is an optimized Android PNG derivative of the approved artwork and is covered by the K2040 CC BY 4.0 artwork licence described above.
+The GeoJoystick mascot at `app/src/main/res/drawable-nodpi/geojoystick_mascot.png` is the accepted waving gecko-and-joystick project artwork. The repository copy is an optimized Android PNG derivative of the approved artwork and is covered by the K2040 CC BY 4.0 artwork licence described above.
 
-The launcher artwork at `app/src/main/res/drawable-nodpi/ic_launcher_artwork.webp` is the Issue #22 user-approved simplified gecko-and-joystick map-pin emblem. The repository copy is a lossless Android WebP derivative of the approved artwork and is covered by the K2040 CC BY 4.0 artwork licence described above.
+The current canonical launcher artwork at `app/src/main/res/drawable-nodpi/ic_launcher_artwork.webp` is the accepted simplified gecko-and-joystick map-pin emblem. The repository copy is a lossless Android WebP derivative of the approved artwork and is covered by the K2040 CC BY 4.0 artwork licence described above.
 
 Other visual assets are covered by this K2040 artwork licence only where their K2040 authorship or rights clearance is established by repository provenance. Do not infer CC BY 4.0 for upstream or third-party assets.
 
 ## OpenStreetMap
 
-The built-in map uses OpenStreetMap map data and tiles only when the map is opened. OpenStreetMap data is © OpenStreetMap contributors and is made available under the Open Data Commons Open Database License (`ODbL 1.0`). GeoJoystick preserves visible OpenStreetMap contributor attribution in the map.
+The built-in map uses OpenStreetMap map data and tiles when the map is opened. OpenStreetMap data is © OpenStreetMap contributors and is made available under the Open Data Commons Open Database License (`ODbL 1.0`). GeoJoystick preserves visible OpenStreetMap contributor attribution in the map.
 
 Official OpenStreetMap copyright and licensing information: `https://www.openstreetmap.org/copyright`
 
