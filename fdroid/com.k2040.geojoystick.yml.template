@@ -8,11 +8,17 @@ License: GPL-3.0-only
 AuthorName: K2040
 Donate: https://ko-fi.com/k2040
 AutoName: GeoJoystick
-Summary: Floating mock-location joystick for Android emulator testing
+Summary: Mock-location joystick for Android development and testing
 Description: |-
   GeoJoystick is an open-source Android mock-location joystick for emulator and developer testing.
 
-  It uses Android's standard mock-location provider flow and provides a small floating overlay for moving a mock location without repeatedly switching back to the main app. It does not try to hide or bypass Android mock-location status.
+  It uses Android's standard mock-location provider flow and manual Developer Options selection. A floating overlay lets users move a selected mock location without repeatedly switching back to the main app. GeoJoystick does not try to hide or bypass Android mock-location status.
+
+  Locations can be chosen with manual coordinates, the OpenStreetMap-based picker, supported map-link import, or optional explicit-submit place/address search. The map supports panning and two-finger pinch-to-zoom, and invalid or failed external input leaves the current selection unchanged.
+
+  GeoJoystick includes compact and expanded joystick layouts, speed presets and custom speed, favorites, restore-last-position, overlay controls, System/Light/Dark appearance, and 17 UI languages.
+
+  Network use is optional and tied to explicit features. The app has no ads, accounts, analytics, tracking, subscriptions, billing, or proprietary updater.
 
 RepoType: git
 Repo: https://github.com/Kamui2040/K2040-GeoJoystick.git
