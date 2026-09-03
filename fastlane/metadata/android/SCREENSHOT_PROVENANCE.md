@@ -1,21 +1,23 @@
 # Store screenshot provenance
 
-## Current v0.1.4 store set
+## Repository screenshot set — captured from v0.1.4
 
-The current GeoJoystick store screenshots were captured from the real Android app built from release source revision:
+The screenshot files currently stored under `fastlane/metadata/android/*/images/phoneScreenshots/` were captured from the real Android app built from source revision:
 
 `0c3ae37501660300e4f23c45aeb07cffb68e62f9`
 
-The accepted set covers:
+They are provenance-locked v0.1.4 captures. They must not be relabelled as v0.1.5 captures unless a new screenshot set is actually produced and its provenance/hashes are recorded. A downstream store may continue using an older screenshot set when the depicted surfaces remain representative, but that is separate from the runtime version represented by the screenshots themselves.
+
+The recorded set covers:
 
 - `en-US`
 - `de-DE`
 - Dark appearance
 - synthetic coordinates only: latitude `51.234567`, longitude `10.123456`, altitude `123.0 m`
 
-No authentic location history, personal favorites, device identifier, or machine-specific path is present in the final screenshots.
+No authentic location history, personal favorites, device identifier, or machine-specific path is present in the screenshots.
 
-The images are genuine Android screenshots. System status and navigation bars were removed deterministically. App content was not composited or AI-generated. OpenStreetMap attribution remains visible on the map screenshots.
+The images are genuine Android screenshots. System status and navigation bars were removed deterministically. App content was not composited or AI-generated. OpenStreetMap attribution remains visible on the map screenshot where required.
 
 ## SHA-256
 

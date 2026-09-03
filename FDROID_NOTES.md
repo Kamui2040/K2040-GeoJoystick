@@ -12,61 +12,66 @@ GeoJoystick is intended to remain suitable for F-Droid and similar FLOSS Android
 - Android SDK Build-Tools 35.0.0
 - Gradle 8.13
 - Android Gradle Plugin 8.12.3
+- maintained build entry point: `python3 tools/build.py`
 
-The maintained build configuration pins inputs required for reproducibility and avoids environment-dependent build metadata.
+The maintained build configuration pins inputs required for reproducibility and avoids environment-dependent release metadata.
 
-## Update detection
+## Update detection and downstream state
 
-The production F-Droid metadata currently uses:
+The upstream F-Droid reference uses tag-based version detection:
 
 ```yaml
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: 0.1.4
-CurrentVersionCode: 104
 ```
 
-The public `v0.1.5` tag now points to the verified v0.1.5 release source, so the existing tag-based update path has been triggered. Production metadata in `fdroid/fdroiddata` remains authoritative and may continue to show v0.1.4 until F-Droid processes the update.
+The file under `fdroid/` is a contributor reference only. Production metadata in `fdroid/fdroiddata`, and the public F-Droid listing generated from it, are authoritative for the version currently published by F-Droid. Do not copy a volatile downstream `CurrentVersion` value into this repository as if it were canonical project state.
 
-## Current canonical source and APK
+The canonical upstream release remains independently defined by the public GeoJoystick tag and GitHub release.
+
+## Current canonical release evidence
 
 GeoJoystick v0.1.5 uses:
 
+- tag: `v0.1.5`
 - source commit: `05762c49662ed4f280e3f42ebcfc7e25d1a2a5d5`
-- APK: `GeoJoystick-v0.1.5.apk`
-- APK SHA-256: `f8aa3edde469941993450511c1996501f782aeca7f6b6ee17cb5a4498859f2c0`
+- developer APK: `GeoJoystick-v0.1.5.apk`
+- developer APK SHA-256: `f8aa3edde469941993450511c1996501f782aeca7f6b6ee17cb5a4498859f2c0`
 - reproducible unsigned APK SHA-256: `2b170f39504f4cae64eb4bda2b519615f2cf3bae929c32cc9c97921bffd54991`
 
 ## Reproducibility requirements
 
 For releases intended for F-Droid developer-binary verification:
 
-- build from the exact public release tag or commit;
-- use the maintained JDK, Gradle, Android Gradle Plugin, SDK Platform, and Build-Tools versions;
-- avoid environment-dependent build inputs;
-- compare unsigned outputs before signing;
-- with Android SDK Build-Tools 35.0.0, sign the exact reproducible unsigned APK using `apksigner --alignment-preserved --v1-signing-enabled false --v2-signing-enabled true --v3-signing-enabled true --v4-signing-enabled false`; do not rely on signing-scheme defaults;
-- do not transform an unsigned APK after the reproducible build unless the corresponding developer APK is produced from that exact transformed layout;
-- verify the F-Droid signature-copy path against the intended developer APK.
+1. Build from the exact public release tag or commit.
+2. Use the maintained pinned JDK, Gradle, Android Gradle Plugin, SDK Platform, and Build-Tools versions.
+3. Avoid environment-dependent build inputs or generated release metadata.
+4. Compare reproducible unsigned outputs before developer signing.
+5. Do not transform, realign, repack, or otherwise rewrite the unsigned APK after the reproducible build unless that transformed layout is itself part of the proven build path and the corresponding developer APK is signed from that exact layout.
+6. With Android SDK Build-Tools 35.0.0, sign the exact reproducible unsigned APK using:
 
-## v0.1.4 compatibility finding
+   ```text
+   apksigner --alignment-preserved --v1-signing-enabled false --v2-signing-enabled true --v3-signing-enabled true --v4-signing-enabled false
+   ```
 
-During v0.1.4 reproducibility work, an additional metadata-side APK realignment step was found to make the unsigned APK layout incompatible with developer-binary signature-copy verification.
+   Do not rely on `apksigner` signing-scheme defaults.
+7. Verify the signature-copy path against the intended developer APK. For the v0.1.5 release proof, `apksigcopier` 1.1.1 reconstructed the developer APK byte-for-byte.
 
-The technical requirement is that the unsigned APK used for comparison retain the byte layout expected by the corresponding signed developer APK. Any additional post-build APK transformation therefore requires its own reproducibility proof.
+## APK layout and signing rationale
 
-This finding concerns build reproducibility only and does not change GeoJoystick runtime behavior.
+F-Droid developer-binary verification depends on the unsigned APK retaining the byte layout expected by the developer-signed artifact. A post-build APK realignment or other ZIP rewrite can therefore break signature-copy reconstruction even when entry payloads are unchanged.
 
-## Build-Tools 35 signing compatibility finding
+Android SDK Build-Tools 35.0.0 `apksigner` can also rewrite Android ZIP alignment extra fields unless `--alignment-preserved` is used. GeoJoystick pins the release signing schemes and preserves alignment explicitly so a future tool default cannot silently change the canonical developer APK layout or signature set.
 
-During v0.1.5 release-candidate verification, default `apksigner` from Android SDK Build-Tools 35.0.0 rewrote Android ZIP alignment extra fields on stored APK entries. The APK entry payloads remained identical, but F-Droid-style signature-copy reconstruction was not byte-for-byte identical.
+These requirements affect reproducibility and developer signing only; they do not change GeoJoystick runtime behavior.
 
-Signing the exact frozen unsigned APK with `apksigner --alignment-preserved` kept the pre-sign ZIP local records byte-identical. `apksigcopier` 1.1.1 then reconstructed the signed APK byte-for-byte and its unsigned comparison passed. GeoJoystick also pins v1=false, v2=true, v3=true, and v4=false for the developer APK so later `apksigner` defaults cannot silently change the release signature set. This requirement affects developer signing only; it does not change application source, the reproducible unsigned build, runtime behavior, or the F-Droid build recipe.
+## Metadata and screenshot safety
 
-## Store metadata safety
-
-Store screenshots and examples must use synthetic or deliberately sanitized data. OpenStreetMap attribution must remain visible where required.
+- Store screenshots and examples must use synthetic or deliberately sanitized data.
+- Do not publish authentic saved locations, favorites, device identifiers, private QA data, or machine-specific paths.
+- Preserve OpenStreetMap attribution where required.
+- `fastlane/metadata/android/SCREENSHOT_PROVENANCE.md` owns the provenance and hashes for repository screenshot assets.
 
 ## Repository reference
 
-The metadata file under `fdroid/` is a contributor reference. Production metadata in `fdroid/fdroiddata` remains authoritative.
+The upstream metadata template is `fdroid/com.k2040.geojoystick.yml.template`. Production metadata in `fdroid/fdroiddata` remains authoritative for F-Droid publication.
