@@ -2,36 +2,40 @@
 
 GeoJoystick is an open-source Android mock-location joystick for emulator and developer testing.
 
-It uses Android's standard mock-location provider flow, shows a small floating joystick overlay, and publishes GPS/network test-provider locations while the foreground service is active. It does not attempt to hide or bypass mock-location status.
+It uses Android's standard mock-location provider flow and manual Developer Options selection. While simulation is active, a foreground service publishes user-selected test locations and a floating joystick can move them. GeoJoystick does not attempt to conceal or bypass Android mock-location status.
 
-## Included
+## Features
 
 - Manual latitude, longitude, and altitude entry
-- Built-in OpenStreetMap tile-based picker using bundled HTML/CSS/JavaScript, with no remote JavaScript or API key
-- Import of coordinates from copied/shared supported map links
-- Floating joystick over other apps
-- Expanded and compact overlay modes
+- Built-in OpenStreetMap picker with bundled HTML/CSS/JavaScript and visible attribution
+- Two-finger pinch-to-zoom, drag-to-pan, zoom controls, and deliberate tap-to-place behavior
+- Optional explicit-submit place/address search through Android's geocoding implementation
+- Import of coordinates from supported map links, with local parsing first and bounded HTTPS resolution when required
+- Fail-closed validation for malformed, ambiguous, unsupported, non-finite, or out-of-range location input
+- Floating joystick with expanded and compact layouts
 - Walk, run, bike-style, and user-defined custom speed presets
 - Hold, pause, hide, and stop controls
-- Saved overlay mode and speed preset between starts
-- App appearance setting: System, Light, or Dark
-- App language setting: System, English, German, French, Spanish, Italian, Dutch, Danish, Swedish, Norwegian Bokmål, Polish, Turkish, Ukrainian, Russian, Korean, Simplified Chinese, Traditional Chinese, or Arabic
 - Optional restore of the last successfully published position
-- Five compact named favorite-location slots
-- Overlay opacity and high-contrast settings
-- Reset overlay position from the main screen
-- Foreground notification while the simulation service is running
+- Five named favorite-location slots
+- Overlay size, opacity, high-contrast, and reset-position controls
+- System, Light, and Dark appearance
+- System language plus English, German, French, Spanish, Italian, Dutch, Danish, Swedish, Norwegian Bokmål, Polish, Turkish, Ukrainian, Russian, Korean, Simplified Chinese, Traditional Chinese, and Arabic
+- Responsive layouts for enlarged text, narrow screens, longer translations, and RTL content
 - First-run onboarding plus About, Changelog, License & usage, and Sources information
-- No ads, subscriptions, accounts, analytics, billing, or updater
+- Android 8.1 / API 27 minimum and Android 16 / API 36 target support
+- No ads, accounts, analytics, tracking, subscriptions, billing, or proprietary updater
 
 ## Current release
 
-The current canonical release is **GeoJoystick v0.1.5** (`versionCode 105`).
+The current canonical production release is **GeoJoystick v0.1.5** (`versionCode 105`, package `com.k2040.geojoystick`).
 
+- Release source: `05762c49662ed4f280e3f42ebcfc7e25d1a2a5d5`
+- APK: `GeoJoystick-v0.1.5.apk`
+- APK SHA-256: `f8aa3edde469941993450511c1996501f782aeca7f6b6ee17cb5a4498859f2c0`
 - Release: https://github.com/Kamui2040/K2040-GeoJoystick/releases/tag/v0.1.5
-- APK: https://github.com/Kamui2040/K2040-GeoJoystick/releases/download/v0.1.5/GeoJoystick-v0.1.5.apk
+- Direct APK: https://github.com/Kamui2040/K2040-GeoJoystick/releases/download/v0.1.5/GeoJoystick-v0.1.5.apk
 
-GitHub Releases is the authoritative source for published release notes and developer-signed APKs. Development `main` may contain later documentation or store-metadata changes that are not a new runtime release.
+GitHub Releases is the authoritative source for published developer APKs and release notes. `main` can contain later documentation, metadata, or development changes without representing a new runtime release.
 
 ## Downloads and project pages
 
@@ -41,81 +45,80 @@ GitHub Releases is the authoritative source for published release notes and deve
 - ONE Store: https://m.onestore.net/en-us/apps/appsDetail?prodId=0001008367
 - K2040 Android Projects: https://kamui2040.github.io/K2040-Android-Releases/apps/geojoystick/
 
-Downstream stores may update on a different schedule from the canonical GitHub release. Check each linked distribution page for its current availability.
+Downstream stores and F-Droid update on their own schedules. Check each distribution page for the version currently available there.
 
 ## Build locally
 
-The project intentionally uses a small Python bootstrap instead of committing a Gradle wrapper binary. The bootstrap supports Linux, macOS, and Windows.
+The maintained build entry point is:
 
-Requirements:
+```sh
+python3 tools/build.py
+```
+
+The current pinned build baseline is:
 
 - JDK 17
 - Android SDK Platform 36
-- Android SDK Build-Tools 35.0.0 or newer compatible stable version
+- Android SDK Build-Tools 35.0.0
+- Android Gradle Plugin 8.12.3
+- Gradle 8.13
 - Python 3
 
-On Linux or macOS:
-
-```sh
-JAVA_HOME=/path/to/jdk17 python3 tools/build.py
-```
-
-On Windows, either run:
-
-```text
-build.bat
-```
-
-or invoke the bootstrap directly with Python.
-
-The bootstrap locates the Android SDK and JDK, downloads Gradle 8.13 from the official Gradle distribution service when needed, verifies the published SHA-256 checksum, selects a compatible installed stable Build-Tools version, builds the debug APK, and copies it to:
+`tools/build.py` locates the Android SDK and a suitable JDK 17 installation, obtains the pinned Gradle distribution when necessary, verifies its published SHA-256 checksum, and uses the pinned Android SDK inputs. A normal invocation builds the debug APK and writes:
 
 ```text
 dist/GeoJoystick-debug.apk
+dist/SHA256SUMS.txt
 ```
 
-A matching SHA-256 is written to `dist/SHA256SUMS.txt`.
+For the reproducibility/signing requirements used by release work and F-Droid developer-binary verification, see `FDROID_NOTES.md`.
+
+Maintainer release validation is performed on Linux/Bazzite. The public source remains machine-independent, but other host environments are not part of the maintained release-validation path.
 
 ## Basic setup
 
 1. Install the APK.
 2. Open GeoJoystick and grant **Display over other apps**.
-3. In Android Developer options, select **GeoJoystick** as the mock-location app.
-4. Enter coordinates, choose a location on the map, or import a supported map link.
-5. Press **Start simulation**, then use the floating overlay.
-6. Use **Settings** for appearance, language, setup actions, overlay opacity, high contrast, restore-last-position, reset overlay position, favorites, and custom speed.
+3. In Android Developer Options, select **GeoJoystick** under **Select mock location app**.
+4. Enter coordinates, choose a point on the map, import a supported map link, or optionally submit a place/address search.
+5. Press **Start simulation** and use the floating joystick.
+6. Use **Settings** for appearance, language, overlay controls, restore-last-position, favorites, and custom speed.
 
 The app uses ordinary Android mock locations and does not attempt to conceal that status.
 
-## Network and map note
+## Network and privacy
 
-The built-in picker loads OpenStreetMap map tiles only when the map is used. Its HTML, CSS, and JavaScript are bundled with the app; it does not load remote JavaScript and does not require an API key. OpenStreetMap attribution is preserved in the picker.
+GeoJoystick has no developer-operated server, account system, analytics, advertising, or telemetry. Saved coordinates, favorites, and settings stay in the app's private local storage unless the user explicitly invokes a documented external action.
 
-Coordinate import accepts supported HTTPS links from Google Maps, Apple Maps, and OpenStreetMap. Coordinates embedded directly in a supported link are parsed locally. When a supported link needs resolution, the app performs a bounded HTTPS request with redirect, size, timeout, host, and public-address checks; unsupported or invalid input is rejected rather than replaced with a fallback location.
+Network access is feature-driven and user initiated:
 
-For F-Droid-specific state and reproducibility notes, see `FDROID_NOTES.md`.
+- Opening the map downloads OpenStreetMap tiles. The map UI itself is bundled with the app and does not load remote JavaScript or require an API key.
+- Place/address search runs only when **Search** is submitted and uses Android's geocoding implementation, which may use a network service depending on the device.
+- Supported map links are parsed locally when possible. A link that requires resolution can trigger a bounded HTTPS request with redirect, host, public-address, size, and timeout checks.
+- External project, licence, support, or map links open in another installed app or browser.
 
-## Support
+Invalid or failed external input leaves the current location selection unchanged; GeoJoystick never substitutes a fallback real-world coordinate.
 
-GeoJoystick is created by **K2040**.
+See `PRIVACY.md` for the maintained privacy and network disclosure.
 
-If you find the app useful, you can support development on Ko-fi:
-
-`https://ko-fi.com/k2040`
-
-The Ko-fi link is optional and the app has no paid features, subscriptions, ads, analytics, accounts, or billing.
-
-## Licence
+## Licence and attribution
 
 - Application code: `GPL-3.0-only`; see `LICENSE`.
-- K2040-authored code explicitly marked in its source file: `GPL-3.0-only` plus the narrowly scoped GPLv3 section 7(b) attribution-preservation term in `LICENSES/GPL-3.0-Section-7b-K2040.txt`.
+- K2040-authored GPL code explicitly marked in its source file also carries the narrowly scoped GPLv3 section 7(b) attribution-preservation term in `LICENSES/GPL-3.0-Section-7b-K2040.txt`.
 - Original artwork and UI artwork authored by K2040 and identified by project provenance: `CC-BY-4.0`; see `LICENSES/CC-BY-4.0.txt` and `NOTICE.md`.
-- Third-party code, assets, dependencies, and data retain their own controlling licences, notices, and attribution.
+- GoGoGo-derived and other third-party code, assets, dependencies, and data retain their controlling licences, notices, and attribution.
+- OpenStreetMap data is © OpenStreetMap contributors and licensed under ODbL 1.0.
 
-See `NOTICE.md` for the current marked §7(b) scope, GoGoGo provenance, K2040 artwork attribution, and OpenStreetMap licensing information.
+`NOTICE.md` owns the detailed provenance and attribution scope.
 
-## Links
+## Support and links
 
 Source repository: https://github.com/Kamui2040/K2040-GeoJoystick
 
-Support development: https://ko-fi.com/k2040
+Issue tracker: https://github.com/Kamui2040/K2040-GeoJoystick/issues
+
+Privacy policy: https://github.com/Kamui2040/K2040-GeoJoystick/blob/main/PRIVACY.md
+
+Optional support: https://ko-fi.com/k2040
+
+Donations are optional and do not unlock features or provide additional app benefits.
