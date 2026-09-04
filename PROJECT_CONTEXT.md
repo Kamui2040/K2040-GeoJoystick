@@ -1,6 +1,6 @@
 # Project Context
 
-Updated: 2026-09-03
+Updated: 2026-09-04
 
 ## Purpose
 
@@ -18,7 +18,7 @@ The current canonical production release is **GeoJoystick v0.1.5 (`versionCode 1
 - Tag: `v0.1.5`
 - Release source commit: `05762c49662ed4f280e3f42ebcfc7e25d1a2a5d5`
 - APK: `GeoJoystick-v0.1.5.apk`
-- APK SHA-256: `f8aa3edde469941993450511c1996501f782aeca7f6b6ee17cb5a4498859f2c0`
+- APK SHA-256: `bdf43cbdde6af2d96dac3c9a68818d79a7090d1f16e8265d83fc2fbcc1f9350b`
 
 GitHub Releases is the authoritative source for published developer APKs and release notes. F-Droid and other storefronts manage their own downstream publication schedules.
 
