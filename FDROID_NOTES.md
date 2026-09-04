@@ -36,8 +36,8 @@ GeoJoystick v0.1.5 uses:
 - tag: `v0.1.5`
 - source commit: `05762c49662ed4f280e3f42ebcfc7e25d1a2a5d5`
 - developer APK: `GeoJoystick-v0.1.5.apk`
-- developer APK SHA-256: `f8aa3edde469941993450511c1996501f782aeca7f6b6ee17cb5a4498859f2c0`
-- reproducible unsigned APK SHA-256: `2b170f39504f4cae64eb4bda2b519615f2cf3bae929c32cc9c97921bffd54991`
+- developer APK SHA-256: `bdf43cbdde6af2d96dac3c9a68818d79a7090d1f16e8265d83fc2fbcc1f9350b`
+- reproducible unsigned APK SHA-256: `9aa1514db585c226e3fba195f91a001d9ea46306c57108f961aa2b4a6b60c1cb`
 
 ## Reproducibility requirements
 
@@ -55,11 +55,13 @@ For releases intended for F-Droid developer-binary verification:
    ```
 
    Do not rely on `apksigner` signing-scheme defaults.
-7. Verify the signature-copy path against the intended developer APK. For the v0.1.5 release proof, `apksigcopier` 1.1.1 reconstructed the developer APK byte-for-byte.
+7. Verify the signature-copy path against the intended developer APK. For v0.1.5, the final developer APK was verified byte-for-byte against both `apksigcopier` 1.1.1 and the exact F-Droid signature-copy implementation used by the downstream build job.
 
 ## APK layout and signing rationale
 
 F-Droid developer-binary verification depends on the unsigned APK retaining the byte layout expected by the developer-signed artifact. A post-build APK realignment or other ZIP rewrite can therefore break signature-copy reconstruction even when entry payloads are unchanged.
+
+For developer-binary releases, matching decompressed APK entries is not sufficient. Different DEFLATE implementations can encode identical entry payloads into different compressed bytes, changing offsets and the bytes covered by APK Signature Schemes v2/v3. The canonical developer APK must therefore be signed from an unsigned artifact that is byte-identical to the F-Droid-equivalent build.
 
 Android SDK Build-Tools 35.0.0 `apksigner` can also rewrite Android ZIP alignment extra fields unless `--alignment-preserved` is used. GeoJoystick pins the release signing schemes and preserves alignment explicitly so a future tool default cannot silently change the canonical developer APK layout or signature set.
 
